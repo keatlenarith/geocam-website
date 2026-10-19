@@ -2,11 +2,12 @@ import { Container, PageHeader } from "@/components/site/Chrome";
 import { Link } from "@/lib/spa-router";
 import { researchAreas, publications } from "@/lib/data";
 import { useI18n } from "@/lib/i18n";
+import { matchesResearchArea } from "@/lib/publication-search";
 export default function ResearchTopic() {
   const { lang } = useI18n();
   const key = new URLSearchParams(location.search).get("id");
   const area = researchAreas.find((a) => a.key === key);
-  const related = publications.filter((p) => p.topic === key);
+  const related = publications.filter((p) => matchesResearchArea(p, key));
   return (
     <>
       <PageHeader

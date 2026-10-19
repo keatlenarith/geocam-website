@@ -1,6 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
+import { matchesResearchArea } from "../src/lib/publication-search.ts";
+
+test("research area navigation includes geochemistry across catalog subject labels", () => {
+  const items = records();
+  for (const id of ["web08", "web10", "web12", "web13"]) {
+    assert.ok(matchesResearchArea(items.find(p => p.id === id), "Geochemistry"), id);
+  }
+  assert.equal(matchesResearchArea(items[0], null), false);
+});
 
 const records = () =>
   JSON.parse(
