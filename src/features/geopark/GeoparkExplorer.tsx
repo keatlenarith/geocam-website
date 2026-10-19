@@ -1,0 +1,47 @@
+import { useEffect, useRef, useState } from "react";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { useI18n } from "@/lib/i18n";
+
+type Mode = "visitor" | "scientist";
+type Basemap = "satellite" | "topo" | "hillshade" | "terrain";
+type Geosite = { id: string; name: string; km: string; coordinates: [number,number]; age: string; visitor: string; scientist: string; story: string; storyKm: string; elevation: number; image: string };
+// DEMONSTRATION RECORDS ONLY. Coordinates, ages, trails and geological stories are unverified illustrative content.
+const examples: Geosite[] = [
+  {id:"example-karst",name:"Illustrative Karst Geosite",km:"ទីតាំងថ្មកំបោរគំរូ",coordinates:[103.8821,11.5564],age:"Permian (example)",visitor:"Trail and landscape interpretation — example",scientist:"Carbonate stratigraphy and karst processes — example",story:"Illustrative interpretation of carbonate deposition, uplift and karst dissolution. Not a verified Cambodian geosite.",storyKm:"ការបកស្រាយគំរូអំពីការកកើតសិលាកាបូណាត ការលើកឡើង និងដំណើរការកាស្ត។ មិនមែនជាទិន្នន័យដែលបានផ្ទៀងផ្ទាត់ទេ។",elevation:420,image:""},
+  {id:"example-basalt",name:"Illustrative Basalt Geosite",km:"ទីតាំងបាសាល់គំរូ",coordinates:[104.12,11.68],age:"Cenozoic (example)",visitor:"Landscape viewpoint — example",scientist:"Volcanic textures and cooling joints — example",story:"Illustrative volcanic geology record. Exact age, site position and elevation require field verification.",storyKm:"កំណត់ត្រាភូគព្ភសាស្ត្រភ្នំភ្លើងសម្រាប់បង្ហាញគំរូ។ អាយុ ទីតាំង និងកម្ពស់ត្រូវផ្ទៀងផ្ទាត់នៅទីវាល។",elevation:210,image:""}
+];
+const tiles: Record<Basemap,{url:string;attribution:string}> = {
+ satellite:{url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",attribution:"© Esri World Imagery"},
+ topo:{url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",attribution:"© Esri World Topographic Map"},
+ hillshade:{url:"https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",attribution:"© Esri World Hillshade"},
+ terrain:{url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}",attribution:"© Esri World Terrain Base"}
+};
+const demUrl="https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";
+export default function GeoparkExplorer(){
+ const {lang}=useI18n(); const kh=lang==="km"; const container=useRef<HTMLDivElement>(null);const map=useRef<maplibregl.Map|null>(null);const markers=useRef<maplibregl.Marker[]>([]);
+ const [mode,setMode]=useState<Mode>("visitor");const [basemap,setBasemap]=useState<Basemap>("satellite");const [terrain,setTerrain]=useState(true);const [selected,setSelected]=useState(0);const [coords,setCoords]=useState<[number,number]|null>(null);const [ready,setReady]=useState(false);const [error,setError]=useState("");
+ const [pitch,setPitch]=useState(62);
+ useEffect(()=>{
+  if(!container.current || map.current)return;
+  const m=new maplibregl.Map({container:container.current,center:[103.8821,11.5564],zoom:10,pitch:62,bearing:-35,maxPitch:85,style:{version:8,sources:{background:{type:"raster",tiles:[tiles.satellite.url],tileSize:256,attribution:tiles.satellite.attribution},dem:{type:"raster-dem",tiles:[demUrl],tileSize:256,encoding:"terrarium",maxzoom:14}},layers:[{id:"basemap",type:"raster",source:"background"}],terrain:{source:"dem",exaggeration:1.5}}});
+  map.current=m;
+  m.addControl(new maplibregl.NavigationControl({showCompass:true}),"top-right");
+  m.on("load",()=>setReady(true));m.on("error",e=>{if(e.error?.message)setError("Map tiles or terrain could not load. Check your connection and provider access.")});
+  m.on("mousemove",e=>setCoords([e.lngLat.lng,e.lngLat.lat]));
+  examples.forEach((site,i)=>{const el=document.createElement("button");el.type="button";el.title=site.name;el.setAttribute("aria-label",site.name);el.style.cssText="width:28px;height:28px;border-radius:50%;border:2px solid #6ee7b7;background:#064e3b;color:white;cursor:pointer;box-shadow:0 2px 10px #0008";el.textContent="▲";el.onclick=()=>{setSelected(i);m.flyTo({center:site.coordinates,zoom:13.5,pitch:65,speed:0.9})};markers.current.push(new maplibregl.Marker({element:el}).setLngLat(site.coordinates).addTo(m))});
+  return()=>{markers.current.forEach(x=>x.remove());markers.current=[];m.remove();map.current=null};
+ },[]);
+ useEffect(()=>{const m=map.current;if(!m||!ready)return;const source=m.getSource("background") as maplibregl.RasterTileSource|undefined;source?.setTiles([tiles[basemap].url]);},[basemap,ready]);
+ useEffect(()=>{const m=map.current;if(!m||!ready)return;try{m.setTerrain(terrain?{source:"dem",exaggeration:1.5}:null)}catch{}},[terrain,ready]);
+ const site=examples[selected];
+ return <section className="mx-auto max-w-[1600px] px-4 py-7 md:px-6">
+  <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-widest text-emerald-700">GeoCam · 3D Web GIS</p><h1 className="font-display text-3xl font-semibold text-primary">{kh?"កម្មវិធីស្វែងយល់ភូគព្ភស្ថាន 3D":"3D Geopark Explorer"}</h1><p className="text-sm text-muted-foreground">{kh?"ទិដ្ឋភាពអ្នកទស្សនា និងអ្នកភូគព្ភវិទ្យា":"Visitor and Geoscientist perspectives"}</p></div><div className="flex gap-2"><button className={`rounded-lg border px-3 py-2 text-sm ${mode==="visitor"?"bg-primary text-primary-foreground":""}`} onClick={()=>setMode("visitor")}>{kh?"អ្នកទស្សនា":"Visitor"}</button><button className={`rounded-lg border px-3 py-2 text-sm ${mode==="scientist"?"bg-primary text-primary-foreground":""}`} onClick={()=>setMode("scientist")}>{kh?"អ្នកភូគព្ភវិទ្យា":"Geoscientist"}</button></div></div>
+  <p role="note" className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">{kh?"ទិន្នន័យទីតាំងទាំងពីរគ្រាន់តែជាគំរូសម្រាប់សាកល្បង មិនមែនជាភូគព្ភស្ថានដែលបានផ្ទៀងផ្ទាត់ទេ។":"DEMO ONLY: Both geosites, their ages, trails and elevation figures are illustrative, not verified survey records."}</p>
+  <div className="grid gap-4 lg:grid-cols-[245px_minmax(0,1fr)_280px]">
+   <aside className="rounded-xl border bg-card p-3"><h2 className="mb-3 font-semibold">{kh?"បញ្ជីភូគព្ភស្ថាន":"Geosites Directory"}</h2>{examples.map((s,i)=><button key={s.id} onClick={()=>{setSelected(i);map.current?.flyTo({center:s.coordinates,zoom:13.5,pitch:65,speed:0.9})}} className={`mb-2 w-full rounded-lg border p-3 text-left text-sm ${selected===i?"border-emerald-600 bg-emerald-50":"hover:bg-muted"}`}><strong className="block">{kh?s.km:s.name}</strong><span className="text-xs text-muted-foreground">{mode==="visitor"?s.visitor:s.scientist}</span></button>)}<p className="mt-4 text-xs text-muted-foreground">{kh?"ទីតាំងពិតអាចបន្ថែមពី CMS ពេលភ្ជាប់មូលដ្ឋានទិន្នន័យ។":"Verified geosite records can be added through the CMS once a backend is connected."}</p></aside>
+   <div className="min-w-0 overflow-hidden rounded-xl border bg-slate-950"><div className="flex flex-wrap items-center gap-2 border-b border-slate-700 p-2 text-xs text-white"><label>Basemap <select aria-label="Basemap" value={basemap} onChange={e=>setBasemap(e.target.value as Basemap)} className="ml-1 rounded bg-slate-800 px-2 py-1"><option value="satellite">Satellite</option><option value="topo">Topographic</option><option value="hillshade">Hillshade</option><option value="terrain">DEM / Terrain</option></select></label><button className="rounded bg-slate-800 px-3 py-1" onClick={()=>setTerrain(x=>!x)}>{terrain?"3D Active":"2D Flat"}</button><button className="rounded bg-slate-800 px-3 py-1" onClick={()=>{const v=pitch>20?0:62;setPitch(v);map.current?.easeTo({pitch:v,duration:500})}}>Camera pitch</button><button className="rounded bg-slate-800 px-3 py-1" onClick={()=>map.current?.resetNorthPitch()}>Reset view</button></div><div ref={container} className="h-[490px] w-full" aria-label="3D interactive geosite map" role="application"/><div className="flex flex-wrap justify-between gap-2 border-t border-slate-700 px-3 py-2 font-mono text-xs text-slate-300"><span>{coords?`LAT ${coords[1].toFixed(5)} · LON ${coords[0].toFixed(5)}`:"Move pointer to inspect coordinates"}</span><span>{terrain?"3D terrain (Terrarium DEM)":"2D map"}</span></div>{error&&<p className="px-3 py-2 text-xs text-amber-200">{error}</p>}</div>
+   <aside className="rounded-xl border bg-card p-4"><h2 className="font-display text-xl font-semibold">{kh?site.km:site.name}</h2><p className="mt-2 text-xs text-muted-foreground">{site.age} · {mode==="visitor"?"Visitor":"Geoscientist"}</p><div className="my-4 rounded-lg bg-muted p-3 text-sm">{mode==="visitor"?site.visitor:site.scientist}</div><h3 className="font-semibold">{kh?"រឿងរ៉ាវភូគព្ភសាស្ត្រ":"Geological Story"}</h3><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{kh?site.storyKm:site.story}</p><div className="mt-5 border-t pt-3 text-xs text-muted-foreground">WGS84 · {site.coordinates[1].toFixed(4)}°N, {site.coordinates[0].toFixed(4)}°E</div><p className="mt-3 text-xs text-muted-foreground">The concept's elevation transect is not shown as measured data: a real profile requires sampled DEM elevations along a defined line.</p></aside>
+  </div><p className="mt-4 text-xs text-muted-foreground">3D terrain uses public Terrarium elevation tiles; basemaps use Esri services. Internet access and provider terms apply. The 3D surface is for visualization, not engineering-grade elevation analysis.</p>
+ </section>
+}

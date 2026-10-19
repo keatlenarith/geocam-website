@@ -1,0 +1,4 @@
+import React from "react";
+export function createFileRoute(_path:string){return <T extends {component:React.ComponentType<any>}>(options:T)=>options;}
+export function ClientOnly({children}: {children:React.ReactNode;fallback?:React.ReactNode}){return <>{children}</>;}
+export function Link({to,hash,activeProps,children,...props}:React.AnchorHTMLAttributes<HTMLAnchorElement>&{to:string;hash?:string;activeProps?:{className?:string}}){const href=to+(hash?'#'+hash:'');return <a {...props} href={href} onClick={e=>{props.onClick?.(e);if(e.defaultPrevented||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;if(to.startsWith('/')&&(!props.target||props.target==='_self')){e.preventDefault();history.pushState({},'',href);dispatchEvent(new PopStateEvent('popstate'));window.scrollTo(0,0);}}}>{children}</a>;}

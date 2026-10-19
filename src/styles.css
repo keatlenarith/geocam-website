@@ -1,0 +1,249 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: "Times New Roman", Times, Georgia, serif;
+  --font-sans: "Times New Roman", Times, Georgia, serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sage: var(--sage);
+  --color-sandstone: var(--sandstone);
+  --color-forest-deep: var(--forest-deep);
+  --color-on-dark: var(--on-dark);
+  --color-warning: var(--warning);
+}
+
+:root {
+  --radius: 0.5rem;
+  --background: oklch(0.975 0.012 85);
+  --foreground: oklch(0.24 0.03 150);
+  --card: oklch(0.99 0.008 85);
+  --card-foreground: oklch(0.24 0.03 150);
+  --popover: oklch(0.99 0.008 85);
+  --popover-foreground: oklch(0.24 0.03 150);
+  --primary: oklch(0.38 0.07 152);
+  --primary-foreground: oklch(0.97 0.015 85);
+  --secondary: oklch(0.9 0.03 75);
+  --secondary-foreground: oklch(0.3 0.04 60);
+  --muted: oklch(0.935 0.018 85);
+  --muted-foreground: oklch(0.47 0.03 140);
+  --accent: oklch(0.6 0.13 42);
+  --accent-foreground: oklch(0.98 0.01 85);
+  --destructive: oklch(0.55 0.2 27);
+  --destructive-foreground: oklch(0.98 0.01 85);
+  --border: oklch(0.87 0.025 85);
+  --input: oklch(0.85 0.025 85);
+  --ring: oklch(0.6 0.13 42);
+  --sage: oklch(0.72 0.05 145);
+  --sandstone: oklch(0.83 0.06 75);
+  --forest-deep: oklch(0.26 0.05 155);
+  --on-dark: oklch(0.96 0.015 85);
+  --warning: oklch(0.8 0.13 80);
+  --gradient-hero: linear-gradient(180deg, oklch(0.2 0.04 155 / 0.35) 0%, oklch(0.2 0.04 155 / 0.85) 100%);
+  --shadow-soft: 0 12px 40px -18px oklch(0.26 0.05 155 / 0.35);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.01em; }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+}
+
+@utility btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  border-radius: 999px; padding: .65rem 1.25rem; font-weight: 600; font-size: .9rem;
+  transition: all .2s ease;
+  &:disabled { opacity: .5; cursor: not-allowed; }
+}
+@utility btn-primary {
+  background: var(--primary); color: var(--primary-foreground);
+  &:hover { background: var(--forest-deep); }
+}
+@utility btn-accent {
+  background: var(--accent); color: var(--accent-foreground);
+  &:hover { filter: brightness(.92); }
+}
+@utility btn-outline {
+  border: 1px solid var(--border); background: var(--card); color: var(--foreground);
+  &:hover { border-color: var(--primary); color: var(--primary); }
+}
+@utility btn-ghost-dark {
+  border: 1px solid oklch(0.96 0.015 85 / .5); color: var(--on-dark);
+  &:hover { background: oklch(0.96 0.015 85 / .12); }
+}
+@utility card-surface {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+}
+@utility field {
+  width: 100%; border: 1px solid var(--input); background: var(--card); border-radius: var(--radius-md);
+  padding: .6rem .8rem; font-size: .95rem;
+  &:focus { outline: 2px solid var(--ring); outline-offset: 0; }
+}
+@utility eyebrow {
+  text-transform: uppercase; letter-spacing: .18em; font-size: .72rem; font-weight: 700; color: var(--accent);
+}
+@utility strata {
+  background-image: repeating-linear-gradient(180deg, var(--sandstone) 0 6px, var(--accent) 6px 8px, var(--sage) 8px 14px, var(--primary) 14px 16px);
+}
+@utility bg-hero-overlay { background: var(--gradient-hero); }
+/* Visual CMS selection without changing protected page layouts */
+.geocam-editable:hover{outline:2px dashed #d4a354!important;outline-offset:3px;cursor:pointer!important}
+/* CMS edit affordances; public layout remains unchanged. */
+.geocam-editable { outline: 2px dashed #13a474 !important; outline-offset: 3px; cursor: pointer !important; }
+.geocam-editable:hover { outline: 3px solid #f59e0b !important; }
+
+/* GeoCam V6 — editorial, Onepage-inspired landing; original page styles remain untouched */
+.geocam-landing{background:#fff;color:#142e2b}.gc-hero{background:#0c3838;color:#fff}.gc-hero-image{filter:saturate(.85)}.gc-hero-wash{background:linear-gradient(100deg,rgba(6,42,43,.96) 0%,rgba(6,42,43,.84) 48%,rgba(6,42,43,.42) 100%)}.gc-display{font-family:Fraunces,Georgia,serif;font-size:clamp(3.4rem,6vw,6.8rem);line-height:1.09;letter-spacing:-.055em;font-weight:650}.gc-highlight{color:#e6cb8d}.gc-kicker{display:inline-flex;align-items:center;gap:.55rem;color:#267368;font-size:.7rem;letter-spacing:.18em;font-weight:800}.gc-kicker-light{color:#e8d7ad}.gc-button{display:inline-flex;align-items:center;justify-content:center;gap:1rem;padding:1rem 1.45rem;border-radius:.7rem;font-size:.92rem;font-weight:750;transition:transform .2s,background .2s;text-decoration:none}.gc-button:hover{transform:translateY(-3px)}.gc-button-light{background:#fff;color:#17443e}.gc-button-outline{border:1px solid rgba(255,255,255,.5);color:white}.gc-button-dark{background:#124e49;color:#fff}.gc-hero-card{width:310px;padding:3rem 2.2rem;border-radius:2rem;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);box-shadow:0 25px 70px #062c2c66;backdrop-filter:blur(18px);transform:rotate(3deg)}.gc-hero-card-line{height:1px;background:#ffffff40;margin:1.5rem 0}.gc-section{padding-top:6rem;padding-bottom:6rem}.gc-section-heading{display:flex;justify-content:space-between;align-items:end;margin-bottom:2.5rem}.gc-title{font-family:Fraunces,Georgia,serif;font-size:clamp(2.5rem,4vw,4.25rem);line-height:1.16;letter-spacing:-.04em;font-weight:650;margin-top:1rem}.gc-subtitle{margin-top:1rem;color:#64736e;font-size:1.08rem;line-height:1.7}.gc-feature{position:relative;display:block;min-height:315px;border:1px solid #e3ebe6;border-radius:1.2rem;padding:1.65rem;background:#f8faf8;transition:transform .2s,box-shadow .2s,border-color .2s;color:#17352e;text-decoration:none}.gc-feature:hover,.gc-area:hover{transform:translateY(-5px);box-shadow:0 18px 38px #102b2514;border-color:#94bcb0}.gc-feature-icon{display:flex;align-items:center;justify-content:center;width:3.5rem;height:3.5rem;border-radius:1rem;background:#dbeee7;color:#176459}.gc-tone-amber .gc-feature-icon{background:#f8ebd6;color:#9d6930}.gc-tone-blue .gc-feature-icon{background:#e0edf2;color:#3e738c}.gc-tone-olive .gc-feature-icon{background:#e9edd9;color:#607438}.gc-feature-index{position:absolute;right:1.5rem;top:1.8rem;font-size:.72rem;font-weight:800;color:#9aa9a1}.gc-feature-arrow{display:inline-flex;margin-top:1rem;color:#186657}.gc-mission{background:#f4f7f3}.gc-mission-image{height:490px;width:100%;object-fit:cover;border-radius:1.3rem}.gc-mission-stamp{position:absolute;right:-1rem;bottom:2rem;display:flex;gap:.7rem;align-items:center;padding:1.25rem;background:#fff;border-radius:1rem;box-shadow:0 15px 35px #173f3022;font-size:.7rem;letter-spacing:.1em;font-weight:800;color:#155b52}.gc-area{display:block;padding:1.5rem;border-radius:1rem;border:1px solid #e3ebe6;transition:transform .2s,box-shadow .2s;background:#fff;color:#18372f;text-decoration:none}.gc-area-number{font-family:Fraunces,Georgia,serif;font-size:2rem;color:#b1c5b6}.gc-updates{background:#f5f8f6}.gc-text-link{display:inline-flex;gap:.4rem;align-items:center;color:#176d5e;font-size:.86rem;font-weight:750}.gc-news-card{display:block;padding:1.5rem;border-radius:1rem;background:white;border:1px solid #e1eae4;color:#1b3731;text-decoration:none}.gc-event{display:flex;gap:1rem;align-items:center;padding:1rem;background:white;border:1px solid #e1eae4;border-radius:.8rem;color:#173a32;text-decoration:none}.gc-event-date{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:3.2rem;font-size:1.5rem;font-weight:750;color:#155e52}.gc-event-date small{font-size:.65rem;text-transform:uppercase}.gc-final{display:flex;align-items:center;justify-content:space-between;gap:2rem;padding:4rem;border-radius:1.4rem;background:linear-gradient(125deg,#073b3b,#1c6458);color:white}.gc-final .gc-button{flex-shrink:0}@media(max-width:767px){.gc-section{padding-top:4rem;padding-bottom:4rem}.gc-final{padding:2rem;flex-direction:column;align-items:flex-start}.gc-mission-image{height:330px}.gc-mission-stamp{right:.5rem}.gc-hero{min-height:650px}.gc-display{font-size:clamp(2.7rem,11vw,4.5rem)}}
+
+/* GeoCam V10: bilingual readability standard. Google Sans Khmer is a preferred
+   locally installed face; Noto Sans Khmer is the publicly hosted fallback. */
+:root { --geocam-font-en: "Times New Roman", Times, Georgia, serif;
+        --geocam-font-km: "Google Sans Khmer", "Noto Sans Khmer", "Khmer OS Siemreap", sans-serif; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html:lang(en) body, html:lang(en) button, html:lang(en) input,
+html:lang(en) textarea, html:lang(en) select { font-family: var(--geocam-font-en); }
+html:lang(en) h1, html:lang(en) h2, html:lang(en) h3, html:lang(en) h4,
+html:lang(en) .gc-display, html:lang(en) .gc-title,
+html:lang(en) .gc-area-number, html:lang(en) .mining-hero h1 {
+  font-family: var(--geocam-font-en); }
+html:lang(km) { font-size: 18px; }
+html:lang(km) body, html:lang(km) button, html:lang(km) input,
+html:lang(km) textarea, html:lang(km) select,
+html:lang(km) h1, html:lang(km) h2, html:lang(km) h3, html:lang(km) h4,
+html:lang(km) h5, html:lang(km) h6,
+html:lang(km) .gc-display, html:lang(km) .gc-title,
+html:lang(km) .gc-area-number, html:lang(km) .mining-hero h1 {
+  font-family: var(--geocam-font-km) !important;
+  letter-spacing: normal;
+}
+html:lang(km) body { font-size: 1rem; line-height: 1.85; }
+html:lang(km) p, html:lang(km) li, html:lang(km) label,
+html:lang(km) input, html:lang(km) textarea,
+html:lang(km) .gc-subtitle, html:lang(km) .mining-card p {
+  line-height: 1.9; }
+html:lang(km) h1, html:lang(km) h2, html:lang(km) h3,
+html:lang(km) .gc-display, html:lang(km) .gc-title,
+html:lang(km) .mining-hero h1 { line-height: 1.5; overflow-wrap: break-word; }
+html:lang(km) .gc-display { font-size: clamp(2.3rem, 5.3vw, 5rem); }
+html:lang(km) .gc-title { font-size: clamp(1.85rem, 3.3vw, 3.4rem); }
+html:lang(km) .gc-kicker, html:lang(km) .mining-eyebrow { letter-spacing: normal; }
+html:lang(km) .gc-button, html:lang(km) .mining-tabs button,
+html:lang(km) .mining-link, html:lang(km) .mining-category {
+  font-size: max(0.9rem, 16px); line-height: 1.6; }
+html:lang(km) .mining-card p, html:lang(km) .mining-card li,
+html:lang(km) .mining-disclaimer { font-size: max(0.9rem, 16px); }
+@media (max-width: 640px) {
+  html:lang(km) { font-size: 17px; }
+  html:lang(km) .gc-display { font-size: clamp(2rem, 8vw, 3.1rem); }
+  html:lang(km) .gc-title { font-size: clamp(1.75rem, 7vw, 2.6rem); }
+}
+
+/* GeoCam V11 — wide editorial design with grouped, accessible navigation */
+:root {
+ --background:#ffffff; --foreground:#18252d; --card:#ffffff; --card-foreground:#18252d;
+ --popover:#ffffff; --popover-foreground:#18252d; --primary:#2457d6;
+ --primary-foreground:#ffffff; --secondary:#edf2ff; --secondary-foreground:#183d96;
+ --muted:#f5f7fb; --muted-foreground:#5c6978; --accent:#2e62df;
+ --accent-foreground:#ffffff; --border:#e1e6ef; --input:#d7deeb;
+ --ring:#4e7bec; --forest-deep:#172b4d; --on-dark:#ffffff;
+ --shadow-soft:0 14px 35px -20px rgba(24,46,94,.22);
+}
+body {overflow-x:hidden}
+.gc-desktop-nav {flex:1;justify-content:center;min-width:0}
+.gc-nav-group {position:relative}
+.gc-nav-trigger {display:flex;align-items:center;gap:.5rem;border:0;border-radius:12px;background:transparent;padding:.8rem .9rem;color:#253248;font-size:clamp(.86rem,.95vw,1.03rem);font-weight:700;white-space:nowrap;cursor:pointer}
+.gc-nav-trigger:hover,.gc-nav-group:focus-within .gc-nav-trigger {background:#eef3ff;color:#2457d6}
+.gc-nav-panel {display:none;position:absolute;top:100%;left:0;min-width:265px;padding:.6rem;background:#fff;border:1px solid #e1e6ef;border-radius:16px;box-shadow:0 20px 55px rgba(20,39,74,.17);z-index:1100}
+.gc-nav-group:hover .gc-nav-panel,.gc-nav-group:focus-within .gc-nav-panel {display:block}
+.gc-nav-link {display:flex;align-items:center;justify-content:space-between;gap:1rem;border-radius:9px;padding:.8rem .9rem;color:#27364a;text-decoration:none;font-size:.96rem;line-height:1.5}
+.gc-nav-link:hover,.gc-nav-link:focus-visible {background:#eef3ff;color:#2457d6}
+.gc-mobile-group {border-bottom:1px solid #e1e6ef}
+.gc-mobile-group summary {cursor:pointer;padding:1rem .2rem;font-weight:700}
+.gc-mobile-group a {line-height:1.8}
+.geocam-landing {background:#fff;color:#1d2b42}
+.gc-hero {background:#142a51}
+.gc-hero-wash {background:linear-gradient(100deg,rgba(13,27,59,.94) 0%,rgba(18,43,88,.8) 52%,rgba(22,49,89,.36) 100%)}
+.gc-highlight {color:#b6d2ff}
+.gc-kicker {color:#2457d6}
+.gc-kicker-light {color:#c4d8ff}
+.gc-button {border-radius:12px}
+.gc-button-dark {background:#2457d6;color:white}
+.gc-button-light {color:#1f4fb8}
+.gc-feature,.gc-area,.gc-news-card,.gc-event {background:#fff;border-color:#e1e6ef;border-radius:18px;box-shadow:0 8px 30px rgba(20,45,85,.04)}
+.gc-feature-icon {background:#edf2ff;color:#2457d6}
+.gc-feature-arrow,.gc-text-link {color:#2457d6}
+.gc-mission,.gc-updates {background:#f5f7fc}
+.gc-final {background:linear-gradient(115deg,#183c89,#285ee0)}
+.gc-title {letter-spacing:-.025em}
+html:lang(km) .gc-nav-trigger {font-size:17px;line-height:1.7}
+html:lang(km) .gc-nav-link {font-size:17px;line-height:1.8}
+html:lang(km) .gc-feature p,html:lang(km) .gc-area p {font-size:16px;line-height:1.9}
+@media(min-width:1280px){.gc-section {padding-top:5.5rem;padding-bottom:5.5rem}}
+@media(max-width:1150px){.gc-desktop-nav {gap:0}.gc-nav-trigger {padding:.7rem .45rem}}
+/* V13 CMS article writing and reading */
+.geocam-article-body { overflow-wrap:anywhere; line-height:1.85; font-size:18px; }
+.geocam-article-body[lang="km"], [lang="km"] .geocam-article-body { font-size:19px; line-height:2; }
+.geocam-article-body h1 {font-size:2.25em;font-weight:700;line-height:1.35;margin:1em 0 .5em}
+.geocam-article-body h2 {font-size:1.7em;font-weight:700;line-height:1.4;margin:1em 0 .5em}
+.geocam-article-body h3 {font-size:1.35em;font-weight:700;margin:1em 0 .5em}
+.geocam-article-body p {margin:.75em 0}
+.geocam-article-body ul {list-style:disc;padding-left:2em;margin:.8em 0}
+.geocam-article-body ol {list-style:decimal;padding-left:2em;margin:.8em 0}
+.geocam-article-body blockquote {border-left:4px solid #2563eb;padding:.5em 1em;background:#eff6ff;margin:1em 0}
+.geocam-article-body img {max-width:100%;height:auto;display:block;margin:1.2em auto;border-radius:10px}
+.geocam-article-body table {border-collapse:collapse;width:100%;margin:1.2em 0}
+.geocam-article-body td,.geocam-article-body th {border:1px solid #cbd5e1;padding:10px;min-width:40px}
+.geocam-article-body a {color:#1d4ed8;text-decoration:underline}
+
+/* V14 — photo-led discovery cards, modern responsive dropdown arrows */
+.gc-feature {overflow:hidden;min-height:410px;padding:0 0 1.45rem;display:flex;flex-direction:column}
+.gc-feature-photo-wrap {height:185px;position:relative;overflow:hidden;background:linear-gradient(135deg,#e6edf8,#e3eee9)}
+.gc-feature-photo {width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s ease,opacity .2s ease}
+.gc-feature:hover .gc-feature-photo {transform:scale(1.055)}
+.gc-feature-photo-wrap .gc-feature-icon {position:absolute;bottom:12px;left:14px;width:44px;height:44px;border:1px solid #fff9;background:#ffffffed;box-shadow:0 5px 15px #0002;border-radius:13px}
+.gc-feature-index {top:16px;right:16px;background:#fffffff2;padding:5px 9px;border-radius:8px;color:#2855bc}
+.gc-feature h3,.gc-feature p,.gc-feature>.gc-feature-arrow {margin-left:1.35rem;margin-right:1.35rem}
+.gc-feature h3 {margin-top:1.35rem}
+.gc-feature p {min-height:0;flex:1}
+.gc-feature>.gc-feature-arrow {margin-top:1.1rem}
+.gc-nav-trigger .gc-chevron {transition:transform .22s ease;color:#537099;flex-shrink:0}
+.gc-nav-group:hover .gc-chevron,.gc-nav-group:focus-within .gc-chevron {transform:rotate(180deg);color:#2457d6}
+.gc-nav-panel {animation:gc-menu-in .17s ease-out;transform-origin:top left}
+@keyframes gc-menu-in {from {opacity:0;transform:translateY(-5px)}to {opacity:1;transform:translateY(0)}}
+.gc-nav-trigger:focus-visible {outline:2px solid #2457d6;outline-offset:3px}
+.gc-mobile-group summary {cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between}
+.gc-mobile-group summary::-webkit-details-marker {display:none}
+.gc-mobile-group summary:after {content:'⌄';font-family:Arial,sans-serif;font-size:22px;line-height:1;transition:transform .2s ease}
+.gc-mobile-group[open] summary:after {transform:rotate(180deg)}
+@media(max-width:767px){.gc-feature-photo-wrap{height:210px}.gc-feature{min-height:380px}}

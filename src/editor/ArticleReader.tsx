@@ -1,0 +1,5 @@
+import React from 'react';
+import {getArticles,cleanHtml} from './store';
+import {useI18n} from '../lib/i18n';
+import {Link} from '../lib/spa-router';
+export default function ArticleReader(){const {lang}=useI18n();const id=new URLSearchParams(location.search).get('id');const a=getArticles().find(x=>x.id===id&&x.status==='published');return <section className="mx-auto max-w-[1200px] px-5 py-12"><Link to="/news" className="text-accent">← {lang==='km'?'ត្រឡប់ទៅព័ត៌មាន':'Back to news'}</Link>{!a?<h1 className="mt-8 text-3xl">{lang==='km'?'រកមិនឃើញអត្ថបទ':'Article not found'}</h1>:<article className="mt-6 rounded-xl border bg-white p-6 shadow-sm md:p-12" lang={lang}><p className="text-sm text-accent">{a.category} · {new Date(a.createdAt).toLocaleDateString()}</p><h1 className="mt-3 text-4xl font-bold">{lang==='km'?(a.titleKm||a.titleEn):(a.titleEn||a.titleKm)}</h1><p className="mt-4 text-lg text-muted-foreground">{lang==='km'?(a.summaryKm||a.summaryEn):(a.summaryEn||a.summaryKm)}</p><div className="geocam-article-body mt-8" dangerouslySetInnerHTML={{__html:cleanHtml(lang==='km'?(a.bodyKm||a.bodyEn):(a.bodyEn||a.bodyKm))}}/></article>}</section>}

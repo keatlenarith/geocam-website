@@ -1,0 +1,104 @@
+import { ClientOnly, createFileRoute } from "@/lib/spa-router";
+import { lazy, Suspense, useState } from "react";
+import { Container, DemoNote, PageHeader, meta } from "@/components/site/Chrome";
+import { useI18n } from "@/lib/i18n";
+import { toUtm48N } from "@/lib/utm";
+import type { LayerKey, BaseMapKey } from "@/components/site/GeoMap";
+
+const GeoMap = lazy(() => import("@/components/site/GeoMap"));
+
+export const Route = createFileRoute("/geodata")({
+  head: () => meta("GeoData", "Interactive map of Cambodia with illustrative geology, mineral and structure layers, plus GeoCam’s metadata and download policy."),
+  component: GeoData,
+});
+
+const layerInfo: { k: LayerKey; label: string }[] = [
+  { k: "geology", label: "Generalized geology (illustrative)" },
+  { k: "minerals", label: "Mineral occurrences (illustrative)" },
+  { k: "structures", label: "Structural lineaments (illustrative)" },
+];
+
+function GeoData() {
+  const { t } = useI18n();
+  const [active, setActive] = useState<Record<LayerKey, boolean>>({ geology: true, minerals: true, structures: true });
+  const [baseMap, setBaseMap] = useState<BaseMapKey>("topo");
+  const [pt, setPt] = useState<{ lat: number; lon: number } | null>(null);
+  const utm = pt ? toUtm48N(pt.lat, pt.lon) : null;
+  const Fallback = <div className="flex h-[520px] items-center justify-center rounded-xl border border-border bg-muted">Loading map…</div>;
+  return (
+    <>
+      <PageHeader eyebrow={t("geodata")} title={t("geodata")} sub="Explore demonstration layers over Cambodia. Display in WGS84 (EPSG:4326); export context in UTM zone 48N (EPSG:32648)." />
+      <Container>
+        <a href="/geopark" className="mb-5 inline-flex rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-muted">Explore 3D Geopark / ស្វែងយល់ភូគព្ភស្ថាន 3D →</a>
+        <DemoNote>All layers are hand-drawn illustrations for interface testing. They are NOT survey data, NOT official, and must not be used for any decision.</DemoNote>
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
+          <ClientOnly fallback={Fallback}>
+            <Suspense fallback={Fallback}><GeoMap active={active} baseMap={baseMap} onPick={(lat, lon) => setPt({ lat, lon })} /></Suspense>
+          </ClientOnly>
+          <aside className="space-y-5">
+            <fieldset className="card-surface p-5">
+              <legend className="px-1 font-display text-lg font-semibold text-primary">Base map / ផែនទីមូលដ្ឋាន</legend>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {([
+                  ["dem", "DEM / Terrain"],
+                  ["topo", "Topographic"],
+                  ["hillshade", "Hillshade"],
+                  ["satellite", "Satellite"],
+                ] as const).map(([key, label]) => (
+                  <button key={key} type="button" aria-pressed={baseMap === key}
+                    onClick={() => setBaseMap(key)}
+                    className={`rounded-lg border px-2 py-3 text-xs font-semibold transition-colors ${baseMap === key ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-muted"}`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">DEM / Terrain displays relief imagery, not downloadable elevation values. Map tiles require internet access and are subject to provider terms.</p>
+            </fieldset>
+            <fieldset className="card-surface p-5">
+              <legend className="px-1 font-display text-lg font-semibold text-primary">{t("layers")}</legend>
+              {layerInfo.map((l) => (
+                <label key={l.k} className="mt-2 flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={active[l.k]} onChange={(e) => setActive({ ...active, [l.k]: e.target.checked })} /> {l.label}
+                </label>
+              ))}
+            </fieldset>
+            <div className="card-surface p-5 text-sm">
+              <p className="font-display text-lg font-semibold text-primary">Coordinates</p>
+              {pt && utm ? (
+                <dl className="mt-2 space-y-1 font-mono text-xs">
+                  <div><dt className="inline font-semibold">EPSG:4326 </dt><dd className="inline">{pt.lat.toFixed(5)}°, {pt.lon.toFixed(5)}°</dd></div>
+                  <div><dt className="inline font-semibold">EPSG:32648 </dt><dd className="inline">E {utm.easting.toFixed(1)} m, N {utm.northing.toFixed(1)} m</dd></div>
+                </dl>
+              ) : <p className="mt-2 text-muted-foreground">Click the map to read a coordinate.</p>}
+            </div>
+            <button className="btn btn-outline w-full" disabled title="Downloads disabled in demo">Download (disabled in demo)</button>
+          </aside>
+        </div>
+
+        <section className="mt-14 grid gap-6 md:grid-cols-2">
+          <div className="card-surface p-7">
+            <h2 className="text-2xl font-semibold text-primary">{t("dataPolicy")}</h2>
+            <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted-foreground">
+              <li>Every dataset carries ISO 19115-style metadata: title, abstract, lineage, CRS, scale, licence, contact, date.</li>
+              <li>Datasets are classified <em>public</em>, <em>members</em> or <em>restricted</em>; access is enforced by dataset permissions.</li>
+              <li>Exports are produced in EPSG:32648 (WGS 84 / UTM 48N) with a .prj file; web display uses EPSG:4326.</li>
+              <li>GeoCam hosts only member-contributed or openly licensed data. No confidential government datasets are hosted.</li>
+              <li>Users must cite the source and licence; downloads are logged for audit.</li>
+            </ul>
+          </div>
+          <div className="card-surface p-7 text-sm">
+            <h2 className="text-2xl font-semibold text-primary">Sample metadata record</h2>
+            <dl className="mt-3 grid grid-cols-[120px_1fr] gap-y-2">
+              <dt className="font-semibold">Title</dt><dd>Illustrative generalized geology</dd>
+              <dt className="font-semibold">Status</dt><dd>Demo / illustrative</dd>
+              <dt className="font-semibold">Display CRS</dt><dd>EPSG:4326</dd>
+              <dt className="font-semibold">Export CRS</dt><dd>EPSG:32648</dd>
+              <dt className="font-semibold">Access</dt><dd>Public</dd>
+              <dt className="font-semibold">Licence</dt><dd>CC BY 4.0 (example)</dd>
+            </dl>
+          </div>
+        </section>
+      </Container>
+    </>
+  );
+}

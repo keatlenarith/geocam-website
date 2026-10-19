@@ -1,0 +1,5 @@
+import { Container, PageHeader } from "@/components/site/Chrome";
+import { Link } from "@/lib/spa-router";
+import { news } from "@/lib/data";
+import { useI18n } from "@/lib/i18n";
+export default function NewsItem(){const {lang}=useI18n();const item=new URLSearchParams(location.search).get('id');const article=news.find(n=>n.id===item&&n.status==='published');return <><PageHeader eyebrow={lang==='km'?'ព័ត៌មាន':'News'} title={article?(lang==='km'&&article.titleKm?article.titleKm:article.title):'Article not found'}/><Container><Link to="/news" className="text-accent">← {lang==='km'?'ត្រឡប់ទៅព័ត៌មាន':'Back to news'}</Link>{article&&<article className="card-surface mt-6 max-w-5xl p-8"><p className="text-sm text-accent">{article.tag} · {article.date}</p><p className="mt-5 rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-900">{lang==='km'?'នេះជាអត្ថបទគំរូ។ មិនទាន់មានអត្ថបទពេញលេញដែលបានផ្ទៀងផ្ទាត់ទេ។':'Demo article: no verified full article has been provided. The available summary is displayed below.'}</p><p className="mt-6 text-lg leading-loose">{article.excerpt}</p></article>}</Container></>}

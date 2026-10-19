@@ -1,0 +1,124 @@
+import { Container, PageHeader } from "@/components/site/Chrome";
+import { Link } from "@/lib/spa-router";
+import { publications } from "@/lib/data";
+import { useI18n } from "@/lib/i18n";
+export default function PublicationView() {
+  const { lang } = useI18n();
+  const id = new URLSearchParams(location.search).get("id");
+  const p = publications.find((x) => x.id === id);
+  return (
+    <>
+      <PageHeader
+        eyebrow={lang === "km" ? "ការបោះពុម្ពផ្សាយ" : "Publications"}
+        title={p?.title || "Publication not found"}
+      />
+      <Container>
+        <Link to="/publications" className="text-accent">
+          ← {lang === "km" ? "ត្រឡប់ទៅបញ្ជី" : "Back to publications"}
+        </Link>
+        {p ? (
+          <section className="card-surface mt-6 p-5 md:p-8">
+            <p className="text-sm text-accent">
+              {p.topic} · {p.year ?? "Year unverified"} · {p.journal}
+            </p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              {p.publicationType} · {p.scope}
+            </p>
+            {p.authors && <p className="mt-2">{p.authors}</p>}
+            <p className="mt-4 leading-relaxed">{p.abstract}</p>
+            {p.doi && (
+              <p className="mt-3 text-sm">
+                DOI:{" "}
+                <a
+                  className="text-accent underline"
+                  href={"https://doi.org/" + p.doi}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {p.doi}
+                </a>
+              </p>
+            )}
+            <div className="mt-6 flex flex-wrap gap-3">
+              {p.pdfUrl && (
+                <>
+                  <a
+                    className="btn btn-primary"
+                    href={p.pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Open PDF ↗
+                  </a>
+                  <a className="btn btn-outline" href={p.pdfUrl} download>
+                    Download PDF
+                  </a>
+                </>
+              )}
+              {p.fileUrl && (
+                <a className="btn btn-primary" href={p.fileUrl} download>
+                  Download document
+                </a>
+              )}
+              {p.sourceUrl && (
+                <a
+                  className="btn btn-outline"
+                  href={p.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Publisher / repository ↗
+                </a>
+              )}
+              {p.alternateFiles?.map((file) => (
+                <a
+                  key={file.url}
+                  className="btn btn-outline"
+                  href={file.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {file.label} ↗
+                </a>
+              ))}
+            </div>
+            {p.pdfUrl ? (
+              <object
+                data={p.pdfUrl + "#toolbar=1"}
+                type="application/pdf"
+                aria-label={"PDF: " + p.title}
+                className="mt-6 h-[75vh] min-h-[500px] w-full rounded-xl border"
+              >
+                <p className="p-6">
+                  Your browser cannot display this PDF inline.{" "}
+                  <a className="text-accent underline" href={p.pdfUrl}>
+                    Open or download the PDF
+                  </a>
+                  .
+                </p>
+              </object>
+            ) : (
+              <div className="mt-6 rounded-xl border border-dashed p-8">
+                <h2 className="text-xl font-semibold">
+                  {p.fileUrl
+                    ? "Document available for download"
+                    : "Read at the original source"}
+                </h2>
+                <p className="mt-3 text-muted-foreground">
+                  {p.fileUrl
+                    ? "Use the download button to open this document in a compatible application."
+                    : "A local PDF was not available when this reference was collected. Follow the publisher or repository link to check access."}
+                </p>
+              </div>
+            )}
+          </section>
+        ) : (
+          <p className="mt-6">
+            This reference could not be found. Return to the library to browse
+            available publications.
+          </p>
+        )}
+      </Container>
+    </>
+  );
+}
