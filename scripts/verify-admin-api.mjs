@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+const base='https://pziwobqfysoadswgnjjm.supabase.co';
+const headers={apikey:'sb_publishable_nTv_9GZCp9yfDXIasl2D7Q_JsPbHzcc','Content-Type':'application/json'};
+const read=await fetch(base+'/rest/v1/geocam_published?id=eq.site&select=content',{headers});
+assert.equal(read.status,200);assert.equal((await read.json()).length,1);
+const draft=await fetch(base+'/rest/v1/geocam_drafts?select=content',{headers});
+assert.ok([401,403].includes(draft.status),'Anonymous client must not read drafts');
+const write=await fetch(base+'/rest/v1/geocam_published',{method:'POST',headers,body:JSON.stringify({id:'site',content:{}})});
+assert.ok([401,403].includes(write.status),'Anonymous client must not publish');
+const role=await fetch(base+'/rest/v1/rpc/geocam_is_admin',{method:'POST',headers,body:'{}'});
+assert.ok([401,403].includes(role.status),'Anonymous client must not invoke admin lookup');
+const settings=await fetch(base+'/auth/v1/settings',{headers});
+assert.equal(settings.status,200);const config=await settings.json();
+assert.equal(config.mailer_autoconfirm,false,'Email verification must be enabled before admin setup');
+console.log('PASS: live Supabase public reads, anonymous draft/publish/admin denial, and mandatory email confirmation.');

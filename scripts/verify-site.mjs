@@ -80,9 +80,9 @@ try {
         url,
       );
   }
-  for (const route of ["/admin", "/admin/cms", "/admin/editor"]) {
+  for (const route of ["/admin", "/admin/cms"]) {
     await page.goto(base + route);
-    await page.getByRole("heading", { name: "Page not found", exact: true }).waitFor();
+    await page.getByRole("heading", { name: "Administrator access required", exact: true }).waitFor();
     assert.equal(await page.locator("[data-cms-ui]").count(), 0);
   }
   assert.deepEqual(errors, []);

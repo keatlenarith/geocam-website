@@ -1,3 +1,126 @@
-import React,{useRef,useState}from'react';import{useI18n}from'../lib/i18n';import{useCms,type Store}from'./VisualCms';
-const paths=['/','/about','/research','/publications','/events','/membership','/geodata','/news','/contact','/dashboard','/admin','/geopark','/lexicon','/mining'];
-export function CmsDashboard(){const{draft,published,publish,restore,setEntry}=useCms();const[page,setPage]=useState('/');const{lang,setLang}=useI18n();const contentPage=page+'::'+lang;const[status,setStatus]=useState('');const fileRef=useRef<HTMLInputElement>(null);const entries=Object.entries(draft[contentPage]||{});const download=()=>{const blob=new Blob([JSON.stringify({draft,published,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='geocam-cms-backup.json';a.click();URL.revokeObjectURL(url)};const importData=async(f?:File)=>{if(!f)return;try{const data=JSON.parse(await f.text());if(!data||typeof data!=='object'||!data.draft||typeof data.draft!=='object')throw Error('Invalid backup');restore(data.draft as Store);setStatus('Drafts imported. Review before publishing.')}catch(e){setStatus('Import failed: '+String(e))}};return <section className="mx-auto max-w-6xl px-4 py-12"><p className="eyebrow">GeoCam CMS · Local prototype</p><h1 className="mt-2 text-4xl font-semibold text-primary">Visual content dashboard</h1><p className="mt-3 max-w-3xl text-muted-foreground">Edit page content directly in the preview, or revise stored wording here. Layouts and source components are protected. This version stores drafts and published edits in this browser only. Use Visual Edit on every page, including the About background image. It is not secured or synchronized with a server.</p><div className="mt-7 flex flex-wrap gap-2"><a className="btn btn-primary" href="/admin/editor">✎ Write articles / pages</a><button className="btn btn-primary" onClick={()=>{publish();setStatus('Published locally in this browser.')}}>Publish local changes</button><button className="btn btn-outline" onClick={download}>Export backup JSON</button><button className="btn btn-outline" onClick={()=>fileRef.current?.click()}>Import backup JSON</button><input ref={fileRef} hidden type="file" accept="application/json" onChange={e=>importData(e.target.files?.[0])}/><button className="btn btn-outline" onClick={()=>{if(confirm('Restore drafts from last locally published version?')){restore(structuredClone(published));setStatus('Drafts restored.')}}}>Restore published</button></div>{status&&<p className="mt-3 rounded-lg bg-sage/20 p-3 text-sm">{status}</p>}<div className="mt-8 grid gap-6 md:grid-cols-[240px_1fr]"><aside className="card-surface p-4"><h2 className="mb-3 font-semibold">Website pages</h2>{paths.map(p=><button key={p} onClick={()=>setPage(p)} className={'mb-1 block w-full rounded-lg px-3 py-2 text-left text-sm '+(page===p?'bg-primary text-primary-foreground':'hover:bg-muted')}>{p==='/'?'Home':p}</button>)}<a className="mt-4 block text-sm font-semibold text-accent" href="https://geocam-lexicon.vercel.app/" target="_blank" rel="noreferrer">Real GeoCam Lexicon ↗</a></aside><div className="card-surface p-5"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl font-semibold">{page} content · {lang==='km'?'ខ្មែរ':'English'}</h2><div className="flex gap-2"><button className="btn btn-outline !py-2" onClick={()=>setLang('en')}>English</button><button className="btn btn-outline !py-2" onClick={()=>setLang('km')}>ខ្មែរ</button></div><a href={page} className="btn btn-accent !py-2">Open page to visually edit →</a></div><p className="my-4 text-sm text-muted-foreground">{entries.length?`${entries.length} edited elements (draft)`:'No draft overrides yet. Open the page and use Visual edit to click a text element or image.'}</p>{entries.map(([key,e])=><div key={key} className="mb-4 rounded-lg border border-border p-3"><label className="mb-2 block text-xs text-muted-foreground">Element {key} · {e.kind}</label>{e.kind==='text'?<textarea className="field min-h-24 w-full" value={e.value} onChange={event=>setEntry(contentPage,key,{kind:'text',value:event.target.value})}/>:<img className="max-h-32 rounded-lg object-contain" src={e.value} alt="Uploaded page asset"/>}</div>)}<div className="mt-8 rounded-xl bg-muted/60 p-4 text-sm"><h3 className="font-semibold">Production backend required</h3><p className="mt-2">To publish changes to all visitors, configure authenticated Supabase storage, database and role-based permissions. This local demonstration must not be exposed as an authenticated production CMS.</p></div></div></div></section>}
+import { useState } from "react";
+import { editablePages, useCms } from "./VisualCms";
+import { supabase } from "../lib/supabase";
+const paths = editablePages;
+export function CmsDashboard() {
+  const {
+    draft,
+    published,
+    ready,
+    dirty,
+    busy,
+    error,
+    setEntry,
+    save,
+    publish,
+    restore,
+  } = useCms();
+  const [message, setMessage] = useState("");
+  const run = async (action: () => Promise<void>, message: string) => {
+    try {
+      await action();
+      setMessage(message);
+    } catch {
+      setMessage("The request failed. Check the error and retry.");
+    }
+  };
+  return (
+    <section className="mx-auto max-w-5xl px-5 py-12">
+      <p className="eyebrow">GeoCam administration</p>
+      <h1 className="mt-3 text-4xl font-bold">Content dashboard</h1>
+      <p className="my-5">
+        Open a page, choose Visual edit, and click text or an image. Save draft
+        keeps changes private. Publish makes them visible to all visitors. Edit
+        English and Khmer separately using the site language switch.
+      </p>
+      <div className="flex flex-wrap gap-3">
+        <button
+          className="btn btn-outline"
+          disabled={!ready || busy}
+          onClick={() => run(save, "Draft saved.")}
+        >
+          Save draft
+        </button>
+        <button
+          className="btn btn-primary"
+          disabled={!ready || busy}
+          onClick={() => {
+            if (confirm("Publish this draft for all visitors?"))
+              void run(publish, "Published for all visitors.");
+          }}
+        >
+          Publish website changes
+        </button>
+        <button
+          className="btn btn-outline"
+          disabled={!ready || busy}
+          onClick={() => {
+            if (confirm("Replace the draft with the last published content?")) {
+              restore(published);
+              setMessage(
+                "Published content restored to the draft. Save to keep it.",
+              );
+            }
+          }}
+        >
+          Restore published version
+        </button>
+        <button
+          className="btn btn-outline"
+          onClick={async () => {
+            await supabase.auth.signOut();
+            location.assign("/admin/login");
+          }}
+        >
+          Sign out
+        </button>
+      </div>
+      <p className="my-4" role="status">
+        {error ||
+          message ||
+          (!ready
+            ? "Loading drafts…"
+            : dirty
+              ? "Unsaved changes"
+              : "Drafts loaded")}
+      </p>
+      <h2 className="mt-8 text-2xl font-bold">Edit a page</h2>
+      <div className="my-5 flex flex-wrap gap-3">
+        {paths.map((path) => (
+          <a className="btn btn-outline" key={path} href={path}>
+            {path === "/" ? "Home" : path.slice(1)}
+          </a>
+        ))}
+      </div>
+      <h2 className="mt-8 text-2xl font-bold">Draft content</h2>
+      {Object.entries(draft).flatMap(([page, entries]) =>
+        Object.entries(entries).map(([key, entry]) => (
+          <label key={page + key} className="my-4 block rounded-lg border p-4">
+            <span className="mb-2 block text-sm">
+              {page} · {key}
+            </span>
+            {entry.kind === "text" ? (
+              <textarea
+                className="field min-h-24 w-full"
+                disabled={busy}
+                value={entry.value}
+                onChange={(event) =>
+                  setEntry(page, key, {
+                    kind: "text",
+                    value: event.target.value,
+                  })
+                }
+              />
+            ) : (
+              <img
+                className="max-h-32"
+                src={entry.value}
+                alt="Draft page image"
+              />
+            )}
+          </label>
+        )),
+      )}
+    </section>
+  );
+}
