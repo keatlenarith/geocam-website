@@ -185,7 +185,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
   const [notice, setNotice] = useState("");
   useEffect(() => {
     const main = document.getElementById("main");
-    if (!main || page.startsWith("/admin")) return;
+    if (!main || !editable || page.startsWith("/admin")) return;
     const keyspace = page + "::" + lang;
     const apply = () => {
       for (const el of candidates(main)) {

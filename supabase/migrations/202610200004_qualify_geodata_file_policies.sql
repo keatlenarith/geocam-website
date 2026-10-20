@@ -1,0 +1,2 @@
+alter policy geodata_public_files on storage.objects using(bucket_id='geocam-geodata' and exists(select 1 from public.geocam_map_layers l where l.source_path=storage.objects.name and l.status='published'));
+alter policy geodata_member_files on storage.objects using(bucket_id='geocam-geodata' and ((select geocam_private.is_admin()) or exists(select 1 from public.geocam_map_layers l where l.source_path=storage.objects.name and l.status='published')));

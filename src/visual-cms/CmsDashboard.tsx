@@ -84,6 +84,9 @@ export function CmsDashboard() {
               ? "Unsaved changes"
               : "Drafts loaded")}
       </p>
+      <a className="btn btn-primary mt-6" href="/geodata">
+        Upload and manage geodata
+      </a>
       <h2 className="mt-8 text-2xl font-bold">Edit a page</h2>
       <div className="my-5 flex flex-wrap gap-3">
         {paths.map((path) => (
