@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { UploadCloud, Layers3, LogOut, LayoutDashboard } from "lucide-react";
+import { categories, type DatasetCategory } from "./categories";
+import { useEffect, useState, useRef } from "react";
 import { useAdmin } from "../../admin/Auth";
 import { supabase } from "../../lib/supabase";
 import {
@@ -16,10 +18,24 @@ export default function LayerManager({
   const { admin, loading, session } = useAdmin();
   const [layers, setLayers] = useState<MapDataset[]>([]),
     [hidden, setHidden] = useState<string[]>([]),
-    [busy, setBusy] = useState(false),
+    [uploading, setBusy] = useState(false),
     [message, setMessage] = useState("");
+  const [batchBusy, setBatchBusy] = useState(false);
+  const busy = uploading || batchBusy;
+  const [uploadCategory, setUploadCategory] =
+    useState<DatasetCategory>("geology");
+  const [filter, setFilter] = useState("all");
+  const [progress, setProgress] = useState("");
+  const input = useRef<HTMLInputElement>(null);
+  const accessVersion = useRef(0);
+  const visibleLayers = layers.filter(
+    (layer) => filter === "all" || (layer.category || "other") === filter,
+  );
   useEffect(() => {
     let current = true;
+    accessVersion.current++;
+    setProgress("");
+    setMessage("");
     setLayers([]);
     setHidden([]);
     if (loading) return;
@@ -41,15 +57,23 @@ export default function LayerManager({
     };
   }, [admin, loading, session?.user.id]);
   useEffect(() => {
-    onLayers(layers.filter((layer) => !hidden.includes(layer.id)));
-  }, [layers, hidden, onLayers]);
+    onLayers(
+      layers.filter(
+        (layer) =>
+          !hidden.includes(layer.id) &&
+          (filter === "all" || (layer.category || "other") === filter),
+      ),
+    );
+  }, [layers, hidden, filter, onLayers]);
   const upload = async (file?: File) => {
     if (!file || !admin) return;
+    const version = accessVersion.current;
     setBusy(true);
     setMessage("Reading geodata…");
     let path = "";
     try {
       const parsed = await importGeodata(file);
+      if (version !== accessVersion.current) return false;
       const id = crypto.randomUUID();
       path = id + "/" + file.name.replace(/[^a-z\d._-]/gi, "_");
       setMessage("Uploading a private draft…");
@@ -59,7 +83,8 @@ export default function LayerManager({
       if (stored.error) throw stored.error;
       const layer: MapDataset = {
         id,
-        name: file.name.replace(/\.(kmz|kml|geojson|json)$/i, ""),
+        name: file.name.slice(0, 150),
+        category: uploadCategory,
         filename: file.name,
         source_path: path,
         data: parsed.data,
@@ -71,19 +96,54 @@ export default function LayerManager({
         await supabase.storage.from("geocam-geodata").remove([path]);
         throw result.error;
       }
+      if (version !== accessVersion.current) return false;
       setLayers((values) => [...values, layer]);
       setMessage(
         `Uploaded ${parsed.data.features.length} features as a private draft. Check the map, then publish. ${parsed.warnings.join(" ")}`,
       );
+      return true;
     } catch (error) {
+      if (version !== accessVersion.current) return false;
       setMessage(
         error instanceof Error
           ? error.message
           : (error as { message?: string })?.message ||
               "Upload failed. Please try again.",
       );
+      return false;
     } finally {
       setBusy(false);
+    }
+  };
+  const uploadFiles = async (files: File[]) => {
+    if (!files.length || !admin || busy) return;
+    if (files.length > 20) {
+      setMessage(
+        "Choose up to 20 files at a time. Each file becomes a separate layer.",
+      );
+      return;
+    }
+    const version = accessVersion.current;
+    setBatchBusy(true);
+    let success = 0;
+    const failed: string[] = [];
+    try {
+      for (let index = 0; index < files.length; index++) {
+        setProgress(
+          `File ${index + 1} of ${files.length}: ${files[index].name}`,
+        );
+        if (version !== accessVersion.current) return;
+        if (await upload(files[index])) success++;
+        else failed.push(files[index].name);
+        if (version !== accessVersion.current) return;
+      }
+      if (files.length > 1)
+        setMessage(
+          `Uploaded ${success} of ${files.length} files as separate private draft layers. ${files.length - success ? `Failed: ${failed.join(", ")}. Check their format and size before retrying.` : ""}`,
+        );
+    } finally {
+      setBatchBusy(false);
+      setProgress("");
     }
   };
   const change = (id: string, patch: Partial<MapStyle>) =>
@@ -102,7 +162,12 @@ export default function LayerManager({
     try {
       const { error } = await supabase
         .from("geocam_map_layers")
-        .update({ name: layer.name, settings: layer.settings, status })
+        .update({
+          name: layer.name,
+          category: layer.category || "other",
+          settings: layer.settings,
+          status,
+        })
         .eq("id", layer.id)
         .select("id")
         .single();
@@ -171,27 +236,138 @@ export default function LayerManager({
   };
   return (
     <section className="card-surface p-5" aria-label="Uploaded geodata">
-      <h2 className="text-lg font-semibold">Uploaded geodata</h2>
-      {admin && (
-        <label className="mt-3 block text-sm font-semibold">
-          Upload geodata
+      <div className="flex items-center gap-2">
+        <Layers3 size={21} className="text-primary" />
+        <h2 className="text-lg font-semibold">Layer library</h2>
+        <span className="ml-auto rounded-full bg-muted px-2 py-1 text-xs">
+          {layers.length} layers
+        </span>
+      </div>
+      {admin ? (
+        <div
+          className="mt-4 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-4"
+          onDragOver={(event) => event.preventDefault()}
+          onDrop={(event) => {
+            event.preventDefault();
+            if (!busy) void uploadFiles(Array.from(event.dataTransfer.files));
+          }}
+        >
+          <UploadCloud className="mb-3 text-primary" size={30} />
+          <h3 className="font-semibold">Add geoscience layers</h3>
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">
+            Choose a category, then select or drop your files. Each file is
+            saved separately using its uploaded filename.
+          </p>
+          <label className="mt-4 block text-xs font-semibold">
+            Dataset category
+            <select
+              className="field mt-2 w-full"
+              value={uploadCategory}
+              disabled={busy}
+              onChange={(event) =>
+                setUploadCategory(event.target.value as DatasetCategory)
+              }
+            >
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
+          </label>
           <input
+            ref={input}
             aria-label="Upload geodata"
-            className="mt-2 block w-full text-xs"
+            className="sr-only"
             type="file"
             accept=".kmz,.kml,.geojson,.json"
+            multiple
             disabled={busy}
             onChange={(event) => {
-              void upload(event.target.files?.[0]);
+              void uploadFiles(Array.from(event.target.files || []));
               event.target.value = "";
             }}
           />
-        </label>
+          <button
+            type="button"
+            className="btn btn-primary mt-4 w-full gap-2"
+            disabled={busy}
+            onClick={() => input.current?.click()}
+          >
+            <UploadCloud size={18} />
+            {busy ? "Uploading layers…" : "Upload layers"}
+          </button>
+          <p className="mt-3 text-xs leading-5 text-muted-foreground">
+            KMZ · KML · GeoJSON
+            <br />
+            20 MB per file · up to 20 files at once · WGS84
+          </p>
+          <p className="mt-2 text-xs">
+            Files start as private drafts. Preview, symbolize, then publish.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-4 rounded-xl bg-muted/50 p-4">
+          <p className="text-sm">
+            Explore published geology, faults, trends, minerals, geosites and
+            potential zones.
+          </p>
+          <a
+            className="btn btn-primary mt-3 w-full text-sm"
+            href="/admin/login"
+          >
+            <UploadCloud size={16} />
+            Sign in to upload layers
+          </a>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Administrator access required to upload or publish.
+          </p>
+        </div>
       )}
-      <p className="mt-2 text-xs text-muted-foreground">
-        KMZ, KML or GeoJSON · WGS84 · up to 20 MB per file.{" "}
-        {admin ? "Uploads start as private drafts." : ""}
-      </p>
+      {admin && (
+        <div className="mt-3 flex flex-wrap gap-3 text-xs">
+          <a
+            className="inline-flex items-center gap-1 underline"
+            href="/admin/cms"
+          >
+            <LayoutDashboard size={13} />
+            Admin dashboard
+          </a>
+          <button
+            className="inline-flex items-center gap-1 underline"
+            onClick={() => supabase.auth.signOut()}
+          >
+            <LogOut size={13} />
+            Sign out
+          </button>
+        </div>
+      )}
+      <label className="mt-5 block text-sm font-semibold">
+        Filter layers
+        <select
+          className="field mt-2 w-full"
+          value={filter}
+          onChange={(event) => setFilter(event.target.value)}
+        >
+          <option value="all">All categories ({layers.length})</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.label} (
+              {
+                layers.filter(
+                  (layer) => (layer.category || "other") === category.id,
+                ).length
+              }
+              )
+            </option>
+          ))}
+        </select>
+      </label>
+      {progress && (
+        <p aria-live="polite" className="mt-3 break-words text-xs">
+          {progress}
+        </p>
+      )}
       {message && (
         <p className="my-3 text-sm" role="status">
           {message}
@@ -202,7 +378,12 @@ export default function LayerManager({
           No uploaded layers available.
         </p>
       )}
-      {layers.map((layer) => {
+      {layers.length > 0 && visibleLayers.length === 0 && (
+        <p className="mt-3 text-sm text-muted-foreground">
+          No layers in this category.
+        </p>
+      )}
+      {visibleLayers.map((layer) => {
         const style = { ...defaultStyle, ...layer.settings };
         return (
           <fieldset key={layer.id} className="mt-5 rounded-lg border p-3">
@@ -210,6 +391,13 @@ export default function LayerManager({
               {layer.name}
               {admin && layer.status === "draft" ? " · Draft" : ""}
             </legend>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-primary">
+              {
+                categories.find(
+                  (category) => category.id === (layer.category || "other"),
+                )?.label
+              }
+            </p>
             <label className="flex gap-2 text-sm">
               <input
                 type="checkbox"
@@ -236,6 +424,32 @@ export default function LayerManager({
             </button>
             {admin && (
               <div className="mt-3 grid gap-3 text-sm">
+                <label>
+                  Layer category
+                  <select
+                    className="field mt-1 w-full"
+                    value={layer.category || "other"}
+                    disabled={busy}
+                    onChange={(event) =>
+                      setLayers((values) =>
+                        values.map((value) =>
+                          value.id === layer.id
+                            ? {
+                                ...value,
+                                category: event.target.value as DatasetCategory,
+                              }
+                            : value,
+                        ),
+                      )
+                    }
+                  >
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <label>
                   Layer name
                   <input

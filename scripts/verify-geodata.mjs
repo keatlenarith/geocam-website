@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 const base=process.env.SITE_URL||'http://127.0.0.1:3001';
 const api='https://pziwobqfysoadswgnjjm.supabase.co';
 const browser=await chromium.launch({channel:'chrome',headless:true});
-let draft={},published={},layers=[];let source;
+let draft={},published={},layers=[];let source;let delayNextInsert=false;
 const user={id:'00000000-0000-4000-8000-000000000001',aud:'authenticated',role:'authenticated',email:'keatlenarith@gmail.com',email_confirmed_at:new Date().toISOString(),app_metadata:{},user_metadata:{},created_at:new Date().toISOString()};
 const token=['eyJhbGciOiJIUzI1NiJ9',Buffer.from(JSON.stringify({sub:user.id,role:'authenticated',aud:'authenticated',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url'),'test-signature'].join('.');
 async function context(){const ctx=await browser.newContext();await ctx.route(api+'/**',async route=>{const req=route.request(),path=new URL(req.url()).pathname;const admin=req.headers().authorization==='Bearer '+token;
@@ -18,7 +18,7 @@ async function context(){const ctx=await browser.newContext();await ctx.route(ap
   if(path==='/rest/v1/geocam_map_layers'){
     if(req.method()==='GET')return send(layers.filter(layer=>admin||layer.status==='published'));
     if(!admin)return send({message:'permission denied'},403);
-    if(req.method()==='POST'){layers.push(req.postDataJSON());return route.fulfill({status:201});}
+    if(req.method()==='POST'){layers.push(req.postDataJSON());if(delayNextInsert){delayNextInsert=false;await new Promise(resolve=>setTimeout(resolve,800));}return route.fulfill({status:201});}
     const id=new URL(req.url()).searchParams.get('id')?.replace('eq.','');const row=layers.find(layer=>layer.id===id);
     if(req.method()==='PATCH'){Object.assign(row,req.postDataJSON());return send({id});}
   }
@@ -51,5 +51,16 @@ try{
  await page.getByRole('button',{name:'Save style',exact:true}).click();await expect(page.getByRole('status')).toContainText('Draft saved');
  page.once('dialog',dialog=>dialog.accept());await page.getByRole('button',{name:'Publish layer',exact:true}).click();await expect(page.getByRole('status')).toContainText('published for all visitors');
  await visitor.reload();await expect(visitor.getByText('3 features · styled-example.kmz')).toBeVisible();await expect(visitor.locator('.geocam-map-symbol span')).toHaveCSS('width','40px');await expect(visitor.getByLabel('Upload geodata',{exact:true})).toHaveCount(0);
- assert.deepEqual(errors,[]);console.log('PASS: KMZ embedded icon and scale, point/line/polygon import, private draft, custom triangle/size, save style, publish, and visitor map.');
+ await page.getByLabel('Dataset category').selectOption('faults');
+ const kmlBuffer=Buffer.from('<kml xmlns="http://www.opengis.net/kml/2.2"><Placemark><name>Fault</name><LineString><coordinates>104,12 105,13</coordinates></LineString></Placemark></kml>');
+ await page.getByLabel('Upload geodata',{exact:true}).setInputFiles([{name:'Faults_A.kml',mimeType:'application/vnd.google-earth.kml+xml',buffer:kmlBuffer},{name:'Faults_B.kml',mimeType:'application/vnd.google-earth.kml+xml',buffer:kmlBuffer}]);
+ await expect(page.getByRole('status')).toContainText('Uploaded 2 of 2 files');
+ assert.equal(layers.length,3);assert.equal(layers[1].name,'Faults_A.kml');assert.equal(layers[2].name,'Faults_B.kml');assert.equal(layers[1].category,'faults');assert.notEqual(layers[1].source_path,layers[2].source_path);
+ await page.getByLabel('Filter layers').selectOption('faults');await expect(page.getByText('3 features · styled-example.kmz')).toHaveCount(0);await expect(page.getByText('1 features · Faults_A.kml')).toBeVisible();
+ await page.setViewportSize({width:390,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Mobile GeoData must not overflow');
+ delayNextInsert=true;
+ await page.getByLabel('Upload geodata',{exact:true}).setInputFiles([{name:'Pending_A.kml',mimeType:'application/vnd.google-earth.kml+xml',buffer:kmlBuffer},{name:'Pending_B.kml',mimeType:'application/vnd.google-earth.kml+xml',buffer:kmlBuffer}]);
+ await expect.poll(()=>layers.length).toBe(4);await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByLabel('Upload geodata',{exact:true})).toHaveCount(0);await new Promise(resolve=>setTimeout(resolve,1000));
+ assert.equal(layers.length,4,'Batch must stop after sign-out');await expect(page.getByText('1 features · Pending_A.kml')).toHaveCount(0);
+ assert.deepEqual(errors,[]);console.log('PASS: in-flight batch cancels safely after sign-out.');console.log('PASS: batch uploads, file names, categories and filtering.');console.log('PASS: KMZ embedded icon and scale, point/line/polygon import, private draft, custom triangle/size, save style, publish, and visitor map.');
 }finally{await browser.close();}

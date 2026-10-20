@@ -1,3 +1,4 @@
+import EnvironmentalMonitoring from "./routes/environmental-monitoring";
 import { AuthProvider, AdminGate } from "./admin/Auth";
 import Login from "./admin/Login";
 import { CmsDashboard } from "./visual-cms/CmsDashboard";
@@ -40,6 +41,7 @@ const pages: Record<string, React.ComponentType<any>> = {
   "/events": Events.component,
   "/membership": Membership.component,
   "/geodata": GeoData.component,
+  "/environmental-monitoring": EnvironmentalMonitoring,
   "/news": News.component,
   "/contact": Contact.component,
   "/dashboard": Dashboard.component,

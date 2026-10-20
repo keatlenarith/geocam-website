@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 export type Lang = "en" | "km";
 
@@ -13,13 +19,23 @@ export const dict = {
   geopark: { en: "3D Geopark", km: "ឧទ្យានភូគព្ភសាស្ត្រ 3D" },
   cms: { en: "Visual CMS", km: "គ្រប់គ្រងមាតិកា" },
   mining: { en: "Mining", km: "វិស័យរ៉ែ" },
+  environmentalMonitoring: {
+    en: "Environmental Monitoring",
+    km: "ការតាមដានបរិស្ថាន",
+  },
   geodata: { en: "GeoData", km: "ទិន្នន័យភូមិសាស្ត្រ" },
   news: { en: "News", km: "ព័ត៌មាន" },
   contact: { en: "Contact", km: "ទំនាក់ទំនង" },
   dashboard: { en: "Member area", km: "តំបន់សមាជិក" },
   admin: { en: "Admin", km: "អ្នកគ្រប់គ្រង" },
-  orgName: { en: "Geosciences Society of Cambodia", km: "សមាគមភូគព្ភវិទ្យាកម្ពុជា" },
-  heroTitle: { en: "Reading the deep history of Cambodia’s land", km: "ស្វែងយល់ពីប្រវត្តិដ៏ជ្រៅនៃដែនដីកម្ពុជា" },
+  orgName: {
+    en: "Geosciences Society of Cambodia",
+    km: "សមាគមភូគព្ភវិទ្យាកម្ពុជា",
+  },
+  heroTitle: {
+    en: "Reading the deep history of Cambodia’s land",
+    km: "ស្វែងយល់ពីប្រវត្តិដ៏ជ្រៅនៃដែនដីកម្ពុជា",
+  },
   heroSub: {
     en: "An independent community of geoscientists advancing research, education and safe, sustainable use of Cambodia’s earth resources.",
     km: "សហគមន៍ឯករាជ្យនៃអ្នកភូគព្ភវិទ្យា ដែលលើកកម្ពស់ការស្រាវជ្រាវ ការអប់រំ និងការប្រើប្រាស់ធនធានដីប្រកបដោយសុវត្ថិភាព និងចីរភាព។",
@@ -31,7 +47,10 @@ export const dict = {
   ourWork: { en: "Our fields of work", km: "វិស័យការងាររបស់យើង" },
   readMore: { en: "Read more", km: "អានបន្ថែម" },
   viewAll: { en: "View all", km: "មើលទាំងអស់" },
-  joinTitle: { en: "Join Cambodia’s geoscience community", km: "ចូលរួមសហគមន៍ភូគព្ភវិទ្យាកម្ពុជា" },
+  joinTitle: {
+    en: "Join Cambodia’s geoscience community",
+    km: "ចូលរួមសហគមន៍ភូគព្ភវិទ្យាកម្ពុជា",
+  },
   joinSub: {
     en: "Students, professionals and researchers — connect, publish and contribute to field knowledge.",
     km: "និស្សិត អ្នកជំនាញ និងអ្នកស្រាវជ្រាវ — ភ្ជាប់ទំនាក់ទំនង បោះពុម្ពផ្សាយ និងចូលរួមចំណែកចំណេះដឹង។",
@@ -45,7 +64,10 @@ export const dict = {
   directory: { en: "Member directory", km: "បញ្ជីសមាជិក" },
   application: { en: "Membership application", km: "ពាក្យស្នើសុំសមាជិកភាព" },
   layers: { en: "Map layers", km: "ស្រទាប់ផែនទី" },
-  dataPolicy: { en: "Metadata & download policy", km: "ទិន្នន័យមេតា និងគោលការណ៍ទាញយក" },
+  dataPolicy: {
+    en: "Metadata & download policy",
+    km: "ទិន្នន័យមេតា និងគោលការណ៍ទាញយក",
+  },
   demo: { en: "Demo", km: "សាកល្បង" },
   footerTag: {
     en: "Independent, non-governmental professional society. Prototype website.",
@@ -55,7 +77,11 @@ export const dict = {
 
 export type TKey = keyof typeof dict;
 
-const Ctx = createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: TKey) => string }>({
+const Ctx = createContext<{
+  lang: Lang;
+  setLang: (l: Lang) => void;
+  t: (k: TKey) => string;
+}>({
   lang: "en",
   setLang: () => {},
   t: (k) => dict[k].en,
@@ -74,7 +100,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     setLangState(l);
     localStorage.setItem("geocam-lang", l);
   };
-  return <Ctx.Provider value={{ lang, setLang, t: (k) => dict[k][lang] }}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={{ lang, setLang, t: (k) => dict[k][lang] }}>
+      {children}
+    </Ctx.Provider>
+  );
 }
 
 export const useI18n = () => useContext(Ctx);

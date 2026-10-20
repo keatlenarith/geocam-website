@@ -12,7 +12,7 @@ This editor manages existing text and images on Home, About, Research, Membershi
 
 ## Geodata uploads
 
-Sign in, open **Upload and manage geodata** in the dashboard, or visit `/geodata`. Choose `.kmz`, `.kml`, `.geojson` or GeoJSON `.json`. Files must be WGS84 longitude/latitude, at most 20 MB, with up to 20,000 vector features. KMZ archives must contain a main `doc.kml`, or one unambiguous KML file. ZIP64 and archives declaring more than 50 MB of expanded content are rejected. Converted data including embedded icons must fit within 8 MB. Simplify or split large layers before uploading.
+Sign in, open **Upload and manage geodata** in the dashboard, or visit `/geodata`. Choose a dataset category (Geology, Faults, Trends, Minerals, Geosites, Potential zones or Other data), then use **Upload layers** or drop files into the upload area. Select up to 20 `.kmz`, `.kml`, `.geojson` or GeoJSON `.json` files at once. Each file is stored as a separate layer named after the original filename, with a unique storage path, so repeated filenames do not overwrite each other. Filter the library by category; edit a layer’s category or name and use **Save style** to persist changes. Files must be WGS84 longitude/latitude, at most 20 MB, with up to 20,000 vector features. KMZ archives must contain a main `doc.kml`, or one unambiguous KML file. ZIP64 and archives declaring more than 50 MB of expanded content are rejected. Converted data including embedded icons must fit within 8 MB. Simplify or split large layers before uploading.
 
 Points, lines, polygons and multi-geometries are supported. Common KML colours, opacity, line widths and icon scales are imported. Package PNG/JPEG/GIF/WebP icons in the KMZ; icons above 250 KB are replaced with default symbols. External HTTPS icons remain external. Google Earth-specific hotspot/tint, labels, 3D models, raster overlays and network links are not reproduced. Network links are not fetched. Check the preview; web styling may differ from Google Earth.
 
@@ -25,3 +25,7 @@ Supabase project: `pziwobqfysoadswgnjjm`. The browser uses a publishable key. RL
 Supabase Authentication URL configuration must use Site URL `https://geocam-website.vercel.app` and allow redirect URL `https://geocam-website.vercel.app/admin/login`. Email confirmation must remain enabled. Custom SMTP may be needed if the project's built-in email delivery rejects the recipient or reaches its rate limit.
 
 Database schema is recorded under `supabase/migrations/`. The private allowlist intentionally has no client RLS policies or table grants; it is accessible only to the authorization function and database administrator.
+
+## Environmental monitoring
+
+The public page `/environmental-monitoring` embeds the supplied live Mining Monitoring Dashboard from Google Earth Engine. It is linked under Geoscience & Data. Use **Full screen**, **Reload dashboard**, or **Open original dashboard**. GeoCam does not copy the app’s private source code or duplicate its monitoring calculations; the original Earth Engine app continues to manage those.

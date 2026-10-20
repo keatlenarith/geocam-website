@@ -1,3 +1,4 @@
+import type { DatasetCategory } from "./categories";
 import JSZip from "jszip";
 import { kml } from "@tmcw/togeojson";
 import type { FeatureCollection, Geometry } from "geojson";
@@ -19,6 +20,7 @@ export const defaultStyle: MapStyle = {
   opacity: 0.5,
 };
 export type MapDataset = {
+  category?: DatasetCategory;
   id: string;
   name: string;
   filename: string;
