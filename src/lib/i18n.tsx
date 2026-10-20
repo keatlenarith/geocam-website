@@ -1,3 +1,4 @@
+import { translateText, useDocumentTranslation } from "./translation";
 import {
   createContext,
   useContext,
@@ -89,6 +90,7 @@ const Ctx = createContext<{
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("en");
+  useDocumentTranslation(lang);
   useEffect(() => {
     const s = localStorage.getItem("geocam-lang");
     if (s === "km" || s === "en") setLangState(s);
@@ -101,7 +103,18 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("geocam-lang", l);
   };
   return (
-    <Ctx.Provider value={{ lang, setLang, t: (k) => dict[k][lang] }}>
+    <Ctx.Provider
+      value={{
+        lang,
+        setLang,
+        t: (k) =>
+          lang === "en"
+            ? dict[k].en
+            : translateText(dict[k].en) === dict[k].en
+              ? dict[k].km
+              : translateText(dict[k].en),
+      }}
+    >
       {children}
     </Ctx.Provider>
   );

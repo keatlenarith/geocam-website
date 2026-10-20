@@ -1,3 +1,4 @@
+import { translateText } from "../lib/translation";
 import { createFileRoute, Link } from "@/lib/spa-router";
 import { useMemo, useState } from "react";
 import { Container, PageHeader, meta } from "@/components/site/Chrome";
@@ -35,7 +36,7 @@ function Pubs() {
             (access === "Documents"
               ? !!(p.pdfUrl || p.fileUrl)
               : !(p.pdfUrl || p.fileUrl))) &&
-          `${p.title} ${p.authors} ${p.abstract} ${p.journal} ${p.tags.join(" ")}`
+          `${p.title} ${translateText(p.title)} ${p.authors} ${p.abstract} ${translateText(p.abstract)} ${p.journal} ${p.tags.join(" ")} ${p.tags.map(translateText).join(" ")}`
             .toLowerCase()
             .includes(q.trim().toLowerCase()),
       ),
@@ -114,7 +115,7 @@ function Pubs() {
           </select>
         </div>
         <p className="mt-4 text-sm text-muted-foreground" aria-live="polite">
-          {list.length} results
+          {`${list.length} results`}
         </p>
         <div className="mt-4 space-y-4">
           {list.map((p) => (
@@ -167,4 +168,3 @@ function Pubs() {
     </>
   );
 }
-

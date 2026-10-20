@@ -23,13 +23,14 @@ export function candidates(root: HTMLElement) {
   ).filter((el) => {
     if (
       el.closest(
-        '[data-cms-ui],.leaflet-container,.maplibregl-map,svg,script,style,form,[role="tablist"]',
+        '[data-cms-ui],.leaflet-container,.maplibregl-map,svg,script,style,form,[role="tablist"],[role="status"],[role="alert"]',
       )
     )
       return false;
     if (el.matches("[data-cms-background]")) return true;
     if (el.tagName === "IMG") return true;
+    if (el.hasAttribute("data-cms-inline")) return true;
     if (el.children.length > 0) return false;
-    return !!el.textContent?.trim();
+    return el.hasAttribute("data-cms-key") || !!el.textContent?.trim();
   });
 }

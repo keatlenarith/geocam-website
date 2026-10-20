@@ -1,0 +1,126 @@
+{
+  "source": "https://geocam-lexicon.vercel.app/",
+  "retrieved": "2026-10-20",
+  "terms": {
+    "Fault": {
+      "khmer": "បំណាក់សិលា",
+      "key": "f9d73e87ad6a2299035de1d80b7f7ba2"
+    },
+    "Geology": {
+      "khmer": "ភូគព្ភសាស្ត្រ",
+      "key": "8080ffcb00ac6a17145e2b02df9948e4"
+    },
+    "Trend": {
+      "khmer": "និន្នាការ",
+      "key": "6a91c99983036d10dd13b206fbed399c"
+    },
+    "Geosite": {
+      "khmer": "ស្ថានីយភូគព្ភសាស្ត្រ",
+      "key": "e93993917f329fdb7fe1c079e2e69414"
+    },
+    "Mineral": {
+      "khmer": "ខនិជ",
+      "key": "c51aa066f586d9d68ee6163cdec8452d"
+    },
+    "Monitoring": {
+      "khmer": "ការតាមដានត្រួតពិនិត្យ",
+      "key": "e20c7a6e6a070069c90829efd71b46b8"
+    },
+    "Environmental geology": {
+      "khmer": "បរិស្ថានភូគព្ភសាស្រ្ត",
+      "key": "5a98a5a448c5a75ba43d2538fa7efcc5"
+    },
+    "Environment": {
+      "khmer": "បរិស្ថាន",
+      "key": "f4b31877264ae36624c1bde9b426163e"
+    },
+    "Karst": {
+      "khmer": "កាស្ត៍",
+      "key": "2a94bd735e682af4a812986141242cbd"
+    },
+    "Tectonics": {
+      "khmer": "ចលនាតិចតូនិច",
+      "key": "23ec53b923faf5c931b2d46af6ea7267"
+    },
+    "Mineralization": {
+      "khmer": "ខនិជកម្ម",
+      "key": "8a3df88f9b7fb484c81b3f3d0a02ff35"
+    },
+    "Geochemistry": {
+      "khmer": "គីមីភូគព្ភសាស្រ្ត",
+      "key": "c5e6d748019d7f5233fdb9ded1fe2159"
+    },
+    "Geophysics": {
+      "khmer": "រូបភូគព្ភសាស្ត្រ",
+      "key": "9303c29594c8e62da157ffbd54f981d4"
+    },
+    "Basalt": {
+      "khmer": "សិលាបាសាល់",
+      "key": "2646436d4c7f24a676b5814bb71ee650"
+    },
+    "Alluvium": {
+      "khmer": "ដីល្បាប់",
+      "key": "f9dcbd6a9e83383adc246e72a7b5444f"
+    },
+    "Structure": {
+      "khmer": "រចនាសម្ព័ន្ធ",
+      "key": "8afe1d03c811c115825553c99e56c336"
+    },
+    "Lineament": {
+      "khmer": "ខ្សែរចនាសម្ព័ន្ធ",
+      "key": "cd9573f3688934bd7851232b276cb0ef"
+    },
+    "Topography": {
+      "khmer": "ឋានលេខាវិទ្យា",
+      "key": "8c189271b136263bdd6b84f2a14ed190"
+    },
+    "Hydrogeology": {
+      "khmer": "វារីភូគព្ភសាស្រ្ត",
+      "key": "737f59430aed679105d022d7c98510d2"
+    },
+    "Sandstone": {
+      "khmer": "សិលាក្រែ",
+      "key": "102698af6f7b89869aa2ec593111afd9"
+    },
+    "Stratigraphy": {
+      "khmer": "ស្រទាប់សិលាវិទ្យា",
+      "key": "d558884b737e4d5b9c686bae6e3a96bb"
+    },
+    "Deposit": {
+      "khmer": "ជម្រករ៉ែ",
+      "key": "2cdddcc63c5da1c7a90ffe66cad86e38"
+    },
+    "Mining": {
+      "khmer": "អាជីវកម្មរ៉ែ",
+      "key": "256214a5fb590bc8d5bc5115c45292dd"
+    },
+    "Exploration": {
+      "khmer": "ការស្វែងរុករករ៉ែ",
+      "key": "0925973a3098d0d41b97dd50a3e6b44f"
+    },
+    "Groundwater": {
+      "khmer": "ទឹកក្រោមដី",
+      "key": "3a64f71dc82d17d5da17b4ca2450a6e3"
+    },
+    "Earthquake": {
+      "khmer": "ការរញ្ជួយដី",
+      "key": "2af7c8ae1b37abb887f89785842f311d"
+    },
+    "Rock": {
+      "khmer": "សិលា",
+      "key": "5cfc122e10e1e7ab8aedfb12c2ab6cb9"
+    },
+    "Soil": {
+      "khmer": "ដី",
+      "key": "d793d36745efc9e719bd6688d75be48b"
+    },
+    "Water": {
+      "khmer": "ទឹក",
+      "key": "52b3b22e81efbdbbd1a637621271aab7"
+    },
+    "Geoscience": {
+      "khmer": "ភូគព្ភវិទ្យាសាស្ត្រ",
+      "key": "4ad41b5a0349e25c6f3b1b6a95e7a883"
+    }
+  }
+}

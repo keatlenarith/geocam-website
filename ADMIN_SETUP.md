@@ -6,7 +6,7 @@ First use: choose **First-time account setup**, enter the approved email address
 
 Only the verified account for `keatlenarith@gmail.com` is authorized. Creating another account does not grant editing access. Passwords are managed by Supabase Auth; never put one in Git or share it in chat. Use **Forgot password?** to reset a password.
 
-Open a page from the dashboard, choose **Visual edit**, and click text or an image. English and Khmer are edited separately. **Save draft** stores changes privately in Supabase. **Publish** updates the version served to all visitors, without a Vercel deployment. Reopen or refresh a public page to see the new version. Existing open pages also reload published content when the window regains focus. Images must be PNG, JPEG, WebP or GIF, under 1.5 MB; the complete content document has a 10 MB database limit.
+Open a page from the dashboard, choose **Visual edit**, and double-click text to edit it directly. Select, rewrite, delete, copy, cut and paste normally; pasted content is plain text. Press Enter or click outside to finish, Shift+Enter for a new line, or Esc to cancel the current field. Click an image to replace it. English and Khmer are edited separately. **Save draft** stores changes privately in Supabase. **Publish** updates the version served to all visitors, without a Vercel deployment. Reopen or refresh a public page to see the new version. Existing open pages also reload published content when the window regains focus. Images must be PNG, JPEG, WebP or GIF, under 1.5 MB; the complete content document has a 10 MB database limit.
 
 This editor manages existing text and images on Home, About, Research, Membership and Contact. Dynamic research records and filtered map/listing pages are excluded to prevent one record’s edits affecting another. Adding research papers, new page layouts, and new article structures continues through the source repository. Prototype article/member administration is not enabled.
 
@@ -29,3 +29,9 @@ Database schema is recorded under `supabase/migrations/`. The private allowlist 
 ## Environmental monitoring
 
 The public page `/environmental-monitoring` embeds the supplied live Mining Monitoring Dashboard from Google Earth Engine. It is linked under Geoscience & Data. Use **Full screen**, **Reload dashboard**, or **Open original dashboard**. GeoCam does not copy the app’s private source code or duplicate its monitoring calculations; the original Earth Engine app continues to manage those.
+
+## Khmer translation
+
+GeoCam uses curated full-sentence Khmer catalogs in `src/lib/translations/` plus authoritative geological terms retrieved from the existing GeoCam Lexicon API. The source, retrieval date and dictionary entry keys are recorded in `src/lib/lexicon-terms.json`. It covers page text, UI labels, accessibility attributes, confirmations, common errors, filters, upload messages and research titles/descriptions. Khmer publication search also searches the Khmer titles and descriptions. English and Khmer visual-edit drafts stay separate. New English source copy requires a corresponding catalog entry; this is a maintained translation catalog, not an automatic machine-translation service for arbitrary future text.
+
+Proper names, filenames, author/journal citation details, URLs, scientific codes and required map attributions retain their originals. Original PDF/document contents are unchanged. The external Earth Engine app is deliberately excluded at the user’s request. Its GeoCam wrapper is translated. The external Lexicon remains its own bilingual app.

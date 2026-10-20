@@ -31,7 +31,17 @@ try{
  await page.goto(base+'/admin/login');await page.getByLabel('Email address').fill(user.email);await page.getByLabel('Password',{exact:true}).fill('incorrect');await page.getByRole('button',{name:'Sign in',exact:true}).first().click();await expect(page.getByRole('status')).toContainText('Invalid login credentials');
  await page.getByLabel('Password',{exact:true}).fill('test-password-only');await page.getByRole('button',{name:'Sign in',exact:true}).first().click();await page.getByRole('link',{name:'Open dashboard'}).click();await expect(page.getByRole('heading',{name:'Content dashboard'})).toBeVisible();
  await page.getByRole('link',{name:'Home',exact:true}).last().click();await page.getByRole('button',{name:'Visual edit',exact:true}).click();
- page.once('dialog',dialog=>dialog.accept('Private draft integration test'));await page.locator('[data-cms-id="hero-line-one"]').click();await expect(page.locator('[data-cms-id="hero-line-one"]')).toHaveText('Private draft integration test');
+ const editable=page.locator('[data-cms-id="hero-line-one"]');
+ await editable.click();await expect(editable).not.toHaveAttribute('contenteditable','plaintext-only');
+ await editable.dblclick();await expect(editable).toHaveAttribute('contenteditable','plaintext-only');
+ await adminContext.grantPermissions(['clipboard-read','clipboard-write'],{origin:base});
+ await editable.press('Control+A');await editable.press('Control+C');assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),original);
+ await editable.press('Control+X');await expect(editable).toHaveText('');await editable.press('Control+V');await expect(editable).toHaveText(original);
+ await editable.fill('Cancelled text');await editable.press('Escape');await expect(editable).toHaveText(original);await expect(editable).not.toHaveAttribute('contenteditable','plaintext-only');
+ await editable.dblclick();await editable.fill('');await editable.press('Enter');await expect(editable).toHaveText('');await editable.dblclick();
+ await page.evaluate(()=>{const data=new DataTransfer();data.setData('text/plain','<b>Pasted as text</b>');data.setData('text/html','<img src=x onerror="window.geocamPasteUnsafe=true">');document.activeElement.dispatchEvent(new ClipboardEvent('paste',{bubbles:true,cancelable:true,clipboardData:data}));});
+ await expect(editable).toHaveText('<b>Pasted as text</b>');assert.equal(await editable.locator('img,b,script').count(),0);assert.equal(await page.evaluate(()=>window.geocamPasteUnsafe),undefined);
+ await editable.fill('Private draft integration test');await expect(page.locator('[data-cms-id="hero-line-one"]')).toHaveText('Private draft integration test');
  await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('status')).toContainText('Draft saved');
  assert.ok(Object.keys(draft).length>0);assert.deepEqual(published,{});
  await visitor.reload();await expect(visitor.locator('[data-cms-id="hero-line-one"]')).toHaveText(original);

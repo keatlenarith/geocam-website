@@ -1,5 +1,7 @@
+import { attachInlineText } from "./inline-text";
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -8,7 +10,7 @@ import React, {
 import { supabase } from "../lib/supabase";
 import { useAdmin } from "../admin/Auth";
 import { useI18n } from "../lib/i18n";
-import { khmerLabels } from "../lib/auto-khmer";
+import { translateText, sourceText } from "../lib/translation";
 import { stableKey, candidates } from "./dom-keys";
 export type Entry = { kind: "text" | "image"; value: string };
 export type Store = Record<string, Record<string, Entry>>;
@@ -37,6 +39,7 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
   const { admin } = useAdmin();
   const [draft, setDraft] = useState<Store>({}),
     [published, setPublished] = useState<Store>({});
+  const draftRef = useRef<Store>({});
   const [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
     [busy, setBusy] = useState(false),
@@ -63,6 +66,7 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
     let current = true;
     setReady(false);
     setEditing(false);
+    draftRef.current = {};
     setDraft({});
     setDirty(false);
     setError("");
@@ -78,6 +82,7 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
             setError("Unable to load drafts. Reload before editing.");
             return;
           }
+          draftRef.current = data.content as Store;
           setDraft(data.content as Store);
           setReady(true);
         });
@@ -94,14 +99,19 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [dirty]);
-  const setEntry = (page: string, key: string, entry: Entry) => {
-    if (!admin || !ready || busy) return;
-    setDraft((value) => ({
-      ...value,
-      [page]: { ...value[page], [key]: entry },
-    }));
-    setDirty(true);
-  };
+  const setEntry = useCallback(
+    (page: string, key: string, entry: Entry) => {
+      if (!admin || !ready || busy) return;
+      const next = {
+        ...draftRef.current,
+        [page]: { ...draftRef.current[page], [key]: entry },
+      };
+      draftRef.current = next;
+      setDraft(next);
+      setDirty(true);
+    },
+    [admin, ready, busy],
+  );
   const write = async (publish: boolean) => {
     if (!admin || !ready || busy)
       throw Error("Administrator access and loaded drafts are required.");
@@ -110,7 +120,7 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
     try {
       const row = {
         id: "site",
-        content: draft,
+        content: structuredClone(draftRef.current),
         updated_at: new Date().toISOString(),
       };
       const saved = await supabase.from("geocam_drafts").upsert(row);
@@ -119,7 +129,7 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
       if (publish) {
         const result = await supabase.from("geocam_published").upsert(row);
         if (result.error) throw result.error;
-        setPublished(structuredClone(draft));
+        setPublished(structuredClone(row.content));
       }
     } catch (error) {
       const message =
@@ -148,7 +158,8 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
         publish: () => write(true),
         restore: (value) => {
           if (admin && ready && !busy) {
-            setDraft(structuredClone(value));
+            draftRef.current = structuredClone(value);
+            setDraft(draftRef.current);
             setDirty(true);
           }
         },
@@ -159,9 +170,18 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
     </Context.Provider>
   );
 }
-export const editablePages = ["/", "/about", "/research", "/membership", "/contact"];
+export const editablePages = [
+  "/",
+  "/about",
+  "/research",
+  "/membership",
+  "/contact",
+];
 const emptyContent: Store = {};
-const originals = new WeakMap<Element, string>();
+const originals = new WeakMap<
+  Element,
+  { en?: string; km?: string; rendered?: string }
+>();
 export function VisualCmsLayer({ page }: { page: string }) {
   const { admin } = useAdmin();
   const {
@@ -189,25 +209,31 @@ export function VisualCmsLayer({ page }: { page: string }) {
     const keyspace = page + "::" + lang;
     const apply = () => {
       for (const el of candidates(main)) {
+        if (el.hasAttribute("data-cms-inline")) continue;
         const key = stableKey(el, main);
         const image =
           el.tagName === "IMG" || el.hasAttribute("data-cms-background");
-        if (!originals.has(el))
-          originals.set(
-            el,
-            image
-              ? el.tagName === "IMG"
-                ? el.getAttribute("src") || ""
-                : getComputedStyle(el).backgroundImage
-              : el.textContent || "",
-          );
-        const original = originals.get(el) || "";
+        const record = originals.get(el) || {};
+        const source = image
+          ? el.tagName === "IMG"
+            ? el.getAttribute("src") || ""
+            : getComputedStyle(el).backgroundImage
+          : sourceText(el);
+        if (record.en === undefined && !/[\u1780-\u17ff]/.test(source))
+          record.en = source;
+        if (record[lang] === undefined)
+          record[lang] =
+            source === record.rendered && record.en !== undefined
+              ? record.en
+              : source;
+        originals.set(el, record);
+        const original = record[lang] || "";
         const entry = active[keyspace]?.[key];
         const value =
           entry?.kind === (image ? "image" : "text")
             ? entry.value
             : !image && lang === "km"
-              ? khmerLabels[original.trim()] || original
+              ? translateText(original)
               : original;
         if (el.hasAttribute("data-cms-background"))
           el.style.backgroundImage =
@@ -217,6 +243,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
         else if (el.tagName === "IMG") {
           if (el.getAttribute("src") !== value) el.setAttribute("src", value);
         } else if (el.textContent !== value) el.textContent = value;
+        record.rendered = value;
         el.dataset.cmsKey = key;
         el.classList.toggle("geocam-editable", editingPage);
       }
@@ -236,10 +263,10 @@ export function VisualCmsLayer({ page }: { page: string }) {
         "[data-cms-key]",
       );
       if (!el || !main.contains(el)) return;
-      event.preventDefault();
-      event.stopPropagation();
       const key = el.dataset.cmsKey!;
       if (el.tagName === "IMG" || el.hasAttribute("data-cms-background")) {
+        event.preventDefault();
+        event.stopPropagation();
         const input = document.createElement("input");
         input.type = "file";
         input.accept = "image/png,image/jpeg,image/webp,image/gif";
@@ -264,9 +291,6 @@ export function VisualCmsLayer({ page }: { page: string }) {
           reader.readAsDataURL(file);
         };
         input.click();
-      } else {
-        const value = prompt("Edit text:", el.textContent || "");
-        if (value !== null) setEntry(keyspace, key, { kind: "text", value });
       }
     };
     main.addEventListener("click", click, true);
@@ -282,6 +306,14 @@ export function VisualCmsLayer({ page }: { page: string }) {
         .forEach((el) => el.classList.remove("geocam-editable"));
     };
   }, [page, lang, active, editingPage, busy, setEntry]);
+  useEffect(() => {
+    const main = document.getElementById("main");
+    if (!main || !editingPage || busy) return;
+    return attachInlineText(main, {
+      commit: (key, value) =>
+        setEntry(page + "::" + lang, key, { kind: "text", value }),
+    });
+  }, [page, lang, editingPage, busy, setEntry]);
   if (!admin || !editable || page.startsWith("/admin")) return null;
   const run = async (action: () => Promise<void>, message: string) => {
     try {
@@ -333,6 +365,12 @@ export function VisualCmsLayer({ page }: { page: string }) {
           Sign out
         </button>
       </div>
+      {editingPage && (
+        <p className="mt-2 text-xs">
+          Double-click text to edit. Select, copy, cut or paste normally. Enter
+          finishes; Shift+Enter adds a line; Esc cancels.
+        </p>
+      )}
       <p className="mt-2" role="status">
         {error ||
           notice ||
