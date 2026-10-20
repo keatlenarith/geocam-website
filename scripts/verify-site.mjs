@@ -16,6 +16,8 @@ page.on("pageerror", (error) => errors.push(error.message));
 try {
   await page.goto(base + "/publications");
   await page.getByText("50 results", { exact: true }).waitFor();
+  assert.equal(await page.locator("[data-cms-ui]").count(), 0);
+  assert.equal(await page.locator('a[href^="/admin"]').count(), 0);
   await page.getByLabel("Search publications").fill("karst");
   const filteredCount = await page
     .locator('a[href^="/publications/view?"]')
@@ -77,6 +79,11 @@ try {
         response.headers()["content-type"].includes("application/pdf"),
         url,
       );
+  }
+  for (const route of ["/admin", "/admin/cms", "/admin/editor"]) {
+    await page.goto(base + route);
+    await page.getByRole("heading", { name: "Page not found", exact: true }).waitFor();
+    assert.equal(await page.locator("[data-cms-ui]").count(), 0);
   }
   assert.deepEqual(errors, []);
   console.log(

@@ -103,7 +103,6 @@ export function SiteFooter() {
         </div>
         <div className="space-y-2 text-sm">
           {nav.slice(4).map((n) => <Link key={n.to} to={n.to} className="block opacity-80 hover:opacity-100">{t(n.k)}</Link>)}
-          <Link to="/admin" className="block opacity-80 hover:opacity-100">{t("admin")}</Link>
         </div>
       </div>
       <p className="border-t border-on-dark/15 py-5 text-center text-xs opacity-60">© 2026 GeoCam prototype · Sample content only · No official endorsements implied</p>
