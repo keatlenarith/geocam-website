@@ -9,7 +9,7 @@ const keys=new Map(Object.entries(translations).map(([key,value])=>[key.replace(
 for(const record of library)for(const field of ['title','abstract'])assert.ok(keys.has(record[field].replace(/\s+/g,' ').trim().toLowerCase()),record[field]);
 const browser=await chromium.launch({channel:'chrome',headless:true});
 try{
- const ctx=await browser.newContext();await ctx.route('**/research/documents/**',route=>route.abort());
+ const ctx=await browser.newContext();await ctx.route(/https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/,route=>route.abort());await ctx.route('**/research/documents/**',route=>route.abort());
  const page=await ctx.newPage();const errors=[];page.on('pageerror',error=>errors.push(error.message));
  await page.goto(base+'/contact',{waitUntil:'domcontentloaded'});const contactEnglish=await page.locator('h1').innerText();
  await page.getByRole('button',{name:'ខ្មែរ',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('lang','km');await expect(page.locator('h1')).not.toHaveText(contactEnglish);
