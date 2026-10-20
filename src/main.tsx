@@ -19,8 +19,10 @@ import { Route as News } from "./routes/news";
 import { Route as Contact } from "./routes/contact";
 import { Route as Dashboard } from "./routes/dashboard";
 import { LexiconEmbed } from "./visual-cms/LexiconEmbed";
-import MiningPortal from "./features/mining/MiningPortal";
-import GeoparkExplorer from "./features/geopark/GeoparkExplorer";
+const MiningPortal = React.lazy(() => import("./features/mining/MiningPortal"));
+const GeoparkExplorer = React.lazy(
+  () => import("./features/geopark/GeoparkExplorer"),
+);
 import NewsItem from "./routes/news-item";
 import ArticleReader from "./editor/ArticleReader";
 import ResearchTopic from "./routes/research-topic";
@@ -68,7 +70,11 @@ function App() {
           <SiteHeader />
           <main id="main">
             {Page ? (
-              <Page />
+              <React.Suspense
+                fallback={<p className="px-5 py-16">Loading page…</p>}
+              >
+                <Page />
+              </React.Suspense>
             ) : (
               <div className="mx-auto max-w-5xl px-4 py-24">
                 <h1 className="text-3xl">Page not found</h1>

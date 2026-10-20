@@ -32,6 +32,7 @@ const lookup = new Map(
   ]),
 );
 const backend: Record<string, string> = {
+  "Loading page…": "កំពុងផ្ទុកទំព័រ…",
   "GeoCam | Geosciences Society of Cambodia":
     "GeoCam | សមាគមភូគព្ភសាស្ត្រកម្ពុជា",
   Jan: "មករា",

@@ -25,11 +25,11 @@ async function context(){const ctx=await browser.newContext();await ctx.route(ap
 try{
  const adminContext=await context(),visitorContext=await context();const page=await adminContext.newPage(),visitor=await visitorContext.newPage();
  const errors=[];page.on('pageerror',error=>errors.push(error.message));
- await visitor.goto(base);await expect(visitor.locator('[data-cms-ui]')).toHaveCount(0);
+ await visitor.goto(base,{waitUntil:'domcontentloaded'});await expect(visitor.locator('[data-cms-ui]')).toHaveCount(0);
  const original=await visitor.locator('[data-cms-id="hero-line-one"]').textContent();
- await page.goto(base+'/admin/cms');await expect(page.getByRole('heading',{name:'Administrator access required'})).toBeVisible();
- await page.goto(base+'/admin/login');await page.getByLabel('Email address').fill(user.email);await page.getByLabel('Password',{exact:true}).fill('incorrect');await page.getByRole('button',{name:'Sign in',exact:true}).first().click();await expect(page.getByRole('status')).toContainText('Invalid login credentials');
- await page.getByLabel('Password',{exact:true}).fill('test-password-only');await page.getByRole('button',{name:'Sign in',exact:true}).first().click();await page.getByRole('link',{name:'Open dashboard'}).click();await expect(page.getByRole('heading',{name:'Content dashboard'})).toBeVisible();
+ await page.goto(base+'/admin/cms',{waitUntil:'domcontentloaded'});await expect(page.getByRole('heading',{name:'Administrator access required'})).toBeVisible();
+ await page.goto(base+'/admin/login',{waitUntil:'domcontentloaded'});await page.getByLabel('Email address').fill(user.email);await page.getByLabel('Password',{exact:true}).fill('incorrect');await page.getByRole('button',{name:'Sign in',exact:true}).first().click();await expect(page.getByRole('status')).toContainText('Invalid login credentials');
+ await page.getByLabel('Password',{exact:true}).fill('test-password-only');await page.getByRole('button',{name:'Sign in',exact:true}).first().click();await page.getByRole('link',{name:'Open dashboard'}).click();await page.waitForLoadState('domcontentloaded');await expect(page.getByRole('heading',{name:'Content dashboard'})).toBeVisible();
  await page.getByRole('link',{name:'Home',exact:true}).last().click();await page.getByRole('button',{name:'Visual edit',exact:true}).click();
  const editable=page.locator('[data-cms-id="hero-line-one"]');
  await editable.click();await expect(editable).not.toHaveAttribute('contenteditable','plaintext-only');
