@@ -4,7 +4,7 @@ React + Vite + TypeScript website for Cambodian geoscience, extracted from the o
 
 ## Run
 
-Requires Node.js 22.12+ or a newer supported Node release.
+Requires Node.js 22.18+ or Node.js 24+ (the catalog tests load TypeScript directly).
 
 ```sh
 npm ci
@@ -29,7 +29,7 @@ Three recent references overlap the local collection and are represented once. T
 
 Create a new app using the plus menu in Build, choose **Import from GitHub**, and select `keatlenarith/geocam-website` on `main`. Import the extracted source, not the original legacy ZIP. This is a Vite React application and does not require a Gemini API key. AI Studio imports are a separate copy; the import screen states that imported code does not stay synced automatically.
 
-If the full binary collection exceeds an import limit, use the supplied lightweight AI Studio ZIP, which reads research files from the public GitHub repository. The full GitHub project remains self-contained.
+New AI Studio app created on 20 October 2026: https://aistudio.google.com/apps/cf220e49-b774-4eb2-854a-d8668b8298b9 . The imported home page and 50-reference publication library loaded successfully, and a collected research PDF opened from the app.
 
 ## Checks
 
@@ -38,3 +38,4 @@ If the full binary collection exceeds an import limit, use the supplied lightwei
 ## Existing prototype features
 
 The original home, research, membership, maps, mining, geopark, news, editor and bilingual navigation remain. News/events/membership records and admin/editor actions are still demonstrations; the admin is not an authenticated production CMS. This update adds a static research repository, not a server-backed upload service.
+
