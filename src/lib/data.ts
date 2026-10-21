@@ -94,12 +94,25 @@ export const news: Article[] = [
   },
   {
     id: "n4",
-    title: "Draft: Groundwater arsenic outreach brief",
+    title: "Groundwater arsenic & aquifer monitoring survey",
+    titleKm: "ការសិក្សាស្រាវជ្រាវកម្រិតអាសេនិចក្នុងទឹកក្រោមដី និងស្រទាប់ទឹក",
     date: "2026-10-05",
-    excerpt: "Hydrogeological study on floodplain aquifer arsenic variations.",
-    status: "draft",
+    excerpt:
+      "Hydrogeological study assesses seasonal arsenic variations, floodplain aquifer protection, and community water testing initiatives.",
+    status: "published",
     tag: "Geochemistry",
     image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    id: "n5",
+    title: "Regional mineral mapping & satellite spectroscopy",
+    titleKm: "ការធ្វើផែនទីរ៉ែក្នុងតំបន់ និងការវិភាគវិសាលគមផ្កាយរណប",
+    date: "2026-10-18",
+    excerpt:
+      "Multispectral satellite imagery identifies hydrothermal alteration zones, bedrock structural lineaments, and prospective geological corridors.",
+    status: "published",
+    tag: "Mining",
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80",
   },
 ];
 

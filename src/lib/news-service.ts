@@ -35,7 +35,8 @@ export const defaultSeedNews: NewsItem[] = seedNews
     contentKm: "",
     image: item.image || "",
     updatedAt: item.date,
-  }));
+  }))
+  .sort((a, b) => b.date.localeCompare(a.date));
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const isManagedNews = (id: string) => uuid.test(id);
 
@@ -44,6 +45,7 @@ export const SEED_UUID_MAP: Record<string, string> = {
   n2: "00000000-0000-4000-9000-000000000002",
   n3: "00000000-0000-4000-9000-000000000003",
   n4: "00000000-0000-4000-9000-000000000004",
+  n5: "00000000-0000-4000-9000-000000000005",
 };
 
 let publicCache: NewsItem[] = [],
