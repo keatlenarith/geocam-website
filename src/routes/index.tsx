@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@/lib/spa-router";
 import hero from "@/assets/hero.jpg";
 import outcrop from "@/assets/outcrop.jpg";
 import { useI18n } from "@/lib/i18n";
-import { events, news, researchAreas } from "@/lib/data";
+import { useState, useEffect } from "react";
+import { events, researchAreas } from "@/lib/data";
+import { getPublishedNews, type NewsItem } from "@/lib/news-service";
 import { meta } from "@/components/site/Chrome";
 import { ArrowUpRight, ArrowRight, Layers3, Mountain, BookOpen, Microscope, Users, Globe2, Compass, Sparkles, FileText, CalendarDays, MapPinned } from "lucide-react";
 
@@ -35,7 +37,18 @@ const focusImages: Record<string, {src: string; alt: string}> = {
     alt: "Mountain slope stability, canyon erosion, and geological fault hazard observation"
   },
 };
-function Home(){const {lang}=useI18n();const c=copy[lang];return <div className="geocam-landing">
+function Home() {
+  const { lang } = useI18n();
+  const c = copy[lang];
+  const [newsList, setNewsList] = useState<NewsItem[]>(() => getPublishedNews());
+
+  useEffect(() => {
+    const handleUpdate = () => setNewsList(getPublishedNews());
+    window.addEventListener("geocam:news-updated", handleUpdate);
+    return () => window.removeEventListener("geocam:news-updated", handleUpdate);
+  }, []);
+
+  return <div className="geocam-landing">
 <section className="gc-hero relative isolate overflow-hidden"><img data-cms-id="home-hero-image" src={hero} alt="Cambodian mountainous landscape" className="gc-hero-image absolute inset-0 -z-20 h-full w-full object-cover"/><div className="gc-hero-wash absolute inset-0 -z-10"/><div className="mx-auto grid max-w-[1800px] items-center gap-10 px-5 py-24 md:min-h-[700px] lg:grid-cols-[1.15fr_.85fr] lg:py-28"><div><span className="gc-kicker gc-kicker-light"><Sparkles size={14}/>{c.pill}</span><h1 className="gc-display mt-8"><span data-cms-id="hero-line-one">{c.headingA}</span><br/><span data-cms-id="hero-line-two" className="gc-highlight">{c.headingB}</span></h1><p data-cms-id="hero-description" className="mt-7 max-w-xl text-lg leading-relaxed text-white/85">{c.subtitle}</p><div className="mt-9 flex flex-wrap gap-3"><Link to="/geodata" className="gc-button gc-button-light">{c.explore}<ArrowUpRight size={18}/></Link><Link to="/about" className="gc-button gc-button-outline">{c.discover}<ArrowRight size={18}/></Link></div><div className="mt-12 flex flex-wrap items-center gap-x-7 gap-y-3 text-xs font-semibold uppercase tracking-[.15em] text-white/70"><span className="flex items-center gap-2"><Globe2 size={17}/> GeoData</span><span className="flex items-center gap-2"><Mountain size={17}/> 3D Geopark</span><span className="flex items-center gap-2"><BookOpen size={17}/> Lexicon</span></div></div><div className="hidden lg:flex justify-end"><div className="gc-hero-card"><img src="/geocam-logo.png" alt="GeoCam society emblem" className="mx-auto h-40 w-40 rounded-full object-contain drop-shadow-lg"/><p className="mt-5 text-center text-sm font-semibold tracking-[.2em] text-white/90">GEOSCIENCES SOCIETY<br/>OF CAMBODIA</p><div className="gc-hero-card-line"/><p className="text-center text-sm text-white/75">{c.footerNote}</p></div></div></div></section>
 <section className="gc-section mx-auto max-w-[1800px] px-5"><div className="gc-section-heading"><div><span className="gc-kicker"><Compass size={15}/> GEOCAM PLATFORM</span><h2 data-cms-id="features-heading" className="gc-title">{c.featured}</h2><p data-cms-id="features-subheading" className="gc-subtitle">{c.featuredSub}</p></div></div><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">{features.map(({to,icon:Icon,title,desc,tone,image,alt},i)=><Link key={to} to={to} className={`gc-feature gc-tone-${tone}`}><div className="gc-feature-photo-wrap"><img data-cms-id={`feature-photo-${title}`} src={image} alt={alt} loading="lazy" className="gc-feature-photo" onError={(e)=>{e.currentTarget.style.opacity="0"}}/><span className="gc-feature-icon"><Icon size={23} strokeWidth={1.8}/></span></div><span className="gc-feature-index">0{i+1}</span><h3 className="mt-5 text-xl font-semibold">{c[title]}</h3><p className="mt-3 min-h-[68px] text-sm leading-relaxed text-slate-600">{c[desc]}</p><span className="gc-feature-arrow"><ArrowUpRight size={19}/></span></Link>)}</div></section>
 <section className="gc-section gc-mission"><div className="mx-auto grid max-w-[1800px] items-center gap-14 px-5 lg:grid-cols-2"><div className="relative"><img data-cms-id="mission-image" src={outcrop} alt="Geological rock outcrop and fieldwork" className="gc-mission-image"/><div className="gc-mission-stamp"><Mountain size={24}/><span>FIELD SCIENCE<br/>CAMBODIA</span></div></div><div><span className="gc-kicker"><Globe2 size={15}/>{c.missionTag}</span><h2 data-cms-id="mission-title" className="gc-title mt-5">{c.missionTitle}</h2><p data-cms-id="mission-body" className="mt-6 max-w-xl text-lg leading-relaxed text-slate-600">{c.missionBody}</p><Link to="/about" className="gc-button gc-button-dark mt-9">{c.missionLink}<ArrowUpRight size={18}/></Link></div></div></section>
@@ -81,12 +94,12 @@ function Home(){const {lang}=useI18n();const c=copy[lang];return <div className=
     })}
   </div>
 </section>
-<section className="gc-section gc-updates"><div className="mx-auto max-w-[1800px] px-5"><span className="gc-kicker"><CalendarDays size={15}/> COMMUNITY</span><h2 className="gc-title mt-5">{c.updates}</h2><p className="gc-subtitle">{c.updatesSub}</p><div className="mt-10 grid gap-10 lg:grid-cols-[1.6fr_1fr]"><div><div className="flex items-center justify-between"><h3 className="text-xl font-semibold">{c.latest}</h3><Link to="/news" className="gc-text-link">{c.all}<ArrowUpRight size={16}/></Link></div><div className="mt-5 grid gap-4 md:grid-cols-2">{news.filter(n=>n.status==='published').slice(0,4).map(n=>(
-  <Link to="/news" key={n.id} className="gc-news-card group block overflow-hidden rounded-xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+<section className="gc-section gc-updates"><div className="mx-auto max-w-[1800px] px-5"><span className="gc-kicker"><CalendarDays size={15}/> COMMUNITY</span><h2 className="gc-title mt-5">{c.updates}</h2><p className="gc-subtitle">{c.updatesSub}</p><div className="mt-10 grid gap-10 lg:grid-cols-[1.6fr_1fr]"><div><div className="flex items-center justify-between"><h3 className="text-xl font-semibold">{c.latest}</h3><Link to="/news" className="gc-text-link">{c.all}<ArrowUpRight size={16}/></Link></div><div className="mt-5 grid gap-4 md:grid-cols-2">{newsList.slice(0, 4).map(n => (
+  <Link to={"/news/item?id=" + encodeURIComponent(n.id)} key={n.id} className="gc-news-card group block overflow-hidden rounded-xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
     <div className="relative mb-4 h-48 w-full overflow-hidden rounded-lg bg-slate-100">
       <img
         src={n.image || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80"}
-        alt={lang==='km'&&n.titleKm?n.titleKm:n.title}
+        alt={lang === 'km' && n.titleKm ? n.titleKm : n.title}
         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         loading="lazy"
       />
@@ -96,11 +109,13 @@ function Home(){const {lang}=useI18n();const c=copy[lang];return <div className=
     </div>
     <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700">{n.tag} · {n.date}</span>
     <h4 className="mt-2 text-lg font-bold text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-2">
-      {lang==='km'&&n.titleKm?n.titleKm:n.title}
+      {lang === 'km' && n.titleKm ? n.titleKm : n.title}
     </h4>
-    <p className="mt-2 text-sm text-slate-600 line-clamp-2 leading-relaxed">{n.excerpt}</p>
+    <p className="mt-2 text-sm text-slate-600 line-clamp-2 leading-relaxed">
+      {lang === 'km' && n.excerptKm ? n.excerptKm : n.excerpt}
+    </p>
     <div className="mt-4 flex items-center gap-1 text-sm font-semibold text-emerald-700">
-      <span>{lang==='km'?'អានព័ត៌មាន':'Read story'}</span>
+      <span>{lang === 'km' ? 'អានព័ត៌មាន' : 'Read story'}</span>
       <ArrowUpRight size={16} />
     </div>
   </Link>

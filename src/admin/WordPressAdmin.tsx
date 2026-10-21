@@ -38,6 +38,7 @@ import Appearance from "./Appearance";
 import LayerManager from "../features/geodata/LayerManager";
 import type { MapDataset } from "../features/geodata/import-geodata";
 import { fetchPostDrafts, savePost, newPost, type Post } from "./posts";
+import { getAllNews } from "../lib/news-service";
 import { applications as seedApps, events as seedEvents, type Application, type EventItem, type Publication } from "../lib/data";
 import researchLibrary from "../lib/research-library.json";
 import { translateText } from "../lib/translation";
@@ -220,20 +221,7 @@ const publicationCategories = [
 ] as const;
 
 export default function WordPressAdmin() {
-  const { draft, published, ready, setEntry, save, publish } = (() => {
-    try {
-      return useCms();
-    } catch {
-      return {
-        draft: {} as Record<string, Record<string, { kind: "text" | "image"; value: string }>>,
-        published: {} as Record<string, Record<string, { kind: "text" | "image"; value: string }>>,
-        ready: true,
-        setEntry: () => {},
-        save: async () => {},
-        publish: async () => {},
-      };
-    }
-  })();
+  const { draft, published, ready, setEntry, save, publish } = useCms();
 
   const [section, setSection] = useState<AdminSection>(() => {
     const params = new URLSearchParams(window.location.search);
@@ -300,24 +288,35 @@ export default function WordPressAdmin() {
       .catch(() => {});
   }, []);
 
-  // When active page or language switches, populate input fields
+  const pageFields: Record<string, {headline:string;sub:string;image?:string}> = {
+    '/': {headline:'hero-line-one',sub:'hero-description',image:'home-hero-image'},
+    '/about': {headline:'section:0/div:0/h1:0',sub:'section:0/div:0/p:1',image:'about-background-image'},
+    '/research': {headline:'section:0/div:0/h1:0',sub:'div:0/div:0/a:0/div:0/p:0'},
+    '/membership': {headline:'section:0/div:0/h1:0',sub:'section:0/div:0/p:1'},
+    '/contact': {headline:'professional-contact-name',sub:'professional-contact-role',image:'professional-profile-photo'},
+  };
+  const selectedFields = pageFields[activePage];
   useEffect(() => {
-    const def = defaultPageData[activePage] || defaultPageData["/"];
-    const keyspace = activePage + "::" + pageLang;
-    const store = (draft as any)[keyspace] || (draft as any)[activePage + "::en"] || (draft as any)[activePage] || {};
-
-    setFieldHeadline(store["hero:headline"]?.value || (pageLang === "en" ? def.headlineEn : def.headlineKm));
-    setFieldSub(store["hero:sub"]?.value || (pageLang === "en" ? def.subEn : def.subKm));
-    setFieldImage(store["hero:image"]?.value || def.heroImage);
-    setPageMessage("");
+    const fields = pageFields[activePage];
+    const english = draft[activePage + '::en'] || {};
+    // Missing overrides stay empty: saving one field must not replace real copy with sample defaults.
+    const text = (key?:string) => key ? english[key]?.value || '' : '';
+    setFieldHeadline(pageLang === 'km' ? translateText(text(fields?.headline)) : text(fields?.headline));
+    setFieldSub(pageLang === 'km' ? translateText(text(fields?.sub)) : text(fields?.sub));
+    setFieldImage(text(fields?.image));
+    setPageMessage('');
   }, [activePage, pageLang, draft]);
-
-  const handleNav = (sec: AdminSection) => {
+  const requestNavigation = (proceed:()=>void) => {
+    const event = new CustomEvent('geocam:request-navigation', {cancelable:true,detail:{proceed}});
+    window.dispatchEvent(event);
+    if (!event.defaultPrevented) proceed();
+  };
+  const handleNav = (sec: AdminSection) => requestNavigation(() => {
     setSection(sec);
     const url = new URL(window.location.href);
-    url.searchParams.set("section", sec);
-    window.history.pushState({}, "", url.toString());
-  };
+    url.searchParams.set('section', sec);
+    window.history.pushState({}, '', url.toString());
+  });
 
   /**
    * CRITICAL UX RULE:
@@ -329,32 +328,21 @@ export default function WordPressAdmin() {
     setPageSaving(true);
     setPageMessage("");
     try {
-      const keyspaceCurrent = activePage + "::" + pageLang;
-      const keyspaceOther = activePage + "::" + (pageLang === "en" ? "km" : "en");
-
-      // 1. Text updates: current language + sync to other language
-      setEntry(keyspaceCurrent, "hero:headline", { kind: "text", value: fieldHeadline });
-      setEntry(keyspaceCurrent, "hero:sub", { kind: "text", value: fieldSub });
-
-      if (pageLang === "en") {
-        setEntry(keyspaceOther, "hero:headline", { kind: "text", value: translateText(fieldHeadline) || fieldHeadline });
-        setEntry(keyspaceOther, "hero:sub", { kind: "text", value: translateText(fieldSub) || fieldSub });
-      } else {
-        setEntry(keyspaceOther, "hero:headline", { kind: "text", value: fieldHeadline });
-        setEntry(keyspaceOther, "hero:sub", { kind: "text", value: fieldSub });
-      }
-
-      // 2. Image/photo updates: MUST BE OVERALL CHANGE across EN, KM and base!
-      setEntry(keyspaceCurrent, "hero:image", { kind: "image", value: fieldImage });
-      setEntry(keyspaceOther, "hero:image", { kind: "image", value: fieldImage });
-      setEntry(activePage, "hero:image", { kind: "image", value: fieldImage });
+      if (!selectedFields || pageLang !== 'en') throw Error('Edit the English source on an editable page.');
+      const space = activePage + '::en';
+      if (fieldHeadline !== (draft[space]?.[selectedFields.headline]?.value || ''))
+        setEntry(space, selectedFields.headline, {kind:'text',value:fieldHeadline});
+      if (fieldSub !== (draft[space]?.[selectedFields.sub]?.value || ''))
+        setEntry(space, selectedFields.sub, {kind:'text',value:fieldSub});
+      if (selectedFields.image && fieldImage !== (draft[space]?.[selectedFields.image]?.value || ''))
+        setEntry(space, selectedFields.image, {kind:'image',value:fieldImage});
 
       if (doPublish) {
         await publish();
         setPageMessage("🎉 Overall change published LIVE across all languages!");
       } else {
         await save();
-        setPageMessage("✔ Saved to drafts (Both EN & KM synchronized).");
+        setPageMessage("✔ Page draft saved. English controls Khmer translations; images are shared.");
       }
     } catch {
       setPageMessage("Failed to save. Check Supabase connection.");
@@ -422,10 +410,9 @@ export default function WordPressAdmin() {
     setTimeout(() => setPaperMessage(""), 4000);
   };
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    window.location.assign("/admin/login");
-  };
+  const signOut = () => requestNavigation(() => {
+    void supabase.auth.signOut().then(() => window.location.assign("/admin/login"));
+  });
 
   const filteredPapers = papers.filter((p) => {
     const matchesTopic = selectedTopic === "All" || p.topic.toLowerCase() === selectedTopic.toLowerCase();
@@ -437,7 +424,7 @@ export default function WordPressAdmin() {
     return matchesTopic && matchesSearch;
   });
 
-  const availablePagesList = Object.keys(defaultPageData);
+  const availablePagesList = editablePages;
   const filteredPagesList = availablePagesList.filter((slug) => {
     if (pageGroupFilter === "All") return true;
     return defaultPageData[slug]?.category === pageGroupFilter;
@@ -515,7 +502,7 @@ export default function WordPressAdmin() {
               {!collapsed && (
                 <>
                   <span>Posts</span>
-                  {posts.length > 0 && <span className="menu-count">{posts.length}</span>}
+                  <span className="menu-count" style={{ background: "#059669" }}>{getAllNews().length}</span>
                 </>
               )}
             </li>
@@ -686,8 +673,8 @@ export default function WordPressAdmin() {
                         <li>
                           <FileText size={20} style={{ color: "#38bdf8" }} />
                           <div>
-                            <strong>{posts.length}</strong>
-                            <div>Active Posts</div>
+                            <strong>{getAllNews().length}</strong>
+                            <div>Active Posts & News</div>
                           </div>
                         </li>
                         <li>
@@ -908,11 +895,13 @@ export default function WordPressAdmin() {
                 <div className="postbox-inside">
                   <div className="page-editor-field">
                     <label style={{ display: "block", fontWeight: 700, marginBottom: "6px" }}>
-                      Hero Main Headline ({pageLang === "en" ? "English" : "Khmer"}):
+                      Page heading ({pageLang === "en" ? "English source" : "Khmer translation preview"}):
                     </label>
                     <input
                       type="text"
                       value={fieldHeadline}
+                      readOnly={pageLang === "km"}
+                      placeholder="Use Visual edit on the live page to see or change its existing text"
                       onChange={(e) => setFieldHeadline(e.target.value)}
                     />
                   </div>
@@ -924,6 +913,7 @@ export default function WordPressAdmin() {
                     <textarea
                       rows={3}
                       value={fieldSub}
+                      readOnly={pageLang === "km"}
                       onChange={(e) => setFieldSub(e.target.value)}
                     ></textarea>
                   </div>
@@ -935,6 +925,7 @@ export default function WordPressAdmin() {
                     <input
                       type="text"
                       value={fieldImage}
+                      disabled={!selectedFields?.image || pageLang === "km"}
                       onChange={(e) => setFieldImage(e.target.value)}
                     />
                   </div>
@@ -942,14 +933,14 @@ export default function WordPressAdmin() {
                   <div style={{ display: "flex", gap: "12px", marginTop: "20px", alignItems: "center" }}>
                     <button
                       className="button"
-                      disabled={pageSaving}
+                      disabled={pageSaving || !ready || pageLang !== "en" || !selectedFields}
                       onClick={() => handleSavePageFields(false)}
                     >
                       <Save size={15} /> Save Draft
                     </button>
                     <button
                       className="button button-primary"
-                      disabled={pageSaving}
+                      disabled={pageSaving || !ready || pageLang !== "en" || !selectedFields}
                       onClick={() => handleSavePageFields(true)}
                     >
                       <Globe size={15} /> Publish Overall Changes Live

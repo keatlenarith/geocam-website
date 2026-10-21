@@ -1,4 +1,9 @@
-import { updateLinkedField, linkedEntry, rebaseDraft } from "./linked-content";
+import {
+  updateLinkedField,
+  linkedEntry,
+  rebaseDraft,
+  pageChanges,
+} from "./linked-content";
 import { attachInlineText } from "./inline-text";
 import React, {
   createContext,
@@ -220,22 +225,12 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
       savedDraftRef.current = structuredClone(row.content);
       setDirty(false);
       if (publish) {
-        // Font drafts require the dedicated Approve action in Appearance.
-        const currentLive = await supabase
-          .from("geocam_published")
-          .select("content")
-          .eq("id", "site")
-          .single();
-        if (currentLive.error) throw currentLive.error;
-        const content = structuredClone(row.content);
-        if (currentLive.data.content.__appearance)
-          content.__appearance = currentLive.data.content.__appearance;
-        else delete content.__appearance;
-        const result = await supabase
-          .from("geocam_published")
-          .upsert({ ...row, content });
+        // Atomic field patches preserve concurrent font approvals and unrelated edits.
+        const result = await supabase.rpc("geocam_publish_page_changes", {
+          p_changes: pageChanges(row.content, published),
+        });
         if (result.error) throw result.error;
-        setPublished(content);
+        setPublished(result.data as Store);
       }
     } catch (error) {
       const message =
@@ -328,6 +323,9 @@ export function VisualCmsLayer({ page }: { page: string }) {
     const keyspace = page + "::" + lang;
     const apply = () => {
       for (const el of candidates(main)) {
+        // Data-driven views must not freeze result counts or bind edits to a
+        // different record after a filter changes. Only stable named fields.
+        if (!["/", "/about", "/research", "/membership", "/contact"].includes(page) && !el.hasAttribute("data-cms-id")) continue;
         if (el.hasAttribute("data-cms-inline")) continue;
         const key = stableKey(el, main);
         const image =
@@ -348,9 +346,14 @@ export function VisualCmsLayer({ page }: { page: string }) {
         originals.set(el, record);
         const original = record[lang] || "";
         const entry = linkedEntry(active, page, lang, key);
-        const isObsoleteSvg = entry?.kind === "image" && typeof entry.value === "string" && entry.value.includes("/images/focus/") && entry.value.endsWith(".svg");
-        const value = (!isObsoleteSvg && entry?.kind === (image ? "image" : "text"))
-          ? entry.value
+        const isObsoleteSvg =
+          entry?.kind === "image" &&
+          typeof entry.value === "string" &&
+          entry.value.includes("/images/focus/") &&
+          entry.value.endsWith(".svg");
+        const value =
+          !isObsoleteSvg && entry?.kind === (image ? "image" : "text")
+            ? entry.value
             : !image && lang === "km"
               ? translateText(original)
               : original;

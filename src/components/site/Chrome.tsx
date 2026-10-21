@@ -237,15 +237,16 @@ export function PageHeader({
   title: string;
   sub?: string;
 }) {
+  const namedFields = !["/", "/about", "/research", "/membership", "/contact"].includes(location.pathname);
   return (
     <section className="border-b border-border bg-muted/60">
       <div className="mx-auto max-w-[1800px] px-5 py-14 xl:px-10">
         {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-        <h1 className="mt-2 text-4xl font-semibold text-primary md:text-5xl">
+          <h1 data-cms-id={namedFields ? "page-title" : undefined} className="mt-2 text-4xl font-semibold text-primary md:text-5xl">
           {title}
         </h1>
         {sub && (
-          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">{sub}</p>
+            <p data-cms-id={namedFields ? "page-description" : undefined} className="mt-4 max-w-2xl text-lg text-muted-foreground">{sub}</p>
         )}
       </div>
     </section>
