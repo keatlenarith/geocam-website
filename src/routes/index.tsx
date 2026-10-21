@@ -14,11 +14,26 @@ const copy = {
 };
 const features=[{to:"/mining",icon:FileText,title:"mining",desc:"miningSub",tone:"teal",image:"https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1000&q=85",alt:"Mining and mineral resources"},{to:"/geodata",icon:Layers3,title:"maps",desc:"mapsSub",tone:"teal",image:"https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1000&q=85",alt:"Topographic maps and geospatial data"},{to:"/geopark",icon:Mountain,title:"park",desc:"parkSub",tone:"amber",image:"https://commons.wikimedia.org/wiki/Special:FilePath/Kampot_Cambodia.jpg?width=1000",alt:"Kampot province mountain landscape, Cambodia"},{to:"/lexicon",icon:BookOpen,title:"lex",desc:"lexSub",tone:"blue",image:"https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1000&q=85",alt:"Geoscience reference books"},{to:"/research",icon:Microscope,title:"research",desc:"researchSub",tone:"olive",image:"https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=1000&q=85",alt:"Researcher using scientific laboratory equipment"}] as const;
 const focusImages: Record<string, {src: string; alt: string}> = {
-  "Tectonics": {src: "/images/focus/tectonics.svg", alt: "Scientific illustration of folded rock strata and movement along a fault"},
-  "Mineral deposits": {src: "/images/focus/mineral-deposits.svg", alt: "Scientific illustration of mineral crystals and an ore vein within rock"},
-  "Geochemistry": {src: "/images/focus/geochemistry.svg", alt: "Scientific illustration of laboratory glassware and a geological sample"},
-  "Geophysics": {src: "/images/focus/geophysics.svg", alt: "Scientific illustration of a seismic survey revealing underground rock layers"},
-  "Geohazards": {src: "/images/focus/geohazards.svg", alt: "Scientific illustration of a mountain slope with rockfall and flood hazards"},
+  "Tectonics": {
+    src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80",
+    alt: "Folded geological strata, thrust faults, and mountain rock formations"
+  },
+  "Mineral deposits": {
+    src: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80",
+    alt: "Mineral crystals, ore veins, and economic geology specimens"
+  },
+  "Geochemistry": {
+    src: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=800&q=80",
+    alt: "Geochemical laboratory analysis, elemental assays, and sediment testing"
+  },
+  "Geophysics": {
+    src: "https://images.unsplash.com/photo-1507668077129-56e32842fceb?auto=format&fit=crop&w=800&q=80",
+    alt: "Subsurface geophysical survey and resistivity sounding instrumentation"
+  },
+  "Geohazards": {
+    src: "https://images.unsplash.com/photo-1508873696983-2df5293cb32f?auto=format&fit=crop&w=800&q=80",
+    alt: "Mountain slope stability, landslide hazard monitoring, and geological fault observation"
+  },
 };
 function Home(){const {lang}=useI18n();const c=copy[lang];return <div className="geocam-landing">
 <section className="gc-hero relative isolate overflow-hidden"><img data-cms-id="home-hero-image" src={hero} alt="Cambodian mountainous landscape" className="gc-hero-image absolute inset-0 -z-20 h-full w-full object-cover"/><div className="gc-hero-wash absolute inset-0 -z-10"/><div className="mx-auto grid max-w-[1800px] items-center gap-10 px-5 py-24 md:min-h-[700px] lg:grid-cols-[1.15fr_.85fr] lg:py-28"><div><span className="gc-kicker gc-kicker-light"><Sparkles size={14}/>{c.pill}</span><h1 className="gc-display mt-8"><span data-cms-id="hero-line-one">{c.headingA}</span><br/><span data-cms-id="hero-line-two" className="gc-highlight">{c.headingB}</span></h1><p data-cms-id="hero-description" className="mt-7 max-w-xl text-lg leading-relaxed text-white/85">{c.subtitle}</p><div className="mt-9 flex flex-wrap gap-3"><Link to="/geodata" className="gc-button gc-button-light">{c.explore}<ArrowUpRight size={18}/></Link><Link to="/about" className="gc-button gc-button-outline">{c.discover}<ArrowRight size={18}/></Link></div><div className="mt-12 flex flex-wrap items-center gap-x-7 gap-y-3 text-xs font-semibold uppercase tracking-[.15em] text-white/70"><span className="flex items-center gap-2"><Globe2 size={17}/> GeoData</span><span className="flex items-center gap-2"><Mountain size={17}/> 3D Geopark</span><span className="flex items-center gap-2"><BookOpen size={17}/> Lexicon</span></div></div><div className="hidden lg:flex justify-end"><div className="gc-hero-card"><img src="/geocam-logo.png" alt="GeoCam society emblem" className="mx-auto h-40 w-40 rounded-full object-contain drop-shadow-lg"/><p className="mt-5 text-center text-sm font-semibold tracking-[.2em] text-white/90">GEOSCIENCES SOCIETY<br/>OF CAMBODIA</p><div className="gc-hero-card-line"/><p className="text-center text-sm text-white/75">{c.footerNote}</p></div></div></div></section>

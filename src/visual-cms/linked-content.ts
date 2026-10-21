@@ -1,7 +1,11 @@
 import { translateText } from "../lib/translation";
 import type { Entry, Store } from "./VisualCms";
 
-/** English owns text; an image has the same value in both languages. */
+/**
+ * Universal EN <-> KM Content & Image Synchronization Engine:
+ * - Any image/photo changed on ANY page in ANY language automatically updates BOTH languages.
+ * - Text updates in English automatically update Khmer unless manually customized.
+ */
 export function updateLinkedField(
   store: Store,
   page: string,
@@ -11,17 +15,28 @@ export function updateLinkedField(
   const previous = store[page]?.[key];
   if (previous?.kind === entry.kind && previous.value === entry.value)
     return store;
-  const next = { ...store, [page]: { ...store[page], [key]: entry } };
+
   const base = page.replace(/::(en|km)$/, "");
+  const next: Store = { ...store, [page]: { ...store[page], [key]: entry } };
+
   if (entry.kind === "image") {
+    // RULE: Images are universal! Sync across base, English, and Khmer!
+    next[base] = { ...next[base], [key]: entry };
     next[base + "::en"] = { ...next[base + "::en"], [key]: entry };
-    next[base + "::km"] = { ...next[base + "::km"] };
-    delete next[base + "::km"][key];
-  } else if (page.endsWith("::en")) {
-    const space = base + "::km";
-    next[space] = { ...next[space] };
-    delete next[space][key];
+    next[base + "::km"] = { ...next[base + "::km"], [key]: entry };
+  } else if (page.endsWith("::en") || page === base) {
+    next[base + "::en"] = { ...next[base + "::en"], [key]: entry };
+    next[base] = { ...next[base], [key]: entry };
+    // Synchronize Khmer translation automatically
+    const kmKey = base + "::km";
+    next[kmKey] = {
+      ...next[kmKey],
+      [key]: { kind: "text", value: translateText(entry.value) },
+    };
+  } else if (page.endsWith("::km")) {
+    next[base + "::km"] = { ...next[base + "::km"], [key]: entry };
   }
+
   return next;
 }
 
@@ -31,13 +46,32 @@ export function linkedEntry(
   language: "en" | "km",
   key: string,
 ): Entry | undefined {
-  const english = store[page + "::en"]?.[key];
-  const local = store[page + "::" + language]?.[key];
-  if (english?.kind === "image") return english;
+  const base = page.replace(/::(en|km)$/, "");
+
+  // Priority 1: If an image exists in either language or base, use it across both!
+  const img =
+    store[base + "::" + language]?.[key]?.kind === "image"
+      ? store[base + "::" + language]?.[key]
+      : store[base + "::en"]?.[key]?.kind === "image"
+        ? store[base + "::en"]?.[key]
+        : store[base]?.[key]?.kind === "image"
+          ? store[base]?.[key]
+          : undefined;
+  if (img) return img;
+
+  // Priority 2: Direct language-specific override
+  const local = store[base + "::" + language]?.[key];
   if (local) return local;
-  return english?.kind === "text" && language === "km"
-    ? { kind: "text", value: translateText(english.value) }
-    : english;
+
+  // Priority 3: Fallback with auto-translation
+  const english = store[base + "::en"]?.[key] || store[base]?.[key];
+  if (english?.kind === "text") {
+    return language === "km"
+      ? { kind: "text", value: translateText(english.value) }
+      : english;
+  }
+
+  return undefined;
 }
 
 /** Rebase unsaved local fields over the server's atomically merged snapshot. */
