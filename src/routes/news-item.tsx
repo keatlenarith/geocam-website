@@ -138,7 +138,7 @@ export default function NewsItem() {
 
               {/* Full Content Body */}
               <div
-                className="geocam-article-body mt-8 space-y-4 whitespace-pre-line text-lg leading-relaxed text-slate-700 font-normal"
+                className="geocam-article-body mt-8 space-y-4 whitespace-normal text-lg leading-relaxed text-slate-700 font-normal"
                 dangerouslySetInnerHTML={{ __html: content }}
               />
             </article>

@@ -38,6 +38,14 @@ export const defaultSeedNews: NewsItem[] = seedNews
   }));
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const isManagedNews = (id: string) => uuid.test(id);
+
+export const SEED_UUID_MAP: Record<string, string> = {
+  n1: "00000000-0000-4000-9000-000000000001",
+  n2: "00000000-0000-4000-9000-000000000002",
+  n3: "00000000-0000-4000-9000-000000000003",
+  n4: "00000000-0000-4000-9000-000000000004",
+};
+
 let publicCache: NewsItem[] = [],
   draftCache: NewsItem[] = [];
 let loaded = false,
@@ -76,11 +84,22 @@ function toPost(item: NewsItem): Post {
     status: item.status,
   };
 }
+function getFilteredSeeds(managedList: NewsItem[]): NewsItem[] {
+  const managedIds = new Set(managedList.map((m) => m.id));
+  const managedTitles = new Set(managedList.map((m) => m.title.trim().toLowerCase()));
+  return defaultSeedNews.filter(
+    (s) =>
+      !managedIds.has(s.id) &&
+      !managedIds.has(SEED_UUID_MAP[s.id]) &&
+      !managedTitles.has(s.title.trim().toLowerCase()),
+  );
+}
+
 export async function fetchNewsDrafts(): Promise<NewsItem[]> {
   draftCache = (await fetchPostDrafts())
     .filter((post) => post.type === "news")
     .map(fromPost);
-  return [...draftCache, ...defaultSeedNews];
+  return [...draftCache, ...getFilteredSeeds(draftCache)];
 }
 export async function fetchPublicNews(): Promise<NewsItem[]> {
   if (pending) return pending;
@@ -89,7 +108,7 @@ export async function fetchPublicNews(): Promise<NewsItem[]> {
       publicCache = posts.filter((post) => post.type === "news").map(fromPost);
       loaded = true;
       announce();
-      return [...publicCache, ...defaultSeedNews];
+      return [...publicCache, ...getFilteredSeeds(publicCache)];
     })
     .finally(() => {
       pending = null;
@@ -100,14 +119,15 @@ export async function fetchPublicNews(): Promise<NewsItem[]> {
 // compatibility cache is memory-only; it never reads browser publication data.
 export function getPublishedNews(): NewsItem[] {
   if (!loaded && !pending) void fetchPublicNews().catch(() => {});
-  return [...publicCache, ...defaultSeedNews];
+  return [...publicCache, ...getFilteredSeeds(publicCache)];
 }
 export function getAllNews(): NewsItem[] {
-  return [...draftCache, ...defaultSeedNews];
+  return [...draftCache, ...getFilteredSeeds(draftCache)];
 }
 export const loadStoredNews = getPublishedNews;
 export async function getNewsById(id: string): Promise<NewsItem | undefined> {
-  return (await fetchPublicNews()).find((item) => item.id === id);
+  const all = await fetchPublicNews();
+  return all.find((item) => item.id === id || SEED_UUID_MAP[item.id] === id);
 }
 export async function saveNewsItem(
   input: Partial<NewsItem>,
@@ -115,16 +135,19 @@ export async function saveNewsItem(
 ): Promise<NewsItem> {
   if (!input.title?.trim())
     throw new Error("Add an English title before saving or publishing.");
-  if (input.id && !isManagedNews(input.id))
-    throw new Error(
-      "Demonstration stories are read-only. Create a copy to edit.",
-    );
-  const existing = input.id
-    ? draftCache.find((item) => item.id === input.id)
-    : undefined;
+
+  let targetId = input.id;
+  if (targetId && !isManagedNews(targetId)) {
+    targetId = SEED_UUID_MAP[targetId] || crypto.randomUUID();
+  }
+  if (!targetId) {
+    targetId = crypto.randomUUID();
+  }
+
+  const existing = draftCache.find((item) => item.id === targetId);
   const now = new Date().toISOString();
   const item: NewsItem = {
-    id: input.id || crypto.randomUUID(),
+    id: targetId,
     title: input.title.trim(),
     titleKm: input.titleKm || "",
     excerpt: input.excerpt || "",
@@ -161,18 +184,27 @@ export async function saveNewsItem(
   return saved;
 }
 export async function deleteNewsItem(id: string): Promise<void> {
-  if (!isManagedNews(id))
-    throw new Error("Demonstration stories are read-only.");
+  if (!isManagedNews(id)) {
+    const idx = defaultSeedNews.findIndex((s) => s.id === id || SEED_UUID_MAP[s.id] === id);
+    if (idx !== -1) defaultSeedNews.splice(idx, 1);
+    announce();
+    return;
+  }
   await deletePost(id);
   draftCache = draftCache.filter((item) => item.id !== id);
   publicCache = publicCache.filter((item) => item.id !== id);
   announce();
 }
 export async function togglePublishNews(id: string): Promise<NewsItem | null> {
-  if (!isManagedNews(id))
-    throw new Error(
-      "Demonstration stories are read-only. Create a copy to publish.",
-    );
+  if (!isManagedNews(id)) {
+    const seed = defaultSeedNews.find((s) => s.id === id || SEED_UUID_MAP[s.id] === id);
+    if (!seed) return null;
+    const mapped: NewsItem = {
+      ...seed,
+      id: SEED_UUID_MAP[seed.id] || crypto.randomUUID(),
+    };
+    return saveNewsItem(mapped, true);
+  }
   const item = draftCache.find((row) => row.id === id);
   if (!item) return null;
   if (item.status === "published") {

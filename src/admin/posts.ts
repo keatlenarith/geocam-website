@@ -18,7 +18,7 @@ export type Post = {
   status: "draft" | "published";
 };
 export const cleanPostHtml = (html: string) =>
-  DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
+  DOMPurify.sanitize(html, { USE_PROFILES: { html: true, svg: true } });
 export const safeCover = (url: string) =>
   /^https?:\/\//i.test(url) || /^\/(?!\/)/.test(url) ? url : "";
 export const postText = (english: string, khmer: string, lang: string) =>
