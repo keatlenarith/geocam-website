@@ -92,45 +92,101 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
       while (pendingInline.current.size) {
         const [id, item] = pendingInline.current.entries().next().value!;
         setInlineStatus("Saving changes…");
-        const { data, error } = await supabase.rpc("geocam_update_page_field", {
-          p_page: item.page,
-          p_key: item.key,
-          p_entry: item.entry,
-        });
-        if (generation.current !== epoch) return false;
-        if (error) {
-          console.error("Save error from supabase:", error, item);
-          if (
-            error.code === "42501" ||
-            error.message?.includes("Administrator access")
-          ) {
-            setInlineStatus(
-              "Administrator session expired. Please sign in again.",
-            );
-          } else {
-            setInlineStatus(
-              "Unable to save changes. " +
-                (error.message ? `(${error.message}) ` : "") +
-                "Retry before leaving this page.",
-            );
+
+        // Canonical keyspace for images is always English
+        const targetPage =
+          item.entry.kind === "image"
+            ? item.page.replace(/::(en|km)$/, "") + "::en"
+            : item.page;
+
+        let savedOk = false;
+        let serverData: any = null;
+
+        try {
+          const { data, error } = await supabase.rpc("geocam_update_page_field", {
+            p_page: targetPage,
+            p_key: item.key,
+            p_entry: item.entry,
+          });
+
+          if (generation.current !== epoch) return false;
+
+          if (!error && data) {
+            savedOk = true;
+            serverData = data;
+          } else if (error) {
+            console.warn("geocam_update_page_field notice:", error.message || error);
+            // If statement timeout or query cancellation occurs on large storage,
+            // fall back immediately to fast atomic publication!
+            const isTimeout =
+              error.code === "57014" ||
+              error.message?.toLowerCase().includes("timeout") ||
+              error.message?.toLowerCase().includes("canceling statement");
+
+            if (isTimeout) {
+              setInlineStatus("Saving changes…");
+              const base = targetPage.replace(/::(en|km)$/, "");
+              const atomicChanges: Record<string, Record<string, Entry | null>> = {
+                [targetPage]: { [item.key]: item.entry },
+              };
+              if (item.entry.kind === "image") {
+                atomicChanges[base + "::km"] = { [item.key]: null };
+              }
+              const fallback = await supabase.rpc(
+                "geocam_publish_page_changes",
+                { p_changes: atomicChanges },
+              );
+              if (!fallback.error && fallback.data) {
+                savedOk = true;
+                setPublished(fallback.data as Store);
+                setCachedPublished(fallback.data as Store);
+              }
+            }
+
+            if (!savedOk) {
+              if (
+                error.code === "42501" ||
+                error.message?.includes("Administrator access")
+              ) {
+                setInlineStatus(
+                  "Administrator session expired. Please sign in again.",
+                );
+              } else {
+                setInlineStatus(
+                  "Unable to save changes. " +
+                    (error.message ? `(${error.message}) ` : "") +
+                    "Retry before leaving this page.",
+                );
+              }
+              return false;
+            }
           }
+        } catch (err) {
+          console.warn("Exception during save:", err);
           return false;
         }
-        if (pendingInline.current.get(id) === item)
-          pendingInline.current.delete(id);
-        setPublished(data.published as Store);
-        const merged = rebaseDraft(
-          data.draft as Store,
-          savedDraftRef.current,
-          draftRef.current,
-        );
-        savedDraftRef.current = data.draft as Store;
-        draftRef.current = merged;
-        setDraft(merged);
-        if (!pendingInline.current.size)
-          setDirty(
-            JSON.stringify(draftRef.current) !== JSON.stringify(data.draft),
-          );
+
+        if (savedOk) {
+          if (pendingInline.current.get(id) === item)
+            pendingInline.current.delete(id);
+
+          if (serverData) {
+            setPublished(serverData.published as Store);
+            const merged = rebaseDraft(
+              serverData.draft as Store,
+              savedDraftRef.current,
+              draftRef.current,
+            );
+            savedDraftRef.current = serverData.draft as Store;
+            draftRef.current = merged;
+            setDraft(merged);
+            if (!pendingInline.current.size)
+              setDirty(
+                JSON.stringify(draftRef.current) !==
+                  JSON.stringify(serverData.draft),
+              );
+          }
+        }
       }
       setInlineStatus("Changes saved automatically.");
       return true;
@@ -162,8 +218,36 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
       .eq("id", "site")
       .single();
     if (live.error) throw live.error;
-    setPublished(live.data.content as Store);
-    if (admin) {
+    const content = live.data.content as Store;
+    setPublished(content);
+
+    if (admin && content) {
+      // Auto-prune duplicate ::km images that bloat PostgreSQL storage
+      const pruneChanges: Record<string, Record<string, null>> = {};
+      let needsPrune = false;
+      for (const [pageKey, entries] of Object.entries(content)) {
+        if (pageKey.endsWith("::km") && typeof entries === "object" && entries !== null) {
+          for (const [fieldKey, fieldEntry] of Object.entries(entries)) {
+            if (fieldEntry?.kind === "image") {
+              if (!pruneChanges[pageKey]) pruneChanges[pageKey] = {};
+              pruneChanges[pageKey][fieldKey] = null;
+              needsPrune = true;
+            }
+          }
+        }
+      }
+      if (needsPrune) {
+        try {
+          const res = await supabase.rpc("geocam_publish_page_changes", {
+            p_changes: pruneChanges,
+          });
+          if (!res.error && res.data) {
+            setPublished(res.data as Store);
+            setCachedPublished(res.data as Store);
+          }
+        } catch {}
+      }
+
       const saved = await supabase
         .from("geocam_drafts")
         .select("content")
@@ -351,18 +435,11 @@ export const EMPTY_IMAGE_PLACEHOLDER =
 
 function optimizeImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
-    if (file.size < 600000) {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result));
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-      return;
-    }
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
       URL.revokeObjectURL(url);
-      const maxDim = 1200;
+      const maxDim = 1000;
       let width = img.naturalWidth || img.width;
       let height = img.naturalHeight || img.height;
       if (width > maxDim || height > maxDim) {
@@ -528,8 +605,9 @@ export function VisualCmsLayer({ page }: { page: string }) {
             kind: "image",
             value: EMPTY_IMAGE_PLACEHOLDER,
           };
-          setEntry(keyspace, key, entry);
-          saveInline(keyspace, key, entry);
+          const imageSpace = normalizedPage + "::en";
+          setEntry(imageSpace, key, entry);
+          saveInline(imageSpace, key, entry);
           setNotice("Photo removed. Click the placeholder to upload a new one.");
         }
         return;
@@ -564,8 +642,9 @@ export function VisualCmsLayer({ page }: { page: string }) {
                 kind: "image",
                 value: dataUrl,
               };
-              setEntry(keyspace, key, entry);
-              saveInline(keyspace, key, entry);
+              const imageSpace = normalizedPage + "::en";
+              setEntry(imageSpace, key, entry);
+              saveInline(imageSpace, key, entry);
               setNotice(
                 "Photo updated! Click 'Publish Live' to publish to all visitors.",
               );
