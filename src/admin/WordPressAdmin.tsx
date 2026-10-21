@@ -221,7 +221,7 @@ const publicationCategories = [
 ] as const;
 
 export default function WordPressAdmin() {
-  const { draft, published, ready, setEntry, save, publish } = useCms();
+  const { draft, published, ready, dirty, busy, setEntry, save, publish } = useCms();
 
   const [section, setSection] = useState<AdminSection>(() => {
     const params = new URLSearchParams(window.location.search);
@@ -230,6 +230,56 @@ export default function WordPressAdmin() {
 
   const [themeLight, setThemeLight] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+
+  // Global Publishing & Draft Saving State
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isSavingDrafts, setIsSavingDrafts] = useState(false);
+  const [publishMsg, setPublishMsg] = useState("");
+  const [globalBanner, setGlobalBanner] = useState<{
+    type: "success" | "error" | "info";
+    text: string;
+  } | null>(null);
+
+  const handlePublishLive = async () => {
+    setIsPublishing(true);
+    setPublishMsg("Publishing Live…");
+    try {
+      await publish();
+      setPublishMsg("Live!");
+      setGlobalBanner({
+        type: "success",
+        text: "Website published live! All updates across pages, posts, and media are now live to every visitor.",
+      });
+      setTimeout(() => setPublishMsg(""), 4000);
+      setTimeout(() => setGlobalBanner(null), 6000);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Publishing failed. Please retry.";
+      setPublishMsg("Failed");
+      setGlobalBanner({ type: "error", text: msg });
+      setTimeout(() => setPublishMsg(""), 4000);
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const handleSaveAllDrafts = async () => {
+    setIsSavingDrafts(true);
+    try {
+      await save();
+      setGlobalBanner({
+        type: "success",
+        text: "All draft changes saved successfully to Supabase.",
+      });
+      setTimeout(() => setGlobalBanner(null), 5000);
+    } catch (err) {
+      setGlobalBanner({
+        type: "error",
+        text: err instanceof Error ? err.message : "Failed to save drafts.",
+      });
+    } finally {
+      setIsSavingDrafts(false);
+    }
+  };
 
   // Quick Draft State with Category tags
   const [quickTitle, setQuickTitle] = useState("");
@@ -492,6 +542,54 @@ export default function WordPressAdmin() {
         </div>
 
         <div className="wp-bar-right">
+          {/* PUBLISH WEBSITE LIVE BUTTON */}
+          <button
+            type="button"
+            className="wp-bar-node"
+            style={{
+              background: isPublishing ? "#059669" : "#047857",
+              color: "#ffffff",
+              fontWeight: 700,
+              borderRadius: "4px",
+              padding: "4px 10px",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              border: "1px solid #10b981",
+              cursor: isPublishing || busy ? "not-allowed" : "pointer",
+            }}
+            onClick={handlePublishLive}
+            disabled={isPublishing || busy}
+            title="Publish all website updates and drafts live to public visitors"
+          >
+            <Sparkles size={14} />
+            <span>{publishMsg || (isPublishing ? "Publishing Live…" : "Publish Website Live")}</span>
+          </button>
+
+          {/* SAVE ALL CHANGES BUTTON */}
+          <button
+            type="button"
+            className="wp-bar-node"
+            style={{
+              background: "rgba(255, 255, 255, 0.08)",
+              color: "#e2e8f0",
+              fontWeight: 600,
+              borderRadius: "4px",
+              padding: "4px 10px",
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              border: "1px solid rgba(255, 255, 255, 0.2)",
+              cursor: isSavingDrafts || busy ? "not-allowed" : "pointer",
+            }}
+            onClick={handleSaveAllDrafts}
+            disabled={isSavingDrafts || busy}
+            title="Save all pending draft changes to database"
+          >
+            <Save size={13} />
+            <span>{isSavingDrafts ? "Saving…" : "Save All Changes"}</span>
+          </button>
+
           {/* THEME TOGGLE */}
           <button
             className="wp-bar-node"
@@ -626,6 +724,46 @@ export default function WordPressAdmin() {
 
         {/* 3. MAIN BODY */}
         <main id="wpbody-content">
+          {globalBanner && (
+            <div
+              className={`wp-notice-banner notice notice-${globalBanner.type}`}
+              style={{
+                margin: "16px 20px 0",
+                padding: "12px 16px",
+                borderRadius: "6px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                background: globalBanner.type === "success" ? "#ecfdf5" : "#fef2f2",
+                borderLeft: `4px solid ${globalBanner.type === "success" ? "#10b981" : "#ef4444"}`,
+                color: globalBanner.type === "success" ? "#065f46" : "#991b1b",
+                fontWeight: 600,
+                fontSize: "14px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                {globalBanner.type === "success" ? <CheckCircle2 size={18} /> : null}
+                <span>{globalBanner.text}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setGlobalBanner(null)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                  color: "inherit",
+                }}
+                title="Dismiss"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
           {/* ================================================================
               VIEW: DASHBOARD
               ================================================================ */}
@@ -633,7 +771,25 @@ export default function WordPressAdmin() {
             <>
               <div className="wp-header">
                 <h1>GeoCam Executive Dashboard</h1>
-                <div style={{ display: "flex", gap: "10px" }}>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+                  <button
+                    className="button button-primary"
+                    style={{ background: "#059669", borderColor: "#047857", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}
+                    onClick={handlePublishLive}
+                    disabled={isPublishing || busy}
+                  >
+                    <Sparkles size={15} />
+                    <span>{publishMsg || (isPublishing ? "Publishing Live…" : "Publish Website Live")}</span>
+                  </button>
+                  <button
+                    className="button"
+                    style={{ display: "flex", alignItems: "center", gap: "5px" }}
+                    onClick={handleSaveAllDrafts}
+                    disabled={isSavingDrafts || busy}
+                  >
+                    <Save size={14} />
+                    <span>Save All Changes</span>
+                  </button>
                   <button className="button" onClick={() => { handleNav("publications"); setShowAddPaper(true); }}>
                     <UploadCloud size={15} /> Upload Paper
                   </button>
@@ -764,6 +920,53 @@ export default function WordPressAdmin() {
                             Any photo, image, or text edit automatically applies across both English and Khmer.
                           </p>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* PUBLISHING & SITE STATUS WIDGET */}
+                  <div className="postbox" style={{ borderTop: "3px solid #10b981" }}>
+                    <div className="postbox-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <h2><Sparkles size={18} style={{ color: "#10b981" }} /> Website Publishing & Status</h2>
+                      <span style={{ background: "#10b981", color: "#fff", fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "10px" }}>
+                        Live Synchronized
+                      </span>
+                    </div>
+                    <div className="postbox-inside" style={{ padding: "16px" }}>
+                      <p style={{ margin: "0 0 14px", fontSize: "13px", color: "var(--wp-text-muted)", lineHeight: 1.5 }}>
+                        Instantly deploy all changes across your 14 pages, news stories, research documents, and media live to every visitor on the public web.
+                      </p>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center" }}>
+                        <button
+                          type="button"
+                          className="button button-primary"
+                          style={{ background: "#059669", borderColor: "#047857", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px", padding: "6px 16px" }}
+                          onClick={handlePublishLive}
+                          disabled={isPublishing || busy}
+                        >
+                          <Sparkles size={16} />
+                          <span>{publishMsg || (isPublishing ? "Publishing Live…" : "Publish Website Live")}</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="button"
+                          style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 14px" }}
+                          onClick={handleSaveAllDrafts}
+                          disabled={isSavingDrafts || busy}
+                        >
+                          <Save size={15} />
+                          <span>Save All Changes</span>
+                        </button>
+                        <a
+                          href="/"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="button"
+                          style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 14px", color: "var(--wp-link)" }}
+                        >
+                          <ExternalLink size={14} />
+                          <span>View Public Site ↗</span>
+                        </a>
                       </div>
                     </div>
                   </div>
