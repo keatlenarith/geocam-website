@@ -252,3 +252,18 @@ html:lang(km) .gc-feature p,html:lang(km) .gc-area p {font-size:16px;line-height
 .geocam-editable:empty::before { content: "Double-click to add text"; opacity: .6; font-size: .8em; }
 
 html[lang="km"] .geocam-editable:empty::before { content: "ចុចពីរដងដើម្បីបន្ថែមអត្ថបទ"; }
+
+/* Approved typography applies to every public page, including headings,
+   navigation, controls, maps and published article content. */
+html[data-geocam-fonts="approved"] body,
+html[data-geocam-fonts="approved"] body *:not(.gc-admin):not(.gc-admin *):not(code):not(pre):not(svg):not(svg *) {
+  font-family: var(--geocam-font-active) !important;
+}
+html[data-geocam-fonts="approved"] body [lang="en"],
+html[data-geocam-fonts="approved"] body [lang="en"] *:not(code):not(pre):not(svg):not(svg *) {
+  font-family: var(--geocam-font-en) !important;
+}
+html[data-geocam-fonts="approved"] body [lang="km"],
+html[data-geocam-fonts="approved"] body [lang="km"] *:not(code):not(pre):not(svg):not(svg *) {
+  font-family: var(--geocam-font-km) !important;
+}

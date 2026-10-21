@@ -3,6 +3,7 @@ import { AuthProvider, AdminGate } from "./admin/Auth";
 import Login from "./admin/Login";
 import { CmsDashboard } from "./visual-cms/CmsDashboard";
 import React, { useEffect, useState } from "react";
+import { SiteFonts } from "./lib/site-fonts";
 import { createRoot } from "react-dom/client";
 import { I18nProvider } from "./lib/i18n";
 import { SiteHeader, SiteFooter } from "./components/site/Chrome";
@@ -24,18 +25,20 @@ const GeoparkExplorer = React.lazy(
   () => import("./features/geopark/GeoparkExplorer"),
 );
 import NewsItem from "./routes/news-item";
-import ArticleReader from "./editor/ArticleReader";
+import ArticleReader from "./admin/PublicPosts";
 import ResearchTopic from "./routes/research-topic";
 import PublicationView from "./routes/publication-view";
+import WordPressAdmin from "./admin/WordPressAdmin";
 const AdminDashboard = () => (
   <AdminGate>
-    <CmsDashboard />
+    <WordPressAdmin />
   </AdminGate>
 );
 const pages: Record<string, React.ComponentType<any>> = {
   "/admin/login": Login,
   "/admin": AdminDashboard,
   "/admin/cms": AdminDashboard,
+  "/wp-admin": AdminDashboard,
   "/": Home.component,
   "/about": About.component,
   "/research": Research.component,
@@ -63,11 +66,13 @@ function App() {
     return () => removeEventListener("popstate", cb);
   }, []);
   const Page = pages[path];
+  const adminScreen = path.startsWith("/admin") || path.startsWith("/wp-admin");
   return (
     <I18nProvider>
       <AuthProvider>
         <VisualCmsProvider>
-          <SiteHeader />
+          <SiteFonts />
+          {!adminScreen && <SiteHeader />}
           <main id="main">
             {Page ? (
               <React.Suspense
@@ -82,7 +87,7 @@ function App() {
               </div>
             )}
           </main>
-          <SiteFooter />
+          {!adminScreen && <SiteFooter />}
           <VisualCmsLayer page={path} />
         </VisualCmsProvider>
       </AuthProvider>

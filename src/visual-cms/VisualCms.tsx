@@ -1,3 +1,4 @@
+import { updateLinkedField, linkedEntry, rebaseDraft } from "./linked-content";
 import { attachInlineText } from "./inline-text";
 import React, {
   createContext,
@@ -24,6 +25,10 @@ type CMS = {
   editing: boolean;
   setEditing: (b: boolean) => void;
   setEntry: (page: string, key: string, entry: Entry) => void;
+  saveInline: (page: string, key: string, entry: Entry) => void;
+  flushInline: () => Promise<boolean>;
+  inlineStatus: string;
+  refreshContent: () => Promise<void>;
   save: () => Promise<void>;
   publish: () => Promise<void>;
   restore: (value: Store) => void;
@@ -40,11 +45,103 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
   const [draft, setDraft] = useState<Store>({}),
     [published, setPublished] = useState<Store>({});
   const draftRef = useRef<Store>({});
+  const savedDraftRef = useRef<Store>({});
+  const pendingInline = useRef(
+    new Map<string, { page: string; key: string; entry: Entry }>(),
+  );
+  const runningInline = useRef<Promise<boolean> | null>(null);
+  const generation = useRef(0);
+  const [inlineStatus, setInlineStatus] = useState("");
   const [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
     [busy, setBusy] = useState(false),
     [editing, setEditing] = useState(false),
     [error, setError] = useState("");
+  const flushInline = useCallback((): Promise<boolean> => {
+    if (runningInline.current) return runningInline.current;
+    const epoch = generation.current;
+    const work = async () => {
+      while (pendingInline.current.size) {
+        const [id, item] = pendingInline.current.entries().next().value!;
+        setInlineStatus("Saving changes…");
+        const { data, error } = await supabase.rpc("geocam_update_page_field", {
+          p_page: item.page,
+          p_key: item.key,
+          p_entry: item.entry,
+        });
+        if (generation.current !== epoch) return false;
+        if (error) {
+          setInlineStatus(
+            "Unable to save changes. Retry before leaving this page.",
+          );
+          return false;
+        }
+        if (pendingInline.current.get(id) === item)
+          pendingInline.current.delete(id);
+        setPublished(data.published as Store);
+        const merged = rebaseDraft(
+          data.draft as Store,
+          savedDraftRef.current,
+          draftRef.current,
+        );
+        savedDraftRef.current = data.draft as Store;
+        draftRef.current = merged;
+        setDraft(merged);
+        if (!pendingInline.current.size)
+          setDirty(
+            JSON.stringify(draftRef.current) !== JSON.stringify(data.draft),
+          );
+      }
+      setInlineStatus("Changes saved automatically.");
+      return true;
+    };
+    const promise = work().catch(() => {
+      setInlineStatus(
+        "Unable to save changes. Retry before leaving this page.",
+      );
+      return false;
+    });
+    runningInline.current = promise;
+    void promise.finally(() => {
+      if (runningInline.current === promise) runningInline.current = null;
+    });
+    return promise;
+  }, []);
+  const saveInline = useCallback(
+    (page: string, key: string, entry: Entry) => {
+      if (!admin || !ready) return;
+      pendingInline.current.set(page + "\n" + key, { page, key, entry });
+      void flushInline();
+    },
+    [admin, ready, flushInline],
+  );
+  const refreshContent = async () => {
+    const live = await supabase
+      .from("geocam_published")
+      .select("content")
+      .eq("id", "site")
+      .single();
+    if (live.error) throw live.error;
+    setPublished(live.data.content as Store);
+    if (admin) {
+      const saved = await supabase
+        .from("geocam_drafts")
+        .select("content")
+        .eq("id", "site")
+        .single();
+      if (saved.error) throw saved.error;
+      const merged = rebaseDraft(
+        saved.data.content as Store,
+        savedDraftRef.current,
+        draftRef.current,
+      );
+      // Appearance has its own explicit save action; use its latest server values.
+      merged.__appearance = saved.data.content.__appearance;
+      savedDraftRef.current = saved.data.content as Store;
+      draftRef.current = merged;
+      setDraft(merged);
+    }
+  };
   useEffect(() => {
     let current = true;
     const load = async () => {
@@ -64,9 +161,14 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
   }, []);
   useEffect(() => {
     let current = true;
+    generation.current++;
+    pendingInline.current.clear();
+    runningInline.current = null;
+    setInlineStatus("");
     setReady(false);
     setEditing(false);
     draftRef.current = {};
+    savedDraftRef.current = {};
     setDraft({});
     setDirty(false);
     setError("");
@@ -83,6 +185,7 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
             return;
           }
           draftRef.current = data.content as Store;
+          savedDraftRef.current = data.content as Store;
           setDraft(data.content as Store);
           setReady(true);
         });
@@ -90,22 +193,11 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
       current = false;
     };
   }, [admin]);
-  useEffect(() => {
-    if (!dirty) return;
-    const warn = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = "";
-    };
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [dirty]);
   const setEntry = useCallback(
     (page: string, key: string, entry: Entry) => {
       if (!admin || !ready || busy) return;
-      const next = {
-        ...draftRef.current,
-        [page]: { ...draftRef.current[page], [key]: entry },
-      };
+      const next = updateLinkedField(draftRef.current, page, key, entry);
+      if (next === draftRef.current) return;
       draftRef.current = next;
       setDraft(next);
       setDirty(true);
@@ -125,11 +217,25 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
       };
       const saved = await supabase.from("geocam_drafts").upsert(row);
       if (saved.error) throw saved.error;
+      savedDraftRef.current = structuredClone(row.content);
       setDirty(false);
       if (publish) {
-        const result = await supabase.from("geocam_published").upsert(row);
+        // Font drafts require the dedicated Approve action in Appearance.
+        const currentLive = await supabase
+          .from("geocam_published")
+          .select("content")
+          .eq("id", "site")
+          .single();
+        if (currentLive.error) throw currentLive.error;
+        const content = structuredClone(row.content);
+        if (currentLive.data.content.__appearance)
+          content.__appearance = currentLive.data.content.__appearance;
+        else delete content.__appearance;
+        const result = await supabase
+          .from("geocam_published")
+          .upsert({ ...row, content });
         if (result.error) throw result.error;
-        setPublished(structuredClone(row.content));
+        setPublished(content);
       }
     } catch (error) {
       const message =
@@ -154,6 +260,10 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
         editing: admin && ready && editing,
         setEditing,
         setEntry,
+        saveInline,
+        flushInline,
+        inlineStatus,
+        refreshContent,
         save: () => write(false),
         publish: () => write(true),
         restore: (value) => {
@@ -188,12 +298,12 @@ export function VisualCmsLayer({ page }: { page: string }) {
     draft,
     published,
     ready,
-    dirty,
     busy,
     error,
     setEntry,
-    save,
-    publish,
+    saveInline,
+    flushInline,
+    inlineStatus,
     editing,
     setEditing,
   } = useCms();
@@ -228,7 +338,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
               : source;
         originals.set(el, record);
         const original = record[lang] || "";
-        const entry = active[keyspace]?.[key];
+        const entry = linkedEntry(active, page, lang, key);
         const value =
           entry?.kind === (image ? "image" : "text")
             ? entry.value
@@ -283,11 +393,14 @@ export function VisualCmsLayer({ page }: { page: string }) {
             return;
           }
           const reader = new FileReader();
-          reader.onload = () =>
-            setEntry(keyspace, key, {
+          reader.onload = () => {
+            const entry: Entry = {
               kind: "image",
               value: String(reader.result),
-            });
+            };
+            setEntry(keyspace, key, entry);
+            saveInline(keyspace, key, entry);
+          };
           reader.readAsDataURL(file);
         };
         input.click();
@@ -305,24 +418,55 @@ export function VisualCmsLayer({ page }: { page: string }) {
         .querySelectorAll(".geocam-editable")
         .forEach((el) => el.classList.remove("geocam-editable"));
     };
-  }, [page, lang, active, editingPage, busy, setEntry]);
+  }, [page, lang, active, editingPage, busy, setEntry, saveInline]);
   useEffect(() => {
     const main = document.getElementById("main");
-    if (!main || !editingPage || busy) return;
+    if (!main || !editingPage || busy || lang !== "en") return;
     return attachInlineText(main, {
       commit: (key, value) =>
         setEntry(page + "::" + lang, key, { kind: "text", value }),
+      complete: (key, value) =>
+        saveInline(page + "::" + lang, key, { kind: "text", value }),
     });
-  }, [page, lang, editingPage, busy, setEntry]);
+  }, [page, lang, editingPage, busy, setEntry, saveInline]);
+  useEffect(() => {
+    if (!editingPage) return;
+    const navigate = (event: MouseEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        event.altKey
+      )
+        return;
+      const anchor = (event.target as Element).closest?.(
+        "a[href]",
+      ) as HTMLAnchorElement | null;
+      if (
+        !anchor ||
+        anchor.target === "_blank" ||
+        anchor.hasAttribute("download") ||
+        anchor.getAttribute("href")?.startsWith("#")
+      )
+        return;
+      if (
+        (event.target as Element).closest("[data-cms-key]") &&
+        anchor.closest("#main")
+      )
+        return;
+      event.preventDefault();
+      event.stopPropagation();
+      (document.activeElement as HTMLElement)?.blur();
+      void flushInline().then((saved) => {
+        if (saved) location.assign(anchor.href);
+      });
+    };
+    document.addEventListener("click", navigate, true);
+    return () => document.removeEventListener("click", navigate, true);
+  }, [editingPage, flushInline]);
   if (!admin || !editable || page.startsWith("/admin")) return null;
-  const run = async (action: () => Promise<void>, message: string) => {
-    try {
-      await action();
-      setNotice(message);
-    } catch {
-      setNotice("Request failed. Check the error and retry.");
-    }
-  };
   return (
     <div
       data-cms-ui
@@ -339,42 +483,33 @@ export function VisualCmsLayer({ page }: { page: string }) {
         >
           {editing ? "Finish editing" : "Visual edit"}
         </button>
+        {inlineStatus.startsWith("Unable") && (
+          <button
+            className="btn btn-outline !py-2"
+            onClick={() => void flushInline()}
+          >
+            Retry save
+          </button>
+        )}
         <button
           className="btn btn-outline !py-2"
-          disabled={!ready || busy}
-          onClick={() =>
-            run(save, "Draft saved. Visitors still see the published version.")
-          }
-        >
-          Save draft
-        </button>
-        <button
-          className="btn btn-primary !py-2"
-          disabled={!ready || busy}
-          onClick={() => {
-            if (confirm("Publish this draft for all visitors?"))
-              void run(publish, "Published for all visitors.");
+          onClick={async () => {
+            (document.activeElement as HTMLElement)?.blur();
+            if (await flushInline()) await supabase.auth.signOut();
           }}
-        >
-          Publish
-        </button>
-        <button
-          className="btn btn-outline !py-2"
-          onClick={() => supabase.auth.signOut()}
         >
           Sign out
         </button>
       </div>
       {editingPage && (
         <p className="mt-2 text-xs">
-          Double-click text to edit. Select, copy, cut or paste normally. Enter
-          finishes; Shift+Enter adds a line; Esc cancels.
+          {lang === "km"
+            ? "Switch to English to edit source text. Images are shared across languages."
+            : "Double-click text to edit. Select, copy, cut or paste normally. Enter finishes; Shift+Enter adds a line; Esc cancels."}
         </p>
       )}
       <p className="mt-2" role="status">
-        {error ||
-          notice ||
-          (dirty ? "Unsaved draft changes" : "Administrator editing controls")}
+        {error || notice || inlineStatus || "Administrator editing controls"}
       </p>
     </div>
   );

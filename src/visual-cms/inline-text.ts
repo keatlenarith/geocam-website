@@ -1,6 +1,12 @@
-type Options = { commit: (key: string, value: string) => void };
+type Options = {
+  commit: (key: string, value: string) => void;
+  complete?: (key: string, value: string) => void;
+};
 /** Browser-native selection and clipboard editing; stores text only, never HTML. */
-export function attachInlineText(main: HTMLElement, { commit }: Options) {
+export function attachInlineText(
+  main: HTMLElement,
+  { commit, complete }: Options,
+) {
   let current: {
     el: HTMLElement;
     key: string;
@@ -18,7 +24,10 @@ export function attachInlineText(main: HTMLElement, { commit }: Options) {
       if (value === null) el.removeAttribute(name);
       else el.setAttribute(name, value);
     }
-    if (persist) commit(key, value);
+    if (persist && !cancel && value !== before) {
+      commit(key, value);
+      complete?.(key, value);
+    }
   };
   const find = (event: Event) => {
     const target = event.target;
@@ -74,7 +83,8 @@ export function attachInlineText(main: HTMLElement, { commit }: Options) {
     selection?.addRange(range);
   };
   const input = () => {
-    if (current) commit(current.key, current.el.innerText);
+    // Keep the native editing buffer until blur/Enter. Escape must preserve
+    // the original English field and its existing Khmer translation.
   };
   const blur = (event: FocusEvent) => {
     if (event.target === current?.el) finish();
@@ -110,6 +120,8 @@ export function attachInlineText(main: HTMLElement, { commit }: Options) {
   main.addEventListener("focusout", blur, true);
   main.addEventListener("keydown", key, true);
   main.addEventListener("paste", paste, true);
+  const pagehide = () => finish();
+  window.addEventListener("pagehide", pagehide);
   return () => {
     finish(false, false);
     main.removeEventListener("click", click, true);
@@ -118,5 +130,6 @@ export function attachInlineText(main: HTMLElement, { commit }: Options) {
     main.removeEventListener("focusout", blur, true);
     main.removeEventListener("keydown", key, true);
     main.removeEventListener("paste", paste, true);
+    window.removeEventListener("pagehide", pagehide);
   };
 }

@@ -1,6 +1,52 @@
 import { createFileRoute, Link } from "@/lib/spa-router";
-import { Container, PageHeader, DemoNote, meta } from "@/components/site/Chrome";
-import { news } from "@/lib/data";import {getArticles} from "@/editor/store";
+import {
+  Container,
+  PageHeader,
+  DemoNote,
+  meta,
+} from "@/components/site/Chrome";
+import { news } from "@/lib/data";
+import { PublishedPostCards } from "@/admin/PublicPosts";
 import { useI18n } from "@/lib/i18n";
-export const Route = createFileRoute("/news")({ head: () => meta("News", "GeoCam news and updates"), component: News });
-function News() { const {t,lang}=useI18n(); return <><PageHeader eyebrow={t("news")} title={t("latestNews")}/><Container><DemoNote>{lang==='km'?'អត្ថបទខាងក្រោមជាទិន្នន័យគំរូ មិនមែនព័ត៌មានពិតទេ។':'These are demonstration stories, not verified real-world news.'}</DemoNote><div className="mt-6 grid gap-6 md:grid-cols-2">{getArticles().filter(a=>a.type==='news'&&a.status==='published').map(a=><Link key={a.id} to={'/articles/read?id='+encodeURIComponent(a.id)} className="card-surface block p-7 transition hover:shadow-lg"><p className="text-xs font-semibold text-accent">{a.category} · {new Date(a.createdAt).toLocaleDateString()}</p><h2 className="mt-2 text-2xl font-semibold">{lang==='km'?(a.titleKm||a.titleEn):(a.titleEn||a.titleKm)}</h2><p className="mt-3 text-muted-foreground">{lang==='km'?(a.summaryKm||a.summaryEn):(a.summaryEn||a.summaryKm)}</p><p className="mt-5 font-semibold text-accent">{lang==='km'?'អានអត្ថបទ →':'Read article →'}</p></Link>)}{news.filter(n=>n.status==='published').map(n=><Link key={n.id} to={'/news/item?id='+encodeURIComponent(n.id)} className="card-surface block p-7 transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-blue-600"><p className="text-xs font-semibold text-accent">{n.tag} · {n.date} · DEMO</p><h2 className="mt-2 text-2xl font-semibold">{lang==='km'&&n.titleKm?n.titleKm:n.title}</h2><p className="mt-3 text-muted-foreground">{n.excerpt}</p><p className="mt-5 font-semibold text-accent">{lang==='km'?'អានអត្ថបទ →':'Read article →'}</p></Link>)}</div></Container></> }
+export const Route = createFileRoute("/news")({
+  head: () => meta("News", "GeoCam news and updates"),
+  component: News,
+});
+function News() {
+  const { t, lang } = useI18n();
+  return (
+    <>
+      <PageHeader eyebrow={t("news")} title={t("latestNews")} />
+      <Container>
+        <PublishedPostCards />
+        <DemoNote>
+          {lang === "km"
+            ? "អត្ថបទខាងក្រោមជាទិន្នន័យគំរូ មិនមែនព័ត៌មានពិតទេ។"
+            : "These are demonstration stories, not verified real-world news."}
+        </DemoNote>
+        <div className="mt-6 grid gap-6 md:grid-cols-2">
+          {news
+            .filter((n) => n.status === "published")
+            .map((n) => (
+              <Link
+                key={n.id}
+                to={"/news/item?id=" + encodeURIComponent(n.id)}
+                className="card-surface block p-7 transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-blue-600"
+              >
+                <p className="text-xs font-semibold text-accent">
+                  {n.tag} · {n.date} · DEMO
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold">
+                  {lang === "km" && n.titleKm ? n.titleKm : n.title}
+                </h2>
+                <p className="mt-3 text-muted-foreground">{n.excerpt}</p>
+                <p className="mt-5 font-semibold text-accent">
+                  {lang === "km" ? "អានអត្ថបទ →" : "Read article →"}
+                </p>
+              </Link>
+            ))}
+        </div>
+      </Container>
+    </>
+  );
+}

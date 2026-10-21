@@ -1,6 +1,7 @@
 import { useLayoutEffect } from "react";
 import publicText from "./translations/public-km.json";
 import toolsText from "./translations/tools-km.json";
+import workflowText from "./translations/workflow-km.json";
 import researchText from "./translations/research-km.json";
 import lexicon from "./lexicon-terms.json";
 import { khmerLabels } from "./auto-khmer";
@@ -17,6 +18,7 @@ const catalog: Record<string, string> = {
   ...publicText,
   ...toolsText,
   ...researchText,
+  ...workflowText,
   ...glossary,
 };
 const pluralTerms: Record<string, string> = {

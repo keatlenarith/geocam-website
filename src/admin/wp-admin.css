@@ -1,0 +1,568 @@
+/* ==========================================================================
+   WordPress Admin Core Design System (CSS) for GeoCam Website
+   ========================================================================== */
+:root {
+  --wp-admin-bar-bg: #1d2327;
+  --wp-admin-bar-color: #f0f0f1;
+  --wp-sidebar-bg: #1d2327;
+  --wp-sidebar-text: #c3c4c7;
+  --wp-sidebar-hover: #72aee6;
+  --wp-sidebar-active: #2271b1;
+  --wp-content-bg: #f0f0f1;
+  --wp-card-bg: #ffffff;
+  --wp-border: #c3c4c7;
+  --wp-border-light: #dcdcde;
+  --wp-text-main: #2c3338;
+  --wp-text-muted: #646970;
+  --wp-blue: #2271b1;
+  --wp-blue-hover: #135e96;
+  --wp-green: #00a32a;
+  --wp-red: #d63638;
+  --wp-orange: #dba617;
+}
+
+.wp-admin-app {
+  min-height: 100vh;
+  background-color: var(--wp-content-bg);
+  color: var(--wp-text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  font-size: 13px;
+  line-height: 1.4em;
+}
+
+.wp-admin-app * {
+  box-sizing: border-box;
+}
+
+.wp-admin-app a {
+  color: var(--wp-blue);
+  text-decoration: none;
+}
+.wp-admin-app a:hover {
+  color: var(--wp-blue-hover);
+}
+
+/* --------------------------------------------------------------------------
+   1. TOP ADMIN BAR (#wpadminbar)
+   -------------------------------------------------------------------------- */
+#wpadminbar {
+  height: 32px;
+  background: var(--wp-admin-bar-bg);
+  color: var(--wp-admin-bar-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99999;
+  font-size: 13px;
+  border-bottom: 1px solid #2c3338;
+}
+
+.wp-bar-left, .wp-bar-right {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.wp-bar-node {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 10px;
+  color: var(--wp-admin-bar-color);
+  cursor: pointer;
+  gap: 6px;
+  font-size: 12px;
+  transition: background 0.15s ease, color 0.15s ease;
+  user-select: none;
+  position: relative;
+}
+
+.wp-bar-node:hover {
+  background: #2c3338;
+  color: var(--wp-sidebar-hover);
+}
+
+.wp-bar-node strong {
+  font-weight: 600;
+}
+
+.wp-logo-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2271b1;
+  color: #fff;
+  font-weight: 900;
+  font-size: 11px;
+}
+
+.wp-live-badge {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #00e676;
+  box-shadow: 0 0 5px #00e676;
+}
+
+/* --------------------------------------------------------------------------
+   2. MAIN WRAPPER (SIDEBAR + BODY)
+   -------------------------------------------------------------------------- */
+#wpwrap {
+  display: flex;
+  min-height: calc(100vh - 32px);
+  margin-top: 32px;
+}
+
+/* --------------------------------------------------------------------------
+   3. SIDEBAR NAVIGATION (#adminmenu)
+   -------------------------------------------------------------------------- */
+#adminmenuwrap {
+  width: 160px;
+  background-color: var(--wp-sidebar-bg);
+  color: var(--wp-sidebar-text);
+  flex-shrink: 0;
+  transition: width 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#adminmenuwrap.collapsed {
+  width: 44px;
+}
+
+#adminmenu {
+  list-style: none;
+  margin: 0;
+  padding: 10px 0 20px;
+}
+
+.wp-menu-separator {
+  height: 1px;
+  background: #2c3338;
+  margin: 8px 12px;
+}
+
+.wp-menu-heading {
+  padding: 8px 14px 2px;
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #8c8f94;
+  letter-spacing: 0.5px;
+}
+
+.wp-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 12px;
+  color: var(--wp-sidebar-text);
+  cursor: pointer;
+  font-size: 13px;
+  border-left: 4px solid transparent;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wp-menu-item:hover {
+  background: #135e96;
+  color: #ffffff;
+}
+
+.wp-menu-item.active {
+  background: var(--wp-sidebar-active);
+  color: #ffffff;
+  border-left-color: #72aee6;
+  font-weight: 600;
+}
+
+.wp-menu-item .menu-count {
+  margin-left: auto;
+  background: #d63638;
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.wp-menu-collapse-btn {
+  padding: 10px 12px;
+  color: #8c8f94;
+  cursor: pointer;
+  border-top: 1px solid #2c3338;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.wp-menu-collapse-btn:hover {
+  color: var(--wp-sidebar-hover);
+}
+
+/* --------------------------------------------------------------------------
+   4. CONTENT BODY & SCREEN OPTIONS
+   -------------------------------------------------------------------------- */
+#wpbody-content {
+  flex: 1;
+  padding: 15px 25px 40px;
+  background: var(--wp-content-bg);
+  overflow-y: auto;
+  min-width: 0;
+}
+
+/* Screen Meta Tabs (Screen Options / Help) */
+.wp-screen-meta-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.wp-screen-meta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #50575e;
+  background: #e0e0e0;
+  padding: 3px 10px;
+  border-radius: 0 0 3px 3px;
+  border: 1px solid #c3c4c7;
+  border-top: none;
+  cursor: pointer;
+}
+
+.wp-screen-meta-panel {
+  background: #fff;
+  border: 1px solid #c3c4c7;
+  padding: 12px 16px;
+  margin-bottom: 15px;
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Page Header */
+.wp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.wp-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wp-header h1 {
+  font-size: 23px;
+  font-weight: 400;
+  color: #1d2327;
+  margin: 0;
+}
+
+.page-title-action {
+  font-size: 13px;
+  padding: 3px 8px;
+  border: 1px solid var(--wp-blue);
+  border-radius: 3px;
+  color: var(--wp-blue);
+  font-weight: 600;
+  background: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.page-title-action:hover {
+  background: var(--wp-blue);
+  color: #fff;
+}
+
+/* WP Buttons */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid #8c8f94;
+  background: #f6f7f7;
+  color: #2c3338;
+  line-height: normal;
+}
+.button:hover {
+  background: #f0f0f1;
+  border-color: #50575e;
+  color: #1d2327;
+}
+
+.button.button-primary {
+  background: var(--wp-blue);
+  border-color: var(--wp-blue);
+  color: #fff;
+}
+.button.button-primary:hover {
+  background: var(--wp-blue-hover);
+  border-color: var(--wp-blue-hover);
+}
+
+.button.button-small {
+  padding: 2px 7px;
+  font-size: 12px;
+}
+
+/* Notice Box */
+.notice {
+  background: #fff;
+  border: 1px solid var(--wp-border);
+  border-left-width: 4px;
+  box-shadow: 0 1px 1px rgba(0,0,0,.04);
+  padding: 10px 14px;
+  margin: 10px 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 2px;
+}
+.notice-success { border-left-color: var(--wp-green); }
+.notice-warning { border-left-color: var(--wp-orange); }
+.notice-info { border-left-color: var(--wp-blue); }
+.notice-error { border-left-color: var(--wp-red); }
+
+/* --------------------------------------------------------------------------
+   5. WELCOME PANEL (Classic WordPress)
+   -------------------------------------------------------------------------- */
+.welcome-panel {
+  position: relative;
+  overflow: auto;
+  margin: 16px 0 20px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--wp-border);
+  border-radius: 2px;
+  box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.welcome-panel-header {
+  margin-bottom: 20px;
+}
+.welcome-panel-header h2 {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #1d2327;
+}
+
+.welcome-panel-column-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .welcome-panel-column-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.welcome-panel-column h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d2327;
+  margin-bottom: 10px;
+}
+
+.welcome-panel-column ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.welcome-panel-column ul li {
+  margin-bottom: 8px;
+}
+.welcome-panel-column ul li a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   6. POSTBOX GRID & WIDGETS
+   -------------------------------------------------------------------------- */
+.dashboard-widgets-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+@media (max-width: 1050px) {
+  .dashboard-widgets-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.postbox {
+  background: #fff;
+  border: 1px solid var(--wp-border);
+  box-shadow: 0 1px 1px rgba(0,0,0,.04);
+  border-radius: 2px;
+  margin-bottom: 18px;
+}
+
+.postbox-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--wp-border-light);
+  padding: 9px 12px;
+  background: #fff;
+}
+
+.postbox-header h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d2327;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.postbox-inside {
+  padding: 14px;
+}
+
+/* At a Glance */
+.at-a-glance-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+}
+.at-a-glance-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #50575e;
+}
+.at-a-glance-list li strong {
+  color: #1d2327;
+}
+
+/* Quick Draft */
+.quick-draft-form input, .quick-draft-form textarea {
+  width: 100%;
+  border: 1px solid #8c8f94;
+  border-radius: 3px;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.quick-draft-form textarea {
+  height: 90px;
+  resize: vertical;
+}
+
+/* --------------------------------------------------------------------------
+   7. WP LIST TABLE (Posts, Pages, Publications, Events)
+   -------------------------------------------------------------------------- */
+.wp-list-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--wp-border);
+  background: #fff;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.wp-list-table th, .wp-list-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f1;
+}
+
+.wp-list-table th {
+  background: #f6f7f7;
+  font-weight: 600;
+  color: #2c3338;
+  border-bottom: 1px solid var(--wp-border);
+}
+
+.wp-list-table tr:hover {
+  background: #fbfbfb;
+}
+
+.row-actions {
+  font-size: 11px;
+  color: #8c8f94;
+  visibility: hidden;
+  margin-top: 4px;
+}
+
+.wp-list-table tr:hover .row-actions {
+  visibility: visible;
+}
+
+.row-actions span {
+  margin-right: 5px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.status-badge.published { background: #e7f7ed; color: #007017; }
+.status-badge.draft { background: #fff8e5; color: #8a6d00; }
+.status-badge.pending { background: #eef5fc; color: #135e96; }
+
+/* Subsubsub (All | Published | Drafts) */
+.subsubsub {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  font-size: 13px;
+  color: #646970;
+}
+.subsubsub li {
+  display: inline-block;
+  margin: 0;
+}
+.subsubsub li a {
+  padding: 2px;
+}
+.subsubsub li a.current {
+  font-weight: 600;
+  color: #000;
+}
+
+/* Tab Switching helper */
+.wp-tab-view {
+  display: none;
+}
+.wp-tab-view.active {
+  display: block;
+}
