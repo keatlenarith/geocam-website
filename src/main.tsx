@@ -76,7 +76,11 @@ function App() {
           <main id="main">
             {Page ? (
               <React.Suspense
-                fallback={<p className="px-5 py-16">Loading page…</p>}
+                fallback={
+                  <div className="flex min-h-[40vh] items-center justify-center p-12">
+                    <div className="h-7 w-7 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+                  </div>
+                }
               >
                 <Page />
               </React.Suspense>

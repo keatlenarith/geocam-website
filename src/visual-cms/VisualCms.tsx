@@ -10,6 +10,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useState,
   useRef,
 } from "react";
@@ -46,10 +47,31 @@ export function useCms() {
   if (!value) throw Error("CMS provider required");
   return value;
 }
+const PUBLISHED_CACHE_KEY = "geocam_published_site_content";
+
+function getCachedPublished(): Store {
+  try {
+    const raw =
+      typeof window !== "undefined"
+        ? localStorage.getItem(PUBLISHED_CACHE_KEY)
+        : null;
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return {};
+}
+
+function setCachedPublished(store: Store) {
+  try {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(PUBLISHED_CACHE_KEY, JSON.stringify(store));
+    }
+  } catch {}
+}
+
 export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
   const { admin } = useAdmin();
   const [draft, setDraft] = useState<Store>({}),
-    [published, setPublished] = useState<Store>({});
+    [published, setPublished] = useState<Store>(getCachedPublished);
   const draftRef = useRef<Store>({});
   const savedDraftRef = useRef<Store>({});
   const pendingInline = useRef(
@@ -156,7 +178,10 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
         .select("content")
         .eq("id", "site")
         .single();
-      if (current && data) setPublished(data.content as Store);
+      if (current && data?.content) {
+        setPublished(data.content as Store);
+        setCachedPublished(data.content as Store);
+      }
     };
     void load();
     window.addEventListener("focus", load);
@@ -232,6 +257,7 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
         });
         if (result.error) throw result.error;
         setPublished(result.data as Store);
+        setCachedPublished(result.data as Store);
         pendingInline.current.clear();
         setInlineStatus("Changes saved automatically.");
       }
@@ -383,7 +409,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
   const editingPage = editing && editable;
   const refresh = useRef(0);
   const [notice, setNotice] = useState("");
-  useEffect(() => {
+  useLayoutEffect(() => {
     const main = document.getElementById("main");
     if (!main || !editable || page.startsWith("/admin")) return;
     const keyspace = normalizedPage + "::" + lang;
@@ -505,7 +531,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
         .forEach((el) => el.classList.remove("geocam-editable"));
     };
   }, [normalizedPage, lang, active, editingPage, busy, setEntry, saveInline]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const main = document.getElementById("main");
     if (!main || !editingPage || busy) return;
     return attachInlineText(main, {
