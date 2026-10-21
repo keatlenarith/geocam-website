@@ -354,7 +354,29 @@ export default function PostManager() {
 
   const loadData = async () => {
     const rows = await fetchNewsDrafts();
-    if (mounted.current) setItems(rows);
+    if (mounted.current) {
+      setItems(rows);
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const editId = params.get("edit");
+        const isNewParam = params.get("new");
+        if (editId) {
+          const match = rows.find(
+            (r) =>
+              r.id === editId ||
+              SEED_UUID_MAP[r.id] === editId ||
+              Object.entries(SEED_UUID_MAP).some(
+                ([k, v]) => (v === r.id || k === r.id) && (k === editId || v === editId),
+              ),
+          );
+          if (match) {
+            openEdit(match);
+          }
+        } else if (isNewParam === "1" || isNewParam === "true") {
+          openNew();
+        }
+      } catch {}
+    }
   };
 
   useEffect(() => {
@@ -440,6 +462,14 @@ export default function PostManager() {
       setActiveInserter(null);
       setViewModeEn("code");
       setViewModeKm("code");
+      try {
+        const u = new URL(window.location.href);
+        if (u.searchParams.has("edit") || u.searchParams.has("new")) {
+          u.searchParams.delete("edit");
+          u.searchParams.delete("new");
+          window.history.replaceState({}, "", u.toString());
+        }
+      } catch {}
     });
 
   const populate = (item: NewsItem, newItem: boolean) => {

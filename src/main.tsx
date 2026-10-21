@@ -7,6 +7,7 @@ import { SiteFonts } from "./lib/site-fonts";
 import { createRoot } from "react-dom/client";
 import { I18nProvider } from "./lib/i18n";
 import { SiteHeader, SiteFooter } from "./components/site/Chrome";
+import { AdminBar } from "./components/admin/AdminBar";
 import { VisualCmsProvider, VisualCmsLayer } from "./visual-cms/VisualCms";
 import "./styles.css";
 import { Route as Home } from "./routes/index";
@@ -72,6 +73,7 @@ function App() {
       <AuthProvider>
         <VisualCmsProvider>
           <SiteFonts />
+          {!adminScreen && <AdminBar />}
           {!adminScreen && <SiteHeader />}
           <main id="main">
             {Page ? (

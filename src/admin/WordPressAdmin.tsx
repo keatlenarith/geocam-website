@@ -256,7 +256,13 @@ export default function WordPressAdmin() {
     return researchLibrary;
   });
   const [selectedTopic, setSelectedTopic] = useState<string>("All");
-  const [paperSearch, setPaperSearch] = useState<string>("");
+  const [paperSearch, setPaperSearch] = useState<string>(() => {
+    try {
+      return new URLSearchParams(window.location.search).get("search") || "";
+    } catch {
+      return "";
+    }
+  });
   const [showAddPaper, setShowAddPaper] = useState(false);
 
   // New Paper Form State
@@ -271,7 +277,16 @@ export default function WordPressAdmin() {
   const [paperMessage, setPaperMessage] = useState("");
 
   // Pages Editor State
-  const [activePage, setActivePage] = useState<string>("/");
+  const [activePage, setActivePage] = useState<string>(() => {
+    try {
+      const p = new URLSearchParams(window.location.search).get("page");
+      if (p) {
+        const formatted = p.startsWith("/") ? p : `/${p}`;
+        if (defaultPageData[formatted]) return formatted;
+      }
+    } catch {}
+    return "/";
+  });
   const [pageGroupFilter, setPageGroupFilter] = useState<string>("All");
   const [pageLang, setPageLang] = useState<"en" | "km">("en");
   const [pageMessage, setPageMessage] = useState("");

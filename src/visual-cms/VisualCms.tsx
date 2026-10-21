@@ -659,7 +659,17 @@ export function VisualCmsLayer({ page }: { page: string }) {
       document.removeEventListener("dblclick", blockDblClick, true);
     };
   }, [editingPage]);
-  if (!admin || !editable || page.startsWith("/admin")) return null;
+  if (!admin || page.startsWith("/admin") || page.startsWith("/wp-admin")) return null;
+
+  const queryParams =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search)
+      : new URLSearchParams();
+  const queryId = queryParams.get("id");
+  const isNewsItem = normalizedPage === "/news/item";
+  const isPubView = normalizedPage === "/publications/view";
+  const isResearchTopic = normalizedPage === "/research/topic";
+
   return (
     <div
       data-cms-ui
@@ -679,40 +689,117 @@ export function VisualCmsLayer({ page }: { page: string }) {
         >
           Dashboard
         </a>
-        <button
-          className={`btn !py-2 font-semibold ${editing ? "btn-secondary bg-slate-800 text-white" : "btn-primary"}`}
-          disabled={!ready || busy}
-          onClick={() => {
-            (document.activeElement as HTMLElement)?.blur();
-            setNotice("");
-            setEditing(!editing);
-          }}
-        >
-          {editing ? "Finish editing" : "Visual edit"}
-        </button>
-        {editingPage && (
-          <button
-            className="btn !py-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
-            disabled={!ready || busy}
-            onClick={async () => {
-              (document.activeElement as HTMLElement)?.blur();
-              setNotice("Publishing changes live to website…");
-              try {
-                await publish();
-                clearPendingInline();
-                setNotice("Published live! All visitors see these changes now.");
-              } catch (err) {
-                setNotice(
-                  err instanceof Error
-                    ? err.message
-                    : "Publication failed. Please retry.",
-                );
-              }
-            }}
-          >
-            Publish Live
-          </button>
+
+        {editable ? (
+          <>
+            <button
+              className={`btn !py-2 font-semibold ${editing ? "btn-secondary bg-slate-800 text-white" : "btn-primary"}`}
+              disabled={!ready || busy}
+              onClick={() => {
+                (document.activeElement as HTMLElement)?.blur();
+                setNotice("");
+                setEditing(!editing);
+              }}
+            >
+              {editing ? "Finish editing" : "Visual edit"}
+            </button>
+            {editingPage && (
+              <button
+                className="btn !py-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+                disabled={!ready || busy}
+                onClick={async () => {
+                  (document.activeElement as HTMLElement)?.blur();
+                  setNotice("Publishing changes live to website…");
+                  try {
+                    await publish();
+                    clearPendingInline();
+                    setNotice("Published live! All visitors see these changes now.");
+                  } catch (err) {
+                    setNotice(
+                      err instanceof Error
+                        ? err.message
+                        : "Publication failed. Please retry.",
+                    );
+                  }
+                }}
+              >
+                Publish Live
+              </button>
+            )}
+          </>
+        ) : isNewsItem ? (
+          <>
+            {queryId ? (
+              <a
+                className="btn !py-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+                href={`/admin?section=posts&edit=${encodeURIComponent(queryId)}`}
+              >
+                ✏️ Edit this Post
+              </a>
+            ) : null}
+            <a
+              className="btn btn-outline !py-2"
+              href="/admin?section=posts&new=1"
+            >
+              + New Post
+            </a>
+            <button
+              className="btn !py-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+              disabled={!ready || busy}
+              onClick={async () => {
+                (document.activeElement as HTMLElement)?.blur();
+                setNotice("Publishing changes live to website…");
+                try {
+                  await publish();
+                  clearPendingInline();
+                  setNotice("Published live! All visitors see these changes now.");
+                } catch (err) {
+                  setNotice(
+                    err instanceof Error
+                      ? err.message
+                      : "Publication failed. Please retry.",
+                  );
+                }
+              }}
+            >
+              Publish Live
+            </button>
+          </>
+        ) : isPubView ? (
+          <>
+            <a
+              className="btn !py-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+              href="/admin?section=publications"
+            >
+              ✏️ Edit in Admin
+            </a>
+            <a
+              className="btn btn-outline !py-2"
+              href="/admin?section=publications"
+            >
+              + New Paper
+            </a>
+          </>
+        ) : isResearchTopic ? (
+          <>
+            <a
+              className="btn !py-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+              href="/admin?section=pages&page=/research"
+            >
+              ✏️ Edit Research
+            </a>
+          </>
+        ) : (
+          <>
+            <a
+              className="btn !py-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+              href={`/admin?section=pages&page=${encodeURIComponent(normalizedPage)}`}
+            >
+              ✏️ Edit in Admin
+            </a>
+          </>
         )}
+
         {inlineStatus.startsWith("Unable") && (
           <>
             <button

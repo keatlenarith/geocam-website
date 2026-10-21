@@ -2,8 +2,11 @@ import { Container, PageHeader } from "@/components/site/Chrome";
 import { Link } from "@/lib/spa-router";
 import { publications } from "@/lib/data";
 import { useI18n } from "@/lib/i18n";
+import { useAdmin } from "@/admin/Auth";
+import { Edit3, PlusCircle } from "lucide-react";
 export default function PublicationView() {
   const { lang } = useI18n();
+  const { admin } = useAdmin();
   const id = new URLSearchParams(location.search).get("id");
   const p = publications.find((x) => x.id === id);
   return (
@@ -13,9 +16,34 @@ export default function PublicationView() {
         title={p?.title || "Publication not found"}
       />
       <Container>
-        <Link to="/publications" className="text-accent">
-          ← {lang === "km" ? "ត្រឡប់ទៅបញ្ជី" : "Back to publications"}
-        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <Link to="/publications" className="text-accent font-semibold text-sm">
+            ← {lang === "km" ? "ត្រឡប់ទៅបញ្ជី" : "Back to publications"}
+          </Link>
+
+          {admin && p && (
+            <div
+              data-cms-ui="pub-admin-actions"
+              className="flex flex-wrap items-center gap-2"
+            >
+              <Link
+                to={`/admin?section=publications&search=${encodeURIComponent(p.title)}`}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition"
+                title="Edit this publication in Admin"
+              >
+                <Edit3 size={13} />
+                <span>{lang === "km" ? "កែសម្រួលការបោះពុម្ពផ្សាយ" : "Edit Publication"}</span>
+              </Link>
+              <Link
+                to="/admin?section=publications"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+              >
+                <PlusCircle size={13} />
+                <span>{lang === "km" ? "បន្ថែមថ្មី" : "+ Add Paper"}</span>
+              </Link>
+            </div>
+          )}
+        </div>
         {p ? (
           <section className="card-surface mt-6 p-5 md:p-8">
             <p className="text-sm text-accent">

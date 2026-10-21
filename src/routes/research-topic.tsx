@@ -2,9 +2,12 @@ import { Container, PageHeader } from "@/components/site/Chrome";
 import { Link } from "@/lib/spa-router";
 import { researchAreas, publications } from "@/lib/data";
 import { useI18n } from "@/lib/i18n";
+import { useAdmin } from "@/admin/Auth";
+import { Edit3 } from "lucide-react";
 import { matchesResearchArea } from "@/lib/publication-search";
 export default function ResearchTopic() {
   const { lang } = useI18n();
+  const { admin } = useAdmin();
   const key = new URLSearchParams(location.search).get("id");
   const area = researchAreas.find((a) => a.key === key);
   const related = publications.filter((p) => matchesResearchArea(p, key));
@@ -15,9 +18,24 @@ export default function ResearchTopic() {
         title={area ? (lang === "km" ? area.km : area.key) : "Topic not found"}
       />
       <Container>
-        <Link to="/research" className="text-accent">
-          ← {lang === "km" ? "ត្រឡប់" : "Back to research"}
-        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <Link to="/research" className="text-accent font-semibold text-sm">
+            ← {lang === "km" ? "ត្រឡប់" : "Back to research"}
+          </Link>
+
+          {admin && (
+            <div data-cms-ui="research-admin-actions">
+              <Link
+                to="/admin?section=pages&page=/research"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition"
+                title="Edit research in Admin"
+              >
+                <Edit3 size={13} />
+                <span>{lang === "km" ? "កែសម្រួលផ្នែកស្រាវជ្រាវ" : "Edit Research Page"}</span>
+              </Link>
+            </div>
+          )}
+        </div>
         {area && (
           <article className="card-surface mt-6 p-8">
             <h2 className="text-2xl font-semibold">
