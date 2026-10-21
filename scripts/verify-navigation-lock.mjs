@@ -111,6 +111,15 @@ try {
   await page.waitForTimeout(300);
   assert.equal(new URL(page.url()).pathname, '/');
 
+  // 5b. TEST: Clicking an editable card image inside a link MUST open filechooser and NOT navigate
+  const cardImg = page.locator('[data-cms-id="focus-tectonics-image"]');
+  await cardImg.scrollIntoViewIfNeeded();
+  const fileChooserPromise = page.waitForEvent('filechooser');
+  await cardImg.click();
+  const chooser = await fileChooserPromise;
+  assert.ok(chooser, 'Clicking image inside link must trigger filechooser');
+  assert.equal(new URL(page.url()).pathname, '/');
+
   // 6. TEST ISSUE 3: Easy edit and Publish Live
   const editableField = page.locator('[data-cms-id="hero-line-one"]');
   await editableField.dblclick();

@@ -461,7 +461,26 @@ export function VisualCmsLayer({ page }: { page: string }) {
               ? `url(${JSON.stringify(value)})`
               : original;
         else if (el.tagName === "IMG") {
-          if (el.getAttribute("src") !== value) el.setAttribute("src", value);
+          const isRemoved = entry?.kind === "image" && !entry.value;
+          const displayValue = isRemoved
+            ? "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'><rect width='400' height='300' fill='%23f1f5f9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' fill='%2364748b'>+ Click to add image</text></svg>"
+            : value;
+          if (el.getAttribute("src") !== displayValue) el.setAttribute("src", displayValue);
+          if (editingPage) {
+            const parent = el.parentElement;
+            if (parent && !parent.querySelector(`.geocam-img-remove-btn[data-key="${key}"]`)) {
+              if (getComputedStyle(parent).position === "static") {
+                parent.style.position = "relative";
+              }
+              const btn = document.createElement("button");
+              btn.type = "button";
+              btn.className = "geocam-img-remove-btn";
+              btn.dataset.key = key;
+              btn.title = "Remove photo";
+              btn.textContent = "✕ Remove";
+              parent.appendChild(btn);
+            }
+          }
         } else if (el.textContent !== value) el.textContent = value;
         record.rendered = value;
         el.dataset.cmsKey = key;
@@ -479,11 +498,28 @@ export function VisualCmsLayer({ page }: { page: string }) {
     observer.observe(main, { childList: true, subtree: true });
     const click = (event: MouseEvent) => {
       if (!editingPage || busy) return;
-      const el = (event.target as HTMLElement).closest<HTMLElement>(
-        "[data-cms-key]",
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+
+      const removeBtn = target.closest<HTMLElement>(".geocam-img-remove-btn");
+      if (removeBtn) {
+        event.preventDefault();
+        event.stopPropagation();
+        const key = removeBtn.dataset.key;
+        if (key) {
+          const entry: Entry = { kind: "image", value: "" };
+          setEntry(keyspace, key, entry);
+          saveInline(keyspace, key, entry);
+          setNotice("Photo removed. Click the placeholder to upload a new one.");
+        }
+        return;
+      }
+
+      const el = target.closest<HTMLElement>(
+        "[data-cms-key], [data-cms-id], img, [data-cms-background]",
       );
       if (!el || !main.contains(el)) return;
-      const key = el.dataset.cmsKey!;
+      const key = el.dataset.cmsKey || el.getAttribute("data-cms-id") || stableKey(el, main);
       if (el.tagName === "IMG" || el.hasAttribute("data-cms-background")) {
         event.preventDefault();
         event.stopPropagation();
@@ -510,6 +546,9 @@ export function VisualCmsLayer({ page }: { page: string }) {
               };
               setEntry(keyspace, key, entry);
               saveInline(keyspace, key, entry);
+              setNotice(
+                "Photo updated! Click 'Publish Live' to publish to all visitors.",
+              );
             })
             .catch(() => {
               setNotice("Unable to read image file.");
@@ -529,6 +568,9 @@ export function VisualCmsLayer({ page }: { page: string }) {
       main
         .querySelectorAll(".geocam-editable")
         .forEach((el) => el.classList.remove("geocam-editable"));
+      main
+        .querySelectorAll(".geocam-img-remove-btn")
+        .forEach((el) => el.remove());
     };
   }, [normalizedPage, lang, active, editingPage, busy, setEntry, saveInline]);
   useLayoutEffect(() => {
@@ -555,9 +597,16 @@ export function VisualCmsLayer({ page }: { page: string }) {
       const target = event.target as Element | null;
       if (!target) return;
       if (target.closest("[data-cms-ui]")) return;
+
+      const isEditable = target.closest(
+        "[data-cms-key], [data-cms-id], img, [data-cms-background], .geocam-editable, .geocam-img-remove-btn",
+      );
       const anchor = target.closest("a[href]");
       if (anchor) {
         event.preventDefault();
+        if (isEditable) {
+          return;
+        }
         event.stopPropagation();
         (document.activeElement as HTMLElement)?.blur();
         setNotice(
@@ -569,7 +618,12 @@ export function VisualCmsLayer({ page }: { page: string }) {
       const target = event.target as Element | null;
       if (!target) return;
       if (target.closest("[data-cms-ui]")) return;
-      if (target.closest("[data-cms-key]")) return;
+      if (
+        target.closest(
+          "[data-cms-key], [data-cms-id], img, .geocam-editable, .geocam-img-remove-btn",
+        )
+      )
+        return;
       const anchor = target.closest("a[href]");
       if (anchor) {
         event.preventDefault();

@@ -98,10 +98,14 @@ function Home() {
   <Link to={"/news/item?id=" + encodeURIComponent(n.id)} key={n.id} className="gc-news-card group block overflow-hidden rounded-xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
     <div className="relative mb-4 h-48 w-full overflow-hidden rounded-lg bg-slate-100">
       <img
-        src={n.image || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80"}
+        data-cms-id={`news-cover-${n.id}`}
+        src={n.image || "/images/cms/mission-image.jpg"}
         alt={lang === 'km' && n.titleKm ? n.titleKm : n.title}
         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         loading="lazy"
+        onError={(e) => {
+          e.currentTarget.src = "/images/cms/mission-image.jpg";
+        }}
       />
       <span className="absolute top-2.5 left-2.5 rounded-full bg-slate-900/80 px-2.5 py-0.5 text-xs font-semibold text-emerald-400 backdrop-blur-md">
         {n.tag}
