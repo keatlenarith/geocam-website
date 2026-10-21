@@ -510,6 +510,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
     if (!main || !editingPage || busy) return;
     return attachInlineText(main, {
       commit: (key, value) => {
+        setNotice("");
         setEntry(normalizedPage + "::" + lang, key, { kind: "text", value });
         setEntry(normalizedPage + "::" + (lang === "en" ? "km" : "en"), key, {
           kind: "text",
@@ -650,7 +651,19 @@ export function VisualCmsLayer({ page }: { page: string }) {
         </p>
       )}
       <p className="mt-2 text-xs font-medium" role="status">
-        {notice ? (
+        {inlineStatus ? (
+          <span
+            className={
+              inlineStatus.startsWith("Unable")
+                ? "text-red-600 font-semibold"
+                : inlineStatus.startsWith("Saving")
+                  ? "text-amber-600"
+                  : "text-emerald-700"
+            }
+          >
+            {inlineStatus}
+          </span>
+        ) : notice ? (
           <span
             className={
               notice.startsWith("Published")
@@ -664,18 +677,6 @@ export function VisualCmsLayer({ page }: { page: string }) {
           </span>
         ) : error ? (
           <span className="text-red-600">{error}</span>
-        ) : inlineStatus ? (
-          <span
-            className={
-              inlineStatus.startsWith("Unable")
-                ? "text-red-600 font-semibold"
-                : inlineStatus.startsWith("Saving")
-                  ? "text-amber-600"
-                  : "text-emerald-700"
-            }
-          >
-            {inlineStatus}
-          </span>
         ) : (
           <span className="text-slate-500">Administrator editing controls</span>
         )}
