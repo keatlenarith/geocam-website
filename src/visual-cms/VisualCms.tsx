@@ -284,8 +284,17 @@ export const editablePages = [
   "/",
   "/about",
   "/research",
+  "/publications",
+  "/events",
   "/membership",
+  "/geodata",
+  "/environmental-monitoring",
+  "/news",
   "/contact",
+  "/geopark",
+  "/mining",
+  "/lexicon",
+  "/dashboard",
 ];
 const emptyContent: Store = {};
 const originals = new WeakMap<
@@ -421,10 +430,16 @@ export function VisualCmsLayer({ page }: { page: string }) {
   }, [page, lang, active, editingPage, busy, setEntry, saveInline]);
   useEffect(() => {
     const main = document.getElementById("main");
-    if (!main || !editingPage || busy || lang !== "en") return;
+    if (!main || !editingPage || busy) return;
     return attachInlineText(main, {
-      commit: (key, value) =>
-        setEntry(page + "::" + lang, key, { kind: "text", value }),
+      commit: (key, value) => {
+        setEntry(page + "::" + lang, key, { kind: "text", value });
+        setEntry(page + "::" + (lang === "en" ? "km" : "en"), key, {
+          kind: "text",
+          value: lang === "en" ? translateText(value) || value : value,
+        });
+        setEntry(page, key, { kind: "text", value });
+      },
       complete: (key, value) =>
         saveInline(page + "::" + lang, key, { kind: "text", value }),
     });
