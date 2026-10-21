@@ -33,6 +33,7 @@ type CMS = {
   saveInline: (page: string, key: string, entry: Entry) => void;
   flushInline: () => Promise<boolean>;
   inlineStatus: string;
+  clearPendingInline: () => void;
   refreshContent: () => Promise<void>;
   save: () => Promise<void>;
   publish: () => Promise<void>;
@@ -231,6 +232,8 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
         });
         if (result.error) throw result.error;
         setPublished(result.data as Store);
+        pendingInline.current.clear();
+        setInlineStatus("Changes saved automatically.");
       }
     } catch (error) {
       const message =
@@ -258,6 +261,10 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
         saveInline,
         flushInline,
         inlineStatus,
+        clearPendingInline: () => {
+          pendingInline.current.clear();
+          setInlineStatus("");
+        },
         refreshContent,
         save: () => write(false),
         publish: () => write(true),
@@ -296,6 +303,62 @@ const originals = new WeakMap<
   Element,
   { en?: string; km?: string; rendered?: string }
 >();
+export const normalizeRoute = (path: string) => {
+  const clean = path.split("?")[0].replace(/\/+$/, "");
+  return clean || "/";
+};
+
+function optimizeImage(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (file.size < 600000) {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+      return;
+    }
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const maxDim = 1800;
+      let width = img.naturalWidth || img.width;
+      let height = img.naturalHeight || img.height;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+        return;
+      }
+      ctx.drawImage(img, 0, 0, width, height);
+      const mime = file.type === "image/png" ? "image/png" : "image/jpeg";
+      resolve(canvas.toDataURL(mime, 0.88));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    };
+    img.src = url;
+  });
+}
+
 export function VisualCmsLayer({ page }: { page: string }) {
   const { admin } = useAdmin();
   const {
@@ -308,11 +371,14 @@ export function VisualCmsLayer({ page }: { page: string }) {
     saveInline,
     flushInline,
     inlineStatus,
+    clearPendingInline,
+    publish,
     editing,
     setEditing,
   } = useCms();
   const { lang } = useI18n();
-  const editable = editablePages.includes(page);
+  const normalizedPage = normalizeRoute(page);
+  const editable = editablePages.includes(normalizedPage);
   const active = editable ? (editing ? draft : published) : emptyContent;
   const editingPage = editing && editable;
   const refresh = useRef(0);
@@ -320,12 +386,18 @@ export function VisualCmsLayer({ page }: { page: string }) {
   useEffect(() => {
     const main = document.getElementById("main");
     if (!main || !editable || page.startsWith("/admin")) return;
-    const keyspace = page + "::" + lang;
+    const keyspace = normalizedPage + "::" + lang;
     const apply = () => {
       for (const el of candidates(main)) {
         // Data-driven views must not freeze result counts or bind edits to a
         // different record after a filter changes. Only stable named fields.
-        if (!["/", "/about", "/research", "/membership", "/contact"].includes(page) && !el.hasAttribute("data-cms-id")) continue;
+        if (
+          !["/", "/about", "/research", "/membership", "/contact"].includes(
+            normalizedPage,
+          ) &&
+          !el.hasAttribute("data-cms-id")
+        )
+          continue;
         if (el.hasAttribute("data-cms-inline")) continue;
         const key = stableKey(el, main);
         const image =
@@ -345,7 +417,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
               : source;
         originals.set(el, record);
         const original = record[lang] || "";
-        const entry = linkedEntry(active, page, lang, key);
+        const entry = linkedEntry(active, normalizedPage, lang, key);
         const isObsoleteSvg =
           entry?.kind === "image" &&
           typeof entry.value === "string" &&
@@ -399,21 +471,23 @@ export function VisualCmsLayer({ page }: { page: string }) {
             !["image/png", "image/jpeg", "image/webp", "image/gif"].includes(
               file.type,
             ) ||
-            file.size > 1500000
+            file.size > 2500000
           ) {
-            setNotice("Choose a PNG, JPEG, WebP or GIF under 1.5 MB.");
+            setNotice("Choose a PNG, JPEG, WebP or GIF under 2.5 MB.");
             return;
           }
-          const reader = new FileReader();
-          reader.onload = () => {
-            const entry: Entry = {
-              kind: "image",
-              value: String(reader.result),
-            };
-            setEntry(keyspace, key, entry);
-            saveInline(keyspace, key, entry);
-          };
-          reader.readAsDataURL(file);
+          optimizeImage(file)
+            .then((dataUrl) => {
+              const entry: Entry = {
+                kind: "image",
+                value: dataUrl,
+              };
+              setEntry(keyspace, key, entry);
+              saveInline(keyspace, key, entry);
+            })
+            .catch(() => {
+              setNotice("Unable to read image file.");
+            });
         };
         input.click();
       }
@@ -430,84 +504,133 @@ export function VisualCmsLayer({ page }: { page: string }) {
         .querySelectorAll(".geocam-editable")
         .forEach((el) => el.classList.remove("geocam-editable"));
     };
-  }, [page, lang, active, editingPage, busy, setEntry, saveInline]);
+  }, [normalizedPage, lang, active, editingPage, busy, setEntry, saveInline]);
   useEffect(() => {
     const main = document.getElementById("main");
     if (!main || !editingPage || busy) return;
     return attachInlineText(main, {
       commit: (key, value) => {
-        setEntry(page + "::" + lang, key, { kind: "text", value });
-        setEntry(page + "::" + (lang === "en" ? "km" : "en"), key, {
+        setEntry(normalizedPage + "::" + lang, key, { kind: "text", value });
+        setEntry(normalizedPage + "::" + (lang === "en" ? "km" : "en"), key, {
           kind: "text",
           value: lang === "en" ? translateText(value) || value : value,
         });
-        setEntry(page, key, { kind: "text", value });
+        setEntry(normalizedPage, key, { kind: "text", value });
       },
       complete: (key, value) =>
-        saveInline(page + "::" + lang, key, { kind: "text", value }),
+        saveInline(normalizedPage + "::" + lang, key, { kind: "text", value }),
     });
-  }, [page, lang, editingPage, busy, setEntry, saveInline]);
+  }, [normalizedPage, lang, editingPage, busy, setEntry, saveInline]);
   useEffect(() => {
     if (!editingPage) return;
-    const navigate = (event: MouseEvent) => {
-      if (
-        event.defaultPrevented ||
-        event.button !== 0 ||
-        event.ctrlKey ||
-        event.metaKey ||
-        event.shiftKey ||
-        event.altKey
-      )
-        return;
-      const anchor = (event.target as Element).closest?.(
-        "a[href]",
-      ) as HTMLAnchorElement | null;
-      if (
-        !anchor ||
-        anchor.target === "_blank" ||
-        anchor.hasAttribute("download") ||
-        anchor.getAttribute("href")?.startsWith("#")
-      )
-        return;
-      if (
-        (event.target as Element).closest("[data-cms-key]") &&
-        anchor.closest("#main")
-      )
-        return;
-      event.preventDefault();
-      event.stopPropagation();
-      (document.activeElement as HTMLElement)?.blur();
-      void flushInline().then((saved) => {
-        if (saved) location.assign(anchor.href);
-      });
+    // Navigation lock: while editing mode is active, prevent all link clicks and double clicks from navigating away.
+    const lockNavigation = (event: MouseEvent) => {
+      const target = event.target as Element | null;
+      if (!target) return;
+      if (target.closest("[data-cms-ui]")) return;
+      const anchor = target.closest("a[href]");
+      if (anchor) {
+        event.preventDefault();
+        event.stopPropagation();
+        (document.activeElement as HTMLElement)?.blur();
+        setNotice(
+          "Editing mode active: Link navigation is locked. Click 'Finish editing' to browse other pages.",
+        );
+      }
     };
-    document.addEventListener("click", navigate, true);
-    return () => document.removeEventListener("click", navigate, true);
-  }, [editingPage, flushInline]);
+    const blockDblClick = (event: MouseEvent) => {
+      const target = event.target as Element | null;
+      if (!target) return;
+      if (target.closest("[data-cms-ui]")) return;
+      if (target.closest("[data-cms-key]")) return;
+      const anchor = target.closest("a[href]");
+      if (anchor) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    };
+    document.addEventListener("click", lockNavigation, true);
+    document.addEventListener("auxclick", lockNavigation, true);
+    document.addEventListener("dblclick", blockDblClick, true);
+    return () => {
+      document.removeEventListener("click", lockNavigation, true);
+      document.removeEventListener("auxclick", lockNavigation, true);
+      document.removeEventListener("dblclick", blockDblClick, true);
+    };
+  }, [editingPage]);
   if (!admin || !editable || page.startsWith("/admin")) return null;
   return (
     <div
       data-cms-ui
       className="fixed bottom-5 right-5 z-[2000] max-w-[calc(100vw-2rem)] rounded-xl border bg-white p-3 shadow-2xl text-sm"
     >
-      <div className="flex flex-wrap gap-2">
-        <a className="btn btn-outline !py-2" href="/admin/cms">
+      <div className="flex flex-wrap items-center gap-2">
+        <a
+          className="btn btn-outline !py-2"
+          href="/admin/cms"
+          onClick={async (e) => {
+            (document.activeElement as HTMLElement)?.blur();
+            const ok = await flushInline();
+            if (!ok && !window.confirm("Some changes could not be saved. Open Dashboard anyway?")) {
+              e.preventDefault();
+            }
+          }}
+        >
           Dashboard
         </a>
         <button
-          className="btn btn-primary !py-2"
+          className={`btn !py-2 font-semibold ${editing ? "btn-secondary bg-slate-800 text-white" : "btn-primary"}`}
           disabled={!ready || busy}
-          onClick={() => setEditing(!editing)}
+          onClick={() => {
+            (document.activeElement as HTMLElement)?.blur();
+            setNotice("");
+            setEditing(!editing);
+          }}
         >
           {editing ? "Finish editing" : "Visual edit"}
         </button>
-        {inlineStatus.startsWith("Unable") && (
+        {editingPage && (
           <button
-            className="btn btn-outline !py-2"
-            onClick={() => void flushInline()}
+            className="btn !py-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+            disabled={!ready || busy}
+            onClick={async () => {
+              (document.activeElement as HTMLElement)?.blur();
+              setNotice("Publishing changes live to website…");
+              try {
+                await publish();
+                clearPendingInline();
+                setNotice("Published live! All visitors see these changes now.");
+              } catch (err) {
+                setNotice(
+                  err instanceof Error
+                    ? err.message
+                    : "Publication failed. Please retry.",
+                );
+              }
+            }}
           >
-            Retry save
+            Publish Live
           </button>
+        )}
+        {inlineStatus.startsWith("Unable") && (
+          <>
+            <button
+              className="btn btn-outline !py-2 text-red-600 border-red-300 hover:bg-red-50"
+              onClick={() => void flushInline()}
+            >
+              Retry save
+            </button>
+            <button
+              className="btn btn-ghost !py-2 text-xs text-muted-foreground hover:text-foreground"
+              title="Dismiss error message"
+              onClick={() => {
+                clearPendingInline();
+                setNotice("");
+              }}
+            >
+              Dismiss
+            </button>
+          </>
         )}
         <button
           className="btn btn-outline !py-2"
@@ -520,14 +643,42 @@ export function VisualCmsLayer({ page }: { page: string }) {
         </button>
       </div>
       {editingPage && (
-        <p className="mt-2 text-xs">
+        <p className="mt-2 text-xs text-muted-foreground">
           {lang === "km"
             ? "Switch to English to edit source text. Images are shared across languages."
-            : "Double-click text to edit. Select, copy, cut or paste normally. Enter finishes; Shift+Enter adds a line; Esc cancels."}
+            : "Double-click text to edit. Click images to replace. Enter finishes; Shift+Enter adds line; Esc cancels. Links are locked."}
         </p>
       )}
-      <p className="mt-2" role="status">
-        {error || notice || inlineStatus || "Administrator editing controls"}
+      <p className="mt-2 text-xs font-medium" role="status">
+        {notice ? (
+          <span
+            className={
+              notice.startsWith("Published")
+                ? "text-emerald-700 font-bold"
+                : notice.startsWith("Editing")
+                  ? "text-amber-700"
+                  : "text-blue-700"
+            }
+          >
+            {notice}
+          </span>
+        ) : error ? (
+          <span className="text-red-600">{error}</span>
+        ) : inlineStatus ? (
+          <span
+            className={
+              inlineStatus.startsWith("Unable")
+                ? "text-red-600 font-semibold"
+                : inlineStatus.startsWith("Saving")
+                  ? "text-amber-600"
+                  : "text-emerald-700"
+            }
+          >
+            {inlineStatus}
+          </span>
+        ) : (
+          <span className="text-slate-500">Administrator editing controls</span>
+        )}
       </p>
     </div>
   );
