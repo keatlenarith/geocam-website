@@ -99,9 +99,21 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
         });
         if (generation.current !== epoch) return false;
         if (error) {
-          setInlineStatus(
-            "Unable to save changes. Retry before leaving this page.",
-          );
+          console.error("Save error from supabase:", error, item);
+          if (
+            error.code === "42501" ||
+            error.message?.includes("Administrator access")
+          ) {
+            setInlineStatus(
+              "Administrator session expired. Please sign in again.",
+            );
+          } else {
+            setInlineStatus(
+              "Unable to save changes. " +
+                (error.message ? `(${error.message}) ` : "") +
+                "Retry before leaving this page.",
+            );
+          }
           return false;
         }
         if (pendingInline.current.get(id) === item)
@@ -334,6 +346,9 @@ export const normalizeRoute = (path: string) => {
   return clean || "/";
 };
 
+export const EMPTY_IMAGE_PLACEHOLDER =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+
 function optimizeImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     if (file.size < 600000) {
@@ -347,7 +362,7 @@ function optimizeImage(file: File): Promise<string> {
     const url = URL.createObjectURL(file);
     img.onload = () => {
       URL.revokeObjectURL(url);
-      const maxDim = 1800;
+      const maxDim = 1200;
       let width = img.naturalWidth || img.width;
       let height = img.naturalHeight || img.height;
       if (width > maxDim || height > maxDim) {
@@ -372,7 +387,7 @@ function optimizeImage(file: File): Promise<string> {
       }
       ctx.drawImage(img, 0, 0, width, height);
       const mime = file.type === "image/png" ? "image/png" : "image/jpeg";
-      resolve(canvas.toDataURL(mime, 0.88));
+      resolve(canvas.toDataURL(mime, 0.85));
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
@@ -461,7 +476,9 @@ export function VisualCmsLayer({ page }: { page: string }) {
               ? `url(${JSON.stringify(value)})`
               : original;
         else if (el.tagName === "IMG") {
-          const isRemoved = entry?.kind === "image" && !entry.value;
+          const isRemoved =
+            entry?.kind === "image" &&
+            (!entry.value || entry.value === EMPTY_IMAGE_PLACEHOLDER);
           const displayValue = isRemoved
             ? "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'><rect width='400' height='300' fill='%23f1f5f9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' fill='%2364748b'>+ Click to add image</text></svg>"
             : value;
@@ -507,7 +524,10 @@ export function VisualCmsLayer({ page }: { page: string }) {
         event.stopPropagation();
         const key = removeBtn.dataset.key;
         if (key) {
-          const entry: Entry = { kind: "image", value: "" };
+          const entry: Entry = {
+            kind: "image",
+            value: EMPTY_IMAGE_PLACEHOLDER,
+          };
           setEntry(keyspace, key, entry);
           saveInline(keyspace, key, entry);
           setNotice("Photo removed. Click the placeholder to upload a new one.");
@@ -697,7 +717,23 @@ export function VisualCmsLayer({ page }: { page: string }) {
           <>
             <button
               className="btn btn-outline !py-2 text-red-600 border-red-300 hover:bg-red-50"
-              onClick={() => void flushInline()}
+              onClick={async () => {
+                const { data } = await supabase.auth.getSession();
+                if (!data.session) {
+                  setNotice("Session expired. Please sign in again.");
+                  return;
+                }
+                const success = await flushInline();
+                if (!success) {
+                  try {
+                    await publish();
+                    clearPendingInline();
+                    setNotice("Published live! All changes saved successfully.");
+                  } catch (err) {
+                    console.error("Publish fallback error:", err);
+                  }
+                }
+              }}
             >
               Retry save
             </button>
