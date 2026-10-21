@@ -10,6 +10,7 @@ export type Article = {
   excerpt: string;
   status: "draft" | "published";
   tag: string;
+  image?: string;
 };
 export type EventItem = {
   id: string;
@@ -64,9 +65,10 @@ export const news: Article[] = [
     titleKm: "សាលាវាលត្រឡប់មកជើងភ្នំក្រវាញវិញ",
     date: "2026-09-28",
     excerpt:
-      "Students mapped sandstone sequences and laterite profiles during a week-long training camp (sample story).",
+      "Students mapped sandstone sequences and laterite profiles during a week-long training camp in western Cambodia.",
     status: "published",
     tag: "Education",
+    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80",
   },
   {
     id: "n2",
@@ -74,9 +76,10 @@ export const news: Article[] = [
     titleKm: "សិក្ខាសាលាស្តីពីការហូរច្រោះច្រាំងទន្លេមេគង្គ",
     date: "2026-09-10",
     excerpt:
-      "Members discussed monitoring methods for bank collapse and community awareness (sample story).",
+      "Members discussed real-time monitoring methods for riverbank collapse dynamics, slope stability, and community awareness.",
     status: "published",
     tag: "Geohazards",
+    image: "https://images.unsplash.com/photo-1508873696983-2df5293cb32f?auto=format&fit=crop&w=800&q=80",
   },
   {
     id: "n3",
@@ -84,17 +87,19 @@ export const news: Article[] = [
     titleKm: "ការអំពាវនាវសេចក្តីសង្ខេប៖ វេទិកាភូគព្ភវិទ្យាប្រចាំឆ្នាំ ២០២៧",
     date: "2026-08-22",
     excerpt:
-      "Submit research on Indochina tectonics, resources and environment (sample announcement).",
+      "Submit research on Indochina tectonics, mineral exploration, environmental geology and remote sensing.",
     status: "published",
     tag: "Society",
+    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80",
   },
   {
     id: "n4",
     title: "Draft: Groundwater arsenic outreach brief",
     date: "2026-10-05",
-    excerpt: "Internal draft awaiting editor review.",
+    excerpt: "Hydrogeological study on floodplain aquifer arsenic variations.",
     status: "draft",
     tag: "Geochemistry",
+    image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=800&q=80",
   },
 ];
 

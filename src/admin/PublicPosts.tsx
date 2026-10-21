@@ -51,14 +51,17 @@ export function PublishedPostCards() {
           to={"/articles/read?id=" + encodeURIComponent(post.id)}
           className="card-surface block overflow-hidden p-7 transition hover:shadow-lg"
         >
-          {safeCover(post.cover) && (
+          <div className="relative mb-4 h-52 w-full overflow-hidden rounded-xl bg-slate-100">
             <img
-              src={safeCover(post.cover)}
+              src={safeCover(post.cover) || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80"}
               alt=""
               loading="lazy"
-              className="mb-4 h-48 w-full rounded object-cover"
+              className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
             />
-          )}
+            <span className="absolute top-2.5 left-2.5 rounded-full bg-slate-900/80 px-2.5 py-0.5 text-xs font-semibold text-cyan-300 backdrop-blur-md">
+              {post.category || "Geoscience News"}
+            </span>
+          </div>
           <p className="text-xs font-semibold text-accent">
             {post.category} ·{" "}
             {new Date(post.createdAt).toLocaleDateString(

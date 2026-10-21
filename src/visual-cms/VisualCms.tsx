@@ -348,9 +348,9 @@ export function VisualCmsLayer({ page }: { page: string }) {
         originals.set(el, record);
         const original = record[lang] || "";
         const entry = linkedEntry(active, page, lang, key);
-        const value =
-          entry?.kind === (image ? "image" : "text")
-            ? entry.value
+        const isObsoleteSvg = entry?.kind === "image" && typeof entry.value === "string" && entry.value.includes("/images/focus/") && entry.value.endsWith(".svg");
+        const value = (!isObsoleteSvg && entry?.kind === (image ? "image" : "text"))
+          ? entry.value
             : !image && lang === "km"
               ? translateText(original)
               : original;
