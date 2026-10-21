@@ -291,19 +291,37 @@ export default function WordPressAdmin() {
   const pageFields: Record<string, {headline:string;sub:string;image?:string}> = {
     '/': {headline:'hero-line-one',sub:'hero-description',image:'home-hero-image'},
     '/about': {headline:'section:0/div:0/h1:0',sub:'section:0/div:0/p:1',image:'about-background-image'},
-    '/research': {headline:'section:0/div:0/h1:0',sub:'div:0/div:0/a:0/div:0/p:0'},
-    '/membership': {headline:'section:0/div:0/h1:0',sub:'section:0/div:0/p:1'},
+    '/research': {headline:'section:0/div:0/h1:0',sub:'div:0/div:0/a:0/div:0/p:0',image:'research-hero-image'},
+    '/publications': {headline:'publications-header-title',sub:'publications-header-sub',image:'publications-hero-image'},
+    '/events': {headline:'events-header-title',sub:'events-header-sub',image:'events-hero-image'},
+    '/membership': {headline:'section:0/div:0/h1:0',sub:'section:0/div:0/p:1',image:'membership-hero-image'},
+    '/geodata': {headline:'geodata-header-title',sub:'geodata-header-sub',image:'geodata-hero-image'},
+    '/environmental-monitoring': {headline:'env-header-title',sub:'env-header-sub',image:'env-hero-image'},
+    '/news': {headline:'news-header-title',sub:'news-header-sub',image:'news-hero-image'},
     '/contact': {headline:'professional-contact-name',sub:'professional-contact-role',image:'professional-profile-photo'},
+    '/geopark': {headline:'geopark-header-title',sub:'geopark-header-sub',image:'geopark-hero-image'},
+    '/mining': {headline:'mining-header-title',sub:'mining-header-sub',image:'mining-hero-image'},
+    '/lexicon': {headline:'lexicon-header-title',sub:'lexicon-header-sub',image:'lexicon-hero-image'},
+    '/dashboard': {headline:'dashboard-header-title',sub:'dashboard-header-sub',image:'dashboard-hero-image'},
   };
-  const selectedFields = pageFields[activePage];
+  const selectedFields = pageFields[activePage] || {
+    headline: 'page-title',
+    sub: 'page-description',
+    image: 'page-hero-image',
+  };
   useEffect(() => {
-    const fields = pageFields[activePage];
+    const fields = selectedFields;
     const english = draft[activePage + '::en'] || {};
-    // Missing overrides stay empty: saving one field must not replace real copy with sample defaults.
-    const text = (key?:string) => key ? english[key]?.value || '' : '';
-    setFieldHeadline(pageLang === 'km' ? translateText(text(fields?.headline)) : text(fields?.headline));
-    setFieldSub(pageLang === 'km' ? translateText(text(fields?.sub)) : text(fields?.sub));
-    setFieldImage(text(fields?.image));
+    const khmer = draft[activePage + '::km'] || {};
+    const text = (key?: string) =>
+      key
+        ? pageLang === 'km'
+          ? khmer[key]?.value || translateText(english[key]?.value || '')
+          : english[key]?.value || ''
+        : '';
+    setFieldHeadline(text(fields.headline));
+    setFieldSub(text(fields.sub));
+    setFieldImage(english[fields.image || '']?.value || '');
     setPageMessage('');
   }, [activePage, pageLang, draft]);
   const requestNavigation = (proceed:()=>void) => {
@@ -328,14 +346,14 @@ export default function WordPressAdmin() {
     setPageSaving(true);
     setPageMessage("");
     try {
-      if (!selectedFields || pageLang !== 'en') throw Error('Edit the English source on an editable page.');
-      const space = activePage + '::en';
-      if (fieldHeadline !== (draft[space]?.[selectedFields.headline]?.value || ''))
-        setEntry(space, selectedFields.headline, {kind:'text',value:fieldHeadline});
-      if (fieldSub !== (draft[space]?.[selectedFields.sub]?.value || ''))
-        setEntry(space, selectedFields.sub, {kind:'text',value:fieldSub});
-      if (selectedFields.image && fieldImage !== (draft[space]?.[selectedFields.image]?.value || ''))
-        setEntry(space, selectedFields.image, {kind:'image',value:fieldImage});
+      const fields = selectedFields;
+      const space = activePage + '::' + pageLang;
+      if (fieldHeadline !== (draft[space]?.[fields.headline]?.value || ''))
+        setEntry(space, fields.headline, {kind:'text',value:fieldHeadline});
+      if (fieldSub !== (draft[space]?.[fields.sub]?.value || ''))
+        setEntry(space, fields.sub, {kind:'text',value:fieldSub});
+      if (fields.image && fieldImage && fieldImage !== (draft[activePage + '::en']?.[fields.image]?.value || ''))
+        setEntry(activePage + '::en', fields.image, {kind:'image',value:fieldImage});
 
       if (doPublish) {
         await publish();
@@ -344,8 +362,9 @@ export default function WordPressAdmin() {
         await save();
         setPageMessage("✔ Page draft saved. English controls Khmer translations; images are shared.");
       }
-    } catch {
-      setPageMessage("Failed to save. Check Supabase connection.");
+    } catch (err) {
+      console.error("Save page error:", err);
+      setPageMessage("Failed to save: " + (err instanceof Error ? err.message : "Check Supabase connection."));
     } finally {
       setPageSaving(false);
     }
@@ -895,25 +914,24 @@ export default function WordPressAdmin() {
                 <div className="postbox-inside">
                   <div className="page-editor-field">
                     <label style={{ display: "block", fontWeight: 700, marginBottom: "6px" }}>
-                      Page heading ({pageLang === "en" ? "English source" : "Khmer translation preview"}):
+                      Page heading ({pageLang === "en" ? "English source" : "Khmer translation"}):
                     </label>
                     <input
                       type="text"
                       value={fieldHeadline}
-                      readOnly={pageLang === "km"}
-                      placeholder="Use Visual edit on the live page to see or change its existing text"
+                      placeholder={pageLang === "km" ? "ចំណងជើងទំព័រជាភាសាខ្មែរ..." : "Page heading in English..."}
                       onChange={(e) => setFieldHeadline(e.target.value)}
                     />
                   </div>
 
                   <div className="page-editor-field">
                     <label style={{ display: "block", fontWeight: 700, marginBottom: "6px" }}>
-                      Subheading / Lead Description ({pageLang === "en" ? "English" : "Khmer"}):
+                      Subheading / Lead Description ({pageLang === "en" ? "English source" : "Khmer translation"}):
                     </label>
                     <textarea
                       rows={3}
                       value={fieldSub}
-                      readOnly={pageLang === "km"}
+                      placeholder={pageLang === "km" ? "សេចក្តីពិពណ៌នាជាភាសាខ្មែរ..." : "Page lead description..."}
                       onChange={(e) => setFieldSub(e.target.value)}
                     ></textarea>
                   </div>
@@ -925,7 +943,7 @@ export default function WordPressAdmin() {
                     <input
                       type="text"
                       value={fieldImage}
-                      disabled={!selectedFields?.image || pageLang === "km"}
+                      placeholder="https://... or /images/..."
                       onChange={(e) => setFieldImage(e.target.value)}
                     />
                   </div>
@@ -933,14 +951,14 @@ export default function WordPressAdmin() {
                   <div style={{ display: "flex", gap: "12px", marginTop: "20px", alignItems: "center" }}>
                     <button
                       className="button"
-                      disabled={pageSaving || !ready || pageLang !== "en" || !selectedFields}
+                      disabled={pageSaving || !ready}
                       onClick={() => handleSavePageFields(false)}
                     >
                       <Save size={15} /> Save Draft
                     </button>
                     <button
                       className="button button-primary"
-                      disabled={pageSaving || !ready || pageLang !== "en" || !selectedFields}
+                      disabled={pageSaving || !ready}
                       onClick={() => handleSavePageFields(true)}
                     >
                       <Globe size={15} /> Publish Overall Changes Live

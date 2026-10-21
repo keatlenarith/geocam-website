@@ -20,7 +20,11 @@ export type Post = {
 export const cleanPostHtml = (html: string) =>
   DOMPurify.sanitize(html, { USE_PROFILES: { html: true, svg: true } });
 export const safeCover = (url: string) =>
-  /^https?:\/\//i.test(url) || /^\/(?!\/)/.test(url) ? url : "";
+  /^https?:\/\//i.test(url) ||
+  /^\/(?!\/)/.test(url) ||
+  /^data:image\/(png|jpeg|webp|gif);base64,/i.test(url)
+    ? url
+    : "";
 export const postText = (english: string, khmer: string, lang: string) =>
   lang === "km" ? khmer || translateText(english) : english;
 export function postBody(english: string, khmer: string, lang: string) {
