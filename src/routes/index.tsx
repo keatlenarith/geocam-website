@@ -19,27 +19,68 @@ const focusImages: Record<string, {src: string; alt: string}> = {
     alt: "Folded geological strata, thrust faults, and mountain rock formations"
   },
   "Mineral deposits": {
-    src: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80",
-    alt: "Mineral crystals, ore veins, and economic geology specimens"
+    src: "https://images.unsplash.com/photo-1599707367072-cd6ada2bc375?auto=format&fit=crop&w=800&q=80",
+    alt: "Mineral crystals, ore specimens, and geological gemstone veins"
   },
   "Geochemistry": {
     src: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=800&q=80",
     alt: "Geochemical laboratory analysis, elemental assays, and sediment testing"
   },
   "Geophysics": {
-    src: "https://images.unsplash.com/photo-1507668077129-56e32842fceb?auto=format&fit=crop&w=800&q=80",
-    alt: "Subsurface geophysical survey and resistivity sounding instrumentation"
+    src: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80",
+    alt: "Subsurface geophysical survey, sensing data, and magnetic sounding"
   },
   "Geohazards": {
-    src: "https://images.unsplash.com/photo-1508873696983-2df5293cb32f?auto=format&fit=crop&w=800&q=80",
-    alt: "Mountain slope stability, landslide hazard monitoring, and geological fault observation"
+    src: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80",
+    alt: "Mountain slope stability, canyon erosion, and geological fault hazard observation"
   },
 };
 function Home(){const {lang}=useI18n();const c=copy[lang];return <div className="geocam-landing">
 <section className="gc-hero relative isolate overflow-hidden"><img data-cms-id="home-hero-image" src={hero} alt="Cambodian mountainous landscape" className="gc-hero-image absolute inset-0 -z-20 h-full w-full object-cover"/><div className="gc-hero-wash absolute inset-0 -z-10"/><div className="mx-auto grid max-w-[1800px] items-center gap-10 px-5 py-24 md:min-h-[700px] lg:grid-cols-[1.15fr_.85fr] lg:py-28"><div><span className="gc-kicker gc-kicker-light"><Sparkles size={14}/>{c.pill}</span><h1 className="gc-display mt-8"><span data-cms-id="hero-line-one">{c.headingA}</span><br/><span data-cms-id="hero-line-two" className="gc-highlight">{c.headingB}</span></h1><p data-cms-id="hero-description" className="mt-7 max-w-xl text-lg leading-relaxed text-white/85">{c.subtitle}</p><div className="mt-9 flex flex-wrap gap-3"><Link to="/geodata" className="gc-button gc-button-light">{c.explore}<ArrowUpRight size={18}/></Link><Link to="/about" className="gc-button gc-button-outline">{c.discover}<ArrowRight size={18}/></Link></div><div className="mt-12 flex flex-wrap items-center gap-x-7 gap-y-3 text-xs font-semibold uppercase tracking-[.15em] text-white/70"><span className="flex items-center gap-2"><Globe2 size={17}/> GeoData</span><span className="flex items-center gap-2"><Mountain size={17}/> 3D Geopark</span><span className="flex items-center gap-2"><BookOpen size={17}/> Lexicon</span></div></div><div className="hidden lg:flex justify-end"><div className="gc-hero-card"><img src="/geocam-logo.png" alt="GeoCam society emblem" className="mx-auto h-40 w-40 rounded-full object-contain drop-shadow-lg"/><p className="mt-5 text-center text-sm font-semibold tracking-[.2em] text-white/90">GEOSCIENCES SOCIETY<br/>OF CAMBODIA</p><div className="gc-hero-card-line"/><p className="text-center text-sm text-white/75">{c.footerNote}</p></div></div></div></section>
 <section className="gc-section mx-auto max-w-[1800px] px-5"><div className="gc-section-heading"><div><span className="gc-kicker"><Compass size={15}/> GEOCAM PLATFORM</span><h2 data-cms-id="features-heading" className="gc-title">{c.featured}</h2><p data-cms-id="features-subheading" className="gc-subtitle">{c.featuredSub}</p></div></div><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">{features.map(({to,icon:Icon,title,desc,tone,image,alt},i)=><Link key={to} to={to} className={`gc-feature gc-tone-${tone}`}><div className="gc-feature-photo-wrap"><img data-cms-id={`feature-photo-${title}`} src={image} alt={alt} loading="lazy" className="gc-feature-photo" onError={(e)=>{e.currentTarget.style.opacity="0"}}/><span className="gc-feature-icon"><Icon size={23} strokeWidth={1.8}/></span></div><span className="gc-feature-index">0{i+1}</span><h3 className="mt-5 text-xl font-semibold">{c[title]}</h3><p className="mt-3 min-h-[68px] text-sm leading-relaxed text-slate-600">{c[desc]}</p><span className="gc-feature-arrow"><ArrowUpRight size={19}/></span></Link>)}</div></section>
 <section className="gc-section gc-mission"><div className="mx-auto grid max-w-[1800px] items-center gap-14 px-5 lg:grid-cols-2"><div className="relative"><img data-cms-id="mission-image" src={outcrop} alt="Geological rock outcrop and fieldwork" className="gc-mission-image"/><div className="gc-mission-stamp"><Mountain size={24}/><span>FIELD SCIENCE<br/>CAMBODIA</span></div></div><div><span className="gc-kicker"><Globe2 size={15}/>{c.missionTag}</span><h2 data-cms-id="mission-title" className="gc-title mt-5">{c.missionTitle}</h2><p data-cms-id="mission-body" className="mt-6 max-w-xl text-lg leading-relaxed text-slate-600">{c.missionBody}</p><Link to="/about" className="gc-button gc-button-dark mt-9">{c.missionLink}<ArrowUpRight size={18}/></Link></div></div></section>
-<section className="gc-section mx-auto max-w-[1800px] px-5"><span className="gc-kicker"><Microscope size={15}/> SCIENCE & RESEARCH</span><h2 className="gc-title mt-5">{c.areas}</h2><p className="gc-subtitle">{c.areasSub}</p><div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">{researchAreas.map((r,i)=><Link key={r.key} to="/research" hash={r.key.replace(/\s/g,"-")} className="gc-area"><img data-cms-id={`focus-${r.key.toLowerCase().replace(/\s+/g,"-")}-image`} src={focusImages[r.key]?.src} alt={focusImages[r.key]?.alt || r.key} loading="lazy" width={600} height={400} className="mb-5 aspect-[3/2] w-full rounded-xl object-cover"/><span className="gc-area-number">0{i+1}</span><h3 className="mt-8 text-lg font-semibold">{lang==='km'?r.km:r.key}</h3><p className="mt-3 text-sm leading-relaxed text-slate-600">{r.text}</p><ArrowUpRight size={18} className="mt-6 text-emerald-700"/></Link>)}</div></section>
+<section className="gc-section mx-auto max-w-[1800px] px-5">
+  <span className="gc-kicker"><Microscope size={15}/> SCIENCE & RESEARCH</span>
+  <h2 className="gc-title mt-5">{c.areas}</h2>
+  <p className="gc-subtitle">{c.areasSub}</p>
+  <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+    {researchAreas.map((r,i)=>{
+      const imgSrc = focusImages[r.key]?.src || r.image;
+      const title = lang === 'km' ? (r.km || r.key) : r.key;
+      const desc = lang === 'km' ? ((r as any).textKm || r.text) : r.text;
+      return (
+        <Link key={r.key} to="/research" hash={r.key.replace(/\s/g,"-")} className="gc-area group flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
+          <div>
+            <div className="relative mb-4 aspect-[4/3] w-full overflow-hidden rounded-xl bg-slate-100 shadow-sm">
+              <img
+                data-cms-id={`focus-${r.key.toLowerCase().replace(/\s+/g,"-")}-image`}
+                src={imgSrc}
+                alt={focusImages[r.key]?.alt || r.key}
+                loading="lazy"
+                width={600}
+                height={450}
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <span className="absolute top-2.5 right-2.5 rounded-full bg-slate-900/80 px-2.5 py-0.5 text-xs font-bold text-white shadow backdrop-blur-md">
+                0{i+1}
+              </span>
+            </div>
+            <h3 className="mt-2 text-xl font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+              {title}
+            </h3>
+            <p className="mt-2.5 text-sm leading-relaxed text-slate-600">
+              {desc}
+            </p>
+          </div>
+          <div className="mt-6 flex items-center gap-1.5 text-sm font-semibold text-emerald-700">
+            <span>{lang === 'km' ? 'ស្វែងយល់បន្ថែម' : 'Explore topic'}</span>
+            <ArrowUpRight size={17} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </div>
+        </Link>
+      );
+    })}
+  </div>
+</section>
 <section className="gc-section gc-updates"><div className="mx-auto max-w-[1800px] px-5"><span className="gc-kicker"><CalendarDays size={15}/> COMMUNITY</span><h2 className="gc-title mt-5">{c.updates}</h2><p className="gc-subtitle">{c.updatesSub}</p><div className="mt-10 grid gap-10 lg:grid-cols-[1.6fr_1fr]"><div><div className="flex items-center justify-between"><h3 className="text-xl font-semibold">{c.latest}</h3><Link to="/news" className="gc-text-link">{c.all}<ArrowUpRight size={16}/></Link></div><div className="mt-5 grid gap-4 md:grid-cols-2">{news.filter(n=>n.status==='published').slice(0,4).map(n=>(
   <Link to="/news" key={n.id} className="gc-news-card group block overflow-hidden rounded-xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
     <div className="relative mb-4 h-48 w-full overflow-hidden rounded-lg bg-slate-100">
