@@ -221,20 +221,7 @@ const publicationCategories = [
 ] as const;
 
 export default function WordPressAdmin() {
-  const { draft, published, ready, setEntry, save, publish } = (() => {
-    try {
-      return useCms();
-    } catch {
-      return {
-        draft: {} as Record<string, Record<string, { kind: "text" | "image"; value: string }>>,
-        published: {} as Record<string, Record<string, { kind: "text" | "image"; value: string }>>,
-        ready: true,
-        setEntry: () => {},
-        save: async () => {},
-        publish: async () => {},
-      };
-    }
-  })();
+  const { draft, published, ready, setEntry, save, publish } = useCms();
 
   const [section, setSection] = useState<AdminSection>(() => {
     const params = new URLSearchParams(window.location.search);

@@ -2,27 +2,52 @@ import { Container, PageHeader } from "@/components/site/Chrome";
 import { Link } from "@/lib/spa-router";
 import { useEffect, useState } from "react";
 import { postText, postBody, safeCover } from "@/admin/posts";
-import { getNewsById, isManagedNews, type NewsItem as NewsData } from "@/lib/news-service";
+import {
+  getNewsById,
+  isManagedNews,
+  type NewsItem as NewsData,
+} from "@/lib/news-service";
 import { useI18n } from "@/lib/i18n";
 import { ArrowLeft, Calendar, Tag, Share2 } from "lucide-react";
 
 export default function NewsItem() {
   const { lang } = useI18n();
   const id = new URLSearchParams(location.search).get("id") || "";
-  const [article,setArticle]=useState<NewsData|null>(null);
-  const [loading,setLoading]=useState(true),[error,setError]=useState('');
-  useEffect(()=>{const item=getNewsById(id)||null;setArticle(item);setLoading(false);},[id]);
+  const [article, setArticle] = useState<NewsData | null>(null);
+  const [loading, setLoading] = useState(true),
+    [error, setError] = useState("");
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    setArticle(null);
+    setError("");
+    getNewsById(id)
+      .then((item) => {
+        if (alive) setArticle(item ?? null);
+      })
+      .catch(() => {
+        if (alive) setError("Could not load this article. Please try again.");
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [id]);
 
   const title = article
-    ? postText(article.title,article.titleKm,lang)
-    : (lang === "km" ? "រកមិនឃើញអត្ថបទ" : "Article not found");
+    ? postText(article.title, article.titleKm, lang)
+    : lang === "km"
+      ? "រកមិនឃើញអត្ថបទ"
+      : "Article not found";
 
   const excerpt = article
-    ? postText(article.excerpt,article.excerptKm,lang)
+    ? postText(article.excerpt, article.excerptKm, lang)
     : "";
 
   const content = article
-    ? postBody(article.content||article.excerpt,article.contentKm,lang)
+    ? postBody(article.content || article.excerpt, article.contentKm, lang)
     : "";
 
   return (
@@ -38,13 +63,25 @@ export default function NewsItem() {
             className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition mb-6"
           >
             <ArrowLeft size={16} />
-            <span>{lang === "km" ? "ត្រឡប់ទៅកាន់ព័ត៌មានទាំងអស់" : "Back to all news"}</span>
+            <span>
+              {lang === "km"
+                ? "ត្រឡប់ទៅកាន់ព័ត៌មានទាំងអស់"
+                : "Back to all news"}
+            </span>
           </Link>
 
-          {loading?<p role="status">Loading article…</p>:error?<p role="alert" className="rounded bg-red-50 p-4 text-red-800">{error}</p>:!article ? (
+          {loading ? (
+            <p role="status">Loading article…</p>
+          ) : error ? (
+            <p role="alert" className="rounded bg-red-50 p-4 text-red-800">
+              {error}
+            </p>
+          ) : !article ? (
             <div className="rounded-2xl border border-dashed border-slate-300 p-12 text-center">
               <h2 className="text-xl font-bold text-slate-800">
-                {lang === "km" ? "រកមិនឃើញអត្ថបទព័ត៌មាននេះទេ" : "Story Not Found"}
+                {lang === "km"
+                  ? "រកមិនឃើញអត្ថបទព័ត៌មាននេះទេ"
+                  : "Story Not Found"}
               </h2>
               <p className="mt-2 text-sm text-slate-500">
                 {lang === "km"
@@ -69,7 +106,11 @@ export default function NewsItem() {
                   <Calendar size={13} /> {article.date}
                 </span>
                 <span className="text-slate-300">|</span>
-                <span>{isManagedNews(article.id)?"GeoCam Society Media":"DEMO · Demonstration story"}</span>
+                <span>
+                  {isManagedNews(article.id)
+                    ? "GeoCam Society Media"
+                    : "DEMO · Demonstration story"}
+                </span>
               </div>
 
               {/* Main Title */}
@@ -96,7 +137,10 @@ export default function NewsItem() {
               )}
 
               {/* Full Content Body */}
-              <div className="geocam-article-body mt-8 space-y-4 whitespace-pre-line text-lg leading-relaxed text-slate-700 font-normal" dangerouslySetInnerHTML={{__html:content}}/>
+              <div
+                className="geocam-article-body mt-8 space-y-4 whitespace-pre-line text-lg leading-relaxed text-slate-700 font-normal"
+                dangerouslySetInnerHTML={{ __html: content }}
+              />
             </article>
           )}
         </div>

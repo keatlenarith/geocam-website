@@ -1,6 +1,11 @@
 import { createFileRoute, Link } from "@/lib/spa-router";
 import { Container, PageHeader, meta } from "@/components/site/Chrome";
-import { getPublishedNews, fetchPublicNews, isManagedNews, type NewsItem } from "@/lib/news-service";
+import {
+  getPublishedNews,
+  fetchPublicNews,
+  isManagedNews,
+  type NewsItem,
+} from "@/lib/news-service";
 import { postText, safeCover } from "@/admin/posts";
 import { useI18n } from "@/lib/i18n";
 import { useState, useEffect } from "react";
@@ -14,20 +19,37 @@ export const Route = createFileRoute("/news")({
 function News() {
   const { t, lang } = useI18n();
   const [items, setItems] = useState<NewsItem[]>([]);
-  const [error,setError]=useState("");
-  const [loading,setLoading]=useState(true);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
-    let alive=true;
-    fetchPublicNews().then(rows=>{if(alive)setItems(rows);}).catch(()=>{if(alive)setError('Could not load news. Please try again.');}).finally(()=>{if(alive)setLoading(false);});
-    const handleUpdate=()=>{if(alive)setItems(getPublishedNews());};
-    window.addEventListener('geocam:news-updated',handleUpdate);
-    return()=>{alive=false;window.removeEventListener('geocam:news-updated',handleUpdate);};
+    let alive = true;
+    fetchPublicNews()
+      .then((rows) => {
+        if (alive) setItems(rows);
+      })
+      .catch(() => {
+        if (alive) setError("Could not load news. Please try again.");
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    const handleUpdate = () => {
+      if (alive) setItems(getPublishedNews());
+    };
+    window.addEventListener("geocam:news-updated", handleUpdate);
+    return () => {
+      alive = false;
+      window.removeEventListener("geocam:news-updated", handleUpdate);
+    };
   }, []);
 
-  const categories = ["All", ...Array.from(new Set(items.map((i) => i.tag || "General")))];
+  const categories = [
+    "All",
+    ...Array.from(new Set(items.map((i) => i.tag || "General"))),
+  ];
 
   const filtered = items.filter((item) => {
     const matchCat =
@@ -46,12 +68,22 @@ function News() {
   return (
     <>
       <PageHeader
-        eyebrow={lang === "km" ? "ព័ត៌មាន & សេចក្តីប្រកាស" : "News & Announcements"}
-        title={lang === "km" ? "ព័ត៌មានភូគព្ភសាស្ត្រចុងក្រោយ" : "Latest Geoscience News"}
+        eyebrow={
+          lang === "km" ? "ព័ត៌មាន & សេចក្តីប្រកាស" : "News & Announcements"
+        }
+        title={
+          lang === "km"
+            ? "ព័ត៌មានភូគព្ភសាស្ត្រចុងក្រោយ"
+            : "Latest Geoscience News"
+        }
       />
       <Container>
-        {error&&<p role="alert" className="mb-4 rounded bg-red-50 p-4 text-red-800">{error}</p>}
-        {loading&&<p role="status">Loading news…</p>}
+        {error && (
+          <p role="alert" className="mb-4 rounded bg-red-50 p-4 text-red-800">
+            {error}
+          </p>
+        )}
+        {loading && <p role="status">Loading news…</p>}
         {/* Search & Category Filter Bar */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           {/* Category Chips */}
@@ -76,10 +108,15 @@ function News() {
 
           {/* Search Box */}
           <div className="relative min-w-[260px]">
-            <Search size={15} className="absolute left-3 top-2.5 text-slate-400" />
+            <Search
+              size={15}
+              className="absolute left-3 top-2.5 text-slate-400"
+            />
             <input
               type="text"
-              placeholder={lang === "km" ? "ស្វែងរកព័ត៌មាន..." : "Search news & stories..."}
+              placeholder={
+                lang === "km" ? "ស្វែងរកព័ត៌មាន..." : "Search news & stories..."
+              }
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-9 pr-3 text-sm focus:border-emerald-600 focus:bg-white focus:outline-none"
@@ -97,8 +134,8 @@ function News() {
             </div>
           ) : (
             filtered.map((n) => {
-              const displayTitle = postText(n.title,n.titleKm,lang);
-              const displayExcerpt = postText(n.excerpt,n.excerptKm,lang);
+              const displayTitle = postText(n.title, n.titleKm, lang);
+              const displayExcerpt = postText(n.excerpt, n.excerptKm, lang);
               return (
                 <Link
                   key={n.id}
@@ -121,7 +158,8 @@ function News() {
                       </span>
                     </div>
                     <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
-                      {n.tag} · {n.date}{!isManagedNews(n.id)&&" · DEMO"}
+                      {n.tag} · {n.date}
+                      {!isManagedNews(n.id) && " · DEMO"}
                     </p>
                     <h2 className="mt-2 text-2xl font-bold text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-2">
                       {displayTitle}
@@ -131,8 +169,13 @@ function News() {
                     </p>
                   </div>
                   <div className="mt-6 flex items-center gap-1.5 text-sm font-semibold text-emerald-700">
-                    <span>{lang === "km" ? "អានអត្ថបទពេញលេញ" : "Read full article"}</span>
-                    <ArrowUpRight size={17} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    <span>
+                      {lang === "km" ? "អានអត្ថបទពេញលេញ" : "Read full article"}
+                    </span>
+                    <ArrowUpRight
+                      size={17}
+                      className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    />
                   </div>
                 </Link>
               );
