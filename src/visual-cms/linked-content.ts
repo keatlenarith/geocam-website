@@ -12,7 +12,13 @@ export function updateLinkedField(
   const space =
     entry.kind === "image" || !page.includes("::") ? base + "::en" : page;
   const previous = store[space]?.[key];
-  if (previous?.kind === entry.kind && previous.value === entry.value)
+  if (
+    previous?.kind === entry.kind &&
+    previous.value === entry.value &&
+    previous.width === entry.width &&
+    previous.height === entry.height &&
+    previous.fit === entry.fit
+  )
     return store;
   const next: Store = { ...store, [space]: { ...store[space], [key]: entry } };
   if (entry.kind === "image") {
@@ -86,7 +92,13 @@ export function pageChanges(draft: Store, published: Store) {
     ])) {
       const before = published[page]?.[key],
         after = draft[page]?.[key];
-      if (before?.kind === after?.kind && before?.value === after?.value)
+      if (
+        before?.kind === after?.kind &&
+        before?.value === after?.value &&
+        before?.width === after?.width &&
+        before?.height === after?.height &&
+        before?.fit === after?.fit
+      )
         continue;
       (changes[targetPage] ||= {})[key] = after || null;
     }
@@ -111,7 +123,13 @@ export function rebaseDraft(
     ])) {
       const before = baseline[page]?.[key],
         after = local[page]?.[key];
-      if (before?.kind === after?.kind && before?.value === after?.value)
+      if (
+        before?.kind === after?.kind &&
+        before?.value === after?.value &&
+        before?.width === after?.width &&
+        before?.height === after?.height &&
+        before?.fit === after?.fit
+      )
         continue;
       result[page] = { ...result[page] };
       if (after) result[page][key] = after;

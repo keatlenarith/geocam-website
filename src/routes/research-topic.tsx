@@ -161,14 +161,22 @@ export default function ResearchTopic() {
 
                 {/* Optional Section Image */}
                 {section.image && (
-                  <figure className="my-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs overflow-visible">
-                    <img
-                      src={section.image}
-                      alt={lang === "km" ? section.imageCaptionKm || "" : section.imageCaptionEn || ""}
-                      className="w-full object-contain rounded-xl mx-auto bg-white shadow-xs"
-                      style={{ maxHeight: "none", height: "auto" }}
-                      loading="lazy"
-                    />
+                  <figure
+                    className="my-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs overflow-visible text-center"
+                    style={{ height: "auto" }}
+                  >
+                    <div
+                      className="geocam-img-wrapper"
+                      style={{ maxWidth: "none", display: "inline-block", width: "100%", height: "auto" }}
+                    >
+                      <img
+                        src={section.image}
+                        alt={lang === "km" ? section.imageCaptionKm || "" : section.imageCaptionEn || ""}
+                        className="w-full object-contain rounded-xl mx-auto bg-white shadow-xs"
+                        style={{ maxHeight: "none", height: "auto" }}
+                        loading="lazy"
+                      />
+                    </div>
                     {(section.imageCaptionKm || section.imageCaptionEn) && (
                       <figcaption className="mt-2.5 text-xs text-center text-slate-600 italic px-2">
                         {lang === "km" ? section.imageCaptionKm : section.imageCaptionEn}
@@ -182,15 +190,21 @@ export default function ResearchTopic() {
                   section.images.map((imgItem, imgIdx) => (
                     <figure
                       key={imgIdx}
-                      className="my-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs overflow-visible"
+                      className="my-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs overflow-visible text-center"
+                      style={{ height: "auto" }}
                     >
-                      <img
-                        src={imgItem.url}
-                        alt={lang === "km" ? imgItem.captionKm || "" : imgItem.captionEn || ""}
-                        className="w-full object-contain rounded-xl mx-auto bg-white shadow-xs"
-                        style={{ maxHeight: "none", height: "auto" }}
-                        loading="lazy"
-                      />
+                      <div
+                        className="geocam-img-wrapper"
+                        style={{ maxWidth: "none", display: "inline-block", width: "100%", height: "auto" }}
+                      >
+                        <img
+                          src={imgItem.url}
+                          alt={lang === "km" ? imgItem.captionKm || "" : imgItem.captionEn || ""}
+                          className="w-full object-contain rounded-xl mx-auto bg-white shadow-xs"
+                          style={{ maxHeight: "none", height: "auto" }}
+                          loading="lazy"
+                        />
+                      </div>
                       {(imgItem.captionKm || imgItem.captionEn) && (
                         <figcaption className="mt-2.5 text-xs text-center text-slate-600 italic px-2">
                           {lang === "km" ? imgItem.captionKm : imgItem.captionEn}

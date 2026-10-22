@@ -122,7 +122,7 @@
 /* CMS edit affordances; public layout remains unchanged. */
 .geocam-editable { outline: 2px dashed #13a474 !important; outline-offset: 3px; cursor: pointer !important; }
 .geocam-editable:hover { outline: 3px solid #f59e0b !important; }
-img.geocam-editable { outline: 3px dashed #10b981 !important; outline-offset: -4px !important; cursor: pointer !important; transition: outline 0.15s ease, filter 0.15s ease; }
+img.geocam-editable { outline: 3px dashed #10b981 !important; outline-offset: -4px !important; cursor: pointer !important; transition: outline 0.15s ease, filter 0.15s ease; height: auto !important; max-height: none !important; }
 img.geocam-editable:hover { outline: 4px solid #f59e0b !important; outline-offset: -4px !important; filter: brightness(0.92); }
 .geocam-img-remove-btn { position: absolute; top: 8px; right: 8px; z-index: 40; background: rgba(220, 38, 38, 0.92); color: #fff; border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 9999px; padding: 3px 8px; font-size: 11px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 4px; }
 .geocam-img-remove-btn:hover { background: #dc2626; transform: scale(1.05); }
@@ -391,6 +391,7 @@ html[data-geocam-fonts="approved"] body [lang="km"] *:not(code):not(pre):not(svg
   display: inline-block;
   max-width: none !important;
   overflow: visible;
+  height: auto !important;
 }
 .geocam-table-wrapper {
   position: relative;

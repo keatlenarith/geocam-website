@@ -45,7 +45,14 @@ import {
   Maximize2,
   Minimize2,
 } from "lucide-react";
-export type Entry = { kind: "text" | "image"; value: string };
+export type Entry = {
+  kind: "text" | "image";
+  value: string;
+  width?: string;
+  height?: string;
+  fit?: string;
+  style?: string;
+};
 export type Store = Record<string, Record<string, Entry>>;
 type CMS = {
   draft: Store;
@@ -1108,6 +1115,31 @@ export function VisualCmsLayer({ page }: { page: string }) {
             ? "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'><rect width='400' height='300' fill='%23f1f5f9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' fill='%2364748b'>+ Click to add image</text></svg>"
             : value;
           if (el.getAttribute("src") !== displayValue) el.setAttribute("src", displayValue);
+
+          // Apply saved width, height, and fitMode so the edited size persists for all visitors!
+          if (entry?.kind === "image") {
+            if (entry.width) {
+              (el as HTMLImageElement).style.width = entry.width;
+              (el as HTMLImageElement).style.maxWidth = "none";
+              (el as HTMLImageElement).style.display = "block";
+              (el as HTMLImageElement).style.margin = "0 auto";
+            }
+            if (entry.height && entry.height !== "auto") {
+              (el as HTMLImageElement).style.height = entry.height;
+              (el as HTMLImageElement).style.maxHeight = "none";
+            } else {
+              // ALWAYS default to height: auto so there is ZERO vertical dead space!
+              (el as HTMLImageElement).style.height = "auto";
+              (el as HTMLImageElement).style.maxHeight = "none";
+            }
+            if (entry.fit) {
+              (el as HTMLImageElement).style.objectFit = entry.fit;
+              el.setAttribute("data-fit-mode", entry.fit);
+            }
+          } else {
+            (el as HTMLImageElement).style.height = "auto";
+            (el as HTMLImageElement).style.maxHeight = "none";
+          }
           if (editingPage) {
             const parent = el.parentElement;
             if (parent && !parent.querySelector(`.geocam-img-controls-bar[data-key="${key}"]`)) {
@@ -1281,18 +1313,21 @@ export function VisualCmsLayer({ page }: { page: string }) {
             const isCurrentlyContain =
               img.style.objectFit === "contain" ||
               img.getAttribute("data-fit-mode") === "contain";
-            if (isCurrentlyContain) {
-              img.style.objectFit = "cover";
-              img.setAttribute("data-fit-mode", "cover");
-              target.innerHTML = "🖼️ Cover";
-              setNotice("Image mode set to Cover.");
-            } else {
-              img.style.objectFit = "contain";
-              img.setAttribute("data-fit-mode", "contain");
-              img.classList.add("bg-slate-50");
-              target.innerHTML = "🖼️ Fit (Contain)";
-              setNotice("Image mode set to Fit (contain without distortion).");
-            }
+            const newFit = isCurrentlyContain ? "cover" : "contain";
+            img.style.objectFit = newFit;
+            img.setAttribute("data-fit-mode", newFit);
+            img.style.height = "auto";
+            target.innerHTML = newFit === "contain" ? "🖼️ Fit (Contain)" : "🖼️ Cover";
+            const currentSrc = img.getAttribute("src") || "";
+            const currentWidth = img.style.width || "100%";
+            persistEntry(key, {
+              kind: "image",
+              value: currentSrc,
+              width: currentWidth,
+              height: "auto",
+              fit: newFit,
+            });
+            setNotice(`Image mode set to ${newFit} and saved.`);
           }
           return;
         }
@@ -1305,7 +1340,17 @@ export function VisualCmsLayer({ page }: { page: string }) {
             img.style.maxHeight = "none";
             img.style.height = "auto";
             img.style.margin = "0 auto";
-            setNotice("Image resized to 50% width.");
+            img.style.display = "block";
+            const currentSrc = img.getAttribute("src") || "";
+            const currentFit = img.getAttribute("data-fit-mode") || "contain";
+            persistEntry(key, {
+              kind: "image",
+              value: currentSrc,
+              width: "50%",
+              height: "auto",
+              fit: currentFit,
+            });
+            setNotice("Image resized to 50% width and saved.");
           }
           return;
         }
@@ -1317,7 +1362,18 @@ export function VisualCmsLayer({ page }: { page: string }) {
             img.style.maxWidth = "none";
             img.style.maxHeight = "none";
             img.style.height = "auto";
-            setNotice("Image resized to 100% width.");
+            img.style.margin = "0 auto";
+            img.style.display = "block";
+            const currentSrc = img.getAttribute("src") || "";
+            const currentFit = img.getAttribute("data-fit-mode") || "contain";
+            persistEntry(key, {
+              kind: "image",
+              value: currentSrc,
+              width: "100%",
+              height: "auto",
+              fit: currentFit,
+            });
+            setNotice("Image resized to 100% width and saved.");
           }
           return;
         }
@@ -1329,12 +1385,23 @@ export function VisualCmsLayer({ page }: { page: string }) {
             img.style.maxWidth = "none";
             img.style.maxHeight = "none";
             img.style.height = "auto";
+            img.style.margin = "0 auto";
+            img.style.display = "block";
             const p = img.closest(".geocam-img-wrapper, figure, .geocam-inserted-block");
             if (p instanceof HTMLElement) {
               p.style.overflow = "visible";
               p.style.maxWidth = "none";
             }
-            setNotice("Image expanded to 150% width.");
+            const currentSrc = img.getAttribute("src") || "";
+            const currentFit = img.getAttribute("data-fit-mode") || "contain";
+            persistEntry(key, {
+              kind: "image",
+              value: currentSrc,
+              width: "150%",
+              height: "auto",
+              fit: currentFit,
+            });
+            setNotice("Image expanded to 150% width and saved.");
           }
           return;
         }
@@ -1346,12 +1413,23 @@ export function VisualCmsLayer({ page }: { page: string }) {
             img.style.maxWidth = "none";
             img.style.maxHeight = "none";
             img.style.height = "auto";
+            img.style.margin = "0 auto";
+            img.style.display = "block";
             const p = img.closest(".geocam-img-wrapper, figure, .geocam-inserted-block");
             if (p instanceof HTMLElement) {
               p.style.overflow = "visible";
               p.style.maxWidth = "none";
             }
-            setNotice("Image expanded to 200% width.");
+            const currentSrc = img.getAttribute("src") || "";
+            const currentFit = img.getAttribute("data-fit-mode") || "contain";
+            persistEntry(key, {
+              kind: "image",
+              value: currentSrc,
+              width: "200%",
+              height: "auto",
+              fit: currentFit,
+            });
+            setNotice("Image expanded to 200% width and saved.");
           }
           return;
         }
@@ -1363,12 +1441,23 @@ export function VisualCmsLayer({ page }: { page: string }) {
             img.style.maxWidth = "none";
             img.style.maxHeight = "none";
             img.style.height = "auto";
+            img.style.margin = "0 auto";
+            img.style.display = "block";
             const p = img.closest(".geocam-img-wrapper, figure, .geocam-inserted-block");
             if (p instanceof HTMLElement) {
               p.style.overflow = "visible";
               p.style.maxWidth = "none";
             }
-            setNotice("Image set to full uncapped size (Free / Max).");
+            const currentSrc = img.getAttribute("src") || "";
+            const currentFit = img.getAttribute("data-fit-mode") || "contain";
+            persistEntry(key, {
+              kind: "image",
+              value: currentSrc,
+              width: "auto",
+              height: "auto",
+              fit: currentFit,
+            });
+            setNotice("Image set to full uncapped size (Free / Max) and saved.");
           }
           return;
         }
@@ -1522,33 +1611,40 @@ export function VisualCmsLayer({ page }: { page: string }) {
 
       const onMouseMove = (moveEvent: MouseEvent) => {
         const deltaX = moveEvent.clientX - startX;
-        const deltaY = moveEvent.clientY - startY;
-        // No upper limit - user can enlarge to whatever size they prefer
-        const newWidth = Math.max(50, Math.round(startWidth + deltaX));
+        // Resize width smoothly with no upper bounds
+        const newWidth = Math.max(80, Math.round(startWidth + deltaX));
         img.style.width = `${newWidth}px`;
         img.style.maxWidth = "none";
+        // Always maintain height: auto to ensure ZERO dead vertical space!
+        img.style.height = "auto";
         img.style.maxHeight = "none";
-
-        if (e.shiftKey) {
-          img.style.height = "auto";
-        } else if (Math.abs(deltaY) > 8) {
-          const newHeight = Math.max(50, Math.round(startHeight + deltaY));
-          img.style.height = `${newHeight}px`;
-        } else {
-          img.style.height = "auto";
-        }
+        img.style.margin = "0 auto";
+        img.style.display = "block";
 
         const parent = img.closest(".geocam-img-wrapper, figure, .geocam-inserted-block");
         if (parent instanceof HTMLElement) {
           parent.style.overflow = "visible";
           parent.style.maxWidth = "none";
+          parent.style.height = "auto";
         }
       };
 
       const onMouseUp = () => {
         document.removeEventListener("mousemove", onMouseMove);
         document.removeEventListener("mouseup", onMouseUp);
-        setNotice(`Image resized to ${img.style.width}.`);
+        const key = handle.dataset.key;
+        if (key && img) {
+          const currentSrc = img.getAttribute("src") || "";
+          const currentFit = img.getAttribute("data-fit-mode") || "contain";
+          persistEntry(key, {
+            kind: "image",
+            value: currentSrc,
+            width: img.style.width,
+            height: "auto",
+            fit: currentFit,
+          });
+          setNotice(`Image resized to ${img.style.width} (proportional, zero height gaps) and saved.`);
+        }
       };
 
       document.addEventListener("mousemove", onMouseMove);
