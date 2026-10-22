@@ -3,21 +3,51 @@ import JSZip from "jszip";
 import { kml } from "@tmcw/togeojson";
 import type { FeatureCollection, Geometry } from "geojson";
 export const MAX_UPLOAD = 20 * 1024 * 1024;
+export const AVAILABLE_SYMBOLS = [
+  "circle",
+  "square",
+  "triangle",
+  "star",
+  "diamond",
+  "cross",
+  "hexagon",
+  "pin",
+  "mine",
+  "drillhole",
+  "quarry",
+  "strike-dip",
+] as const;
+
+export type MapSymbol = (typeof AVAILABLE_SYMBOLS)[number];
+
+export const AVAILABLE_LINE_STYLES = [
+  "solid",
+  "dashed",
+  "dotted",
+  "dash-dot",
+] as const;
+
+export type LineStyle = (typeof AVAILABLE_LINE_STYLES)[number];
+
 export type MapStyle = {
   original: boolean;
-  symbol: "circle" | "square" | "triangle" | "star";
+  symbol: MapSymbol;
   size: number;
   color: string;
+  fillColor?: string;
   width: number;
   opacity: number;
+  lineStyle?: LineStyle;
 };
 export const defaultStyle: MapStyle = {
   original: true,
   symbol: "circle",
   size: 24,
   color: "#2563eb",
+  fillColor: "#2563eb",
   width: 3,
   opacity: 0.5,
+  lineStyle: "solid",
 };
 export type MapDataset = {
   category?: DatasetCategory;
@@ -42,6 +72,24 @@ export function bounded(
 ) {
   const n = Number(value);
   return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : fallback;
+}
+export function safeSymbol(
+  value: unknown,
+  fallback: MapSymbol = "circle",
+): MapSymbol {
+  return typeof value === "string" &&
+    (AVAILABLE_SYMBOLS as readonly string[]).includes(value)
+    ? (value as MapSymbol)
+    : fallback;
+}
+export function safeLineStyle(
+  value: unknown,
+  fallback: LineStyle = "solid",
+): LineStyle {
+  return typeof value === "string" &&
+    (AVAILABLE_LINE_STYLES as readonly string[]).includes(value)
+    ? (value as LineStyle)
+    : fallback;
 }
 
 // Inspect the ZIP directory before decompression; reject ZIP64 and oversized archives.
@@ -165,10 +213,21 @@ export async function importGeodata(
     data = kml(doc) as FeatureCollection;
   } else {
     const input = JSON.parse(await file.text());
-    if (input.crs)
-      throw Error(
-        "Export GeoJSON in WGS84 longitude/latitude without a custom CRS.",
+    if (input.crs) {
+      const crsName = String(
+        input.crs?.properties?.name || input.crs?.type || "",
       );
+      const isWgs84 =
+        !crsName ||
+        /crs84|4326|wgs\s*84/i.test(crsName) ||
+        crsName.toLowerCase().includes("crs84") ||
+        crsName.toLowerCase().includes("4326");
+      if (!isWgs84) {
+        throw Error(
+          "Export GeoJSON in WGS84 longitude/latitude without a custom CRS.",
+        );
+      }
+    }
     data =
       input.type === "Feature"
         ? { type: "FeatureCollection", features: [input] }
@@ -253,14 +312,14 @@ export async function importGeodata(
     }
     feature.properties = output;
     serializedBytes += new Blob([JSON.stringify(feature)]).size;
-    if (serializedBytes > 8 * 1024 * 1024)
+    if (serializedBytes > 10 * 1024 * 1024)
       throw Error(
-        "Parsed layer exceeds 8 MB. Simplify geometry or split the dataset.",
+        "Parsed layer exceeds 10 MB. Simplify geometry or split the dataset.",
       );
   }
-  if (new Blob([JSON.stringify(data)]).size > 8 * 1024 * 1024)
+  if (new Blob([JSON.stringify(data)]).size > 10 * 1024 * 1024)
     throw Error(
-      "Parsed layer exceeds 8 MB. Simplify geometry or split the dataset.",
+      "Parsed layer exceeds 10 MB. Simplify geometry or split the dataset.",
     );
   return { data, warnings: [...new Set(warnings)] };
 }

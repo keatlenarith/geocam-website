@@ -112,6 +112,7 @@
   "Replace all page drafts with the last published content? Unsaved page edits will be replaced.": "ជំនួសសេចក្តីព្រាងទំព័រទាំងអស់ដោយមាតិកាដែលបានផ្សព្វផ្សាយចុងក្រោយឬ? ការកែប្រែទំព័រដែលមិនទាន់បានរក្សាទុកនឹងត្រូវបានជំនួស។",
   "Map layer library": "បណ្ណាល័យស្រទាប់ផែនទី",
   "Upload GeoJSON, KML, or KMZ files up to 20 MB each. Parsed layers must be under 8 MB. Use WGS84 coordinates for GeoJSON. Layers are uploaded as private drafts; publish them when ready.": "ផ្ទុកឯកសារ GeoJSON, KML ឬ KMZ ឡើង ដែលមានទំហំមិនលើសពី 20 MB ក្នុងមួយឯកសារ។ ស្រទាប់ក្រោយដំណើរការត្រូវមានទំហំក្រោម 8 MB។ ប្រើកូអរដោនេ WGS84 សម្រាប់ GeoJSON។ ស្រទាប់ត្រូវបានផ្ទុកឡើងជាសេចក្តីព្រាងឯកជន។ សូមផ្សព្វផ្សាយនៅពេលរួចរាល់។",
+  "Upload GeoJSON, KML, or KMZ files up to 20 MB each. Parsed layers must be under 10 MB. Use WGS84 coordinates for GeoJSON. Layers are uploaded as private drafts; publish them when ready.": "ផ្ទុកឯកសារ GeoJSON, KML ឬ KMZ ឡើង ដែលមានទំហំមិនលើសពី 20 MB ក្នុងមួយឯកសារ។ ស្រទាប់ក្រោយដំណើរការត្រូវមានទំហំក្រោម 10 MB។ ប្រើកូអរដោនេ WGS84 សម្រាប់ GeoJSON។ ស្រទាប់ត្រូវបានផ្ទុកឡើងជាសេចក្តីព្រាងឯកជន។ សូមផ្សព្វផ្សាយនៅពេលរួចរាល់។",
   "Open map preview": "បើកផែនទីមើលជាមុន",
   "layers in the current library view. Preview styling and visible layers on the GeoData map.": "ស្រទាប់ក្នុងទិដ្ឋភាពបណ្ណាល័យបច្ចុប្បន្ន។ មើលរចនាប័ទ្ម និងស្រទាប់ដែលអាចមើលឃើញជាមុននៅលើផែនទី GeoData។",
   "Geoscience Association of Cambodia": "សមាគមភូគព្ភវិទ្យាកម្ពុជា",

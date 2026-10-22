@@ -485,7 +485,7 @@ export function CmsDashboard() {
               <strong>Map layer library</strong>
               <p>
                 Upload GeoJSON, KML, or KMZ files up to 20 MB each. Parsed
-                layers must be under 8 MB. Use WGS84 coordinates for GeoJSON.
+                layers must be under 10 MB. Use WGS84 coordinates for GeoJSON.
                 Layers are uploaded as private drafts; publish them when ready.
               </p>
               <a

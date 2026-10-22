@@ -79,6 +79,7 @@
   "An icon over 250 KB was replaced with a default symbol.": "រូបតំណាងមួយដែលមានទំហំលើសពី 250 KB ត្រូវបានជំនួសដោយនិមិត្តសញ្ញាលំនាំដើម។",
   "An icon was missing or unsupported and was replaced with a default symbol.": "រូបតំណាងមួយបានបាត់ ឬមិនអាចគាំទ្របាន ហើយត្រូវបានជំនួសដោយនិមិត្តសញ្ញាលំនាំដើម។",
   "Parsed layer exceeds 8 MB. Simplify geometry or split the dataset.": "ស្រទាប់ក្រោយពេលដំណើរការមានទំហំលើសពី 8 MB។ សូមសម្រួលធរណីមាត្រ ឬបំបែកសំណុំទិន្នន័យ។",
+  "Parsed layer exceeds 10 MB. Simplify geometry or split the dataset.": "ស្រទាប់ក្រោយពេលដំណើរការមានទំហំលើសពី 10 MB។ សូមសម្រួលធរណីមាត្រ ឬបំបែកសំណុំទិន្នន័យ។",
   "Geology": "ភូគព្ភសាស្ត្រ",
   "Faults": "បំណាក់សិលា",
   "Trends": "និន្នាការ",
