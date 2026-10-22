@@ -119,7 +119,7 @@ export default function ResearchTopic() {
             <img
               src={focus.image}
               alt={focus.imageAlt}
-              className="w-full max-h-[520px] object-cover"
+              className="w-full max-h-[520px] object-contain bg-slate-50 mx-auto"
               loading="lazy"
             />
             <figcaption className="p-3.5 text-xs text-center text-muted-foreground bg-slate-100/70 border-t border-slate-200">
@@ -157,6 +157,44 @@ export default function ResearchTopic() {
                     </p>
                   ))}
                 </div>
+
+                {/* Optional Section Image */}
+                {section.image && (
+                  <figure className="my-6 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs">
+                    <img
+                      src={section.image}
+                      alt={lang === "km" ? section.imageCaptionKm || "" : section.imageCaptionEn || ""}
+                      className="w-full max-h-[560px] object-contain rounded-xl mx-auto bg-white shadow-xs"
+                      loading="lazy"
+                    />
+                    {(section.imageCaptionKm || section.imageCaptionEn) && (
+                      <figcaption className="mt-2.5 text-xs text-center text-slate-600 italic px-2">
+                        {lang === "km" ? section.imageCaptionKm : section.imageCaptionEn}
+                      </figcaption>
+                    )}
+                  </figure>
+                )}
+
+                {/* Optional Multiple Section Images */}
+                {section.images &&
+                  section.images.map((imgItem, imgIdx) => (
+                    <figure
+                      key={imgIdx}
+                      className="my-6 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs"
+                    >
+                      <img
+                        src={imgItem.url}
+                        alt={lang === "km" ? imgItem.captionKm || "" : imgItem.captionEn || ""}
+                        className="w-full max-h-[560px] object-contain rounded-xl mx-auto bg-white shadow-xs"
+                        loading="lazy"
+                      />
+                      {(imgItem.captionKm || imgItem.captionEn) && (
+                        <figcaption className="mt-2.5 text-xs text-center text-slate-600 italic px-2">
+                          {lang === "km" ? imgItem.captionKm : imgItem.captionEn}
+                        </figcaption>
+                      )}
+                    </figure>
+                  ))}
 
                 {/* Optional Bullets */}
                 {((lang === "km" ? section.bulletsKm : section.bulletsEn) || []).length > 0 && (
