@@ -120,3 +120,42 @@ export function rebaseDraft(
   }
   return result;
 }
+
+/**
+ * Strips duplicate image entries from ::km and purges bloat so payload
+ * stays strictly within PostgreSQL JSON and check constraint bounds.
+ */
+export function sanitizeStoreForStorage(store: Store): Store {
+  const result: Store = {};
+
+  for (const [pageKey, fields] of Object.entries(store || {})) {
+    if (!fields || typeof fields !== "object") continue;
+
+    const [base, lang] = pageKey.split("::");
+
+    for (const [key, entry] of Object.entries(fields)) {
+      if (!entry || typeof entry !== "object" || !entry.value) continue;
+
+      if (entry.kind === "image") {
+        // All images live strictly in ::en
+        const enPage = `${base}::en`;
+        if (!result[enPage]) result[enPage] = {};
+        if (!result[enPage][key]) {
+          result[enPage][key] = entry;
+        }
+        // Do NOT store image duplicates under ::km or raw base
+      } else {
+        const targetPage = lang ? `${base}::${lang}` : `${base}::en`;
+        if (!result[targetPage]) result[targetPage] = {};
+        result[targetPage][key] = entry;
+      }
+    }
+  }
+
+  // Preserve global appearance settings if present
+  if ((store as any)?.__appearance) {
+    (result as any).__appearance = (store as any).__appearance;
+  }
+
+  return result;
+}

@@ -4,6 +4,7 @@ import {
   rebaseDraft,
   pageChanges,
   canonicalDbRoute,
+  sanitizeStoreForStorage,
 } from "./linked-content";
 import { attachInlineText } from "./inline-text";
 import { createPortal } from "react-dom";
@@ -93,6 +94,68 @@ function setCachedPublished(store: Store) {
   } catch {}
 }
 
+export function compressDataUrl(
+  dataUrl: string,
+  maxDim = 1000,
+  quality = 0.82,
+): Promise<string> {
+  if (
+    typeof window === "undefined" ||
+    !dataUrl ||
+    !dataUrl.startsWith("data:image/") ||
+    dataUrl.length < 180000 // Skip if already compact
+  ) {
+    return Promise.resolve(dataUrl);
+  }
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      let width = img.naturalWidth || img.width;
+      let height = img.naturalHeight || img.height;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return resolve(dataUrl);
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, width, height);
+      const compressed = canvas.toDataURL("image/jpeg", quality);
+      resolve(compressed.length < dataUrl.length ? compressed : dataUrl);
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
+export async function compressStoreImages(store: Store): Promise<Store> {
+  const result: Store = structuredClone(store);
+  for (const page of Object.keys(result)) {
+    for (const key of Object.keys(result[page] || {})) {
+      const entry = result[page][key];
+      if (
+        entry?.kind === "image" &&
+        entry.value?.startsWith("data:image/") &&
+        entry.value.length > 180000
+      ) {
+        const compressed = await compressDataUrl(entry.value);
+        result[page][key] = { ...entry, value: compressed };
+      }
+    }
+  }
+  return result;
+}
+
 export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
   const { admin } = useAdmin();
   const [draft, setDraft] = useState<Store>({}),
@@ -141,6 +204,14 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
         let serverData: any = null;
 
         try {
+          if (
+            item.entry.kind === "image" &&
+            item.entry.value?.startsWith("data:image/") &&
+            item.entry.value.length > 180000
+          ) {
+            item.entry.value = await compressDataUrl(item.entry.value);
+          }
+
           const { data, error } = await supabase.rpc("geocam_update_page_field", {
             p_page: targetPage,
             p_key: targetKey,
@@ -173,15 +244,15 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
                 }
               } catch {}
 
-              // 2. Direct table fallback if RPC was not available
+              // 2. Direct table fallback if RPC was not available or table had bloat
               if (!savedOk) {
                 try {
                   const [draftRes, pubRes] = await Promise.all([
                     supabase.from("geocam_drafts").select("content").eq("id", "site").single(),
                     supabase.from("geocam_published").select("content").eq("id", "site").single(),
                   ]);
-                  const curDraft = structuredClone((draftRes.data?.content || draftRef.current || {}) as Store);
-                  const curPub = structuredClone((pubRes.data?.content || published || {}) as Store);
+                  let curDraft = structuredClone((draftRes.data?.content || draftRef.current || {}) as Store);
+                  let curPub = structuredClone((pubRes.data?.content || published || {}) as Store);
 
                   if (!curDraft[targetPage]) curDraft[targetPage] = {};
                   curDraft[targetPage][targetKey] = item.entry;
@@ -200,6 +271,17 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
                     if (curPub[canonicalBase + "::km"]) delete curPub[canonicalBase + "::km"][targetKey];
                   }
 
+                  // SANITIZE & PURGE BLOAT: Strip all duplicate ::km images and shrink heavy data URLs
+                  curDraft = sanitizeStoreForStorage(curDraft);
+                  curPub = sanitizeStoreForStorage(curPub);
+
+                  if (JSON.stringify(curDraft).length > 4000000) {
+                    curDraft = await compressStoreImages(curDraft);
+                  }
+                  if (JSON.stringify(curPub).length > 4000000) {
+                    curPub = await compressStoreImages(curPub);
+                  }
+
                   const now = new Date().toISOString();
                   const [dUp, pUp] = await Promise.all([
                     supabase.from("geocam_drafts").upsert({ id: "site", content: curDraft, updated_at: now }),
@@ -211,6 +293,8 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
                     serverData = { draft: curDraft, published: curPub };
                     setPublished(curPub);
                     setCachedPublished(curPub);
+                  } else {
+                    console.error("Direct fallback error:", dUp.error || pUp.error);
                   }
                 } catch (fallbackErr) {
                   console.warn("Direct update fallback error:", fallbackErr);
@@ -389,7 +473,39 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
             setReady(true);
             return;
           }
-          const loaded = (data?.content as Store) || structuredClone(published || {});
+          let loaded = (data?.content as Store) || structuredClone(published || getCachedPublished() || {});
+
+          // Detect if database content has storage bloat (e.g. duplicate ::km images)
+          const hasKmImages = Object.keys(loaded).some(
+            (p) =>
+              p.endsWith("::km") &&
+              Object.values(loaded[p] || {}).some((e) => e?.kind === "image"),
+          );
+          if (hasKmImages || JSON.stringify(loaded).length > 6000000) {
+            void (async () => {
+              try {
+                let sanitized = sanitizeStoreForStorage(loaded);
+                if (JSON.stringify(sanitized).length > 4000000) {
+                  sanitized = await compressStoreImages(sanitized);
+                }
+                const now = new Date().toISOString();
+                const [dRes, pRes] = await Promise.all([
+                  supabase.from("geocam_drafts").upsert({ id: "site", content: sanitized, updated_at: now }),
+                  supabase.from("geocam_published").upsert({ id: "site", content: sanitized, updated_at: now }),
+                ]);
+                if (!dRes.error && !pRes.error) {
+                  draftRef.current = sanitized;
+                  savedDraftRef.current = sanitized;
+                  setDraft(sanitized);
+                  setPublished(sanitized);
+                  setCachedPublished(sanitized);
+                }
+              } catch (e) {
+                console.warn("Storage auto-prune background notice:", e);
+              }
+            })();
+          }
+
           draftRef.current = loaded;
           savedDraftRef.current = loaded;
           setDraft(loaded);
@@ -420,9 +536,15 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
     setBusy(true);
     setError("");
     try {
+      let cleanDraft = sanitizeStoreForStorage(draftRef.current);
+      if (JSON.stringify(cleanDraft).length > 4000000) {
+        cleanDraft = await compressStoreImages(cleanDraft);
+      }
+      draftRef.current = cleanDraft;
+
       const row = {
         id: "site",
-        content: structuredClone(draftRef.current),
+        content: cleanDraft,
         updated_at: new Date().toISOString(),
       };
 
@@ -613,9 +735,10 @@ function optimizeImage(file: File): Promise<string> {
         reader.readAsDataURL(file);
         return;
       }
+      ctx.imageSmoothingQuality = "high";
       ctx.drawImage(img, 0, 0, width, height);
-      const mime = file.type === "image/png" ? "image/png" : "image/jpeg";
-      resolve(canvas.toDataURL(mime, 0.85));
+      // High-efficiency JPEG at quality 0.82 prevents giant PNG data URLs that exceed 10MB database limits
+      resolve(canvas.toDataURL("image/jpeg", 0.82));
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
