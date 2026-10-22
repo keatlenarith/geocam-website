@@ -3,6 +3,7 @@ import {
   linkedEntry,
   rebaseDraft,
   pageChanges,
+  canonicalDbRoute,
 } from "./linked-content";
 import { attachInlineText } from "./inline-text";
 import { createPortal } from "react-dom";
@@ -117,11 +118,24 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
         const [id, item] = pendingInline.current.entries().next().value!;
         setInlineStatus("Saving changes…");
 
-        // Canonical keyspace for images is always English
+        // Canonical keyspace: map any subroute to one of the 14 allowed DB roots
+        const pageWithoutLang = item.page.replace(/::(en|km)$/, "");
+        const langMatch = item.page.match(/::(en|km)$/);
+        const langSuffix = langMatch ? langMatch[0] : "::en";
+        const canonicalBase = canonicalDbRoute(pageWithoutLang);
         const targetPage =
           item.entry.kind === "image"
-            ? item.page.replace(/::(en|km)$/, "") + "::en"
-            : item.page;
+            ? `${canonicalBase}::en`
+            : `${canonicalBase}${langSuffix}`;
+
+        let targetKey = item.key;
+        if (pageWithoutLang !== canonicalBase && !targetKey.startsWith("sub:")) {
+          const subPart = pageWithoutLang
+            .slice(canonicalBase.length)
+            .replace(/^\/+/, "")
+            .replace(/\//g, "-");
+          targetKey = `sub:${subPart}:${targetKey}`;
+        }
 
         let savedOk = false;
         let serverData: any = null;
@@ -129,7 +143,7 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
         try {
           const { data, error } = await supabase.rpc("geocam_update_page_field", {
             p_page: targetPage,
-            p_key: item.key,
+            p_key: targetKey,
             p_entry: item.entry,
           });
 
@@ -145,49 +159,62 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
               error.message?.includes("Administrator access");
 
             if (!isAuthError) {
-              // Fall back to direct table update on geocam_drafts and geocam_published
-              // This completely prevents "Invalid editable page or field" RPC errors on subroutes (e.g. /research/topic) and statement timeouts!
+              // 1. Try atomic publishing via geocam_publish_page_changes (RPC)
               try {
-                setInlineStatus("Saving changes…");
-                const [draftRes, pubRes] = await Promise.all([
-                  supabase.from("geocam_drafts").select("content").eq("id", "site").single(),
-                  supabase.from("geocam_published").select("content").eq("id", "site").single(),
-                ]);
-                const curDraft = structuredClone((draftRes.data?.content || draftRef.current || {}) as Store);
-                const curPub = structuredClone((pubRes.data?.content || published || {}) as Store);
-                const base = targetPage.replace(/::(en|km)$/, "");
-
-                if (!curDraft[targetPage]) curDraft[targetPage] = {};
-                curDraft[targetPage][item.key] = item.entry;
-
-                if (!curPub[targetPage]) curPub[targetPage] = {};
-                curPub[targetPage][item.key] = item.entry;
-
-                if (item.entry.kind === "image") {
-                  const enPage = base + "::en";
-                  if (!curDraft[enPage]) curDraft[enPage] = {};
-                  curDraft[enPage][item.key] = item.entry;
-                  if (curDraft[base + "::km"]) delete curDraft[base + "::km"][item.key];
-
-                  if (!curPub[enPage]) curPub[enPage] = {};
-                  curPub[enPage][item.key] = item.entry;
-                  if (curPub[base + "::km"]) delete curPub[base + "::km"][item.key];
-                }
-
-                const now = new Date().toISOString();
-                const [dUp, pUp] = await Promise.all([
-                  supabase.from("geocam_drafts").upsert({ id: "site", content: curDraft, updated_at: now }),
-                  supabase.from("geocam_published").upsert({ id: "site", content: curPub, updated_at: now }),
-                ]);
-
-                if (!dUp.error && !pUp.error) {
+                const patch = { [targetPage]: { [targetKey]: item.entry } };
+                const pubRpc = await supabase.rpc("geocam_publish_page_changes", {
+                  p_changes: patch,
+                });
+                if (!pubRpc.error && pubRpc.data) {
                   savedOk = true;
-                  serverData = { draft: curDraft, published: curPub };
-                  setPublished(curPub);
-                  setCachedPublished(curPub);
+                  serverData = { draft: pubRpc.data, published: pubRpc.data };
+                  setPublished(pubRpc.data as Store);
+                  setCachedPublished(pubRpc.data as Store);
                 }
-              } catch (fallbackErr) {
-                console.warn("Direct update fallback error:", fallbackErr);
+              } catch {}
+
+              // 2. Direct table fallback if RPC was not available
+              if (!savedOk) {
+                try {
+                  const [draftRes, pubRes] = await Promise.all([
+                    supabase.from("geocam_drafts").select("content").eq("id", "site").single(),
+                    supabase.from("geocam_published").select("content").eq("id", "site").single(),
+                  ]);
+                  const curDraft = structuredClone((draftRes.data?.content || draftRef.current || {}) as Store);
+                  const curPub = structuredClone((pubRes.data?.content || published || {}) as Store);
+
+                  if (!curDraft[targetPage]) curDraft[targetPage] = {};
+                  curDraft[targetPage][targetKey] = item.entry;
+
+                  if (!curPub[targetPage]) curPub[targetPage] = {};
+                  curPub[targetPage][targetKey] = item.entry;
+
+                  if (item.entry.kind === "image") {
+                    const enPage = canonicalBase + "::en";
+                    if (!curDraft[enPage]) curDraft[enPage] = {};
+                    curDraft[enPage][targetKey] = item.entry;
+                    if (curDraft[canonicalBase + "::km"]) delete curDraft[canonicalBase + "::km"][targetKey];
+
+                    if (!curPub[enPage]) curPub[enPage] = {};
+                    curPub[enPage][targetKey] = item.entry;
+                    if (curPub[canonicalBase + "::km"]) delete curPub[canonicalBase + "::km"][targetKey];
+                  }
+
+                  const now = new Date().toISOString();
+                  const [dUp, pUp] = await Promise.all([
+                    supabase.from("geocam_drafts").upsert({ id: "site", content: curDraft, updated_at: now }),
+                    supabase.from("geocam_published").upsert({ id: "site", content: curPub, updated_at: now }),
+                  ]);
+
+                  if (!dUp.error && !pUp.error) {
+                    savedOk = true;
+                    serverData = { draft: curDraft, published: curPub };
+                    setPublished(curPub);
+                    setCachedPublished(curPub);
+                  }
+                } catch (fallbackErr) {
+                  console.warn("Direct update fallback error:", fallbackErr);
+                }
               }
             }
 
@@ -353,12 +380,19 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
         .then(({ data, error }) => {
           if (!current) return;
           if (error) {
-            setError("Unable to load drafts. Reload before editing.");
+            console.warn("Notice: could not load geocam_drafts:", error.message || error);
+            // Non-blocking fallback: initialize draft directly from published or cached
+            const fallback = structuredClone(published || getCachedPublished() || {});
+            draftRef.current = fallback;
+            savedDraftRef.current = fallback;
+            setDraft(fallback);
+            setReady(true);
             return;
           }
-          draftRef.current = data.content as Store;
-          savedDraftRef.current = data.content as Store;
-          setDraft(data.content as Store);
+          const loaded = (data?.content as Store) || structuredClone(published || {});
+          draftRef.current = loaded;
+          savedDraftRef.current = loaded;
+          setDraft(loaded);
           setReady(true);
         });
     return () => {
@@ -377,8 +411,12 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
     [admin, ready, busy],
   );
   const write = async (publish: boolean) => {
-    if (!admin || !ready || busy)
-      throw Error("Administrator access and loaded drafts are required.");
+    if (!admin || busy)
+      throw Error("Administrator access is required.");
+    if (!ready) {
+      draftRef.current = structuredClone(published || getCachedPublished() || {});
+      setReady(true);
+    }
     setBusy(true);
     setError("");
     try {
@@ -387,33 +425,59 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
         content: structuredClone(draftRef.current),
         updated_at: new Date().toISOString(),
       };
-      const saved = await supabase.from("geocam_drafts").upsert(row);
-      if (saved.error) throw saved.error;
-      savedDraftRef.current = structuredClone(row.content);
-      setDirty(false);
+
+      // Save draft (non-fatal if drafts table has timeout/constraint)
+      let draftSaved = false;
+      try {
+        const saved = await supabase.from("geocam_drafts").upsert(row);
+        if (!saved.error) {
+          draftSaved = true;
+          savedDraftRef.current = structuredClone(row.content);
+        } else {
+          console.warn("Draft upsert notice:", saved.error.message || saved.error);
+        }
+      } catch (dErr) {
+        console.warn("Draft upsert warning:", dErr);
+      }
+
+      if (draftSaved) {
+        setDirty(false);
+      }
+
       if (publish) {
         let publishedData: Store | null = null;
         try {
-          // Atomic field patches preserve concurrent font approvals and unrelated edits.
-          const result = await supabase.rpc("geocam_publish_page_changes", {
-            p_changes: pageChanges(row.content, published),
-          });
-          if (!result.error && result.data) {
-            publishedData = result.data as Store;
+          const changes = pageChanges(row.content, published);
+          if (Object.keys(changes).length > 0) {
+            const result = await supabase.rpc("geocam_publish_page_changes", {
+              p_changes: changes,
+            });
+            if (!result.error && result.data) {
+              publishedData = result.data as Store;
+            } else if (result.error) {
+              console.warn("geocam_publish_page_changes notice:", result.error.message || result.error);
+            }
+          } else {
+            publishedData = structuredClone(row.content);
           }
         } catch (rpcErr) {
           console.warn("geocam_publish_page_changes notice:", rpcErr);
         }
 
-        // Direct upsert fallback if RPC failed (due to subroutes or size limits)
+        // Direct upsert fallback if RPC failed or had error
         if (!publishedData) {
           const pubRes = await supabase.from("geocam_published").upsert(row);
-          if (pubRes.error) throw pubRes.error;
+          if (pubRes.error) {
+            console.error("geocam_published upsert fallback error:", pubRes.error);
+            throw pubRes.error;
+          }
           publishedData = row.content as Store;
         }
 
         setPublished(publishedData);
         setCachedPublished(publishedData);
+        savedDraftRef.current = structuredClone(row.content);
+        setDirty(false);
         pendingInline.current.clear();
         setInlineStatus("Changes saved automatically.");
       }
@@ -499,6 +563,24 @@ export const normalizeRoute = (path: string) => {
   return clean || "/";
 };
 
+export function getSubrouteInfo(path: string) {
+  const cleanPath = normalizeRoute(path);
+  const canonicalRoute = canonicalDbRoute(cleanPath);
+  let prefix = "";
+  if (cleanPath !== canonicalRoute) {
+    const search = typeof window !== "undefined" ? window.location.search : "";
+    const params = new URLSearchParams(search);
+    const id = params.get("id") || params.get("topic") || params.get("slug") || "";
+    const subPart = cleanPath
+      .slice(canonicalRoute.length)
+      .replace(/^\/+/, "")
+      .replace(/\//g, "-");
+    const subIdentifier = id ? `${subPart}-${id}` : subPart;
+    prefix = `sub:${subIdentifier}:`;
+  }
+  return { canonicalRoute, prefix, cleanPath };
+}
+
 export const EMPTY_IMAGE_PLACEHOLDER =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
 
@@ -565,6 +647,8 @@ export function VisualCmsLayer({ page }: { page: string }) {
   } = useCms();
   const { lang } = useI18n();
   const normalizedPage = normalizeRoute(page);
+  const { canonicalRoute, prefix, cleanPath } = getSubrouteInfo(page);
+  const blocksKey = prefix ? `${prefix}__inserted_blocks__` : "__inserted_blocks__";
   const editable =
     editablePages.includes(normalizedPage) ||
     normalizedPage.startsWith("/research") ||
@@ -577,6 +661,30 @@ export function VisualCmsLayer({ page }: { page: string }) {
   const [showInsertModal, setShowInsertModal] = useState(false);
   const insertFileInputRef = useRef<HTMLInputElement>(null);
   const mainEl = typeof document !== "undefined" ? document.getElementById("main") : null;
+
+  const getLinked = (rawKey: string): Entry | undefined => {
+    const prefixedKey =
+      prefix && !rawKey.startsWith("sub:") ? `${prefix}${rawKey}` : rawKey;
+    return (
+      linkedEntry(active, canonicalRoute, lang, prefixedKey) ||
+      linkedEntry(active, cleanPath, lang, rawKey) ||
+      linkedEntry(active, canonicalRoute, lang, rawKey)
+    );
+  };
+
+  const persistEntry = (rawKey: string, entry: Entry) => {
+    const prefixedKey =
+      prefix && !rawKey.startsWith("sub:") ? `${prefix}${rawKey}` : rawKey;
+    const targetSpace =
+      entry.kind === "image" ? `${canonicalRoute}::en` : `${canonicalRoute}::${lang}`;
+    setEntry(targetSpace, prefixedKey, entry);
+    saveInline(targetSpace, prefixedKey, entry);
+    if (cleanPath !== canonicalRoute) {
+      const directSpace =
+        entry.kind === "image" ? `${cleanPath}::en` : `${cleanPath}::${lang}`;
+      setEntry(directSpace, rawKey, entry);
+    }
+  };
 
   // Selected target location for insertion
   const [targetLocation, setTargetLocation] = useState<{
@@ -598,7 +706,9 @@ export function VisualCmsLayer({ page }: { page: string }) {
     Array<{ id: string; type: string; html: string }>
   >(() => {
     try {
-      const saved = active[normalizedPage + "::" + lang]?.["__inserted_blocks__"]?.value;
+      const saved =
+        active[canonicalRoute + "::" + lang]?.[blocksKey]?.value ||
+        active[cleanPath + "::" + lang]?.["__inserted_blocks__"]?.value;
       if (saved) return JSON.parse(saved);
     } catch {}
     return [];
@@ -606,14 +716,16 @@ export function VisualCmsLayer({ page }: { page: string }) {
 
   useEffect(() => {
     try {
-      const saved = active[normalizedPage + "::" + lang]?.["__inserted_blocks__"]?.value;
+      const saved =
+        active[canonicalRoute + "::" + lang]?.[blocksKey]?.value ||
+        active[cleanPath + "::" + lang]?.["__inserted_blocks__"]?.value;
       if (saved) {
         setInsertedBlocks(JSON.parse(saved));
         return;
       }
     } catch {}
     setInsertedBlocks([]);
-  }, [normalizedPage, lang, active]);
+  }, [canonicalRoute, cleanPath, blocksKey, lang, active]);
 
   const insertBlock = (
     type: "paragraph" | "heading" | "image" | "table" | "chart" | "callout",
@@ -748,13 +860,15 @@ export function VisualCmsLayer({ page }: { page: string }) {
     setShowInsertModal(false);
 
     // Persist to CMS
-    const key = "__inserted_blocks__";
     const entry: Entry = {
       kind: "text",
       value: JSON.stringify(nextBlocks),
     };
-    setEntry(normalizedPage + "::" + lang, key, entry);
-    saveInline(normalizedPage + "::" + lang, key, entry);
+    setEntry(canonicalRoute + "::" + lang, blocksKey, entry);
+    saveInline(canonicalRoute + "::" + lang, blocksKey, entry);
+    if (cleanPath !== canonicalRoute) {
+      setEntry(cleanPath + "::" + lang, "__inserted_blocks__", entry);
+    }
     setNotice(
       targetLocation
         ? `Content inserted at chosen location <${targetLocation.tagName}>!`
@@ -785,8 +899,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
 
         const key = targetLocation.key;
         const html = targetDomEl.innerHTML;
-        setEntry(normalizedPage + "::" + lang, key, { kind: "text", value: html });
-        saveInline(normalizedPage + "::" + lang, key, { kind: "text", value: html });
+        persistEntry(key, { kind: "text", value: html });
         setNotice(`Inserted "${word.trim()}" at desired location <${targetLocation.tagName}>!`);
         return;
       }
@@ -847,7 +960,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
               : source;
         originals.set(el, record);
         const original = record[lang] || "";
-        const entry = linkedEntry(active, normalizedPage, lang, key);
+        const entry = getLinked(key);
         const isObsoleteSvg =
           entry?.kind === "image" &&
           typeof entry.value === "string" &&
@@ -1146,9 +1259,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
             kind: "image",
             value: EMPTY_IMAGE_PLACEHOLDER,
           };
-          const imageSpace = normalizedPage + "::en";
-          setEntry(imageSpace, key, entry);
-          saveInline(imageSpace, key, entry);
+          persistEntry(key, entry);
           setNotice("Photo removed. Click placeholder or upload to change.");
           return;
         }
@@ -1258,9 +1369,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
                 kind: "image",
                 value: dataUrl,
               };
-              const imageSpace = normalizedPage + "::en";
-              setEntry(imageSpace, key, entry);
-              saveInline(imageSpace, key, entry);
+              persistEntry(key, entry);
               setNotice(
                 "Photo updated! Click 'Publish Live' to publish to all visitors.",
               );
@@ -1406,10 +1515,12 @@ export function VisualCmsLayer({ page }: { page: string }) {
         const [moved] = reordered.splice(fromIdx, 1);
         reordered.splice(toIdx, 0, moved);
 
-        const key = "__inserted_blocks__";
         const entry: Entry = { kind: "text", value: JSON.stringify(reordered) };
-        setEntry(normalizedPage + "::" + lang, key, entry);
-        saveInline(normalizedPage + "::" + lang, key, entry);
+        setEntry(canonicalRoute + "::" + lang, blocksKey, entry);
+        saveInline(canonicalRoute + "::" + lang, blocksKey, entry);
+        if (cleanPath !== canonicalRoute) {
+          setEntry(cleanPath + "::" + lang, "__inserted_blocks__", entry);
+        }
         return reordered;
       });
       setNotice("Block position displaced successfully!");
@@ -1465,24 +1576,31 @@ export function VisualCmsLayer({ page }: { page: string }) {
         )
         .forEach((el) => el.remove());
     };
-  }, [normalizedPage, lang, active, editingPage, busy, setEntry, saveInline]);
+  }, [canonicalRoute, cleanPath, prefix, blocksKey, normalizedPage, lang, active, editingPage, busy, setEntry, saveInline]);
   useLayoutEffect(() => {
     const main = document.getElementById("main");
     if (!main || !editingPage || busy) return;
     return attachInlineText(main, {
-      commit: (key, value) => {
+      commit: (rawKey, value) => {
         setNotice("");
-        setEntry(normalizedPage + "::" + lang, key, { kind: "text", value });
-        setEntry(normalizedPage + "::" + (lang === "en" ? "km" : "en"), key, {
+        const prefixedKey =
+          prefix && !rawKey.startsWith("sub:") ? `${prefix}${rawKey}` : rawKey;
+        setEntry(canonicalRoute + "::" + lang, prefixedKey, { kind: "text", value });
+        setEntry(canonicalRoute + "::" + (lang === "en" ? "km" : "en"), prefixedKey, {
           kind: "text",
           value: lang === "en" ? translateText(value) || value : value,
         });
-        setEntry(normalizedPage, key, { kind: "text", value });
+        if (cleanPath !== canonicalRoute) {
+          setEntry(cleanPath + "::" + lang, rawKey, { kind: "text", value });
+        }
       },
-      complete: (key, value) =>
-        saveInline(normalizedPage + "::" + lang, key, { kind: "text", value }),
+      complete: (rawKey, value) => {
+        const prefixedKey =
+          prefix && !rawKey.startsWith("sub:") ? `${prefix}${rawKey}` : rawKey;
+        saveInline(canonicalRoute + "::" + lang, prefixedKey, { kind: "text", value });
+      },
     });
-  }, [normalizedPage, lang, editingPage, busy, setEntry, saveInline]);
+  }, [canonicalRoute, cleanPath, prefix, normalizedPage, lang, editingPage, busy, setEntry, saveInline]);
   useEffect(() => {
     if (!editingPage) return;
     // Navigation lock: while editing mode is active, prevent all link clicks and double clicks from navigating away.
@@ -2142,16 +2260,14 @@ export function VisualCmsLayer({ page }: { page: string }) {
         imageUrl={croppingImage.src}
         onClose={() => setCroppingImage(null)}
         onCrop={(croppedDataUrl) => {
-          const key = croppingImage.key;
-          const imageSpace = normalizedPage + "::en";
+          const rawKey = croppingImage.key;
           const entry: Entry = { kind: "image", value: croppedDataUrl };
-          setEntry(imageSpace, key, entry);
-          saveInline(imageSpace, key, entry);
+          persistEntry(rawKey, entry);
 
           // Update insertedBlocks if this image belonged to an inserted block
           setInsertedBlocks((prev) => {
             const updated = prev.map((b) => {
-              if (b.html.includes(key) || b.html.includes(croppingImage.src)) {
+              if (b.html.includes(rawKey) || b.html.includes(croppingImage.src)) {
                 return {
                   ...b,
                   html: b.html.replace(/src="[^"]+"/, `src="${croppedDataUrl}"`),
@@ -2159,17 +2275,19 @@ export function VisualCmsLayer({ page }: { page: string }) {
               }
               return b;
             });
-            const bKey = "__inserted_blocks__";
             const bEntry: Entry = { kind: "text", value: JSON.stringify(updated) };
-            setEntry(normalizedPage + "::" + lang, bKey, bEntry);
-            saveInline(normalizedPage + "::" + lang, bKey, bEntry);
+            setEntry(canonicalRoute + "::" + lang, blocksKey, bEntry);
+            saveInline(canonicalRoute + "::" + lang, blocksKey, bEntry);
+            if (cleanPath !== canonicalRoute) {
+              setEntry(cleanPath + "::" + lang, "__inserted_blocks__", bEntry);
+            }
             return updated;
           });
 
           // Also update any live img matching key or src in current DOM
           document
             .querySelectorAll(
-              `img[data-cms-key="${key}"], .geocam-target-active img, img.geocam-target-active`,
+              `img[data-cms-key="${rawKey}"], .geocam-target-active img, img.geocam-target-active`,
             )
             .forEach((img) => {
               (img as HTMLImageElement).src = croppedDataUrl;

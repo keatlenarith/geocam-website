@@ -47,6 +47,26 @@ export function linkedEntry(
     : english;
 }
 
+export function canonicalDbRoute(path: string): string {
+  const clean = path.split("?")[0].replace(/\/+$/, "") || "/";
+  if (clean === "/" || clean === "") return "/";
+  if (clean.startsWith("/research")) return "/research";
+  if (clean.startsWith("/news")) return "/news";
+  if (clean.startsWith("/publications")) return "/publications";
+  if (clean.startsWith("/articles")) return "/news";
+  if (clean.startsWith("/about")) return "/about";
+  if (clean.startsWith("/events")) return "/events";
+  if (clean.startsWith("/membership")) return "/membership";
+  if (clean.startsWith("/geodata")) return "/geodata";
+  if (clean.startsWith("/environmental-monitoring")) return "/environmental-monitoring";
+  if (clean.startsWith("/contact")) return "/contact";
+  if (clean.startsWith("/geopark")) return "/geopark";
+  if (clean.startsWith("/mining")) return "/mining";
+  if (clean.startsWith("/lexicon")) return "/lexicon";
+  if (clean.startsWith("/dashboard")) return "/dashboard";
+  return clean;
+}
+
 /** Publish changed page fields only; Appearance approval is a separate action. */
 export function pageChanges(draft: Store, published: Store) {
   const changes: Record<string, Record<string, Entry | null>> = {};
@@ -55,6 +75,11 @@ export function pageChanges(draft: Store, published: Store) {
     ...Object.keys(published),
   ])) {
     if (page.startsWith("__")) continue;
+
+    const [base, lang] = page.split("::");
+    const canonicalBase = canonicalDbRoute(base);
+    const targetPage = lang ? `${canonicalBase}::${lang}` : canonicalBase;
+
     for (const key of new Set([
       ...Object.keys(draft[page] || {}),
       ...Object.keys(published[page] || {}),
@@ -63,7 +88,7 @@ export function pageChanges(draft: Store, published: Store) {
         after = draft[page]?.[key];
       if (before?.kind === after?.kind && before?.value === after?.value)
         continue;
-      (changes[page] ||= {})[key] = after || null;
+      (changes[targetPage] ||= {})[key] = after || null;
     }
   }
   return changes;
