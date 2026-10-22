@@ -1,26 +1,68 @@
 import { Container, PageHeader } from "@/components/site/Chrome";
 import { Link } from "@/lib/spa-router";
-import { researchAreas, publications } from "@/lib/data";
+import { publications } from "@/lib/data";
 import { useI18n } from "@/lib/i18n";
 import { useAdmin } from "@/admin/Auth";
-import { Edit3 } from "lucide-react";
+import {
+  Edit3,
+  BookOpen,
+  FileText,
+  Download,
+  ExternalLink,
+  ArrowRight,
+  Compass,
+  CheckCircle2,
+  Sparkles,
+  Layers,
+} from "lucide-react";
 import { matchesResearchArea } from "@/lib/publication-search";
+import {
+  FOCUS_TOPICS,
+  getTopicByIdOrSlug,
+} from "@/features/research/focus-topics-data";
+
 export default function ResearchTopic() {
   const { lang } = useI18n();
   const { admin } = useAdmin();
-  const key = new URLSearchParams(location.search).get("id");
-  const area = researchAreas.find((a) => a.key === key);
-  const related = publications.filter((p) => matchesResearchArea(p, key));
+
+  let id = new URLSearchParams(location.search).get("id");
+  if (!id && location.pathname.startsWith("/research/")) {
+    const segment = location.pathname.replace("/research/", "").replace(/\/$/, "");
+    if (segment && segment !== "topic") {
+      id = segment;
+    }
+  }
+
+  const focus = getTopicByIdOrSlug(id || "Tectonics") || FOCUS_TOPICS[0];
+
+  // Specific highlighted papers for this topic
+  const specificPapers = publications.filter((p) =>
+    focus.relatedPaperIds.includes(p.id),
+  );
+  const keywordMatches = publications.filter(
+    (p) =>
+      matchesResearchArea(p, focus.key) &&
+      !specificPapers.some((sp) => sp.id === p.id),
+  );
+  const related = [...specificPapers, ...keywordMatches];
+
+  // Other topics
+  const otherTopics = FOCUS_TOPICS.filter((t) => t.id !== focus.id);
+
   return (
     <>
       <PageHeader
-        eyebrow={lang === "km" ? "ការស្រាវជ្រាវ" : "Research"}
-        title={area ? (lang === "km" ? area.km : area.key) : "Topic not found"}
+        eyebrow={lang === "km" ? "វិស័យស្រាវជ្រាវសំខាន់ៗ" : "Key Research Disciplines"}
+        title={lang === "km" ? focus.titleKm : focus.titleEn}
       />
       <Container>
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-          <Link to="/research" className="text-accent font-semibold text-sm">
-            ← {lang === "km" ? "ត្រឡប់" : "Back to research"}
+        {/* Navigation bar */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <Link
+            to="/research"
+            className="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-800 font-semibold text-sm transition"
+          >
+            ← {lang === "km" ? "ត្រឡប់ទៅទំព័រការស្រាវជ្រាវ (Research & Discovery)" : "Back to Research & Discovery"}
           </Link>
 
           {admin && (
@@ -31,41 +73,265 @@ export default function ResearchTopic() {
                 title="Edit research in Admin"
               >
                 <Edit3 size={13} />
-                <span>{lang === "km" ? "កែសម្រួលផ្នែកស្រាវជ្រាវ" : "Edit Research Page"}</span>
+                <span>{lang === "km" ? "កែសម្រួលទំព័រស្រាវជ្រាវ" : "Edit Research Page"}</span>
               </Link>
             </div>
           )}
         </div>
-        {area && (
-          <article className="card-surface mt-6 p-8">
-            <h2 className="text-2xl font-semibold">
-              {lang === "km" ? "សេចក្តីពិពណ៌នា" : "Overview"}
-            </h2>
-            <p className="mt-5 text-lg leading-loose">{area.text}</p>
-            <h3 className="mt-9 text-xl font-semibold">
-              {lang === "km"
-                ? "ការបោះពុម្ពផ្សាយពាក់ព័ន្ធ"
-                : "Related publications"}
-            </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {lang === "km"
-                ? "ឯកសារស្រាវជ្រាវដែលបានប្រមូល។"
-                : "References from the collected geoscience research library."}
-            </p>
-            <div className="mt-4 space-y-3">
-              {related.map((p) => (
-                <Link
-                  key={p.id}
-                  className="block rounded-xl border p-4 text-accent hover:bg-slate-50"
-                  to={"/publications/view?id=" + p.id}
-                >
-                  {p.title} →
-                </Link>
-              ))}
-              {related.length === 0 && <p>No related publications yet.</p>}
+
+        {/* Main Post Article */}
+        <article className="card-surface p-6 md:p-10 shadow-sm rounded-2xl border border-slate-200">
+          {/* Header metadata */}
+          <div className="border-b border-slate-200 pb-6 mb-8">
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
+                <Compass size={13} />
+                {lang === "km" ? focus.shortTitleKm : focus.shortTitleEn}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {lang === "km" ? "សមាគមភូគព្ភវិទ្យាកម្ពុជា" : "Geosciences Society of Cambodia"}
+              </span>
             </div>
-          </article>
-        )}
+            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight">
+              {lang === "km" ? focus.titleKm : focus.titleEn}
+            </h1>
+            <p className="mt-4 text-lg md:text-xl text-slate-700 leading-relaxed font-medium">
+              {lang === "km" ? focus.leadKm : focus.leadEn}
+            </p>
+
+            {/* Quick stats grid */}
+            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+              {focus.stats.map((s, idx) => (
+                <div key={idx} className="rounded-xl border border-slate-100 bg-slate-50/80 p-3.5">
+                  <span className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    {lang === "km" ? s.labelKm : s.labelEn}
+                  </span>
+                  <strong className="mt-1 block text-sm md:text-base font-bold text-emerald-800">
+                    {s.value}
+                  </strong>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Featured Image */}
+          <figure className="mb-10 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+            <img
+              src={focus.image}
+              alt={focus.imageAlt}
+              className="w-full max-h-[520px] object-cover"
+              loading="lazy"
+            />
+            <figcaption className="p-3.5 text-xs text-center text-muted-foreground bg-slate-100/70 border-t border-slate-200">
+              {lang === "km" ? focus.captionKm : focus.captionEn}
+            </figcaption>
+          </figure>
+
+          {/* Key Takeaways Callout */}
+          <div className="mb-10 rounded-xl border-l-4 border-l-emerald-600 bg-emerald-50/60 p-5 md:p-6 border border-emerald-100">
+            <h3 className="flex items-center gap-2 text-base font-bold text-emerald-900">
+              <Sparkles size={18} className="text-emerald-700" />
+              {lang === "km" ? "ចំណុចគន្លឹះសំខាន់ៗ" : "Core Scientific Takeaways"}
+            </h3>
+            <ul className="mt-3 space-y-2 text-sm md:text-base text-emerald-950">
+              {(lang === "km" ? focus.keyHighlightsKm : focus.keyHighlightsEn).map((h, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <CheckCircle2 size={16} className="mt-1 text-emerald-600 shrink-0" />
+                  <span>{h}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Article Sections */}
+          <div className="space-y-8 text-slate-800 leading-relaxed text-base md:text-lg">
+            {focus.sections.map((section, idx) => (
+              <section key={idx} className="border-b border-slate-100 pb-8 last:border-b-0">
+                <h2 className="text-2xl md:text-2xl font-bold text-slate-900 mb-4">
+                  {lang === "km" ? section.titleKm : section.titleEn}
+                </h2>
+                <div className="space-y-4">
+                  {(lang === "km" ? section.bodyKm : section.bodyEn).map((p, pIdx) => (
+                    <p key={pIdx} className="leading-loose text-slate-700">
+                      {p}
+                    </p>
+                  ))}
+                </div>
+
+                {/* Optional Bullets */}
+                {((lang === "km" ? section.bulletsKm : section.bulletsEn) || []).length > 0 && (
+                  <ul className="mt-4 space-y-2 list-disc list-inside pl-2 text-slate-700 text-sm md:text-base">
+                    {(lang === "km" ? section.bulletsKm : section.bulletsEn)!.map((b, bIdx) => (
+                      <li key={bIdx} className="leading-relaxed">
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {/* Optional Callout */}
+                {(lang === "km" ? section.calloutKm : section.calloutEn) && (
+                  <div className="mt-4 rounded-lg bg-slate-50 border border-slate-200 p-4 text-sm md:text-base text-slate-800 italic">
+                    {lang === "km" ? section.calloutKm : section.calloutEn}
+                  </div>
+                )}
+              </section>
+            ))}
+          </div>
+
+          {/* Highlighted Research Papers & Journals Section */}
+          <div className="mt-12 pt-8 border-t-2 border-slate-200">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
+                  <BookOpen size={14} />
+                  {lang === "km" ? "ឯកសារ និងទស្សនាវដ្ដីវិទ្យាសាស្ត្រ" : "Peer-Reviewed Literature"}
+                </span>
+                <h3 className="text-2xl font-bold text-slate-900 mt-1">
+                  {lang === "km"
+                    ? "ការស្រាវជ្រាវ និងទស្សនាវដ្ដីវិទ្យាសាស្ត្រពាក់ព័ន្ធ"
+                    : "Highlighted Research Papers & Journals"}
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {lang === "km"
+                    ? "ឯកសារស្រាវជ្រាវ និក្ខេបបទ និងទស្សនាវដ្ដីវិទ្យាសាស្ត្រស្តីពី " + focus.shortTitleKm + " នៃប្រទេសកម្ពុជា"
+                    : "Published peer-reviewed literature, monographs, and field proceedings related to " + focus.shortTitleEn}
+                </p>
+              </div>
+
+              <Link
+                to="/publications"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 underline"
+              >
+                {lang === "km" ? "មើលបណ្ណាល័យទាំងមូល →" : "View full catalog →"}
+              </Link>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {related.map((p) => (
+                <div
+                  key={p.id}
+                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground mb-2">
+                      <span className="rounded bg-slate-100 px-2 py-0.5 font-medium text-slate-800">
+                        {p.topic}
+                      </span>
+                      {p.year && (
+                        <span className="rounded bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-800">
+                          {p.year}
+                        </span>
+                      )}
+                    </div>
+                    <h4 className="text-base font-bold text-slate-900 hover:text-emerald-700 transition leading-snug">
+                      <Link to={"/publications/view?id=" + p.id}>
+                        {p.title}
+                      </Link>
+                    </h4>
+                    {p.journal && (
+                      <p className="mt-1 text-xs text-slate-500 italic">
+                        {p.journal}
+                      </p>
+                    )}
+                    {p.abstract && (
+                      <p className="mt-2 text-xs text-slate-600 line-clamp-3 leading-relaxed">
+                        {p.abstract}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
+                    <Link
+                      to={"/publications/view?id=" + p.id}
+                      className="inline-flex items-center gap-1 rounded bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition"
+                    >
+                      <FileText size={12} />
+                      {lang === "km" ? "ព័ត៌មានលម្អិត" : "Details"}
+                    </Link>
+                    {p.pdfUrl && (
+                      <a
+                        href={p.pdfUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        download
+                        className="inline-flex items-center gap-1 rounded bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition"
+                      >
+                        <Download size={12} />
+                        PDF
+                      </a>
+                    )}
+                    {p.doi && (
+                      <a
+                        href={"https://doi.org/" + p.doi}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-accent underline ml-auto"
+                      >
+                        <ExternalLink size={12} />
+                        DOI
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {related.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  {lang === "km" ? "មិនទាន់មានឯកសារពាក់ព័ន្ធនៅឡើយទេ។" : "No related publications found."}
+                </p>
+              )}
+            </div>
+          </div>
+        </article>
+
+        {/* Explore Other Key Disciplines Navigation */}
+        <section className="mt-12 mb-16">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                {lang === "km" ? "ស្វែងយល់បន្ថែម" : "Continue Reading"}
+              </span>
+              <h3 className="text-xl md:text-2xl font-bold text-slate-900 mt-1">
+                {lang === "km" ? "វិស័យសំខាន់ៗផ្សេងទៀតនៃភូគព្ភសាស្ត្រ" : "Other Key Research Disciplines"}
+              </h3>
+            </div>
+            <Link
+              to="/research"
+              className="text-xs font-semibold text-emerald-700 hover:underline flex items-center gap-1"
+            >
+              {lang === "km" ? "មើលទាំងអស់" : "View all"} <ArrowRight size={13} />
+            </Link>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {otherTopics.map((item) => (
+              <Link
+                key={item.id}
+                to={"/research/topic?id=" + encodeURIComponent(item.key)}
+                className="group block overflow-hidden rounded-xl border border-slate-200 bg-white p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-slate-100 mb-3">
+                  <img
+                    src={item.image}
+                    alt={item.imageAlt}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                </div>
+                <h4 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition">
+                  {lang === "km" ? item.titleKm : item.titleEn}
+                </h4>
+                <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                  {lang === "km" ? item.leadKm : item.leadEn}
+                </p>
+                <div className="mt-3 flex items-center gap-1 text-xs font-semibold text-emerald-700">
+                  <span>{lang === "km" ? "ស្វែងយល់បន្ថែម" : "Explore topic"}</span>
+                  <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
       </Container>
     </>
   );

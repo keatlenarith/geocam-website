@@ -57,15 +57,21 @@ const pages: Record<string, React.ComponentType<any>> = {
   "/articles/read": ArticleReader,
   "/news/item": NewsItem,
   "/research/topic": ResearchTopic,
+  "/research/tectonics": ResearchTopic,
+  "/research/mineral-deposits": ResearchTopic,
+  "/research/geochemistry": ResearchTopic,
+  "/research/geophysics": ResearchTopic,
+  "/research/geohazards": ResearchTopic,
   "/publications/view": PublicationView,
 };
 function App() {
-  const [path, setPath] = useState(location.pathname);
+  const [url, setUrl] = useState(location.pathname + location.search);
   useEffect(() => {
-    const cb = () => setPath(location.pathname);
+    const cb = () => setUrl(location.pathname + location.search);
     addEventListener("popstate", cb);
     return () => removeEventListener("popstate", cb);
   }, []);
+  const path = location.pathname;
   const Page = pages[path];
   const adminScreen = path.startsWith("/admin") || path.startsWith("/wp-admin");
   return (
@@ -84,7 +90,7 @@ function App() {
                   </div>
                 }
               >
-                <Page />
+                <Page key={url} />
               </React.Suspense>
             ) : (
               <div className="mx-auto max-w-5xl px-4 py-24">

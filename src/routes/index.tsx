@@ -62,7 +62,7 @@ function Home() {
       const title = lang === 'km' ? (r.km || r.key) : r.key;
       const desc = lang === 'km' ? ((r as any).textKm || r.text) : r.text;
       return (
-        <Link key={r.key} to="/research" hash={r.key.replace(/\s/g,"-")} className="gc-area group flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
+        <Link key={r.key} to={"/research/topic?id=" + encodeURIComponent(r.key)} className="gc-area group flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
           <div>
             <div className="relative mb-4 aspect-[4/3] w-full overflow-hidden rounded-xl bg-slate-100 shadow-sm">
               <img
