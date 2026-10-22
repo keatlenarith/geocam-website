@@ -40,8 +40,10 @@ import {
   Link as LinkIcon,
   Layers,
   BookOpen,
+  Crop,
 } from "lucide-react";
 import { translateText } from "../lib/translation";
+import { ImageCropperModal } from "../visual-cms/ImageCropperModal";
 
 export type ContentKind = "news" | "topic" | "page";
 
@@ -480,6 +482,12 @@ export default function PostManager() {
   const [activeInserter, setActiveInserter] = useState<{
     target: "content" | "contentKm";
     type: "photo" | "chart" | "table";
+  } | null>(null);
+
+  // Active crop modal state
+  const [cropperModal, setCropperModal] = useState<{
+    imageUrl: string;
+    onApply: (cropped: string) => void;
   } | null>(null);
 
   // Custom photo picker state
@@ -979,7 +987,7 @@ export default function PostManager() {
         : contentTextareaRef.current;
       const val = isKm ? contentKm : content;
       const setter = isKm ? setContentKm : setContent;
-      const figureHtml = `\n<figure class="my-6">\n  <img src="${compressed}" alt="${photoAltInput || "Geological photo"}" class="rounded-xl w-full max-h-[480px] object-cover shadow-md" />\n  <figcaption class="text-xs text-slate-500 mt-2 text-center italic">${photoCaptionInput || "Photo caption"}</figcaption>\n</figure>\n`;
+      const figureHtml = `\n<figure class="my-6">\n  <img src="${compressed}" alt="${photoAltInput || "Geological photo"}" class="rounded-xl w-full max-h-[480px] object-contain bg-slate-50 shadow-md mx-auto" style="object-fit: contain; max-height: 480px; width: 100%;" data-fit-mode="contain" />\n  <figcaption class="text-xs text-slate-500 mt-2 text-center italic">${photoCaptionInput || "Photo caption"}</figcaption>\n</figure>\n`;
       insertHtmlAtCursor(textarea, figureHtml, "", "", val, setter);
       setActiveInserter(null);
       setPhotoUrlInput("");
@@ -1000,7 +1008,7 @@ export default function PostManager() {
       : contentTextareaRef.current;
     const val = isKm ? contentKm : content;
     const setter = isKm ? setContentKm : setContent;
-    const figureHtml = `\n<figure class="my-6">\n  <img src="${photoUrlInput.trim()}" alt="${photoAltInput.trim() || "Article image"}" class="rounded-xl w-full max-h-[480px] object-cover shadow-md" />\n  <figcaption class="text-xs text-slate-500 mt-2 text-center italic">${photoCaptionInput.trim() || "Figure caption"}</figcaption>\n</figure>\n`;
+    const figureHtml = `\n<figure class="my-6">\n  <img src="${photoUrlInput.trim()}" alt="${photoAltInput.trim() || "Article image"}" class="rounded-xl w-full max-h-[480px] object-contain bg-slate-50 shadow-md mx-auto" style="object-fit: contain; max-height: 480px; width: 100%;" data-fit-mode="contain" />\n  <figcaption class="text-xs text-slate-500 mt-2 text-center italic">${photoCaptionInput.trim() || "Figure caption"}</figcaption>\n</figure>\n`;
     insertHtmlAtCursor(textarea, figureHtml, "", "", val, setter);
     setActiveInserter(null);
     setPhotoUrlInput("");
@@ -1016,7 +1024,7 @@ export default function PostManager() {
       : contentTextareaRef.current;
     const val = isKm ? contentKm : content;
     const setter = isKm ? setContentKm : setContent;
-    const figureHtml = `\n<figure class="my-6">\n  <img src="${preset.url}" alt="${preset.label}" class="rounded-xl w-full max-h-[480px] object-cover shadow-md" />\n  <figcaption class="text-xs text-slate-500 mt-2 text-center italic">${preset.caption}</figcaption>\n</figure>\n`;
+    const figureHtml = `\n<figure class="my-6">\n  <img src="${preset.url}" alt="${preset.label}" class="rounded-xl w-full max-h-[480px] object-contain bg-slate-50 shadow-md mx-auto" style="object-fit: contain; max-height: 480px; width: 100%;" data-fit-mode="contain" />\n  <figcaption class="text-xs text-slate-500 mt-2 text-center italic">${preset.caption}</figcaption>\n</figure>\n`;
     insertHtmlAtCursor(textarea, figureHtml, "", "", val, setter);
     setActiveInserter(null);
   };
@@ -1216,10 +1224,54 @@ export default function PostManager() {
           {/* Rich insertion buttons */}
           <button
             type="button"
+            onClick={() => {
+              const word = window.prompt("Enter word or text to insert at cursor:");
+              if (word) {
+                insertHtmlAtCursor(textarea, `<span>${word}</span>`, "", "", val, setter);
+              }
+            }}
+            className="flex items-center gap-1 rounded bg-white px-2 py-1 text-xs font-semibold text-sky-800 border border-sky-200 shadow-xs hover:bg-sky-50"
+            title="Insert word at cursor position"
+          >
+            <Plus size={12} /> + Word
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveInserter({ target, type: "photo" })}
             className="flex items-center gap-1 rounded bg-white px-2.5 py-1 text-xs font-semibold text-emerald-800 border border-emerald-200 shadow-xs hover:bg-emerald-50"
           >
             <ImageIcon size={13} /> + Photo
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const match = val.match(/<img[^>]+src="([^">]+)"/);
+              const initialUrl = match ? match[1] : image || PHOTO_PRESETS[0].url;
+              const url = window.prompt("Enter or confirm image URL to crop:", initialUrl);
+              if (url) {
+                setCropperModal({
+                  imageUrl: url,
+                  onApply: (cropped) => {
+                    if (match && val.includes(match[1])) {
+                      setter(val.replace(match[1], cropped));
+                    } else {
+                      insertHtmlAtCursor(
+                        textarea,
+                        `\n<figure class="my-6">\n  <img src="${cropped}" alt="Cropped figure" class="rounded-xl w-full max-h-[480px] object-contain bg-slate-50 shadow-md mx-auto" style="object-fit: contain; max-height: 480px; width: 100%;" data-fit-mode="contain" />\n</figure>\n`,
+                        "",
+                        "",
+                        val,
+                        setter,
+                      );
+                    }
+                  },
+                });
+              }
+            }}
+            className="flex items-center gap-1 rounded bg-white px-2.5 py-1 text-xs font-semibold text-violet-800 border border-violet-200 shadow-xs hover:bg-violet-50"
+            title="Crop image in article"
+          >
+            <Crop size={13} /> ✂️ Crop
           </button>
           <button
             type="button"
@@ -1608,13 +1660,27 @@ export default function PostManager() {
                     <label className="text-xs font-bold text-slate-700 uppercase tracking-wide">
                       Featured Cover Photo
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => coverFileInputRef.current?.click()}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:text-emerald-800"
-                    >
-                      <Upload size={13} /> Upload Local Image
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCropperModal({
+                            imageUrl: image || PHOTO_PRESETS[0].url,
+                            onApply: (c) => setImage(c),
+                          })
+                        }
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-violet-700 hover:text-violet-800"
+                      >
+                        <Crop size={13} /> ✂️ Crop Cover
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => coverFileInputRef.current?.click()}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:text-emerald-800"
+                      >
+                        <Upload size={13} /> Upload Local Image
+                      </button>
+                    </div>
                   </div>
 
                   <div className="relative group overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
@@ -1624,6 +1690,18 @@ export default function PostManager() {
                       className="w-full max-h-[320px] object-cover transition group-hover:brightness-95"
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCropperModal({
+                            imageUrl: image || PHOTO_PRESETS[0].url,
+                            onApply: (c) => setImage(c),
+                          })
+                        }
+                        className="rounded-xl bg-violet-600 px-3.5 py-2 text-xs font-bold text-white shadow-md hover:bg-violet-700 transition"
+                      >
+                        ✂️ Crop Cover
+                      </button>
                       <button
                         type="button"
                         onClick={() => coverFileInputRef.current?.click()}
@@ -2008,14 +2086,30 @@ export default function PostManager() {
                       className="rounded-lg border border-slate-300 p-2 text-xs focus:border-emerald-500 focus:outline-none"
                     />
                   </div>
-                  <button
-                    type="button"
-                    disabled={!photoUrlInput.trim()}
-                    onClick={handleInsertCustomPhoto}
-                    className="w-full rounded-lg bg-emerald-600 py-2 text-xs font-semibold text-white disabled:opacity-50 hover:bg-emerald-700 transition"
-                  >
-                    Insert Image from URL
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={!photoUrlInput.trim()}
+                      onClick={() =>
+                        setCropperModal({
+                          imageUrl: photoUrlInput.trim(),
+                          onApply: (cropped) => setPhotoUrlInput(cropped),
+                        })
+                      }
+                      className="rounded-lg border border-violet-300 bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-700 hover:bg-violet-100 disabled:opacity-50 transition"
+                      title="Crop photo before inserting"
+                    >
+                      ✂️ Crop Photo
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!photoUrlInput.trim()}
+                      onClick={handleInsertCustomPhoto}
+                      className="flex-1 rounded-lg bg-emerald-600 py-2 text-xs font-semibold text-white disabled:opacity-50 hover:bg-emerald-700 transition"
+                    >
+                      Insert Image from URL
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -2177,6 +2271,19 @@ export default function PostManager() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Interactive Crop Tool Modal */}
+      {cropperModal && (
+        <ImageCropperModal
+          imageUrl={cropperModal.imageUrl}
+          onClose={() => setCropperModal(null)}
+          onCrop={(cropped) => {
+            cropperModal.onApply(cropped);
+            setCropperModal(null);
+            setMessage("Image cropped successfully!");
+          }}
+        />
       )}
     </div>
   );

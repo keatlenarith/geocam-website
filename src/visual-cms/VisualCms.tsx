@@ -20,6 +20,7 @@ import { useAdmin } from "../admin/Auth";
 import { useI18n } from "../lib/i18n";
 import { translateText, sourceText } from "../lib/translation";
 import { stableKey, candidates } from "./dom-keys";
+import { ImageCropperModal } from "./ImageCropperModal";
 import {
   Plus,
   Heading2,
@@ -37,6 +38,10 @@ import {
   CheckCircle2,
   X,
   Upload,
+  Crop,
+  Move,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 export type Entry = { kind: "text" | "image"; value: string };
 export type Store = Record<string, Record<string, Entry>>;
@@ -527,6 +532,22 @@ export function VisualCmsLayer({ page }: { page: string }) {
   const insertFileInputRef = useRef<HTMLInputElement>(null);
   const mainEl = typeof document !== "undefined" ? document.getElementById("main") : null;
 
+  // Selected target location for insertion
+  const [targetLocation, setTargetLocation] = useState<{
+    key: string;
+    tagName: string;
+    preview: string;
+  } | null>(null);
+
+  // Active crop modal state
+  const [croppingImage, setCroppingImage] = useState<{
+    key: string;
+    src: string;
+  } | null>(null);
+
+  // Dragging block ID for displacement
+  const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
+
   const [insertedBlocks, setInsertedBlocks] = useState<
     Array<{ id: string; type: string; html: string }>
   >(() => {
@@ -557,13 +578,13 @@ export function VisualCmsLayer({ page }: { page: string }) {
 
     if (type === "paragraph") {
       blockHtml = `
-        <div class="my-4 p-4 rounded-xl bg-white border border-slate-200 shadow-xs geocam-editable geocam-inserted-block" data-cms-key="inserted-p-${blockId}">
+        <div class="my-4 p-4 rounded-xl bg-white border border-slate-200 shadow-xs geocam-editable geocam-inserted-block geocam-draggable-block" draggable="true" data-block-id="${blockId}" data-cms-key="inserted-p-${blockId}">
           New paragraph text inserted. Double-click or select this text to edit and add your content.
         </div>
       `;
     } else if (type === "heading") {
       blockHtml = `
-        <h2 class="my-4 text-2xl font-bold tracking-tight text-slate-900 geocam-editable geocam-inserted-block" data-cms-key="inserted-h2-${blockId}">
+        <h2 class="my-4 text-2xl font-bold tracking-tight text-slate-900 geocam-editable geocam-inserted-block geocam-draggable-block" draggable="true" data-block-id="${blockId}" data-cms-key="inserted-h2-${blockId}">
           New Section Heading
         </h2>
       `;
@@ -571,15 +592,18 @@ export function VisualCmsLayer({ page }: { page: string }) {
       const src =
         customImageUrl ||
         "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1000&q=80";
+      // Load in fit mode by default (object-contain, max-h-[480px], w-full, bg-slate-50)
       blockHtml = `
-        <figure class="my-6 overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-md text-center geocam-inserted-block">
-          <img src="${src}" alt="Inserted geological photo" class="rounded-xl w-full max-h-[480px] object-cover mx-auto geocam-editable" data-cms-key="inserted-img-${blockId}" />
+        <figure class="my-6 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/60 p-3 shadow-md text-center geocam-inserted-block geocam-draggable-block" draggable="true" data-block-id="${blockId}">
+          <div class="geocam-img-wrapper w-full">
+            <img src="${src}" alt="Inserted geological photo" class="rounded-xl w-full max-h-[480px] object-contain bg-slate-50 mx-auto geocam-editable" style="object-fit: contain; max-height: 480px; width: 100%;" data-cms-key="inserted-img-${blockId}" data-fit-mode="contain" />
+          </div>
           <figcaption class="text-xs text-slate-500 mt-2 text-center italic geocam-editable" data-cms-key="inserted-cap-${blockId}">Photo description and geological field notes</figcaption>
         </figure>
       `;
     } else if (type === "table") {
       blockHtml = `
-        <div class="my-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-4 shadow-sm geocam-inserted-block">
+        <div class="my-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-4 shadow-sm geocam-inserted-block geocam-draggable-block" draggable="true" data-block-id="${blockId}">
           <h4 class="text-sm font-bold text-slate-900 mb-2 geocam-editable" data-cms-key="inserted-tbl-title-${blockId}">Geological Sample Inventory</h4>
           <table class="w-full text-left text-sm border-collapse border border-slate-200">
             <thead>
@@ -609,7 +633,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
       `;
     } else if (type === "chart") {
       blockHtml = `
-        <div class="my-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs geocam-inserted-block">
+        <div class="my-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs geocam-inserted-block geocam-draggable-block" draggable="true" data-block-id="${blockId}">
           <h4 class="text-sm font-bold text-slate-900 mb-1 geocam-editable" data-cms-key="inserted-chart-title-${blockId}">Mineralogical Composition Assay</h4>
           <p class="text-xs text-slate-500 mb-4 geocam-editable" data-cms-key="inserted-chart-sub-${blockId}">Quantitative whole-rock XRF proportions (%)</p>
           <div class="space-y-3">
@@ -636,13 +660,44 @@ export function VisualCmsLayer({ page }: { page: string }) {
       `;
     } else if (type === "callout") {
       blockHtml = `
-        <blockquote class="my-4 border-l-4 border-emerald-600 bg-emerald-50/70 p-4 rounded-r-xl italic text-slate-800 shadow-xs geocam-editable geocam-inserted-block" data-cms-key="inserted-quote-${blockId}">
+        <blockquote class="my-4 border-l-4 border-emerald-600 bg-emerald-50/70 p-4 rounded-r-xl italic text-slate-800 shadow-xs geocam-editable geocam-inserted-block geocam-draggable-block" draggable="true" data-block-id="${blockId}" data-cms-key="inserted-quote-${blockId}">
           “Key scientific discovery or geological insight entered here...”
         </blockquote>
       `;
     }
 
-    const nextBlocks = [...insertedBlocks, { id: blockId, type, html: blockHtml }];
+    // Determine insertion position based on desired target location
+    let nextBlocks: Array<{ id: string; type: string; html: string }>;
+    if (targetLocation) {
+      const targetIdx = insertedBlocks.findIndex(
+        (b) => b.id === targetLocation.key || b.html.includes(targetLocation.key),
+      );
+      if (targetIdx >= 0) {
+        nextBlocks = [
+          ...insertedBlocks.slice(0, targetIdx + 1),
+          { id: blockId, type, html: blockHtml },
+          ...insertedBlocks.slice(targetIdx + 1),
+        ];
+      } else {
+        nextBlocks = [{ id: blockId, type, html: blockHtml }, ...insertedBlocks];
+      }
+
+      // Also insert directly after target element if in the live DOM
+      const targetDomEl = document.querySelector<HTMLElement>(
+        `[data-cms-key="${targetLocation.key}"], .geocam-target-active`,
+      );
+      if (targetDomEl && targetDomEl.parentElement) {
+        const temp = document.createElement("div");
+        temp.innerHTML = blockHtml;
+        const insertedDomEl = temp.firstElementChild;
+        if (insertedDomEl) {
+          targetDomEl.insertAdjacentElement("afterend", insertedDomEl);
+        }
+      }
+    } else {
+      nextBlocks = [...insertedBlocks, { id: blockId, type, html: blockHtml }];
+    }
+
     setInsertedBlocks(nextBlocks);
     setShowInsertModal(false);
 
@@ -654,7 +709,50 @@ export function VisualCmsLayer({ page }: { page: string }) {
     };
     setEntry(normalizedPage + "::" + lang, key, entry);
     saveInline(normalizedPage + "::" + lang, key, entry);
-    setNotice("Content block inserted successfully! Click to edit text or images.");
+    setNotice(
+      targetLocation
+        ? `Content inserted at chosen location <${targetLocation.tagName}>!`
+        : "Content block inserted successfully! Click to edit text or images.",
+    );
+  };
+
+  const insertWord = () => {
+    const word = window.prompt("Enter word or text to insert at chosen location:");
+    if (!word || !word.trim()) return;
+
+    if (targetLocation) {
+      const targetDomEl = document.querySelector<HTMLElement>(
+        `[data-cms-key="${targetLocation.key}"], .geocam-target-active`,
+      );
+      if (targetDomEl) {
+        const span = document.createElement("span");
+        span.className =
+          "geocam-inserted-word geocam-editable font-medium text-emerald-900 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-300 mx-1 inline-block";
+        span.textContent = word.trim();
+        span.contentEditable = "true";
+
+        if (targetDomEl.tagName === "IMG" || targetDomEl.tagName === "FIGURE") {
+          targetDomEl.insertAdjacentElement("afterend", span);
+        } else {
+          targetDomEl.appendChild(span);
+        }
+
+        const key = targetLocation.key;
+        const html = targetDomEl.innerHTML;
+        setEntry(normalizedPage + "::" + lang, key, { kind: "text", value: html });
+        saveInline(normalizedPage + "::" + lang, key, { kind: "text", value: html });
+        setNotice(`Inserted "${word.trim()}" at desired location <${targetLocation.tagName}>!`);
+        return;
+      }
+    }
+
+    const ok = document.execCommand("insertText", false, word.trim());
+    if (!ok) {
+      insertBlock("paragraph");
+      setNotice(`Inserted "${word.trim()}" into new content block.`);
+    } else {
+      setNotice(`Inserted "${word.trim()}" at cursor position.`);
+    }
   };
 
   const handleInsertedImageUpload = async (
@@ -730,17 +828,68 @@ export function VisualCmsLayer({ page }: { page: string }) {
           if (el.getAttribute("src") !== displayValue) el.setAttribute("src", displayValue);
           if (editingPage) {
             const parent = el.parentElement;
-            if (parent && !parent.querySelector(`.geocam-img-remove-btn[data-key="${key}"]`)) {
+            if (parent && !parent.querySelector(`.geocam-img-controls-bar[data-key="${key}"]`)) {
               if (getComputedStyle(parent).position === "static") {
                 parent.style.position = "relative";
               }
-              const btn = document.createElement("button");
-              btn.type = "button";
-              btn.className = "geocam-img-remove-btn";
-              btn.dataset.key = key;
-              btn.title = "Remove photo";
-              btn.textContent = "✕ Remove";
-              parent.appendChild(btn);
+              const bar = document.createElement("div");
+              bar.className = "geocam-img-controls-bar";
+              bar.dataset.key = key;
+
+              // 1. Crop button
+              const cropBtn = document.createElement("button");
+              cropBtn.type = "button";
+              cropBtn.className = "geocam-ctrl-crop";
+              cropBtn.innerHTML = "✂️ Crop";
+              cropBtn.title = "Crop image with ratio presets";
+              bar.appendChild(cropBtn);
+
+              // 2. Fit mode toggle button
+              const fitBtn = document.createElement("button");
+              fitBtn.type = "button";
+              fitBtn.className = "geocam-ctrl-fit";
+              const isContain =
+                el.getAttribute("data-fit-mode") === "contain" ||
+                el.style.objectFit === "contain";
+              fitBtn.innerHTML = isContain ? "🖼️ Fit (Contain)" : "🖼️ Cover";
+              fitBtn.title = "Toggle Fit Mode (Contain vs Cover)";
+              bar.appendChild(fitBtn);
+
+              // 3. 50% resize preset
+              const size50Btn = document.createElement("button");
+              size50Btn.type = "button";
+              size50Btn.className = "geocam-ctrl-50";
+              size50Btn.innerHTML = "50%";
+              size50Btn.title = "Resize to 50% width";
+              bar.appendChild(size50Btn);
+
+              // 4. 100% resize preset
+              const size100Btn = document.createElement("button");
+              size100Btn.type = "button";
+              size100Btn.className = "geocam-ctrl-100";
+              size100Btn.innerHTML = "100%";
+              size100Btn.title = "Resize to 100% width";
+              bar.appendChild(size100Btn);
+
+              // 5. Remove button
+              const removeBtn = document.createElement("button");
+              removeBtn.type = "button";
+              removeBtn.className = "geocam-ctrl-remove";
+              removeBtn.dataset.key = key;
+              removeBtn.title = "Remove photo";
+              removeBtn.innerHTML = "✕ Remove";
+              bar.appendChild(removeBtn);
+
+              parent.appendChild(bar);
+
+              // 6. Corner resize handle
+              if (!parent.querySelector(`.geocam-resize-handle[data-key="${key}"]`)) {
+                const handle = document.createElement("div");
+                handle.className = "geocam-resize-handle";
+                handle.dataset.key = key;
+                handle.title = "Drag corner to resize image width";
+                parent.appendChild(handle);
+              }
             }
           }
         } else if (el.textContent !== value) el.textContent = value;
@@ -758,17 +907,75 @@ export function VisualCmsLayer({ page }: { page: string }) {
       });
     });
     observer.observe(main, { childList: true, subtree: true });
+
     const click = (event: MouseEvent) => {
       if (!editingPage || busy) return;
       const target = event.target as HTMLElement | null;
       if (!target) return;
 
-      const removeBtn = target.closest<HTMLElement>(".geocam-img-remove-btn");
-      if (removeBtn) {
+      // 1. Controls bar interaction
+      const ctrlBar = target.closest<HTMLElement>(".geocam-img-controls-bar");
+      if (ctrlBar) {
         event.preventDefault();
         event.stopPropagation();
-        const key = removeBtn.dataset.key;
-        if (key) {
+        const key = ctrlBar.dataset.key || "";
+        const img = ctrlBar.parentElement?.querySelector("img");
+
+        // A. Crop tool
+        if (target.closest(".geocam-ctrl-crop")) {
+          const currentSrc = img?.getAttribute("src") || "";
+          if (currentSrc) {
+            setCroppingImage({ key, src: currentSrc });
+          }
+          return;
+        }
+
+        // B. Fit Mode toggle
+        if (target.closest(".geocam-ctrl-fit")) {
+          if (img) {
+            const isCurrentlyContain =
+              img.style.objectFit === "contain" ||
+              img.getAttribute("data-fit-mode") === "contain";
+            if (isCurrentlyContain) {
+              img.style.objectFit = "cover";
+              img.setAttribute("data-fit-mode", "cover");
+              target.innerHTML = "🖼️ Cover";
+              setNotice("Image mode set to Cover.");
+            } else {
+              img.style.objectFit = "contain";
+              img.setAttribute("data-fit-mode", "contain");
+              img.classList.add("bg-slate-50");
+              target.innerHTML = "🖼️ Fit (Contain)";
+              setNotice("Image mode set to Fit (contain without distortion).");
+            }
+          }
+          return;
+        }
+
+        // C. 50% Size
+        if (target.closest(".geocam-ctrl-50")) {
+          if (img) {
+            img.style.width = "50%";
+            img.style.margin = "0 auto";
+            setNotice("Image resized to 50% width.");
+          }
+          return;
+        }
+
+        // D. 100% Size
+        if (target.closest(".geocam-ctrl-100")) {
+          if (img) {
+            img.style.width = "100%";
+            setNotice("Image resized to 100% width.");
+          }
+          return;
+        }
+
+        // E. Remove button
+        if (
+          target.closest(".geocam-ctrl-remove") ||
+          target.closest(".geocam-img-remove-btn")
+        ) {
           const entry: Entry = {
             kind: "image",
             value: EMPTY_IMAGE_PLACEHOLDER,
@@ -776,11 +983,45 @@ export function VisualCmsLayer({ page }: { page: string }) {
           const imageSpace = normalizedPage + "::en";
           setEntry(imageSpace, key, entry);
           saveInline(imageSpace, key, entry);
-          setNotice("Photo removed. Click the placeholder to upload a new one.");
+          setNotice("Photo removed. Click placeholder or upload to change.");
+          return;
         }
         return;
       }
 
+      // 2. Corner resize handle click
+      if (target.closest(".geocam-resize-handle")) {
+        return;
+      }
+
+      // 3. Selection of Desired Target Location on any clicked element
+      if (!target.closest("[data-cms-ui]")) {
+        const targetBlock =
+          target.closest<HTMLElement>(
+            "p, h1, h2, h3, h4, figure, table, blockquote, div.geocam-editable, div.geocam-inserted-block, section, article",
+          ) || target;
+
+        if (targetBlock && main.contains(targetBlock)) {
+          main.querySelectorAll(".geocam-target-active").forEach((el) => {
+            el.classList.remove("geocam-target-active");
+          });
+          targetBlock.classList.add("geocam-target-active");
+          const targetKey =
+            targetBlock.dataset.cmsKey ||
+            targetBlock.getAttribute("data-cms-id") ||
+            stableKey(targetBlock, main);
+          setTargetLocation({
+            key: targetKey,
+            tagName: targetBlock.tagName.toUpperCase(),
+            preview: (targetBlock.textContent || "").trim().slice(0, 30),
+          });
+          setNotice(
+            `Target selected: <${targetBlock.tagName.toUpperCase()}>. Click "+ Insert Word" or "+ Insert Content" to insert here.`,
+          );
+        }
+      }
+
+      // 4. Fallback image replacement upload
       const el = target.closest<HTMLElement>(
         "[data-cms-key], [data-cms-id], img, [data-cms-background]",
       );
@@ -824,7 +1065,117 @@ export function VisualCmsLayer({ page }: { page: string }) {
         input.click();
       }
     };
+
+    // 5. Corner resize handle mousedown listener
+    const onMouseDownResize = (e: MouseEvent) => {
+      const handle = (e.target as HTMLElement)?.closest<HTMLElement>(".geocam-resize-handle");
+      if (!handle) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const img = handle.parentElement?.querySelector("img");
+      if (!img) return;
+
+      const startX = e.clientX;
+      const startWidth = img.getBoundingClientRect().width;
+
+      const onMouseMove = (moveEvent: MouseEvent) => {
+        const deltaX = moveEvent.clientX - startX;
+        const newWidth = Math.max(100, Math.min(1200, Math.round(startWidth + deltaX)));
+        img.style.width = `${newWidth}px`;
+      };
+
+      const onMouseUp = () => {
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+        setNotice(`Image resized to ${img.style.width}.`);
+      };
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    };
+
+    // 6. Block drag and drop to displace
+    const onDragStart = (e: DragEvent) => {
+      const block = (e.target as HTMLElement)?.closest<HTMLElement>(".geocam-draggable-block");
+      if (!block) return;
+      const id = block.dataset.blockId;
+      if (!id) return;
+      setDraggedBlockId(id);
+      block.classList.add("geocam-block-dragging");
+      e.dataTransfer?.setData("text/plain", id);
+    };
+
+    const onDragOver = (e: DragEvent) => {
+      const block = (e.target as HTMLElement)?.closest<HTMLElement>(".geocam-draggable-block");
+      if (!block) return;
+      e.preventDefault();
+      const rect = block.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      if (e.clientY < mid) {
+        block.classList.add("geocam-drop-target-above");
+        block.classList.remove("geocam-drop-target-below");
+      } else {
+        block.classList.add("geocam-drop-target-below");
+        block.classList.remove("geocam-drop-target-above");
+      }
+    };
+
+    const onDragLeave = (e: DragEvent) => {
+      const block = (e.target as HTMLElement)?.closest<HTMLElement>(".geocam-draggable-block");
+      if (!block) return;
+      block.classList.remove("geocam-drop-target-above", "geocam-drop-target-below");
+    };
+
+    const onDrop = (e: DragEvent) => {
+      const targetBlock = (e.target as HTMLElement)?.closest<HTMLElement>(".geocam-draggable-block");
+      if (!targetBlock) return;
+      e.preventDefault();
+      targetBlock.classList.remove("geocam-drop-target-above", "geocam-drop-target-below");
+      const srcId = e.dataTransfer?.getData("text/plain") || draggedBlockId;
+      const targetId = targetBlock.dataset.blockId;
+      if (!srcId || !targetId || srcId === targetId) return;
+
+      setInsertedBlocks((prev) => {
+        const fromIdx = prev.findIndex((b) => b.id === srcId);
+        const toIdx = prev.findIndex((b) => b.id === targetId);
+        if (fromIdx === -1 || toIdx === -1) return prev;
+        const reordered = [...prev];
+        const [moved] = reordered.splice(fromIdx, 1);
+        reordered.splice(toIdx, 0, moved);
+
+        const key = "__inserted_blocks__";
+        const entry: Entry = { kind: "text", value: JSON.stringify(reordered) };
+        setEntry(normalizedPage + "::" + lang, key, entry);
+        saveInline(normalizedPage + "::" + lang, key, entry);
+        return reordered;
+      });
+      setNotice("Block position displaced successfully!");
+    };
+
+    const onDragEnd = () => {
+      main
+        .querySelectorAll(
+          ".geocam-block-dragging, .geocam-drop-target-above, .geocam-drop-target-below",
+        )
+        .forEach((el) =>
+          el.classList.remove(
+            "geocam-block-dragging",
+            "geocam-drop-target-above",
+            "geocam-drop-target-below",
+          ),
+        );
+      setDraggedBlockId(null);
+    };
+
     main.addEventListener("click", click, true);
+    main.addEventListener("mousedown", onMouseDownResize, true);
+    main.addEventListener("dragstart", onDragStart);
+    main.addEventListener("dragover", onDragOver);
+    main.addEventListener("dragleave", onDragLeave);
+    main.addEventListener("drop", onDrop);
+    main.addEventListener("dragend", onDragEnd);
+
     return () => {
       observer.disconnect();
       if (refresh.current) {
@@ -832,11 +1183,22 @@ export function VisualCmsLayer({ page }: { page: string }) {
         refresh.current = 0;
       }
       main.removeEventListener("click", click, true);
+      main.removeEventListener("mousedown", onMouseDownResize, true);
+      main.removeEventListener("dragstart", onDragStart);
+      main.removeEventListener("dragover", onDragOver);
+      main.removeEventListener("dragleave", onDragLeave);
+      main.removeEventListener("drop", onDrop);
+      main.removeEventListener("dragend", onDragEnd);
       main
         .querySelectorAll(".geocam-editable")
         .forEach((el) => el.classList.remove("geocam-editable"));
       main
-        .querySelectorAll(".geocam-img-remove-btn")
+        .querySelectorAll(".geocam-target-active")
+        .forEach((el) => el.classList.remove("geocam-target-active"));
+      main
+        .querySelectorAll(
+          ".geocam-img-controls-bar, .geocam-resize-handle, .geocam-img-remove-btn",
+        )
         .forEach((el) => el.remove());
     };
   }, [normalizedPage, lang, active, editingPage, busy, setEntry, saveInline]);
@@ -1041,6 +1403,43 @@ export function VisualCmsLayer({ page }: { page: string }) {
               </button>
             </div>
 
+            {/* Target Location Badge Indicator */}
+            {targetLocation ? (
+              <div className="flex items-center gap-1.5 bg-blue-900/60 text-blue-200 border border-blue-500/50 px-2.5 py-1 rounded-lg text-xs font-mono">
+                <span>📍 Target: &lt;{targetLocation.tagName}&gt;</span>
+                <span className="text-[10px] text-blue-300/80 max-w-[120px] truncate hidden md:inline">
+                  "{targetLocation.preview}"
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTargetLocation(null);
+                    document
+                      .querySelectorAll(".geocam-target-active")
+                      .forEach((el) => el.classList.remove("geocam-target-active"));
+                  }}
+                  className="ml-1 text-blue-300 hover:text-white"
+                  title="Clear target location"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <div className="hidden xl:flex items-center gap-1 text-[11px] text-slate-400 italic">
+                <span>💡 Click any spot on page to choose insertion target</span>
+              </div>
+            )}
+
+            {/* Insert Word Button */}
+            <button
+              type="button"
+              onClick={insertWord}
+              className="flex items-center gap-1 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow-sm transition"
+              title="Insert word or text phrase at chosen location"
+            >
+              <Plus size={13} /> + Insert Word
+            </button>
+
             {/* Inserter Button */}
             <button
               type="button"
@@ -1048,6 +1447,47 @@ export function VisualCmsLayer({ page }: { page: string }) {
               className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-sm transition"
             >
               <Plus size={14} /> + Insert Content
+            </button>
+
+            {/* Crop Tool Button */}
+            <button
+              type="button"
+              onClick={() => {
+                let imgToCrop: { key: string; src: string } | null = null;
+                if (targetLocation) {
+                  const targetEl = document.querySelector(
+                    `[data-cms-key="${targetLocation.key}"], .geocam-target-active`,
+                  );
+                  const img =
+                    targetEl?.tagName === "IMG"
+                      ? (targetEl as HTMLImageElement)
+                      : targetEl?.querySelector("img");
+                  if (img && img.src) {
+                    imgToCrop = { key: targetLocation.key, src: img.src };
+                  }
+                }
+                if (!imgToCrop) {
+                  const firstImg = document.querySelector(
+                    "#main img",
+                  ) as HTMLImageElement | null;
+                  if (firstImg && firstImg.src) {
+                    imgToCrop = {
+                      key: firstImg.dataset.cmsKey || "main-img",
+                      src: firstImg.src,
+                    };
+                  }
+                }
+                if (imgToCrop) {
+                  setCroppingImage(imgToCrop);
+                } else {
+                  const url = window.prompt("Enter image URL to crop:");
+                  if (url) setCroppingImage({ key: "custom-crop", src: url });
+                }
+              }}
+              className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow-sm transition"
+              title="Open Crop Tool"
+            >
+              <Crop size={13} /> ✂️ Crop Image
             </button>
           </div>
 
@@ -1135,7 +1575,16 @@ export function VisualCmsLayer({ page }: { page: string }) {
 
               <button
                 type="button"
-                onClick={() => insertFileInputRef.current?.click()}
+                onClick={() => {
+                  const choice = window.confirm(
+                    "Click OK to insert default geological photo in Fit Mode, or Cancel to choose local image file from device.",
+                  );
+                  if (choice) {
+                    insertBlock("image");
+                  } else {
+                    insertFileInputRef.current?.click();
+                  }
+                }}
                 className="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 text-center transition group"
               >
                 <div className="p-3 rounded-full bg-slate-100 text-slate-700 group-hover:bg-emerald-600 group-hover:text-white transition">
@@ -1421,6 +1870,51 @@ export function VisualCmsLayer({ page }: { page: string }) {
         ))}
       </div>,
       mainEl
+    )}
+
+    {/* Interactive Crop Tool Modal */}
+    {croppingImage && (
+      <ImageCropperModal
+        imageUrl={croppingImage.src}
+        onClose={() => setCroppingImage(null)}
+        onCrop={(croppedDataUrl) => {
+          const key = croppingImage.key;
+          const imageSpace = normalizedPage + "::en";
+          const entry: Entry = { kind: "image", value: croppedDataUrl };
+          setEntry(imageSpace, key, entry);
+          saveInline(imageSpace, key, entry);
+
+          // Update insertedBlocks if this image belonged to an inserted block
+          setInsertedBlocks((prev) => {
+            const updated = prev.map((b) => {
+              if (b.html.includes(key) || b.html.includes(croppingImage.src)) {
+                return {
+                  ...b,
+                  html: b.html.replace(/src="[^"]+"/, `src="${croppedDataUrl}"`),
+                };
+              }
+              return b;
+            });
+            const bKey = "__inserted_blocks__";
+            const bEntry: Entry = { kind: "text", value: JSON.stringify(updated) };
+            setEntry(normalizedPage + "::" + lang, bKey, bEntry);
+            saveInline(normalizedPage + "::" + lang, bKey, bEntry);
+            return updated;
+          });
+
+          // Also update any live img matching key or src in current DOM
+          document
+            .querySelectorAll(
+              `img[data-cms-key="${key}"], .geocam-target-active img, img.geocam-target-active`,
+            )
+            .forEach((img) => {
+              (img as HTMLImageElement).src = croppedDataUrl;
+            });
+
+          setNotice("Cropped image applied and saved successfully!");
+          setCroppingImage(null);
+        }}
+      />
     )}
   </>
 );

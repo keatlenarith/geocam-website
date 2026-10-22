@@ -356,3 +356,115 @@ html[data-geocam-fonts="approved"] body [lang="km"] *:not(code):not(pre):not(svg
   color: #064e3b;
   font-style: italic;
 }
+
+
+/* ==========================================================================
+   ENHANCED CMS AFFORDANCES: Target Insertion, Image Fit Mode, Resize, Drag-Displace & Crop
+   ========================================================================== */
+
+/* Targeted insertion location indicator */
+.geocam-target-active {
+  outline: 3px solid #2563eb !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.25) !important;
+  position: relative !important;
+}
+.geocam-target-active::before {
+  content: '📍 Desired Insertion Location';
+  position: absolute;
+  top: -24px;
+  left: 0;
+  background: #2563eb;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+/* Image controls bar (Crop, Resize, Fit Mode, Drag, Remove) */
+.geocam-img-wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+.geocam-img-controls-bar {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(8px);
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+}
+.geocam-img-controls-bar button {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 3px 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.geocam-img-controls-bar button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+.geocam-img-controls-bar button.active {
+  background: #059669;
+  border-color: #34d399;
+  color: #fff;
+}
+
+/* Image corner drag-resize handle */
+.geocam-resize-handle {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 18px;
+  height: 18px;
+  background: #2563eb;
+  border: 2px solid #ffffff;
+  border-radius: 4px;
+  cursor: nwse-resize;
+  z-index: 50;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.geocam-resize-handle:hover {
+  background: #1d4ed8;
+  transform: scale(1.15);
+}
+
+/* Drag to displace blocks */
+.geocam-draggable-block {
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.geocam-draggable-block:active {
+  cursor: grabbing;
+}
+.geocam-block-dragging {
+  opacity: 0.45 !important;
+  outline: 3px dashed #2563eb !important;
+}
+.geocam-drop-target-above {
+  border-top: 4px solid #2563eb !important;
+}
+.geocam-drop-target-below {
+  border-bottom: 4px solid #2563eb !important;
+}
