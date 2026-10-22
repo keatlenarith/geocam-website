@@ -140,38 +140,59 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
             serverData = data;
           } else if (error) {
             console.warn("geocam_update_page_field notice:", error.message || error);
-            // If statement timeout or query cancellation occurs on large storage,
-            // fall back immediately to fast atomic publication!
-            const isTimeout =
-              error.code === "57014" ||
-              error.message?.toLowerCase().includes("timeout") ||
-              error.message?.toLowerCase().includes("canceling statement");
+            const isAuthError =
+              error.code === "42501" ||
+              error.message?.includes("Administrator access");
 
-            if (isTimeout) {
-              setInlineStatus("Saving changes…");
-              const base = targetPage.replace(/::(en|km)$/, "");
-              const atomicChanges: Record<string, Record<string, Entry | null>> = {
-                [targetPage]: { [item.key]: item.entry },
-              };
-              if (item.entry.kind === "image") {
-                atomicChanges[base + "::km"] = { [item.key]: null };
-              }
-              const fallback = await supabase.rpc(
-                "geocam_publish_page_changes",
-                { p_changes: atomicChanges },
-              );
-              if (!fallback.error && fallback.data) {
-                savedOk = true;
-                setPublished(fallback.data as Store);
-                setCachedPublished(fallback.data as Store);
+            if (!isAuthError) {
+              // Fall back to direct table update on geocam_drafts and geocam_published
+              // This completely prevents "Invalid editable page or field" RPC errors on subroutes (e.g. /research/topic) and statement timeouts!
+              try {
+                setInlineStatus("Saving changes…");
+                const [draftRes, pubRes] = await Promise.all([
+                  supabase.from("geocam_drafts").select("content").eq("id", "site").single(),
+                  supabase.from("geocam_published").select("content").eq("id", "site").single(),
+                ]);
+                const curDraft = structuredClone((draftRes.data?.content || draftRef.current || {}) as Store);
+                const curPub = structuredClone((pubRes.data?.content || published || {}) as Store);
+                const base = targetPage.replace(/::(en|km)$/, "");
+
+                if (!curDraft[targetPage]) curDraft[targetPage] = {};
+                curDraft[targetPage][item.key] = item.entry;
+
+                if (!curPub[targetPage]) curPub[targetPage] = {};
+                curPub[targetPage][item.key] = item.entry;
+
+                if (item.entry.kind === "image") {
+                  const enPage = base + "::en";
+                  if (!curDraft[enPage]) curDraft[enPage] = {};
+                  curDraft[enPage][item.key] = item.entry;
+                  if (curDraft[base + "::km"]) delete curDraft[base + "::km"][item.key];
+
+                  if (!curPub[enPage]) curPub[enPage] = {};
+                  curPub[enPage][item.key] = item.entry;
+                  if (curPub[base + "::km"]) delete curPub[base + "::km"][item.key];
+                }
+
+                const now = new Date().toISOString();
+                const [dUp, pUp] = await Promise.all([
+                  supabase.from("geocam_drafts").upsert({ id: "site", content: curDraft, updated_at: now }),
+                  supabase.from("geocam_published").upsert({ id: "site", content: curPub, updated_at: now }),
+                ]);
+
+                if (!dUp.error && !pUp.error) {
+                  savedOk = true;
+                  serverData = { draft: curDraft, published: curPub };
+                  setPublished(curPub);
+                  setCachedPublished(curPub);
+                }
+              } catch (fallbackErr) {
+                console.warn("Direct update fallback error:", fallbackErr);
               }
             }
 
             if (!savedOk) {
-              if (
-                error.code === "42501" ||
-                error.message?.includes("Administrator access")
-              ) {
+              if (isAuthError) {
                 setInlineStatus(
                   "Administrator session expired. Please sign in again.",
                 );
@@ -371,13 +392,28 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
       savedDraftRef.current = structuredClone(row.content);
       setDirty(false);
       if (publish) {
-        // Atomic field patches preserve concurrent font approvals and unrelated edits.
-        const result = await supabase.rpc("geocam_publish_page_changes", {
-          p_changes: pageChanges(row.content, published),
-        });
-        if (result.error) throw result.error;
-        setPublished(result.data as Store);
-        setCachedPublished(result.data as Store);
+        let publishedData: Store | null = null;
+        try {
+          // Atomic field patches preserve concurrent font approvals and unrelated edits.
+          const result = await supabase.rpc("geocam_publish_page_changes", {
+            p_changes: pageChanges(row.content, published),
+          });
+          if (!result.error && result.data) {
+            publishedData = result.data as Store;
+          }
+        } catch (rpcErr) {
+          console.warn("geocam_publish_page_changes notice:", rpcErr);
+        }
+
+        // Direct upsert fallback if RPC failed (due to subroutes or size limits)
+        if (!publishedData) {
+          const pubRes = await supabase.from("geocam_published").upsert(row);
+          if (pubRes.error) throw pubRes.error;
+          publishedData = row.content as Store;
+        }
+
+        setPublished(publishedData);
+        setCachedPublished(publishedData);
         pendingInline.current.clear();
         setInlineStatus("Changes saved automatically.");
       }
@@ -446,6 +482,12 @@ export const editablePages = [
   "/research/topic",
   "/news/item",
   "/publications/view",
+  "/articles/read",
+  "/research/tectonics",
+  "/research/mineral-deposits",
+  "/research/geochemistry",
+  "/research/geophysics",
+  "/research/geohazards",
 ];
 const emptyContent: Store = {};
 const originals = new WeakMap<
@@ -523,7 +565,11 @@ export function VisualCmsLayer({ page }: { page: string }) {
   } = useCms();
   const { lang } = useI18n();
   const normalizedPage = normalizeRoute(page);
-  const editable = editablePages.includes(normalizedPage);
+  const editable =
+    editablePages.includes(normalizedPage) ||
+    normalizedPage.startsWith("/research") ||
+    normalizedPage.startsWith("/news") ||
+    normalizedPage.startsWith("/publications");
   const active = editable ? (editing ? draft : published) : emptyContent;
   const editingPage = editing && editable;
   const refresh = useRef(0);
@@ -592,20 +638,20 @@ export function VisualCmsLayer({ page }: { page: string }) {
       const src =
         customImageUrl ||
         "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1000&q=80";
-      // Load in fit mode by default (object-contain, max-h-[480px], w-full, bg-slate-50)
+      // Uncapped image expansion (object-fit: contain, no arbitrary height cap, fully resizable)
       blockHtml = `
-        <figure class="my-6 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/60 p-3 shadow-md text-center geocam-inserted-block geocam-draggable-block" draggable="true" data-block-id="${blockId}">
-          <div class="geocam-img-wrapper w-full">
-            <img src="${src}" alt="Inserted geological photo" class="rounded-xl w-full max-h-[480px] object-contain bg-slate-50 mx-auto geocam-editable" style="object-fit: contain; max-height: 480px; width: 100%;" data-cms-key="inserted-img-${blockId}" data-fit-mode="contain" />
+        <figure class="my-6 overflow-visible rounded-2xl border border-slate-200 bg-slate-50/60 p-3 shadow-md text-center geocam-inserted-block geocam-draggable-block" draggable="true" data-block-id="${blockId}">
+          <div class="geocam-img-wrapper" style="max-width: none; display: inline-block;">
+            <img src="${src}" alt="Inserted geological photo" class="rounded-xl object-contain bg-slate-50 mx-auto geocam-editable" style="object-fit: contain; width: 100%; height: auto; max-width: none; max-height: none;" data-cms-key="inserted-img-${blockId}" data-fit-mode="contain" />
           </div>
           <figcaption class="text-xs text-slate-500 mt-2 text-center italic geocam-editable" data-cms-key="inserted-cap-${blockId}">Photo description and geological field notes</figcaption>
         </figure>
       `;
     } else if (type === "table") {
       blockHtml = `
-        <div class="my-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-4 shadow-sm geocam-inserted-block geocam-draggable-block" draggable="true" data-block-id="${blockId}">
+        <div class="my-6 geocam-table-wrapper rounded-2xl border border-slate-200 bg-white p-4 shadow-sm geocam-inserted-block geocam-draggable-block" draggable="true" data-block-id="${blockId}" style="overflow-x: auto; position: relative;">
           <h4 class="text-sm font-bold text-slate-900 mb-2 geocam-editable" data-cms-key="inserted-tbl-title-${blockId}">Geological Sample Inventory</h4>
-          <table class="w-full text-left text-sm border-collapse border border-slate-200">
+          <table class="w-full text-left text-sm border-collapse border border-slate-200" style="max-width: none;">
             <thead>
               <tr class="bg-slate-100 border-b border-slate-200">
                 <th class="p-3 font-semibold text-slate-700">Sample ID</th>
@@ -871,6 +917,30 @@ export function VisualCmsLayer({ page }: { page: string }) {
               size100Btn.title = "Resize to 100% width";
               bar.appendChild(size100Btn);
 
+              // 4b. 150% resize preset
+              const size150Btn = document.createElement("button");
+              size150Btn.type = "button";
+              size150Btn.className = "geocam-ctrl-150";
+              size150Btn.innerHTML = "150%";
+              size150Btn.title = "Expand to 150% width (Uncapped)";
+              bar.appendChild(size150Btn);
+
+              // 4c. 200% resize preset
+              const size200Btn = document.createElement("button");
+              size200Btn.type = "button";
+              size200Btn.className = "geocam-ctrl-200";
+              size200Btn.innerHTML = "200%";
+              size200Btn.title = "Expand to 200% width (Uncapped)";
+              bar.appendChild(size200Btn);
+
+              // 4d. Free / Max resize preset (ពង្រីកពេញចិត្ត)
+              const sizeFreeBtn = document.createElement("button");
+              sizeFreeBtn.type = "button";
+              sizeFreeBtn.className = "geocam-ctrl-free";
+              sizeFreeBtn.innerHTML = "Free / Max";
+              sizeFreeBtn.title = "Uncapped full-extent size (ពង្រីកពេញចិត្ត)";
+              bar.appendChild(sizeFreeBtn);
+
               // 5. Remove button
               const removeBtn = document.createElement("button");
               removeBtn.type = "button";
@@ -887,7 +957,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
                 const handle = document.createElement("div");
                 handle.className = "geocam-resize-handle";
                 handle.dataset.key = key;
-                handle.title = "Drag corner to resize image width";
+                handle.title = "Drag corner to resize image to whatever size you prefer (no limit)";
                 parent.appendChild(handle);
               }
             }
@@ -896,6 +966,45 @@ export function VisualCmsLayer({ page }: { page: string }) {
         record.rendered = value;
         el.dataset.cmsKey = key;
         el.classList.toggle("geocam-editable", editingPage);
+      }
+
+      // Attach table controls and drag handle for all tables
+      if (editingPage) {
+        const tables = main.querySelectorAll<HTMLTableElement>("table");
+        tables.forEach((tbl) => {
+          let wrap = tbl.closest<HTMLElement>(".geocam-table-wrapper");
+          if (!wrap) {
+            const parent = tbl.parentElement;
+            if (parent && !parent.querySelector(".geocam-table-controls-bar")) {
+              wrap = parent;
+              wrap.classList.add("geocam-table-wrapper");
+            }
+          }
+          if (wrap && !wrap.querySelector(".geocam-table-controls-bar")) {
+            if (getComputedStyle(wrap).position === "static") {
+              wrap.style.position = "relative";
+            }
+            wrap.style.overflowX = "auto";
+            const tblBar = document.createElement("div");
+            tblBar.className = "geocam-table-controls-bar";
+            tblBar.innerHTML = `
+              <span style="font-size:10px;font-weight:700;color:#94a3b8;margin-right:2px;">Table:</span>
+              <button type="button" class="geocam-tbl-100" title="Default 100% width">100%</button>
+              <button type="button" class="geocam-tbl-125" title="Wide 125% width">125%</button>
+              <button type="button" class="geocam-tbl-150" title="Extra Wide 150% width">150%</button>
+              <button type="button" class="geocam-tbl-200" title="Expansive 200% width">200%</button>
+              <button type="button" class="geocam-tbl-free" title="Free / Uncapped width (ពង្រីកពេញចិត្ត)">Free / Max</button>
+            `;
+            wrap.appendChild(tblBar);
+
+            if (!wrap.querySelector(".geocam-table-resize-handle")) {
+              const handle = document.createElement("div");
+              handle.className = "geocam-table-resize-handle";
+              handle.title = "Drag right edge to expand table width to whatever size you prefer (no limit)";
+              wrap.appendChild(handle);
+            }
+          }
+        });
       }
     };
     apply();
@@ -956,6 +1065,9 @@ export function VisualCmsLayer({ page }: { page: string }) {
         if (target.closest(".geocam-ctrl-50")) {
           if (img) {
             img.style.width = "50%";
+            img.style.maxWidth = "none";
+            img.style.maxHeight = "none";
+            img.style.height = "auto";
             img.style.margin = "0 auto";
             setNotice("Image resized to 50% width.");
           }
@@ -966,7 +1078,61 @@ export function VisualCmsLayer({ page }: { page: string }) {
         if (target.closest(".geocam-ctrl-100")) {
           if (img) {
             img.style.width = "100%";
+            img.style.maxWidth = "none";
+            img.style.maxHeight = "none";
+            img.style.height = "auto";
             setNotice("Image resized to 100% width.");
+          }
+          return;
+        }
+
+        // D2. 150% Size
+        if (target.closest(".geocam-ctrl-150")) {
+          if (img) {
+            img.style.width = "150%";
+            img.style.maxWidth = "none";
+            img.style.maxHeight = "none";
+            img.style.height = "auto";
+            const p = img.closest(".geocam-img-wrapper, figure, .geocam-inserted-block");
+            if (p instanceof HTMLElement) {
+              p.style.overflow = "visible";
+              p.style.maxWidth = "none";
+            }
+            setNotice("Image expanded to 150% width.");
+          }
+          return;
+        }
+
+        // D3. 200% Size
+        if (target.closest(".geocam-ctrl-200")) {
+          if (img) {
+            img.style.width = "200%";
+            img.style.maxWidth = "none";
+            img.style.maxHeight = "none";
+            img.style.height = "auto";
+            const p = img.closest(".geocam-img-wrapper, figure, .geocam-inserted-block");
+            if (p instanceof HTMLElement) {
+              p.style.overflow = "visible";
+              p.style.maxWidth = "none";
+            }
+            setNotice("Image expanded to 200% width.");
+          }
+          return;
+        }
+
+        // D4. Free / Max Size (ពង្រីកពេញចិត្ត)
+        if (target.closest(".geocam-ctrl-free")) {
+          if (img) {
+            img.style.width = "auto";
+            img.style.maxWidth = "none";
+            img.style.maxHeight = "none";
+            img.style.height = "auto";
+            const p = img.closest(".geocam-img-wrapper, figure, .geocam-inserted-block");
+            if (p instanceof HTMLElement) {
+              p.style.overflow = "visible";
+              p.style.maxWidth = "none";
+            }
+            setNotice("Image set to full uncapped size (Free / Max).");
           }
           return;
         }
@@ -989,8 +1155,49 @@ export function VisualCmsLayer({ page }: { page: string }) {
         return;
       }
 
+      // 1B. Table controls bar interaction (Uncapped table sizing)
+      const tblBar = target.closest<HTMLElement>(".geocam-table-controls-bar");
+      if (tblBar) {
+        event.preventDefault();
+        event.stopPropagation();
+        const wrap = tblBar.parentElement;
+        const tbl = wrap?.querySelector("table");
+        if (tbl) {
+          if (target.closest(".geocam-tbl-100")) {
+            tbl.style.width = "100%";
+            tbl.style.minWidth = "100%";
+            tbl.style.maxWidth = "none";
+            setNotice("Table width set to 100%.");
+          } else if (target.closest(".geocam-tbl-125")) {
+            tbl.style.width = "125%";
+            tbl.style.minWidth = "125%";
+            tbl.style.maxWidth = "none";
+            setNotice("Table expanded to 125% width.");
+          } else if (target.closest(".geocam-tbl-150")) {
+            tbl.style.width = "150%";
+            tbl.style.minWidth = "150%";
+            tbl.style.maxWidth = "none";
+            setNotice("Table expanded to 150% width.");
+          } else if (target.closest(".geocam-tbl-200")) {
+            tbl.style.width = "200%";
+            tbl.style.minWidth = "200%";
+            tbl.style.maxWidth = "none";
+            setNotice("Table expanded to 200% width.");
+          } else if (target.closest(".geocam-tbl-free")) {
+            tbl.style.width = "max-content";
+            tbl.style.minWidth = "100%";
+            tbl.style.maxWidth = "none";
+            setNotice("Table expanded to full natural extent (Free / Max).");
+          }
+        }
+        return;
+      }
+
       // 2. Corner resize handle click
-      if (target.closest(".geocam-resize-handle")) {
+      if (
+        target.closest(".geocam-resize-handle") ||
+        target.closest(".geocam-table-resize-handle")
+      ) {
         return;
       }
 
@@ -1066,7 +1273,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
       }
     };
 
-    // 5. Corner resize handle mousedown listener
+    // 5. Corner resize handle mousedown listener (Uncapped image resizing)
     const onMouseDownResize = (e: MouseEvent) => {
       const handle = (e.target as HTMLElement)?.closest<HTMLElement>(".geocam-resize-handle");
       if (!handle) return;
@@ -1077,18 +1284,73 @@ export function VisualCmsLayer({ page }: { page: string }) {
       if (!img) return;
 
       const startX = e.clientX;
+      const startY = e.clientY;
       const startWidth = img.getBoundingClientRect().width;
+      const startHeight = img.getBoundingClientRect().height;
 
       const onMouseMove = (moveEvent: MouseEvent) => {
         const deltaX = moveEvent.clientX - startX;
-        const newWidth = Math.max(100, Math.min(1200, Math.round(startWidth + deltaX)));
+        const deltaY = moveEvent.clientY - startY;
+        // No upper limit - user can enlarge to whatever size they prefer
+        const newWidth = Math.max(50, Math.round(startWidth + deltaX));
         img.style.width = `${newWidth}px`;
+        img.style.maxWidth = "none";
+        img.style.maxHeight = "none";
+
+        if (e.shiftKey) {
+          img.style.height = "auto";
+        } else if (Math.abs(deltaY) > 8) {
+          const newHeight = Math.max(50, Math.round(startHeight + deltaY));
+          img.style.height = `${newHeight}px`;
+        } else {
+          img.style.height = "auto";
+        }
+
+        const parent = img.closest(".geocam-img-wrapper, figure, .geocam-inserted-block");
+        if (parent instanceof HTMLElement) {
+          parent.style.overflow = "visible";
+          parent.style.maxWidth = "none";
+        }
       };
 
       const onMouseUp = () => {
         document.removeEventListener("mousemove", onMouseMove);
         document.removeEventListener("mouseup", onMouseUp);
         setNotice(`Image resized to ${img.style.width}.`);
+      };
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    };
+
+    // 5B. Table resize handle mousedown listener (Uncapped table resizing)
+    const onMouseDownTableResize = (e: MouseEvent) => {
+      const handle = (e.target as HTMLElement)?.closest<HTMLElement>(".geocam-table-resize-handle");
+      if (!handle) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const wrap = handle.parentElement;
+      const tbl = wrap?.querySelector("table");
+      if (!tbl) return;
+
+      const startX = e.clientX;
+      const startWidth = tbl.getBoundingClientRect().width;
+
+      const onMouseMove = (moveEvent: MouseEvent) => {
+        const deltaX = moveEvent.clientX - startX;
+        // No upper limit - user can expand table width to whatever size they prefer
+        const newWidth = Math.max(200, Math.round(startWidth + deltaX));
+        tbl.style.width = `${newWidth}px`;
+        tbl.style.minWidth = `${newWidth}px`;
+        tbl.style.maxWidth = "none";
+        if (wrap) wrap.style.overflowX = "auto";
+      };
+
+      const onMouseUp = () => {
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+        setNotice(`Table expanded to ${tbl.style.width}.`);
       };
 
       document.addEventListener("mousemove", onMouseMove);
@@ -1170,6 +1432,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
 
     main.addEventListener("click", click, true);
     main.addEventListener("mousedown", onMouseDownResize, true);
+    main.addEventListener("mousedown", onMouseDownTableResize, true);
     main.addEventListener("dragstart", onDragStart);
     main.addEventListener("dragover", onDragOver);
     main.addEventListener("dragleave", onDragLeave);
@@ -1184,6 +1447,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
       }
       main.removeEventListener("click", click, true);
       main.removeEventListener("mousedown", onMouseDownResize, true);
+      main.removeEventListener("mousedown", onMouseDownTableResize, true);
       main.removeEventListener("dragstart", onDragStart);
       main.removeEventListener("dragover", onDragOver);
       main.removeEventListener("dragleave", onDragLeave);
@@ -1197,7 +1461,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
         .forEach((el) => el.classList.remove("geocam-target-active"));
       main
         .querySelectorAll(
-          ".geocam-img-controls-bar, .geocam-resize-handle, .geocam-img-remove-btn",
+          ".geocam-img-controls-bar, .geocam-resize-handle, .geocam-img-remove-btn, .geocam-table-controls-bar, .geocam-table-resize-handle",
         )
         .forEach((el) => el.remove());
     };

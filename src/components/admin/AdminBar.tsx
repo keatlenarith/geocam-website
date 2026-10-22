@@ -28,7 +28,11 @@ export function AdminBar() {
   if (!admin) return null;
 
   const normalized = normalizeRoute(currentPath);
-  const isEditable = editablePages.includes(normalized);
+  const isEditable =
+    editablePages.includes(normalized) ||
+    normalized.startsWith("/research") ||
+    normalized.startsWith("/news") ||
+    normalized.startsWith("/publications");
   const queryParams =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search)
@@ -73,32 +77,28 @@ export function AdminBar() {
 
         {/* Dynamic Contextual Edit Button for this specific Page / Post */}
         {normalized === "/news/item" && queryId ? (
-          <Link
-            to={`/admin?section=posts&edit=${encodeURIComponent(queryId)}`}
-            className="flex items-center gap-1 rounded bg-emerald-600 px-2.5 py-0.5 font-semibold text-white hover:bg-emerald-500 transition shadow-sm"
-            title="Edit this post in the Rich Post Editor"
-          >
-            <Edit3 size={12} />
-            <span>Edit this Post</span>
-          </Link>
-        ) : normalized === "/publications/view" ? (
-          <Link
-            to="/admin?section=publications"
-            className="flex items-center gap-1 rounded bg-emerald-600 px-2.5 py-0.5 font-semibold text-white hover:bg-emerald-500 transition shadow-sm"
-            title="Edit in Publications Manager"
-          >
-            <Edit3 size={12} />
-            <span>Edit Publication</span>
-          </Link>
-        ) : normalized === "/research/topic" ? (
-          <Link
-            to="/admin?section=pages&page=/research"
-            className="flex items-center gap-1 rounded bg-emerald-600 px-2.5 py-0.5 font-semibold text-white hover:bg-emerald-500 transition shadow-sm"
-            title="Edit Research in Admin"
-          >
-            <Edit3 size={12} />
-            <span>Edit Research Page</span>
-          </Link>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setEditing(!editing)}
+              disabled={!ready || busy}
+              className={`flex items-center gap-1 rounded px-2.5 py-0.5 font-semibold transition ${
+                editing
+                  ? "bg-amber-500 text-slate-950 font-bold"
+                  : "bg-emerald-600 text-white hover:bg-emerald-500"
+              }`}
+              title={editing ? "Finish visual on-page editing" : "Edit this post in website"}
+            >
+              <Edit3 size={12} />
+              <span>{editing ? "Finish Editing" : "Edit in Website"}</span>
+            </button>
+            <Link
+              to={`/admin?section=posts&edit=${encodeURIComponent(queryId)}`}
+              className="flex items-center gap-1 rounded bg-slate-800 border border-slate-700 px-2 py-0.5 font-semibold text-slate-300 hover:text-white transition shadow-sm"
+              title="Edit this post in the Rich Post Editor"
+            >
+              <span>(in Admin)</span>
+            </Link>
+          </div>
         ) : isEditable ? (
           <div className="flex items-center gap-1.5">
             <button
@@ -119,7 +119,7 @@ export function AdminBar() {
               <span>{editing ? "Finish Editing" : "Edit Page"}</span>
             </button>
             <Link
-              to={`/admin?section=pages&page=${encodeURIComponent(normalized)}`}
+              to={`/admin?section=pages&page=${encodeURIComponent(normalized.startsWith("/research") ? "/research" : normalized.startsWith("/news") ? "/news" : normalized)}`}
               className="hidden md:flex items-center gap-1 text-slate-400 hover:text-white transition px-1"
               title="Edit in Admin Pages manager"
             >

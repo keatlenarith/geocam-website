@@ -115,14 +115,15 @@ export default function ResearchTopic() {
           </div>
 
           {/* Featured Image */}
-          <figure className="mb-10 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+          <figure className="mb-10 rounded-xl border border-slate-200 bg-slate-50 overflow-visible p-2">
             <img
               src={focus.image}
               alt={focus.imageAlt}
-              className="w-full max-h-[520px] object-contain bg-slate-50 mx-auto"
+              className="w-full object-contain bg-slate-50 mx-auto rounded-lg"
+              style={{ maxHeight: "none", height: "auto" }}
               loading="lazy"
             />
-            <figcaption className="p-3.5 text-xs text-center text-muted-foreground bg-slate-100/70 border-t border-slate-200">
+            <figcaption className="p-3.5 text-xs text-center text-muted-foreground bg-slate-100/70 border-t border-slate-200 mt-2">
               {lang === "km" ? focus.captionKm : focus.captionEn}
             </figcaption>
           </figure>
@@ -160,11 +161,12 @@ export default function ResearchTopic() {
 
                 {/* Optional Section Image */}
                 {section.image && (
-                  <figure className="my-6 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs">
+                  <figure className="my-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs overflow-visible">
                     <img
                       src={section.image}
                       alt={lang === "km" ? section.imageCaptionKm || "" : section.imageCaptionEn || ""}
-                      className="w-full max-h-[560px] object-contain rounded-xl mx-auto bg-white shadow-xs"
+                      className="w-full object-contain rounded-xl mx-auto bg-white shadow-xs"
+                      style={{ maxHeight: "none", height: "auto" }}
                       loading="lazy"
                     />
                     {(section.imageCaptionKm || section.imageCaptionEn) && (
@@ -180,12 +182,13 @@ export default function ResearchTopic() {
                   section.images.map((imgItem, imgIdx) => (
                     <figure
                       key={imgIdx}
-                      className="my-6 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs"
+                      className="my-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs overflow-visible"
                     >
                       <img
                         src={imgItem.url}
                         alt={lang === "km" ? imgItem.captionKm || "" : imgItem.captionEn || ""}
-                        className="w-full max-h-[560px] object-contain rounded-xl mx-auto bg-white shadow-xs"
+                        className="w-full object-contain rounded-xl mx-auto bg-white shadow-xs"
+                        style={{ maxHeight: "none", height: "auto" }}
                         loading="lazy"
                       />
                       {(imgItem.captionKm || imgItem.captionEn) && (
