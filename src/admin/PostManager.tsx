@@ -9,6 +9,9 @@ import {
   type NewsItem,
 } from "../lib/news-service";
 import { cleanPostHtml } from "./posts";
+import { FOCUS_TOPICS, type FocusTopic } from "../features/research/focus-topics-data";
+import { defaultPageData } from "./page-data";
+import { supabase } from "../lib/supabase";
 import {
   Plus,
   Search,
@@ -35,8 +38,30 @@ import {
   List,
   Quote,
   Link as LinkIcon,
+  Layers,
+  BookOpen,
 } from "lucide-react";
 import { translateText } from "../lib/translation";
+
+export type ContentKind = "news" | "topic" | "page";
+
+export interface UnifiedContentItem {
+  id: string;
+  kind: ContentKind;
+  title: string;
+  titleKm: string;
+  tag: string;
+  date: string;
+  image: string;
+  excerpt: string;
+  excerptKm: string;
+  content: string;
+  contentKm: string;
+  status: "published" | "draft";
+  updatedAt?: string;
+  route?: string;
+  topicKey?: string;
+}
 
 const PHOTO_PRESETS = [
   {
@@ -79,6 +104,9 @@ const CATEGORIES = [
   "Tectonics",
   "Mining",
   "Fieldwork",
+  "Core Pages",
+  "Science & Maps",
+  "Tools & Portals",
 ];
 
 const TABLE_TEMPLATES = [
@@ -98,52 +126,61 @@ const TABLE_TEMPLATES = [
     </thead>
     <tbody>
       <tr class="border-b border-slate-100 hover:bg-slate-50">
-        <td class="p-3 font-mono text-xs font-bold text-emerald-800">GC-2026-001</td>
-        <td class="p-3">Cardamom Range</td>
-        <td class="p-3">Sandstone / Conglomerate</td>
-        <td class="p-3">Jurassic-Cretaceous</td>
-        <td class="p-3">High silica content (78%)</td>
+        <td class="p-3 font-mono text-xs">GC-2026-001</td>
+        <td class="p-3">Cardamom Range, Pursat</td>
+        <td class="p-3">Meta-sandstone / Quartzite</td>
+        <td class="p-3">Upper Triassic</td>
+        <td class="p-3 text-emerald-700 font-medium">Au 1.42 g/t; Cu 0.18%</td>
       </tr>
       <tr class="border-b border-slate-100 hover:bg-slate-50">
-        <td class="p-3 font-mono text-xs font-bold text-emerald-800">GC-2026-002</td>
-        <td class="p-3">Kampot Karst</td>
-        <td class="p-3">Massive Limestone</td>
-        <td class="p-3">Permian</td>
-        <td class="p-3">High purity CaCO₃ (&gt;95%)</td>
+        <td class="p-3 font-mono text-xs">GC-2026-002</td>
+        <td class="p-3">Kampot Karst Plateau</td>
+        <td class="p-3">Micritic Limestone</td>
+        <td class="p-3">Permian (Sisophon Fmt)</td>
+        <td class="p-3 text-slate-600">CaCO3 94.2%; Mg 1.1%</td>
       </tr>
       <tr class="border-b border-slate-100 hover:bg-slate-50">
-        <td class="p-3 font-mono text-xs font-bold text-emerald-800">GC-2026-003</td>
-        <td class="p-3">Mekong Terrace</td>
-        <td class="p-3">Alluvial Silt / Clay</td>
-        <td class="p-3">Quaternary</td>
-        <td class="p-3">Heavy mineral traces</td>
+        <td class="p-3 font-mono text-xs">GC-2026-003</td>
+        <td class="p-3">Ratanakiri Volcanic Field</td>
+        <td class="p-3">Alkali Basalt (Gem-bearing)</td>
+        <td class="p-3">Pleistocene</td>
+        <td class="p-3 text-emerald-700 font-medium">Zircon & Corundum megacrysts</td>
       </tr>
     </tbody>
   </table>
 </div>`,
   },
   {
-    name: "Standard 3x3 Table",
-    desc: "General parameter comparison table",
+    name: "Lithostratigraphic Summary Table",
+    desc: "Summary table of Cambodian geological units, lithologies, and regional sutures",
     html: `<div class="overflow-x-auto my-6">
   <table class="w-full text-left text-sm border-collapse border border-slate-200">
     <thead>
-      <tr class="bg-slate-100 border-b border-slate-200">
-        <th class="p-3 font-semibold text-slate-700">Parameter</th>
-        <th class="p-3 font-semibold text-slate-700">Measured Value</th>
-        <th class="p-3 font-semibold text-slate-700">Standard / Notes</th>
+      <tr class="bg-emerald-50 border-b border-emerald-200 text-emerald-950">
+        <th class="p-3 font-bold">Era / Period</th>
+        <th class="p-3 font-bold">Lithostratigraphic Unit</th>
+        <th class="p-3 font-bold">Dominant Rock Types</th>
+        <th class="p-3 font-bold">Tectonic Environment</th>
       </tr>
     </thead>
     <tbody>
-      <tr class="border-b border-slate-100 hover:bg-slate-50">
-        <td class="p-3 font-medium">Bulk Density (g/cm³)</td>
-        <td class="p-3">2.65</td>
-        <td class="p-3 text-slate-500">Standard quartz average</td>
+      <tr class="border-b border-slate-100">
+        <td class="p-3 font-semibold text-slate-900">Quaternary (0–2.6 Ma)</td>
+        <td class="p-3">Alluvium &amp; Young Basalts</td>
+        <td class="p-3">Silt, sand, flood basalts</td>
+        <td class="p-3">Mekong Delta subsidence</td>
       </tr>
-      <tr class="border-b border-slate-100 hover:bg-slate-50">
-        <td class="p-3 font-medium">Compressive Strength</td>
-        <td class="p-3">142 MPa</td>
-        <td class="p-3 text-slate-500">Laboratory load test ASTM-D7012</td>
+      <tr class="border-b border-slate-100">
+        <td class="p-3 font-semibold text-slate-900">Cretaceous (66–145 Ma)</td>
+        <td class="p-3">Cardamome &amp; Dangrek Sandstones</td>
+        <td class="p-3">Red continental sandstones</td>
+        <td class="p-3">Intracontinental sag basin</td>
+      </tr>
+      <tr class="border-b border-slate-100">
+        <td class="p-3 font-semibold text-slate-900">Permo-Triassic (200–299 Ma)</td>
+        <td class="p-3">Sisophon / Kampot Carbonates</td>
+        <td class="p-3">Platform reef limestones</td>
+        <td class="p-3">Indosinian collisional suture</td>
       </tr>
     </tbody>
   </table>
@@ -153,130 +190,215 @@ const TABLE_TEMPLATES = [
 
 const CHART_TEMPLATES = [
   {
-    name: "Mineral Assay Bar Chart",
-    desc: "Responsive bar chart showing mineral composition percentages",
-    html: `<div class="my-6 rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
-  <h4 class="font-bold text-slate-900 mb-3 text-sm">Mineralogical Composition Assay (%)</h4>
-  <div class="space-y-2.5 text-xs">
+    name: "Mineral Composition Assay (Horizontal Bars)",
+    desc: "Clean, responsive CSS bar chart comparing geological ore grades and minerals",
+    html: `<div class="my-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+  <h4 class="text-sm font-bold text-slate-900 mb-1">Mineralogical Composition Assay</h4>
+  <p class="text-xs text-slate-500 mb-4">Quantitative X-ray fluorescence (XRF) whole-rock proportions (%)</p>
+  <div class="space-y-3">
     <div>
-      <div class="flex justify-between font-medium mb-1"><span>Quartz (SiO₂)</span><span>45%</span></div>
-      <div class="w-full bg-slate-200 rounded-full h-3"><div class="bg-emerald-600 h-3 rounded-full" style="width: 45%"></div></div>
+      <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+        <span>Silica (SiO2)</span>
+        <span>64.8%</span>
+      </div>
+      <div class="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
+        <div class="h-full rounded-full bg-emerald-600" style="width: 64.8%"></div>
+      </div>
     </div>
     <div>
-      <div class="flex justify-between font-medium mb-1"><span>Feldspar (Plagioclase/Orthoclase)</span><span>30%</span></div>
-      <div class="w-full bg-slate-200 rounded-full h-3"><div class="bg-teal-600 h-3 rounded-full" style="width: 30%"></div></div>
+      <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+        <span>Alumina (Al2O3)</span>
+        <span>15.2%</span>
+      </div>
+      <div class="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
+        <div class="h-full rounded-full bg-teal-500" style="width: 15.2%"></div>
+      </div>
     </div>
     <div>
-      <div class="flex justify-between font-medium mb-1"><span>Mica / Biotite</span><span>15%</span></div>
-      <div class="w-full bg-slate-200 rounded-full h-3"><div class="bg-amber-600 h-3 rounded-full" style="width: 15%"></div></div>
+      <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+        <span>Iron Oxides (Fe2O3)</span>
+        <span>8.4%</span>
+      </div>
+      <div class="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
+        <div class="h-full rounded-full bg-amber-500" style="width: 8.4%"></div>
+      </div>
     </div>
     <div>
-      <div class="flex justify-between font-medium mb-1"><span>Other Accessory Minerals</span><span>10%</span></div>
-      <div class="w-full bg-slate-200 rounded-full h-3"><div class="bg-slate-500 h-3 rounded-full" style="width: 10%"></div></div>
+      <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+        <span>Calcium &amp; Magnesium (CaO + MgO)</span>
+        <span>6.1%</span>
+      </div>
+      <div class="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
+        <div class="h-full rounded-full bg-indigo-500" style="width: 6.1%"></div>
+      </div>
     </div>
   </div>
 </div>`,
   },
   {
-    name: "Stratigraphic Cross-Section (SVG)",
-    desc: "SVG vector diagram showing geological strata layers and depths",
-    html: `<figure class="my-6">
-  <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-    <h4 class="font-bold text-slate-800 text-sm mb-3">Stratigraphic Cross-Section Profile</h4>
-    <svg viewBox="0 0 600 200" class="w-full h-auto min-w-[500px]" xmlns="http://www.w3.org/2000/svg">
-      <rect x="10" y="20" width="580" height="35" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" rx="4"/>
-      <text x="30" y="42" font-size="12" font-weight="bold" fill="#92400e">Quaternary Alluvium &amp; Soil (0 - 15m)</text>
-      <rect x="10" y="60" width="580" height="45" fill="#fed7aa" stroke="#ea580c" stroke-width="1.5" rx="4"/>
-      <text x="30" y="87" font-size="12" font-weight="bold" fill="#9a3412">Cretaceous Sandstone &amp; Siltstone (15 - 60m)</text>
-      <rect x="10" y="110" width="580" height="45" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5" rx="4"/>
-      <text x="30" y="137" font-size="12" font-weight="bold" fill="#334155">Permian Karst Limestone (60 - 120m)</text>
-      <rect x="10" y="160" width="580" height="30" fill="#cbd5e1" stroke="#475569" stroke-width="1.5" rx="4"/>
-      <text x="30" y="180" font-size="12" font-weight="bold" fill="#1e293b">Precambrian Crystalline Basement (&gt;120m)</text>
-    </svg>
-  </div>
-  <figcaption class="text-xs text-slate-500 mt-2 text-center italic">Figure: Simplified regional stratigraphic profile across survey corridor.</figcaption>
-</figure>`,
-  },
-  {
-    name: "Seismic & Hazard Metric Card",
-    desc: "Key metrics card displaying magnitude, focal depth, fault zone, and status",
-    html: `<div class="my-6 grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl">
-  <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm text-center">
-    <div class="text-xs text-slate-500 font-semibold uppercase">Magnitude</div>
-    <div class="text-2xl font-extrabold text-emerald-700 mt-1">4.2 Mw</div>
-  </div>
-  <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm text-center">
-    <div class="text-xs text-slate-500 font-semibold uppercase">Focal Depth</div>
-    <div class="text-2xl font-extrabold text-slate-800 mt-1">12.4 km</div>
-  </div>
-  <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm text-center">
-    <div class="text-xs text-slate-500 font-semibold uppercase">Active Fault</div>
-    <div class="text-lg font-bold text-slate-800 mt-2">Mae Ping Ext.</div>
-  </div>
-  <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm text-center">
-    <div class="text-xs text-slate-500 font-semibold uppercase">Alert Level</div>
-    <div class="text-lg font-bold text-emerald-600 mt-2">Green / Normal</div>
+    name: "Sediment Grain Size Distribution",
+    desc: "Fluvial sediment particle distribution graph for riverbank & Mekong surveys",
+    html: `<div class="my-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+  <h4 class="text-sm font-bold text-slate-900 mb-1">Fluvial Sediment Particle Size Analysis</h4>
+  <p class="text-xs text-slate-500 mb-4">Mekong River Lower Reach core depth 4.5m</p>
+  <div class="grid grid-cols-4 gap-2 text-center">
+    <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+      <div class="text-2xl font-black text-emerald-700">42%</div>
+      <div class="text-xs font-semibold text-slate-700 mt-1">Fine Sand</div>
+      <div class="text-[10px] text-slate-400">0.063–0.2 mm</div>
+    </div>
+    <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+      <div class="text-2xl font-black text-teal-700">31%</div>
+      <div class="text-xs font-semibold text-slate-700 mt-1">Silt</div>
+      <div class="text-[10px] text-slate-400">0.002–0.063 mm</div>
+    </div>
+    <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+      <div class="text-2xl font-black text-indigo-700">18%</div>
+      <div class="text-xs font-semibold text-slate-700 mt-1">Medium Sand</div>
+      <div class="text-[10px] text-slate-400">0.2–0.6 mm</div>
+    </div>
+    <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+      <div class="text-2xl font-black text-amber-700">9%</div>
+      <div class="text-xs font-semibold text-slate-700 mt-1">Clay</div>
+      <div class="text-[10px] text-slate-400">&lt;0.002 mm</div>
+    </div>
   </div>
 </div>`,
   },
 ];
 
-async function compressImageFile(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const MAX_WIDTH = 1200;
-        const MAX_HEIGHT = 900;
-        let { width, height } = img;
-        if (width > MAX_WIDTH || height > MAX_HEIGHT) {
-          const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
-          width = Math.round(width * ratio);
-          height = Math.round(height * ratio);
-        }
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return resolve(e.target?.result as string);
-        ctx.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL("image/webp", 0.85));
-      };
-      img.onerror = reject;
-      img.src = e.target?.result as string;
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+function topicToUnifiedItem(topic: FocusTopic): UnifiedContentItem {
+  const contentEn = `
+<h2>${topic.titleEn}</h2>
+<p class="lead text-lg font-medium text-slate-700">${topic.leadEn}</p>
+<div class="my-6 p-4 rounded-xl bg-emerald-50/50 border border-emerald-200">
+  <h4 class="font-bold text-emerald-950 mb-2">Key Geological Highlights:</h4>
+  <ul class="list-disc pl-5 space-y-1 text-slate-700">
+    ${topic.keyHighlightsEn.map((h) => `<li>${h}</li>`).join("\n    ")}
+  </ul>
+</div>
+${topic.sections
+  .map(
+    (s) => `
+<h3>${s.titleEn}</h3>
+${s.bodyEn.map((b) => `<p>${b}</p>`).join("\n")}
+${s.bulletsEn ? `<ul class="list-disc pl-5 my-2 space-y-1">${s.bulletsEn.map((b) => `<li>${b}</li>`).join("\n")}</ul>` : ""}
+${s.calloutEn ? `<blockquote class="border-l-4 border-emerald-600 bg-emerald-50/50 p-4 rounded-r-lg my-4 italic">${s.calloutEn}</blockquote>` : ""}
+`,
+  )
+  .join("\n")}
+`.trim();
+
+  const contentKm = `
+<h2>${topic.titleKm}</h2>
+<p class="lead text-lg font-medium text-slate-700">${topic.leadKm}</p>
+<div class="my-6 p-4 rounded-xl bg-emerald-50/50 border border-emerald-200">
+  <h4 class="font-bold text-emerald-950 mb-2">ចំណុចគន្លឹះសំខាន់ៗ:</h4>
+  <ul class="list-disc pl-5 space-y-1 text-slate-700">
+    ${topic.keyHighlightsKm.map((h) => `<li>${h}</li>`).join("\n    ")}
+  </ul>
+</div>
+${topic.sections
+  .map(
+    (s) => `
+<h3>${s.titleKm}</h3>
+${s.bodyKm.map((b) => `<p>${b}</p>`).join("\n")}
+${s.bulletsKm ? `<ul class="list-disc pl-5 my-2 space-y-1">${s.bulletsKm.map((b) => `<li>${b}</li>`).join("\n")}</ul>` : ""}
+${s.calloutKm ? `<blockquote class="border-l-4 border-emerald-600 bg-emerald-50/50 p-4 rounded-r-lg my-4 italic">${s.calloutKm}</blockquote>` : ""}
+`,
+  )
+  .join("\n")}
+`.trim();
+
+  return {
+    id: `topic-${topic.slug}`,
+    kind: "topic",
+    title: topic.titleEn,
+    titleKm: topic.titleKm,
+    tag: topic.shortTitleEn,
+    date: "2026-04-15",
+    image: topic.image,
+    excerpt: topic.leadEn,
+    excerptKm: topic.leadKm,
+    content: contentEn,
+    contentKm: contentKm,
+    status: "published",
+    route: `/research/topic?id=${encodeURIComponent(topic.key)}`,
+    topicKey: topic.key,
+  };
+}
+
+function pageToUnifiedItem(route: string, data: (typeof defaultPageData)[string]): UnifiedContentItem {
+  const contentEn = `
+<h2>${data.headlineEn}</h2>
+<p class="lead text-lg font-medium text-slate-700">${data.subEn}</p>
+<p>Official page content for <strong>${data.titleEn}</strong>. Update typography, descriptions, and hero imagery.</p>
+`.trim();
+
+  const contentKm = `
+<h2>${data.headlineKm}</h2>
+<p class="lead text-lg font-medium text-slate-700">${data.subKm}</p>
+<p>ខ្លឹមសារទំព័រផ្លូវការសម្រាប់ <strong>${data.titleKm}</strong>។ កែសម្រួលចំណងជើង អត្ថបទ និងរូបភាពតំណាង។</p>
+`.trim();
+
+  return {
+    id: `page-${route.replace(/[\/\-_]/g, "_") || "home"}`,
+    kind: "page",
+    title: `${data.titleEn} (${route})`,
+    titleKm: data.titleKm,
+    tag: data.category,
+    date: "2026-04-01",
+    image: data.heroImage,
+    excerpt: `${data.headlineEn} — ${data.subEn}`,
+    excerptKm: `${data.headlineKm} — ${data.subKm}`,
+    content: contentEn,
+    contentKm: contentKm,
+    status: "published",
+    route,
+  };
+}
+
+function newsToUnifiedItem(item: NewsItem): UnifiedContentItem {
+  return {
+    id: item.id,
+    kind: "news",
+    title: item.title,
+    titleKm: item.titleKm,
+    tag: item.tag,
+    date: item.date,
+    image: item.image,
+    excerpt: item.excerpt,
+    excerptKm: item.excerptKm,
+    content: item.content,
+    contentKm: item.contentKm,
+    status: item.status,
+    updatedAt: item.updatedAt,
+    route: `/news/item?id=${encodeURIComponent(item.id)}`,
+  };
 }
 
 function insertHtmlAtCursor(
   textarea: HTMLTextAreaElement | null,
   before: string,
-  after = "",
-  defaultText = "",
+  after: string = "",
+  placeholder: string = "",
   currentValue: string,
   setter: (val: string) => void,
 ) {
   if (!textarea) {
-    setter(
-      currentValue
-        ? `${currentValue}\n\n${before}${defaultText}${after}`
-        : `${before}${defaultText}${after}`,
-    );
+    setter(currentValue + before + placeholder + after);
     return;
   }
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const selected = currentValue.slice(start, end) || defaultText;
-  const next =
-    currentValue.slice(0, start) +
+  const start = textarea.selectionStart ?? currentValue.length;
+  const end = textarea.selectionEnd ?? currentValue.length;
+  const selected = currentValue.substring(start, end) || placeholder;
+  const nextValue =
+    currentValue.substring(0, start) +
     before +
     selected +
     after +
-    currentValue.slice(end);
-  setter(next);
+    currentValue.substring(end);
+  setter(nextValue);
   setTimeout(() => {
     textarea.focus();
     const cursor = start + before.length + selected.length;
@@ -284,19 +406,61 @@ function insertHtmlAtCursor(
   }, 0);
 }
 
-export default function PostManager() {
-  const [items, setItems] = useState<NewsItem[]>([]);
-  const [search, setSearch] = useState("");
-  const [selectedTag, setSelectedTag] = useState<string>("All");
-  const [statusFilter, setStatusFilter] = useState<
-    "all" | "published" | "draft"
-  >("all");
-  const [editingItem, setEditingItem] = useState<NewsItem | null>(null);
-  const [isNew, setIsNew] = useState(false);
-  const [message, setMessage] = useState("");
-  const [saving, setSaving] = useState(false);
+function compressImageFile(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 1200;
+        let w = img.naturalWidth || img.width;
+        let h = img.naturalHeight || img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(String(e.target?.result));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL("image/jpeg", 0.85));
+      };
+      img.onerror = reject;
+      img.src = String(e.target?.result);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
-  // Form state
+export default function PostManager() {
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
+  const [topicOverrides, setTopicOverrides] = useState<Record<string, Partial<UnifiedContentItem>>>({});
+  const [pageOverrides, setPageOverrides] = useState<Record<string, Partial<UnifiedContentItem>>>({});
+  
+  // Category tabs: All, News, Topics, Pages
+  const [activeTab, setActiveTab] = useState<"all" | "news" | "topics" | "pages">("all");
+  const [search, setSearch] = useState("");
+  const [selectedTag, setSelectedTag] = useState("All");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
+
+  const [editingItem, setEditingItem] = useState<UnifiedContentItem | null>(null);
+  const [editingKind, setEditingKind] = useState<ContentKind>("news");
+  const [isNew, setIsNew] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+
+  // Editor Form Fields
   const [title, setTitle] = useState("");
   const [titleKm, setTitleKm] = useState("");
   const [tag, setTag] = useState("Education");
@@ -352,10 +516,28 @@ export default function PostManager() {
   const state = useRef({ dirty, saving });
   state.current = { dirty, saving };
 
+  // Build unified items array combining News, Focus Topics, and Website Pages
+  const unifiedItems: UnifiedContentItem[] = [
+    // 1. News Posts
+    ...newsItems.map(newsToUnifiedItem),
+    // 2. 5 Research Focus Topics
+    ...FOCUS_TOPICS.map((topic) => {
+      const base = topicToUnifiedItem(topic);
+      const over = topicOverrides[base.id] || {};
+      return { ...base, ...over };
+    }),
+    // 3. 14 Website Pages
+    ...Object.entries(defaultPageData).map(([route, pData]) => {
+      const base = pageToUnifiedItem(route, pData);
+      const over = pageOverrides[base.id] || {};
+      return { ...base, ...over };
+    }),
+  ];
+
   const loadData = async () => {
     const rows = await fetchNewsDrafts();
     if (mounted.current) {
-      setItems(rows);
+      setNewsItems(rows);
       try {
         const params = new URLSearchParams(window.location.search);
         const editId = params.get("edit");
@@ -370,7 +552,13 @@ export default function PostManager() {
               ),
           );
           if (match) {
-            openEdit(match);
+            openEdit(newsToUnifiedItem(match));
+          } else {
+            // Check if it's a focus topic or page
+            const topicMatch = FOCUS_TOPICS.find((t) => t.id === editId || t.slug === editId || `topic-${t.slug}` === editId);
+            if (topicMatch) {
+              openEdit(topicToUnifiedItem(topicMatch));
+            }
           }
         } else if (isNewParam === "1" || isNewParam === "true") {
           openNew();
@@ -383,7 +571,7 @@ export default function PostManager() {
     mounted.current = true;
     loadData()
       .catch((e) => {
-        if (mounted.current) setError(e.message || "Could not load posts.");
+        if (mounted.current) setError(e.message || "Could not load content.");
       })
       .finally(() => {
         if (mounted.current) setLoading(false);
@@ -472,9 +660,10 @@ export default function PostManager() {
       } catch {}
     });
 
-  const populate = (item: NewsItem, newItem: boolean) => {
+  const populate = (item: UnifiedContentItem, newItem: boolean) => {
     setIsNew(newItem);
     setEditingItem(newItem ? null : item);
+    setEditingKind(item.kind);
     setTitle(item.title);
     setTitleKm(item.titleKm);
     setTag(item.tag);
@@ -511,6 +700,7 @@ export default function PostManager() {
       populate(
         {
           id: "",
+          kind: "news",
           title: "",
           titleKm: "",
           tag: "Education",
@@ -527,12 +717,16 @@ export default function PostManager() {
       ),
     );
 
-  const openEdit = (item: NewsItem) =>
+  const openEdit = (item: UnifiedContentItem) =>
     guard(() => {
-      const targetId = isManagedNews(item.id)
-        ? item.id
-        : SEED_UUID_MAP[item.id] || crypto.randomUUID();
-      populate({ ...item, id: targetId }, false);
+      if (item.kind === "news") {
+        const targetId = isManagedNews(item.id)
+          ? item.id
+          : SEED_UUID_MAP[item.id] || crypto.randomUUID();
+        populate({ ...item, id: targetId }, false);
+      } else {
+        populate(item, false);
+      }
     });
 
   const handleTranslateAll = () => {
@@ -557,9 +751,42 @@ export default function PostManager() {
     setError("");
     setMessage("");
     try {
-      const saved = await saveNewsItem(
-        {
-          id: editingItem?.id,
+      if (editingKind === "news") {
+        const saved = await saveNewsItem(
+          {
+            id: editingItem?.id,
+            title: title.trim(),
+            titleKm: titleKm.trim(),
+            tag,
+            date,
+            image: image.trim(),
+            excerpt: excerpt.trim(),
+            excerptKm: excerptKm.trim(),
+            content: content.trim(),
+            contentKm: contentKm.trim(),
+            status,
+          },
+          publishNow,
+        );
+        if (!mounted.current) return false;
+        state.current.dirty = false;
+        const unifiedSaved = newsToUnifiedItem(saved);
+        populate(unifiedSaved, false);
+        setNewsItems((rows) => [
+          saved,
+          ...rows.filter(
+            (row) =>
+              row.id !== saved.id &&
+              row.id !== editingItem?.id &&
+              SEED_UUID_MAP[row.id] !== saved.id,
+          ),
+        ]);
+      } else if (editingKind === "topic") {
+        // Save topic override
+        const id = editingItem?.id || "topic-custom";
+        const updatedItem: UnifiedContentItem = {
+          id,
+          kind: "topic",
           title: title.trim(),
           titleKm: titleKm.trim(),
           tag,
@@ -569,22 +796,52 @@ export default function PostManager() {
           excerptKm: excerptKm.trim(),
           content: content.trim(),
           contentKm: contentKm.trim(),
-          status,
-        },
-        publishNow,
-      );
-      if (!mounted.current) return false;
-      state.current.dirty = false;
-      populate(saved, false);
-      setItems((rows) => [
-        saved,
-        ...rows.filter(
-          (row) =>
-            row.id !== saved.id &&
-            row.id !== editingItem?.id &&
-            SEED_UUID_MAP[row.id] !== saved.id,
-        ),
-      ]);
+          status: publishNow ? "published" : status,
+          route: editingItem?.route,
+          topicKey: editingItem?.topicKey,
+        };
+        setTopicOverrides((prev) => ({ ...prev, [id]: updatedItem }));
+        state.current.dirty = false;
+        populate(updatedItem, false);
+        // Persist to Supabase drafts / site content
+        try {
+          await supabase.from("site_content").upsert({
+            id: `topic_${id}`,
+            data: updatedItem,
+            updated_at: new Date().toISOString(),
+          });
+        } catch {}
+      } else if (editingKind === "page") {
+        // Save page override
+        const id = editingItem?.id || "page-custom";
+        const updatedItem: UnifiedContentItem = {
+          id,
+          kind: "page",
+          title: title.trim(),
+          titleKm: titleKm.trim(),
+          tag,
+          date,
+          image: image.trim(),
+          excerpt: excerpt.trim(),
+          excerptKm: excerptKm.trim(),
+          content: content.trim(),
+          contentKm: contentKm.trim(),
+          status: publishNow ? "published" : status,
+          route: editingItem?.route,
+        };
+        setPageOverrides((prev) => ({ ...prev, [id]: updatedItem }));
+        state.current.dirty = false;
+        populate(updatedItem, false);
+        // Persist to Supabase drafts
+        try {
+          await supabase.from("site_content").upsert({
+            id: `page_${id}`,
+            data: updatedItem,
+            updated_at: new Date().toISOString(),
+          });
+        } catch {}
+      }
+
       setMessage(
         publishNow
           ? "Post published."
@@ -604,7 +861,11 @@ export default function PostManager() {
     }
   };
 
-  const handleDelete = async (item: NewsItem) => {
+  const handleDelete = async (item: UnifiedContentItem) => {
+    if (item.kind !== "news") {
+      alert("Core website pages and research focus topics cannot be permanently deleted.");
+      return;
+    }
     if (!window.confirm(`Delete “${item.title}” and its public version?`))
       return;
     setSaving(true);
@@ -612,7 +873,7 @@ export default function PostManager() {
     try {
       await deleteNewsItem(item.id);
       if (mounted.current) {
-        setItems((rows) =>
+        setNewsItems((rows) =>
           rows.filter(
             (row) =>
               row.id !== item.id &&
@@ -632,13 +893,38 @@ export default function PostManager() {
     }
   };
 
-  const handleTogglePublish = async (item: NewsItem) => {
+  const handleTogglePublish = async (item: UnifiedContentItem) => {
+    if (item.kind !== "news") {
+      // Toggle published in override
+      if (item.kind === "topic") {
+        setTopicOverrides((prev) => ({
+          ...prev,
+          [item.id]: {
+            ...prev[item.id],
+            status: item.status === "published" ? "draft" : "published",
+          },
+        }));
+      } else {
+        setPageOverrides((prev) => ({
+          ...prev,
+          [item.id]: {
+            ...prev[item.id],
+            status: item.status === "published" ? "draft" : "published",
+          },
+        }));
+      }
+      setMessage(
+        item.status === "published" ? "Post unpublished." : "Post published.",
+      );
+      return;
+    }
+
     setSaving(true);
     setError("");
     try {
       const updated = await togglePublishNews(item.id);
       if (mounted.current && updated) {
-        setItems((rows) =>
+        setNewsItems((rows) =>
           rows.map((row) =>
             row.id === updated.id ||
             row.id === item.id ||
@@ -759,19 +1045,38 @@ export default function PostManager() {
     setActiveInserter(null);
   };
 
-  // Filter items
-  const filtered = items.filter((item) => {
-    const matchesSearch =
-      item.title.toLowerCase().includes(search.toLowerCase()) ||
-      item.excerpt.toLowerCase().includes(search.toLowerCase()) ||
-      (item.titleKm && item.titleKm.includes(search));
-    const matchesTag = selectedTag === "All" || item.tag === selectedTag;
-    const matchesStatus =
-      statusFilter === "all" || item.status === statusFilter;
-    return matchesSearch && matchesTag && matchesStatus;
+  // Filter items by category tab, search, selected tag, status
+  const filtered = unifiedItems.filter((item) => {
+    // Tab filter
+    if (activeTab === "news" && item.kind !== "news") return false;
+    if (activeTab === "topics" && item.kind !== "topic") return false;
+    if (activeTab === "pages" && item.kind !== "page") return false;
+
+    // Search query
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      const match =
+        item.title.toLowerCase().includes(q) ||
+        item.titleKm.toLowerCase().includes(q) ||
+        item.excerpt.toLowerCase().includes(q) ||
+        item.tag.toLowerCase().includes(q);
+      if (!match) return false;
+    }
+
+    // Tag filter
+    if (selectedTag !== "All" && item.tag !== selectedTag) return false;
+
+    // Status filter
+    if (statusFilter !== "all" && item.status !== statusFilter) return false;
+
+    return true;
   });
 
-  // Reusable rich editor toolbar
+  const newsCount = unifiedItems.filter((i) => i.kind === "news").length;
+  const topicsCount = unifiedItems.filter((i) => i.kind === "topic").length;
+  const pagesCount = unifiedItems.filter((i) => i.kind === "page").length;
+
+  // Render WordPress rich toolbar above textarea
   const renderEditorToolbar = (target: "content" | "contentKm") => {
     const isKm = target === "contentKm";
     const textarea = isKm
@@ -783,8 +1088,8 @@ export default function PostManager() {
     const setMode = isKm ? setViewModeKm : setViewModeEn;
 
     return (
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-t-lg border-b border-slate-200 bg-slate-50 px-3 py-2">
-        {/* Formatting actions */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-100/90 px-3 py-2 text-xs">
+        {/* Formatting controls */}
         <div className="flex flex-wrap items-center gap-1">
           <button
             type="button"
@@ -878,7 +1183,7 @@ export default function PostManager() {
             onClick={() =>
               insertHtmlAtCursor(
                 textarea,
-                "\n<blockquote class=\"border-l-4 border-emerald-600 bg-emerald-50/50 p-4 rounded-r-lg my-4 italic text-slate-800\">\n  ",
+                '\n<blockquote class="border-l-4 border-emerald-600 bg-emerald-50/50 p-4 rounded-r-lg my-4 italic text-slate-800">\n  ',
                 "\n</blockquote>\n",
                 "Quote or important insight here...",
                 val,
@@ -982,12 +1287,11 @@ export default function PostManager() {
       {/* Top Header & New Post Button */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">
-            📰 Posts &amp; News Management
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+            📰 All Website Content &amp; Posts
           </h2>
           <p className="text-sm text-slate-500">
-            Publish geological announcements, field trip updates, research
-            findings, and articles.
+            Unified content management for News, Research Focus Topics, and Website Pages with authentic live post editing.
           </p>
         </div>
         <button
@@ -1016,6 +1320,54 @@ export default function PostManager() {
         </div>
       )}
 
+      {/* Content Category Navigation Tabs */}
+      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-2">
+        <button
+          type="button"
+          onClick={() => setActiveTab("all")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition ${
+            activeTab === "all"
+              ? "bg-slate-900 text-white shadow-sm"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+          }`}
+        >
+          <Layers size={16} /> All Content ({unifiedItems.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("news")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition ${
+            activeTab === "news"
+              ? "bg-emerald-700 text-white shadow-sm"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+          }`}
+        >
+          <FileText size={16} /> News &amp; Stories ({newsCount})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("topics")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition ${
+            activeTab === "topics"
+              ? "bg-teal-700 text-white shadow-sm"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+          }`}
+        >
+          <BookOpen size={16} /> Research Focus Topics ({topicsCount})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("pages")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition ${
+            activeTab === "pages"
+              ? "bg-indigo-700 text-white shadow-sm"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+          }`}
+        >
+          <Globe size={16} /> Website Pages ({pagesCount})
+        </button>
+      </div>
+
       {/* Filters & Search Toolbar */}
       <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1">
@@ -1025,7 +1377,7 @@ export default function PostManager() {
           />
           <input
             type="text"
-            placeholder="Search posts by title or summary..."
+            placeholder="Search content by title, route, or summary..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-xl border border-slate-200 py-2 pl-10 pr-4 text-sm focus:border-emerald-500 focus:outline-none"
@@ -1065,15 +1417,15 @@ export default function PostManager() {
         </div>
       </div>
 
-      {/* Posts Table */}
+      {/* Unified Content Table */}
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-slate-100 bg-slate-50/75 text-xs font-bold uppercase tracking-wider text-slate-500">
             <tr>
               <th className="p-4">Cover</th>
               <th className="p-4">Title &amp; Summary</th>
-              <th className="p-4">Category</th>
-              <th className="p-4">Date</th>
+              <th className="p-4">Type / Category</th>
+              <th className="p-4">Date / Route</th>
               <th className="p-4">Status</th>
               <th className="p-4 text-right">Actions</th>
             </tr>
@@ -1083,8 +1435,8 @@ export default function PostManager() {
               <tr>
                 <td colSpan={6} className="p-8 text-center text-slate-500">
                   {loading
-                    ? "Loading posts..."
-                    : "No news posts match your criteria. Click \"+ Create New Post\" above to add one."}
+                    ? "Loading content..."
+                    : "No content matches your criteria. Click \"+ Create New Post\" above to add one."}
                 </td>
               </tr>
             ) : (
@@ -1098,76 +1450,88 @@ export default function PostManager() {
                     />
                   </td>
                   <td className="p-4 max-w-md">
-                    <button
-                      type="button"
-                      onClick={() => openEdit(item)}
-                      className="font-bold text-slate-900 hover:text-emerald-700 transition line-clamp-1 text-left cursor-pointer"
-                      title="Click to edit post"
-                    >
+                    <div className="flex items-center gap-1.5 font-bold text-slate-900 line-clamp-1">
                       {item.title}
-                    </button>
+                    </div>
                     {item.titleKm && (
-                      <div className="text-xs text-emerald-700 line-clamp-1 mt-0.5">
+                      <div className="text-xs text-slate-500 line-clamp-1 font-medium">
                         {item.titleKm}
                       </div>
                     )}
-                    <div className="mt-1 text-xs text-slate-500 line-clamp-1">
-                      {item.excerpt}
+                    <p className="mt-1 text-xs text-slate-500 line-clamp-2">
+                      {item.excerpt || "No summary provided."}
+                    </p>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex flex-col items-start gap-1">
+                      <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                        item.kind === "news"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : item.kind === "topic"
+                            ? "bg-teal-100 text-teal-800"
+                            : "bg-indigo-100 text-indigo-800"
+                      }`}>
+                        {item.kind === "news" ? "News" : item.kind === "topic" ? "Research Topic" : "Page"}
+                      </span>
+                      <span className="text-[11px] font-medium text-slate-500">{item.tag}</span>
                     </div>
                   </td>
-                  <td className="p-4">
-                    <span className="inline-block rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
-                      {item.tag}
-                    </span>
+                  <td className="p-4 text-xs text-slate-600">
+                    <div className="font-mono">{item.date}</div>
+                    {item.route && (
+                      <div className="text-[11px] text-slate-400 font-mono truncate max-w-[140px]">
+                        {item.route}
+                      </div>
+                    )}
                   </td>
-                  <td className="p-4 text-xs text-slate-500 whitespace-nowrap">
-                    {item.date}
-                  </td>
                   <td className="p-4">
-                    <button
-                      disabled={saving}
-                      onClick={() => handleTogglePublish(item)}
-                      title="Click to toggle publication status"
-                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold transition ${
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                         item.status === "published"
-                          ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                          : "bg-amber-100 text-amber-800 hover:bg-amber-200"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-amber-50 text-amber-700 border border-amber-200"
                       }`}
                     >
                       <span
-                        className={`h-2 w-2 rounded-full ${
+                        className={`h-1.5 w-1.5 rounded-full ${
                           item.status === "published"
                             ? "bg-emerald-500"
                             : "bg-amber-500"
                         }`}
                       />
-                      {item.status === "published" ? "Live" : "Draft"}
-                    </button>
+                      {item.status === "published" ? "Published" : "Draft"}
+                    </span>
                   </td>
                   <td className="p-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-1.5">
+                      {item.route && (
+                        <a
+                          href={item.route}
+                          target="_blank"
+                          rel="noreferrer"
+                          title="View on live website"
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
+                        >
+                          <ExternalLink size={16} />
+                        </a>
+                      )}
                       <button
+                        type="button"
                         onClick={() => openEdit(item)}
-                        className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition"
+                        className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition"
                       >
                         <Edit3 size={13} /> Edit
                       </button>
-                      <a
-                        href={`/news/item?id=${encodeURIComponent(item.id)}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition"
-                      >
-                        <ExternalLink size={13} /> View
-                      </a>
-                      <button
-                        aria-label={"Delete " + item.title}
-                        disabled={saving}
-                        onClick={() => handleDelete(item)}
-                        className="inline-flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-100 transition"
-                      >
-                        <Trash2 size={13} />
-                      </button>
+                      {item.kind === "news" && (
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item)}
+                          title="Delete post"
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 transition"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -1177,51 +1541,54 @@ export default function PostManager() {
         </table>
       </div>
 
-      {/* Edit / Create Drawer Modal */}
+      {/* =========================================================================
+          AUTHENTIC WEBSITE POST CANVAS MODAL
+          Matches the exact design and interface of a live post on the website
+         ========================================================================= */}
       {(isNew || editingItem) && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs">
           <div
+            ref={dialog}
+            tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-labelledby="post-editor-title"
-            className="relative w-full max-w-4xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl my-8"
+            className="w-full max-w-5xl rounded-3xl bg-slate-50 p-4 sm:p-6 shadow-2xl border border-slate-200 overflow-hidden"
           >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div>
+            {/* Modal Top Control Bar */}
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+              <div className="flex items-center gap-2">
                 <h3
                   id="post-editor-title"
-                  className="text-xl font-bold text-slate-900"
+                  className="text-lg font-bold text-slate-900 flex items-center gap-2"
                 >
                   {isNew
-                    ? "✨ Create New News Post"
-                    : `✏️ Edit News Post: ${title || "Untitled"}`}
+                    ? "Create New Post"
+                    : `Edit ${editingKind === "news" ? "News Post" : editingKind === "topic" ? "Research Topic" : "Website Page"}: ${title || "Untitled"}`}
                 </h3>
-                <p className="text-xs text-slate-500">
-                  Save a private draft, or Publish Live to immediately update
-                  the public website and news directory.
-                </p>
+                <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+                  {editingKind.toUpperCase()}
+                </span>
               </div>
               <button
                 disabled={saving}
                 aria-label="Close post editor"
                 onClick={close}
-                className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
+                className="rounded-full p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition"
               >
                 <X size={20} />
               </button>
             </div>
 
+            {/* Scrollable Post Content Canvas */}
             <fieldset
               disabled={saving}
-              className="mt-5 space-y-4 max-h-[72vh] overflow-y-auto pr-2"
+              className="space-y-4 max-h-[76vh] overflow-y-auto pr-2"
             >
-              {/* Dual Language Sync Helper */}
+              {/* Dual Language Helper Pill */}
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-emerald-50 border border-emerald-200 p-3">
-                <div className="text-xs text-emerald-800">
-                  English is the primary source. Editing English clears the
-                  matching Khmer override. You can translate catalog terms or
-                  write native Khmer prose.
+                <div className="text-xs text-emerald-900">
+                  Dual-language support: English is the primary source; Khmer override is rendered for Khmer language visitors.
                 </div>
                 <button
                   type="button"
@@ -1232,235 +1599,256 @@ export default function PostManager() {
                 </button>
               </div>
 
-              {/* Title EN & KM */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase">
-                    Title (English) *
-                  </label>
-                  <input
-                    type="text"
-                    aria-label="Title (English)"
-                    value={title}
-                    onChange={(e) => {
-                      setTitle(e.target.value);
-                      if (e.target.value !== title) setTitleKm("");
-                    }}
-                    placeholder="e.g. Geological fieldwork resumes along Cardamom foothills"
-                    className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase">
-                    Title (Khmer)
-                  </label>
-                  <input
-                    type="text"
-                    aria-label="Title (Khmer)"
-                    value={titleKm}
-                    onChange={(e) => setTitleKm(e.target.value)}
-                    placeholder="ចំណងជើងជាភាសាខ្មែរ"
-                    className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Category & Date */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase">
-                    Category / Tag
-                  </label>
-                  <div className="mt-1 flex gap-2">
-                    <select
-                      value={tag}
-                      onChange={(e) => setTag(e.target.value)}
-                      className="rounded-lg border border-slate-300 bg-white p-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+              {/* The Live Post Container (WYSIWYG Authenticity) */}
+              <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm space-y-6">
+                
+                {/* 1. Live Hero Image with 1-Click Replace Overlay */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wide">
+                      Featured Cover Photo
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => coverFileInputRef.current?.click()}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:text-emerald-800"
                     >
-                      {CATEGORIES.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
+                      <Upload size={13} /> Upload Local Image
+                    </button>
+                  </div>
+
+                  <div className="relative group overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+                    <img
+                      src={image || PHOTO_PRESETS[0].url}
+                      alt="Cover Preview"
+                      className="w-full max-h-[320px] object-cover transition group-hover:brightness-95"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => coverFileInputRef.current?.click()}
+                        className="rounded-xl bg-white px-3.5 py-2 text-xs font-bold text-slate-800 shadow-md hover:bg-slate-50 transition"
+                      >
+                        📷 Change Cover Photo
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Image URL input and quick presets */}
+                  <div className="flex gap-2 items-center pt-1">
                     <input
                       type="text"
-                      value={tag}
-                      onChange={(e) => setTag(e.target.value)}
-                      placeholder="Custom tag..."
-                      className="w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+                      aria-label="Cover image URL"
+                      value={image}
+                      onChange={(e) => setImage(e.target.value)}
+                      placeholder="https://images.unsplash.com/... or upload local image"
+                      className="w-full rounded-lg border border-slate-300 p-2 text-xs focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span className="text-[11px] font-bold text-slate-400">Presets:</span>
+                    {PHOTO_PRESETS.map((p) => (
+                      <button
+                        key={p.label}
+                        type="button"
+                        onClick={() => setImage(p.url)}
+                        className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] text-slate-700 hover:bg-slate-100"
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. Metadata Bar: Tag & Publish Date */}
+                <div className="grid gap-4 sm:grid-cols-2 border-y border-slate-100 py-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase">
+                      Category / Tag
+                    </label>
+                    <div className="mt-1 flex gap-2">
+                      <select
+                        value={tag}
+                        onChange={(e) => setTag(e.target.value)}
+                        className="rounded-lg border border-slate-300 bg-white p-2 text-xs focus:border-emerald-500 focus:outline-none"
+                      >
+                        {CATEGORIES.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="text"
+                        value={tag}
+                        onChange={(e) => setTag(e.target.value)}
+                        placeholder="Custom tag..."
+                        className="w-full rounded-lg border border-slate-300 p-2 text-xs focus:border-emerald-500 focus:outline-none"
+                      >
+                      </input>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase">
+                      Publish Date
+                    </label>
+                    <input
+                      type="date"
+                      aria-label="Publish Date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="mt-1 w-full rounded-lg border border-slate-300 p-2 text-xs focus:border-emerald-500 focus:outline-none"
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase">
-                    Publish Date
-                  </label>
-                  <input
-                    type="date"
-                    aria-label="Publish Date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-              </div>
 
-              {/* Cover Image */}
-              <div>
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold text-slate-700 uppercase">
-                    Cover Photo / Image URL
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => coverFileInputRef.current?.click()}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800"
-                  >
-                    <Upload size={12} /> Upload from device
-                  </button>
-                </div>
-                <div className="mt-1 flex gap-3 items-center">
-                  <input
-                    type="text"
-                    aria-label="Cover image URL"
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                    placeholder="https://images.unsplash.com/... or upload local image"
-                    className="w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-emerald-500 focus:outline-none"
-                  />
-                  {image && (
-                    <img
-                      src={image}
-                      alt="Preview"
-                      className="h-10 w-16 rounded-md object-cover border border-slate-200"
-                    />
-                  )}
-                </div>
-
-                {/* Photo Presets */}
-                <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                  <span className="text-[11px] font-bold text-slate-400">
-                    Quick Geological Presets:
-                  </span>
-                  {PHOTO_PRESETS.map((p) => (
-                    <button
-                      key={p.label}
-                      type="button"
-                      onClick={() => setImage(p.url)}
-                      className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-700 hover:bg-slate-100"
-                    >
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Excerpt EN & KM */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase">
-                    Excerpt / Card Summary (English)
-                  </label>
-                  <textarea
-                    rows={3}
-                    aria-label="Summary (English)"
-                    value={excerpt}
-                    onChange={(e) => {
-                      setExcerpt(e.target.value);
-                      if (e.target.value !== excerpt) setExcerptKm("");
-                    }}
-                    placeholder="Short summary displayed on homepage card..."
-                    className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase">
-                    Excerpt / Card Summary (Khmer)
-                  </label>
-                  <textarea
-                    rows={3}
-                    aria-label="Summary (Khmer)"
-                    value={excerptKm}
-                    onChange={(e) => setExcerptKm(e.target.value)}
-                    placeholder="សេចក្តីសង្ខេបជាភាសាខ្មែរ..."
-                    className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-emerald-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Full Content EN (with rich inserters & preview) */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-bold text-slate-700 uppercase">
-                    Full Story / Article Content (English HTML)
-                  </label>
-                  <span className="text-xs text-slate-400">
-                    Insert photos, charts, and tables using toolbar below
-                  </span>
-                </div>
-                <div className="overflow-hidden rounded-lg border border-slate-300 focus-within:border-emerald-500">
-                  {renderEditorToolbar("content")}
-                  {viewModeEn === "code" ? (
-                    <textarea
-                      ref={contentTextareaRef}
-                      rows={8}
-                      aria-label="Body (HTML) (English)"
-                      value={content}
+                {/* 3. Post Title Headline (H1 Style in Live Post Canvas) */}
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase">
+                      Title (English) *
+                    </label>
+                    <input
+                      type="text"
+                      aria-label="Title (English)"
+                      value={title}
                       onChange={(e) => {
-                        setContent(e.target.value);
-                        if (e.target.value !== content) setContentKm("");
+                        setTitle(e.target.value);
+                        if (e.target.value !== title) setTitleKm("");
                       }}
-                      placeholder="Write your article body here. Click '+ Photo', '+ Graph / Chart', or '+ Table' above to insert rich elements."
-                      className="w-full p-3 font-mono text-sm leading-relaxed focus:outline-none min-h-[180px]"
+                      placeholder="e.g. Field school returns to the Cardamom foothills"
+                      className="mt-1 w-full rounded-xl border border-slate-300 p-3 text-lg font-bold text-slate-900 focus:border-emerald-500 focus:outline-none shadow-xs"
                     />
-                  ) : (
-                    <div
-                      className="geocam-article-body p-4 bg-slate-50/50 min-h-[180px] max-h-[360px] overflow-y-auto"
-                      dangerouslySetInnerHTML={{
-                        __html:
-                          cleanPostHtml(content) ||
-                          '<p class="italic text-slate-400">No content entered yet. Switch to HTML tab to write.</p>',
-                      }}
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase">
+                      Title (Khmer)
+                    </label>
+                    <input
+                      type="text"
+                      aria-label="Title (Khmer)"
+                      value={titleKm}
+                      onChange={(e) => setTitleKm(e.target.value)}
+                      placeholder="ចំណងជើងជាភាសាខ្មែរ"
+                      className="mt-1 w-full rounded-xl border border-slate-300 p-2.5 text-base font-semibold text-slate-800 focus:border-emerald-500 focus:outline-none"
                     />
-                  )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Full Content KM (with rich inserters & preview) */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-bold text-slate-700 uppercase">
-                    Full Story / Article Content (Khmer)
-                  </label>
-                  <span className="text-xs text-slate-400">
-                    ខ្លឹមសារជាភាសាខ្មែរ
-                  </span>
+                {/* 4. Article Excerpt (Leading Quote Callout Style) */}
+                <div className="rounded-xl border-l-4 border-emerald-600 bg-emerald-50/60 p-4 space-y-3">
+                  <div className="text-xs font-bold text-emerald-950 uppercase tracking-wide">
+                    Article Summary / Excerpt Callout
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 uppercase">
+                        Summary (English)
+                      </label>
+                      <textarea
+                        rows={3}
+                        aria-label="Summary (English)"
+                        value={excerpt}
+                        onChange={(e) => {
+                          setExcerpt(e.target.value);
+                          if (e.target.value !== excerpt) setExcerptKm("");
+                        }}
+                        placeholder="Short summary displayed on top callout and cards..."
+                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-xs focus:border-emerald-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 uppercase">
+                        Summary (Khmer)
+                      </label>
+                      <textarea
+                        rows={3}
+                        aria-label="Summary (Khmer)"
+                        value={excerptKm}
+                        onChange={(e) => setExcerptKm(e.target.value)}
+                        placeholder="សេចក្តីសង្ខេបជាភាសាខ្មែរ..."
+                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-xs focus:border-emerald-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="overflow-hidden rounded-lg border border-slate-300 focus-within:border-emerald-500">
-                  {renderEditorToolbar("contentKm")}
-                  {viewModeKm === "code" ? (
-                    <textarea
-                      ref={contentKmTextareaRef}
-                      rows={6}
-                      aria-label="Body (HTML) (Khmer)"
-                      value={contentKm}
-                      onChange={(e) => setContentKm(e.target.value)}
-                      placeholder="ខ្លឹមសារអត្ថបទពេញលេញជាភាសាខ្មែរ..."
-                      className="w-full p-3 font-mono text-sm leading-relaxed focus:outline-none min-h-[150px]"
-                    />
-                  ) : (
-                    <div
-                      className="geocam-article-body p-4 bg-slate-50/50 min-h-[150px] max-h-[300px] overflow-y-auto"
-                      dangerouslySetInnerHTML={{
-                        __html:
-                          cleanPostHtml(contentKm) ||
-                          '<p class="italic text-slate-400">មិនទាន់មានខ្លឹមសារខ្មែរនៅឡើយទេ។</p>',
-                      }}
-                    />
-                  )}
+
+                {/* 5. Full Post Story Content (English) with WordPress Toolbar */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-slate-700 uppercase">
+                      Full Story / Article Content (English HTML)
+                    </label>
+                    <span className="text-xs text-slate-400">
+                      Use toolbar buttons below to insert tables, charts, or images
+                    </span>
+                  </div>
+
+                  <div className="overflow-hidden rounded-xl border border-slate-300 focus-within:border-emerald-500">
+                    {renderEditorToolbar("content")}
+                    {viewModeEn === "code" ? (
+                      <textarea
+                        ref={contentTextareaRef}
+                        rows={10}
+                        aria-label="Body (HTML) (English)"
+                        value={content}
+                        onChange={(e) => {
+                          setContent(e.target.value);
+                          if (e.target.value !== content) setContentKm("");
+                        }}
+                        placeholder="Write your article body here. Click '+ Photo', '+ Graph / Chart', or '+ Table' above to insert rich elements."
+                        className="w-full p-4 font-mono text-sm leading-relaxed focus:outline-none min-h-[220px]"
+                      />
+                    ) : (
+                      <div
+                        className="geocam-article-body prose prose-slate max-w-none p-6 bg-white min-h-[220px] max-h-[420px] overflow-y-auto"
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            cleanPostHtml(content) ||
+                            '<p class="italic text-slate-400">No content entered yet. Switch to HTML tab to write.</p>',
+                        }}
+                      />
+                    )}
+                  </div>
                 </div>
-              </div>
+
+                {/* 6. Full Post Story Content (Khmer) with WordPress Toolbar */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-slate-700 uppercase">
+                      Full Story / Article Content (Khmer)
+                    </label>
+                    <span className="text-xs text-slate-400">
+                      ខ្លឹមសារជាភាសាខ្មែរ
+                    </span>
+                  </div>
+
+                  <div className="overflow-hidden rounded-xl border border-slate-300 focus-within:border-emerald-500">
+                    {renderEditorToolbar("contentKm")}
+                    {viewModeKm === "code" ? (
+                      <textarea
+                        ref={contentKmTextareaRef}
+                        rows={8}
+                        aria-label="Body (HTML) (Khmer)"
+                        value={contentKm}
+                        onChange={(e) => setContentKm(e.target.value)}
+                        placeholder="ខ្លឹមសារអត្ថបទពេញលេញជាភាសាខ្មែរ..."
+                        className="w-full p-4 font-mono text-sm leading-relaxed focus:outline-none min-h-[180px]"
+                      />
+                    ) : (
+                      <div
+                        className="geocam-article-body prose prose-slate max-w-none p-6 bg-white min-h-[180px] max-h-[380px] overflow-y-auto"
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            cleanPostHtml(contentKm) ||
+                            '<p class="italic text-slate-400">មិនទាន់មានខ្លឹមសារខ្មែរនៅឡើយទេ។</p>',
+                        }}
+                      />
+                    )}
+                  </div>
+                </div>
+
+              </article>
             </fieldset>
 
             {error && (
@@ -1474,16 +1862,16 @@ export default function PostManager() {
               </p>
             )}
 
-            {/* Modal Footer */}
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
+            {/* Modal Footer with Publishing Actions */}
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-3">
               <div className="flex items-center gap-2">
                 <label className="text-xs font-bold text-slate-600">
                   Status:
                 </label>
                 <span className="text-xs font-medium">
                   {status === "published"
-                    ? "Published snapshot exists (Public)"
-                    : "Draft (Private)"}
+                    ? "Published (Public to website visitors)"
+                    : "Draft (Saved in administrative workspace)"}
                 </span>
               </div>
 
@@ -1492,7 +1880,7 @@ export default function PostManager() {
                   type="button"
                   disabled={saving}
                   onClick={close}
-                  className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
                 >
                   Cancel
                 </button>
@@ -1500,7 +1888,7 @@ export default function PostManager() {
                   type="button"
                   disabled={saving}
                   onClick={() => handleSave(false)}
-                  className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-xs hover:bg-slate-50 transition"
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-xs hover:bg-slate-50 transition"
                 >
                   Save Draft
                 </button>
@@ -1508,7 +1896,7 @@ export default function PostManager() {
                   type="button"
                   disabled={saving}
                   onClick={() => handleSave(true)}
-                  className="flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-emerald-700 transition"
+                  className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-emerald-700 transition"
                 >
                   <CheckCircle2 size={16} /> Publish Live
                 </button>
@@ -1636,8 +2024,7 @@ export default function PostManager() {
             {activeInserter.type === "chart" && (
               <div className="mt-4 space-y-3">
                 <p className="text-xs text-slate-500">
-                  Select a chart template to insert clean, responsive visual data
-                  into your story:
+                  Select a chart template to insert clean, responsive visual data into your story:
                 </p>
                 <div className="space-y-2">
                   {CHART_TEMPLATES.map((c) => (
@@ -1668,8 +2055,7 @@ export default function PostManager() {
             {activeInserter.type === "table" && (
               <div className="mt-4 space-y-3">
                 <p className="text-xs text-slate-500">
-                  Select a structured table template to display scientific
-                  measurements or inventories:
+                  Select a structured table template to display scientific measurements or inventories:
                 </p>
                 <div className="space-y-2">
                   {TABLE_TEMPLATES.map((t) => (
@@ -1747,7 +2133,7 @@ export default function PostManager() {
               Save your changes?
             </h3>
             <p className="my-4">
-              Your post has unsaved changes. Save a draft before leaving,
+              Your content has unsaved changes. Save a draft before leaving,
               discard these changes, or keep editing.
             </p>
             {error && (

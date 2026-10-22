@@ -5,6 +5,7 @@ import {
   pageChanges,
 } from "./linked-content";
 import { attachInlineText } from "./inline-text";
+import { createPortal } from "react-dom";
 import React, {
   createContext,
   useCallback,
@@ -19,6 +20,24 @@ import { useAdmin } from "../admin/Auth";
 import { useI18n } from "../lib/i18n";
 import { translateText, sourceText } from "../lib/translation";
 import { stableKey, candidates } from "./dom-keys";
+import {
+  Plus,
+  Heading2,
+  Heading3,
+  Bold,
+  Italic,
+  Underline,
+  List,
+  Quote,
+  Link as LinkIcon,
+  Image as ImageIcon,
+  Table as TableIcon,
+  BarChart2,
+  FileText,
+  CheckCircle2,
+  X,
+  Upload,
+} from "lucide-react";
 export type Entry = { kind: "text" | "image"; value: string };
 export type Store = Record<string, Record<string, Entry>>;
 type CMS = {
@@ -260,8 +279,8 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
         draftRef.current,
       );
       // Appearance has its own explicit save action; use its latest server values.
-      merged.__appearance = saved.data.content.__appearance;
-      savedDraftRef.current = saved.data.content as Store;
+      merged.__appearance = saved.data?.content?.__appearance;
+      savedDraftRef.current = (saved.data?.content as Store) || {};
       draftRef.current = merged;
       setDraft(merged);
     }
@@ -419,6 +438,9 @@ export const editablePages = [
   "/mining",
   "/lexicon",
   "/dashboard",
+  "/research/topic",
+  "/news/item",
+  "/publications/view",
 ];
 const emptyContent: Store = {};
 const originals = new WeakMap<
@@ -501,6 +523,154 @@ export function VisualCmsLayer({ page }: { page: string }) {
   const editingPage = editing && editable;
   const refresh = useRef(0);
   const [notice, setNotice] = useState("");
+  const [showInsertModal, setShowInsertModal] = useState(false);
+  const insertFileInputRef = useRef<HTMLInputElement>(null);
+  const mainEl = typeof document !== "undefined" ? document.getElementById("main") : null;
+
+  const [insertedBlocks, setInsertedBlocks] = useState<
+    Array<{ id: string; type: string; html: string }>
+  >(() => {
+    try {
+      const saved = active[normalizedPage + "::" + lang]?.["__inserted_blocks__"]?.value;
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return [];
+  });
+
+  useEffect(() => {
+    try {
+      const saved = active[normalizedPage + "::" + lang]?.["__inserted_blocks__"]?.value;
+      if (saved) {
+        setInsertedBlocks(JSON.parse(saved));
+        return;
+      }
+    } catch {}
+    setInsertedBlocks([]);
+  }, [normalizedPage, lang, active]);
+
+  const insertBlock = (
+    type: "paragraph" | "heading" | "image" | "table" | "chart" | "callout",
+    customImageUrl?: string,
+  ) => {
+    const blockId = "block-" + Date.now();
+    let blockHtml = "";
+
+    if (type === "paragraph") {
+      blockHtml = `
+        <div class="my-4 p-4 rounded-xl bg-white border border-slate-200 shadow-xs geocam-editable geocam-inserted-block" data-cms-key="inserted-p-${blockId}">
+          New paragraph text inserted. Double-click or select this text to edit and add your content.
+        </div>
+      `;
+    } else if (type === "heading") {
+      blockHtml = `
+        <h2 class="my-4 text-2xl font-bold tracking-tight text-slate-900 geocam-editable geocam-inserted-block" data-cms-key="inserted-h2-${blockId}">
+          New Section Heading
+        </h2>
+      `;
+    } else if (type === "image") {
+      const src =
+        customImageUrl ||
+        "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1000&q=80";
+      blockHtml = `
+        <figure class="my-6 overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-md text-center geocam-inserted-block">
+          <img src="${src}" alt="Inserted geological photo" class="rounded-xl w-full max-h-[480px] object-cover mx-auto geocam-editable" data-cms-key="inserted-img-${blockId}" />
+          <figcaption class="text-xs text-slate-500 mt-2 text-center italic geocam-editable" data-cms-key="inserted-cap-${blockId}">Photo description and geological field notes</figcaption>
+        </figure>
+      `;
+    } else if (type === "table") {
+      blockHtml = `
+        <div class="my-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-4 shadow-sm geocam-inserted-block">
+          <h4 class="text-sm font-bold text-slate-900 mb-2 geocam-editable" data-cms-key="inserted-tbl-title-${blockId}">Geological Sample Inventory</h4>
+          <table class="w-full text-left text-sm border-collapse border border-slate-200">
+            <thead>
+              <tr class="bg-slate-100 border-b border-slate-200">
+                <th class="p-3 font-semibold text-slate-700">Sample ID</th>
+                <th class="p-3 font-semibold text-slate-700">Location / Formation</th>
+                <th class="p-3 font-semibold text-slate-700">Lithology</th>
+                <th class="p-3 font-semibold text-slate-700">Assay Findings</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-slate-100 hover:bg-slate-50">
+                <td class="p-3 font-mono text-xs">GC-NEW-01</td>
+                <td class="p-3">Cardamome Range</td>
+                <td class="p-3">Quartzite / Sandstone</td>
+                <td class="p-3 text-emerald-700 font-medium">Au 1.2 g/t</td>
+              </tr>
+              <tr class="border-b border-slate-100 hover:bg-slate-50">
+                <td class="p-3 font-mono text-xs">GC-NEW-02</td>
+                <td class="p-3">Kampot Karst</td>
+                <td class="p-3">Limestone</td>
+                <td class="p-3">CaCO3 95.1%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    } else if (type === "chart") {
+      blockHtml = `
+        <div class="my-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs geocam-inserted-block">
+          <h4 class="text-sm font-bold text-slate-900 mb-1 geocam-editable" data-cms-key="inserted-chart-title-${blockId}">Mineralogical Composition Assay</h4>
+          <p class="text-xs text-slate-500 mb-4 geocam-editable" data-cms-key="inserted-chart-sub-${blockId}">Quantitative whole-rock XRF proportions (%)</p>
+          <div class="space-y-3">
+            <div>
+              <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                <span>Silica (SiO2)</span>
+                <span>65%</span>
+              </div>
+              <div class="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div class="h-full rounded-full bg-emerald-600" style="width: 65%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                <span>Alumina (Al2O3)</span>
+                <span>18%</span>
+              </div>
+              <div class="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div class="h-full rounded-full bg-teal-500" style="width: 18%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    } else if (type === "callout") {
+      blockHtml = `
+        <blockquote class="my-4 border-l-4 border-emerald-600 bg-emerald-50/70 p-4 rounded-r-xl italic text-slate-800 shadow-xs geocam-editable geocam-inserted-block" data-cms-key="inserted-quote-${blockId}">
+          “Key scientific discovery or geological insight entered here...”
+        </blockquote>
+      `;
+    }
+
+    const nextBlocks = [...insertedBlocks, { id: blockId, type, html: blockHtml }];
+    setInsertedBlocks(nextBlocks);
+    setShowInsertModal(false);
+
+    // Persist to CMS
+    const key = "__inserted_blocks__";
+    const entry: Entry = {
+      kind: "text",
+      value: JSON.stringify(nextBlocks),
+    };
+    setEntry(normalizedPage + "::" + lang, key, entry);
+    saveInline(normalizedPage + "::" + lang, key, entry);
+    setNotice("Content block inserted successfully! Click to edit text or images.");
+  };
+
+  const handleInsertedImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const dataUrl = await optimizeImage(file);
+      insertBlock("image", dataUrl);
+    } catch {
+      setNotice("Failed to load image file.");
+    } finally {
+      if (e.target) e.target.value = "";
+    }
+  };
   useLayoutEffect(() => {
     const main = document.getElementById("main");
     if (!main || !editable || page.startsWith("/admin")) return;
@@ -510,9 +680,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
         // Data-driven views must not freeze result counts or bind edits to a
         // different record after a filter changes. Only stable named fields.
         if (
-          !["/", "/about", "/research", "/membership", "/contact"].includes(
-            normalizedPage,
-          ) &&
+          !editablePages.includes(normalizedPage) &&
           !el.hasAttribute("data-cms-id")
         )
           continue;
@@ -750,10 +918,287 @@ export function VisualCmsLayer({ page }: { page: string }) {
   const isResearchTopic = normalizedPage === "/research/topic";
 
   return (
-    <div
-      data-cms-ui
-      className="fixed bottom-5 right-5 z-[2000] max-w-[calc(100vw-2rem)] rounded-xl border bg-white p-3 shadow-2xl text-sm"
-    >
+    <>
+      {/* Hidden file input for block image upload */}
+      <input
+        type="file"
+        ref={insertFileInputRef}
+        onChange={handleInsertedImageUpload}
+        accept="image/*"
+        className="hidden"
+      />
+
+      {/* =========================================================================
+          TOP-DOCKED WORDPRESS EDITING TOOLBAR
+          Activates in visual edit mode across all pages
+         ========================================================================= */}
+      {editingPage && (
+        <div
+          data-cms-ui="website-wordpress-toolbar"
+          className="fixed top-0 left-0 right-0 z-[2500] bg-slate-900/95 backdrop-blur-md text-white border-b border-slate-700/80 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-2xl"
+        >
+          {/* Left: Brand Badge & Formatting Controls */}
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-2 bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-lg text-xs font-bold tracking-wide">
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              WordPress Visual Editor
+            </div>
+
+            <div className="h-4 w-px bg-slate-700 mx-1 hidden sm:block" />
+
+            {/* Text formatting tools */}
+            <div className="flex items-center gap-1 bg-slate-800/90 border border-slate-700 rounded-lg p-0.5 text-xs">
+              <button
+                type="button"
+                title="Heading 2"
+                onClick={() => {
+                  document.execCommand("formatBlock", false, "<h2>");
+                  setNotice("Heading 2 formatted.");
+                }}
+                className="px-2 py-1 hover:bg-slate-700 rounded font-bold text-slate-200 transition"
+              >
+                H2
+              </button>
+              <button
+                type="button"
+                title="Heading 3"
+                onClick={() => {
+                  document.execCommand("formatBlock", false, "<h3>");
+                  setNotice("Heading 3 formatted.");
+                }}
+                className="px-2 py-1 hover:bg-slate-700 rounded font-bold text-slate-200 transition"
+              >
+                H3
+              </button>
+              <button
+                type="button"
+                title="Bold (Ctrl+B)"
+                onClick={() => {
+                  document.execCommand("bold");
+                  setNotice("Bold applied.");
+                }}
+                className="px-2 py-1 hover:bg-slate-700 rounded font-bold text-slate-200 transition"
+              >
+                B
+              </button>
+              <button
+                type="button"
+                title="Italic (Ctrl+I)"
+                onClick={() => {
+                  document.execCommand("italic");
+                  setNotice("Italic applied.");
+                }}
+                className="px-2 py-1 hover:bg-slate-700 rounded italic font-serif text-slate-200 transition"
+              >
+                I
+              </button>
+              <button
+                type="button"
+                title="Underline (Ctrl+U)"
+                onClick={() => {
+                  document.execCommand("underline");
+                  setNotice("Underline applied.");
+                }}
+                className="px-2 py-1 hover:bg-slate-700 rounded underline text-slate-200 transition"
+              >
+                U
+              </button>
+              <button
+                type="button"
+                title="Bullet List"
+                onClick={() => {
+                  document.execCommand("insertUnorderedList");
+                  setNotice("Bullet list created.");
+                }}
+                className="px-2 py-1 hover:bg-slate-700 rounded text-slate-200 transition"
+              >
+                • List
+              </button>
+              <button
+                type="button"
+                title="Quote Block"
+                onClick={() => {
+                  document.execCommand("formatBlock", false, "<blockquote>");
+                  setNotice("Quote block created.");
+                }}
+                className="px-2 py-1 hover:bg-slate-700 rounded italic text-slate-200 transition"
+              >
+                ” Quote
+              </button>
+              <button
+                type="button"
+                title="Add Link"
+                onClick={() => {
+                  const url = window.prompt("Enter link URL (e.g., https://...):");
+                  if (url) {
+                    document.execCommand("createLink", false, url);
+                    setNotice("Link inserted.");
+                  }
+                }}
+                className="px-2 py-1 hover:bg-slate-700 rounded text-slate-200 transition"
+              >
+                🔗 Link
+              </button>
+            </div>
+
+            {/* Inserter Button */}
+            <button
+              type="button"
+              onClick={() => setShowInsertModal(true)}
+              className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-sm transition"
+            >
+              <Plus size={14} /> + Insert Content
+            </button>
+          </div>
+
+          {/* Right: Status and Publish Actions */}
+          <div className="flex items-center gap-2 text-xs">
+            {inlineStatus && <span className="text-emerald-400 font-medium">{inlineStatus}</span>}
+            {notice && <span className="text-amber-300 font-medium">{notice}</span>}
+
+            <a
+              href="/admin"
+              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 font-medium transition"
+            >
+              Dashboard
+            </a>
+            <button
+              type="button"
+              onClick={() => setEditing(false)}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-200 font-medium transition"
+            >
+              Done Editing
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                setNotice("Publishing changes live to website…");
+                try {
+                  await publish();
+                  clearPendingInline();
+                  setNotice("Published live! All visitors see these changes now.");
+                } catch (err) {
+                  setNotice("Publication failed. Please retry.");
+                }
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg shadow-md transition"
+            >
+              <CheckCircle2 size={14} /> Publish Live
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          BLOCK INSERTER POPUP MODAL
+         ========================================================================= */}
+      {showInsertModal && (
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl border border-slate-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h4 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <Plus className="text-emerald-600" size={20} /> Insert Content Block into Page
+              </h4>
+              <button
+                type="button"
+                onClick={() => setShowInsertModal(false)}
+                className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mt-4 sm:grid-cols-3">
+              <button
+                type="button"
+                onClick={() => insertBlock("paragraph")}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 text-center transition group"
+              >
+                <div className="p-3 rounded-full bg-slate-100 text-slate-700 group-hover:bg-emerald-600 group-hover:text-white transition">
+                  <FileText size={20} />
+                </div>
+                <span className="text-xs font-bold text-slate-800">New Paragraph</span>
+                <span className="text-[11px] text-slate-400">Regular prose text block</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => insertBlock("heading")}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 text-center transition group"
+              >
+                <div className="p-3 rounded-full bg-slate-100 text-slate-700 group-hover:bg-emerald-600 group-hover:text-white transition">
+                  <Heading2 size={20} />
+                </div>
+                <span className="text-xs font-bold text-slate-800">New Heading</span>
+                <span className="text-[11px] text-slate-400">H2 / H3 section title</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => insertFileInputRef.current?.click()}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 text-center transition group"
+              >
+                <div className="p-3 rounded-full bg-slate-100 text-slate-700 group-hover:bg-emerald-600 group-hover:text-white transition">
+                  <ImageIcon size={20} />
+                </div>
+                <span className="text-xs font-bold text-slate-800">Photo / Image</span>
+                <span className="text-[11px] text-slate-400">Upload or choose photo</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => insertBlock("table")}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 text-center transition group"
+              >
+                <div className="p-3 rounded-full bg-slate-100 text-slate-700 group-hover:bg-emerald-600 group-hover:text-white transition">
+                  <TableIcon size={20} />
+                </div>
+                <span className="text-xs font-bold text-slate-800">Data Table</span>
+                <span className="text-[11px] text-slate-400">Structured geological table</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => insertBlock("chart")}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 text-center transition group"
+              >
+                <div className="p-3 rounded-full bg-slate-100 text-slate-700 group-hover:bg-emerald-600 group-hover:text-white transition">
+                  <BarChart2 size={20} />
+                </div>
+                <span className="text-xs font-bold text-slate-800">Geological Chart</span>
+                <span className="text-[11px] text-slate-400">Mineral composition chart</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => insertBlock("callout")}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 text-center transition group"
+              >
+                <div className="p-3 rounded-full bg-slate-100 text-slate-700 group-hover:bg-emerald-600 group-hover:text-white transition">
+                  <Quote size={20} />
+                </div>
+                <span className="text-xs font-bold text-slate-800">Callout Quote</span>
+                <span className="text-[11px] text-slate-400">Highlighted insights quote</span>
+              </button>
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowInsertModal(false)}
+                className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div
+        data-cms-ui
+        className="fixed bottom-5 right-5 z-[2000] max-w-[calc(100vw-2rem)] rounded-xl border bg-white p-3 shadow-2xl text-sm"
+      >
       <div className="flex flex-wrap items-center gap-2">
         <a
           className="btn btn-outline !py-2"
@@ -964,5 +1409,19 @@ export function VisualCmsLayer({ page }: { page: string }) {
         )}
       </p>
     </div>
-  );
+
+    {mainEl && (editingPage || insertedBlocks.length > 0) && createPortal(
+      <div id="geocam-inserted-blocks-container" className="w-full max-w-5xl mx-auto my-8 px-4 space-y-6">
+        {insertedBlocks.map((b) => (
+          <div
+            key={b.id}
+            className="geocam-inserted-block-wrapper"
+            dangerouslySetInnerHTML={{ __html: b.html }}
+          />
+        ))}
+      </div>,
+      mainEl
+    )}
+  </>
+);
 }

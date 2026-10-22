@@ -77,8 +77,8 @@ export function loadFontStyles(ids: string[]) {
 export function SiteFonts() {
   const { published } = useCms();
   const { lang } = useI18n();
-  const en = published.__appearance?.englishFont?.value || "times";
-  const km = published.__appearance?.khmerFont?.value || "noto-sans-khmer";
+  const en = published?.__appearance?.englishFont?.value || "times";
+  const km = published?.__appearance?.khmerFont?.value || "noto-sans-khmer";
   useEffect(() => {
     loadFontStyles([en, km]);
     const root = document.documentElement;
