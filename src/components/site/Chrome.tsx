@@ -10,7 +10,6 @@ const nav: { to: string; k: TKey }[] = [
   { to: "/events", k: "events" },
   { to: "/membership", k: "membership" },
   { to: "/geodata", k: "geodata" },
-  { to: "/alteration-mapping", k: "alterationMapping" },
   { to: "/mining", k: "mining" },
   { to: "/news", k: "news" },
   { to: "/geopark", k: "geopark" },
@@ -27,7 +26,7 @@ const navGroups = [
   {
     en: "Geoscience & Data",
     km: "ភូគព្ភវិទ្យាសាស្ត្រ និងទិន្នន័យ",
-    items: ["/geodata", "/alteration-mapping", "/environmental-monitoring", "/geopark", "/mining"],
+    items: ["/geodata", "/environmental-monitoring", "/geopark", "/mining"],
   },
   {
     en: "Knowledge & Research",

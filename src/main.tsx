@@ -29,9 +29,6 @@ import NewsItem from "./routes/news-item";
 import ArticleReader from "./admin/PublicPosts";
 import ResearchTopic from "./routes/research-topic";
 import PublicationView from "./routes/publication-view";
-const AlterationMapping = React.lazy(
-  () => import("./routes/alteration-mapping"),
-);
 import WordPressAdmin from "./admin/WordPressAdmin";
 const AdminDashboard = () => (
   <AdminGate>
@@ -57,8 +54,6 @@ const pages: Record<string, React.ComponentType<any>> = {
   "/lexicon": LexiconEmbed,
   "/geopark": GeoparkExplorer,
   "/mining": MiningPortal,
-  "/alteration-mapping": AlterationMapping,
-  "/mineral-mapping": AlterationMapping,
   "/articles/read": ArticleReader,
   "/news/item": NewsItem,
   "/research/topic": ResearchTopic,
