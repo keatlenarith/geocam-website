@@ -61,12 +61,127 @@ const TILES: Record<Basemap, { url: string; attribution: string; nameEn: string;
 
 const DEM_URL = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";
 
+export type FigureCategoryType = "natural_photo" | "map" | "fossil" | "thin_section" | "section";
+
+export interface ClassifiedFigure {
+  item: GeositeGalleryItem;
+  category: {
+    type: FigureCategoryType;
+    labelEn: string;
+    labelKm: string;
+    badgeColor: string;
+  };
+}
+
+export function getFigureClassification(item: GeositeGalleryItem): ClassifiedFigure {
+  const c = ((item.caption || "") + " " + (item.scope || "") + " " + (item.src || "")).toLowerCase();
+
+  // 1. Thin section / Photomicrograph / Petrology
+  if (
+    c.includes("thin section") ||
+    c.includes("photomicrograph") ||
+    c.includes("maceral") ||
+    c.includes("microscopic") ||
+    item.src.includes("figure-34")
+  ) {
+    return {
+      item,
+      category: {
+        type: "thin_section",
+        labelEn: "Thin Section / Photomicrograph",
+        labelKm: "ចំណិតស្តើងសិលា (Thin Section)",
+        badgeColor: "bg-purple-100 text-purple-900 border-purple-300",
+      },
+    };
+  }
+
+  // 2. Palaeontological Fossil Specimen
+  if (
+    c.includes("fossil") ||
+    c.includes("fibula") ||
+    c.includes("sauropod") ||
+    c.includes("turtle") ||
+    c.includes("entoplastron") ||
+    c.includes("bone") ||
+    c.includes("specimen") ||
+    item.src.includes("figure-44") ||
+    item.src.includes("figure-46") ||
+    item.src.includes("figure-47")
+  ) {
+    return {
+      item,
+      category: {
+        type: "fossil",
+        labelEn: "Palaeontological Fossil Specimen",
+        labelKm: "សំណាកផូស៊ីល (Fossil Specimen)",
+        badgeColor: "bg-amber-100 text-amber-900 border-amber-300",
+      },
+    };
+  }
+
+  // 3. Stratigraphic column / measured section
+  if (
+    c.includes("stratigraphic") ||
+    c.includes("measured section") ||
+    c.includes("column") ||
+    item.src.includes("figure-05") ||
+    item.src.includes("figure-35")
+  ) {
+    return {
+      item,
+      category: {
+        type: "section",
+        labelEn: "Stratigraphic Column & Bedding Section",
+        labelKm: "ទម្រង់ស្រទាប់សិលា (Stratigraphic Column)",
+        badgeColor: "bg-blue-100 text-blue-900 border-blue-300",
+      },
+    };
+  }
+
+  // 4. Geological & Archaeological Maps
+  if (
+    c.includes("map") ||
+    c.includes("location") ||
+    c.includes("lidar") ||
+    c.includes("geographical position") ||
+    item.src.includes("figure-01") ||
+    item.src.includes("figure-02") ||
+    item.src.includes("figure-04") ||
+    item.src.includes("figure-06") ||
+    item.src.includes("figure-26") ||
+    item.src.includes("figure-28") ||
+    item.src.includes("figure-32") ||
+    item.src.includes("figure-45")
+  ) {
+    return {
+      item,
+      category: {
+        type: "map",
+        labelEn: "Geological & Topographic Map",
+        labelKm: "ផែនទីភូគព្ភសាស្ត្រ និងទីតាំង",
+        badgeColor: "bg-emerald-100 text-emerald-900 border-emerald-300",
+      },
+    };
+  }
+
+  // 5. Natural Scenery & Field Photograph
+  return {
+    item,
+    category: {
+      type: "natural_photo",
+      labelEn: "Natural Landscape & Scenery",
+      labelKm: "រូបភាពទេសភាពធម្មជាតិ",
+      badgeColor: "bg-cyan-100 text-cyan-900 border-cyan-300",
+    },
+  };
+}
+
 function renderMarkerHtml(site: GeositeRecord, isActive: boolean): string {
   if (isActive) {
     return `
-      <div style="position: relative; width: 42px; height: 42px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+      <div style="position: relative; width: 44px; height: 44px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
         <div style="position: absolute; inset: -4px; border-radius: 50%; background: rgba(245, 158, 11, 0.45); animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
-        <div style="position: absolute; inset: 0; border-radius: 50%; background: rgba(234, 179, 8, 0.4); box-shadow: 0 0 24px #eab308;"></div>
+        <div style="position: absolute; inset: 0; border-radius: 50%; background: rgba(234, 179, 8, 0.45); box-shadow: 0 0 25px #eab308;"></div>
         <div style="position: relative; width: 22px; height: 22px; border-radius: 50%; background: #eab308; border: 3px solid #ffffff; box-shadow: 0 3px 12px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;">
           <div style="width: 7px; height: 7px; border-radius: 50%; background: #ffffff;"></div>
         </div>
@@ -98,9 +213,8 @@ export default function GeoparkExplorer() {
   const [selectedSiteId, setSelectedSiteId] = useState<string>("phnom-kulen-waterfall-in-siem-reap");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProvince, setSelectedProvince] = useState<string>("all");
-  const [coords, setCoords] = useState<[number, number]|null>(null);
+  const [coords, setCoords] = useState<[number, number] | null>(null);
   const [ready, setReady] = useState(false);
-  const [error, setError] = useState("");
   const [pitch, setPitch] = useState(58);
 
   // Hologram Gallery States
@@ -112,6 +226,23 @@ export default function GeoparkExplorer() {
   const selectedSite = useMemo(() => {
     return CAMBODIA_GEOSITES.find((s) => s.id === selectedSiteId) || CAMBODIA_GEOSITES[0];
   }, [selectedSiteId]);
+
+  // Gallery classification for selected site
+  const classifiedGallery = useMemo(() => {
+    return selectedSite.gallery.map(getFigureClassification);
+  }, [selectedSite]);
+
+  // Natural photos exclusively for Hologram Gallery
+  const naturalPhotos = useMemo(() => {
+    return classifiedGallery
+      .filter((f) => f.category.type === "natural_photo")
+      .map((f) => f.item);
+  }, [classifiedGallery]);
+
+  // Scientific figures (maps, fossils, thin sections, stratigraphy) for Narrative Description
+  const scientificFigures = useMemo(() => {
+    return classifiedGallery.filter((f) => f.category.type !== "natural_photo");
+  }, [classifiedGallery]);
 
   // Unique list of provinces with counts
   const provinces = useMemo(() => {
@@ -133,6 +264,8 @@ export default function GeoparkExplorer() {
         s.name.toLowerCase().includes(q) ||
         s.nameKm.toLowerCase().includes(q) ||
         s.description.toLowerCase().includes(q) ||
+        s.mineralogy.toLowerCase().includes(q) ||
+        s.era.toLowerCase().includes(q) ||
         s.province.en.toLowerCase().includes(q);
       return matchProv && matchQuery;
     });
@@ -142,7 +275,7 @@ export default function GeoparkExplorer() {
   const flyToSite = (site: GeositeRecord, openHolo = false) => {
     setSelectedSiteId(site.id);
     setActiveImageIdx(0);
-    if (openHolo && site.gallery.length > 0) {
+    if (openHolo) {
       setIsHoloOpen(true);
     }
     if (site.coordinates && map.current) {
@@ -198,10 +331,9 @@ export default function GeoparkExplorer() {
       }
     });
 
+    // Handle map errors non-blockingly (avoiding false "connection lost" banners on transient tile events)
     m.on("error", (e) => {
-      if (e.error?.message) {
-        setError("Map tiles or 3D terrain could not load. Check network connection.");
-      }
+      console.warn("MapLibre tile notice:", e?.error?.message || e);
     });
 
     m.on("mousemove", (e) => setCoords([e.lngLat.lng, e.lngLat.lat]));
@@ -229,18 +361,21 @@ export default function GeoparkExplorer() {
         narrativeRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
 
+      const naturalCount = site.gallery.filter((g) => getFigureClassification(g).category.type === "natural_photo").length;
+      const scientificCount = site.gallery.length - naturalCount;
+
       const popup = new maplibregl.Popup({
-        offset: 18,
+        offset: 20,
         closeButton: false,
         className: "geosite-custom-popup",
       }).setHTML(`
-        <div style="font-family: system-ui, sans-serif; padding: 6px 8px; font-size: 12px; line-height: 1.35; max-width: 220px; color: #0f172a;">
-          <div style="font-weight: 800; font-size: 13px;">${site.name}</div>
-          <div style="font-size: 11px; color: #047857; font-weight: 600; margin-top: 3px;">
+        <div style="font-family: system-ui, sans-serif; padding: 6px 9px; font-size: 13px; line-height: 1.4; max-width: 240px; color: #0f172a;">
+          <div style="font-weight: 800; font-size: 14px;">${site.name}</div>
+          <div style="font-size: 12px; color: #047857; font-weight: 600; margin-top: 3px;">
             ${site.province.en} (${site.province.km})
           </div>
-          <div style="font-size: 10px; color: #64748b; margin-top: 2px;">
-            ${site.era} · ${site.gallery.length} photos
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
+            ${naturalCount} natural photos · ${scientificCount} maps/fossils
           </div>
         </div>
       `);
@@ -298,60 +433,60 @@ export default function GeoparkExplorer() {
 
   // Keyboard navigation for Hologram Gallery
   useEffect(() => {
-    if (!isHoloOpen) return;
+    if (!isHoloOpen || naturalPhotos.length === 0) return;
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsHoloOpen(false);
       if (e.key === "ArrowLeft") {
-        setActiveImageIdx((prev) => (prev > 0 ? prev - 1 : selectedSite.gallery.length - 1));
+        setActiveImageIdx((prev) => (prev > 0 ? prev - 1 : naturalPhotos.length - 1));
       }
       if (e.key === "ArrowRight") {
-        setActiveImageIdx((prev) => (prev < selectedSite.gallery.length - 1 ? prev + 1 : 0));
+        setActiveImageIdx((prev) => (prev < naturalPhotos.length - 1 ? prev + 1 : 0));
       }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [isHoloOpen, selectedSite.gallery.length]);
+  }, [isHoloOpen, naturalPhotos.length]);
 
   return (
     <section
       data-no-translate="true"
       data-cms-inline="true"
-      className="mx-auto max-w-[1720px] px-4 py-8 md:px-8"
+      className="mx-auto max-w-[1720px] px-4 py-8 md:px-8 text-slate-800"
     >
       {/* SECTION HEADER */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-5">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-5 border-b border-slate-200 pb-6">
         <div>
-          <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-emerald-700">
-            <Globe size={15} />
+          <span className="flex items-center gap-2 text-xs md:text-sm font-bold uppercase tracking-widest text-emerald-700">
+            <Globe size={18} />
             {kh ? "ប្រព័ន្ធព័ត៌មានភូគព្ភស្ថានកម្ពុជា · 3D Web GIS" : "Cambodia National Geosites Inventory · 3D Web GIS"}
           </span>
-          <h1 className="mt-1 font-display text-3xl font-extrabold text-slate-900 md:text-4xl">
+          <h1 className="mt-2 font-display text-3xl font-extrabold text-slate-900 md:text-5xl tracking-tight">
             {kh ? "ឧទ្យានភូគព្ភសាស្ត្រ និងភូគព្ភស្ថានកម្ពុជា" : "Cambodia Geoparks & Geosites Explorer"}
           </h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-2 text-base md:text-lg text-slate-600 leading-relaxed max-w-4xl">
             {kh
-              ? "រុករកទិន្នន័យកូអរដោណេផ្ទៀងផ្ទាត់ និងរូបភាពហូឡូក្រាមនៃភូគព្ភស្ថានចំនួន ២៩ កន្លែងទូទាំងប្រទេសកម្ពុជា។"
-              : "Interactive exploration of 29 verified Cambodian geosites, palaeontological discoveries, and volcanic maars with multi-image hologram galleries."}
+              ? "រុករកទិន្នន័យកូអរដោណេផ្ទៀងផ្ទាត់ រូបភាពទេសភាពធម្មជាតិហូឡូក្រាម និងផ្ទាំងវិទ្យាសាស្ត្រ (ផែនទីភូគព្ភសាស្ត្រ សំណាកផូស៊ីល និងចំណិតស្តើងសិលា) នៃភូគព្ភស្ថានចំនួន ២៩ កន្លែងទូទាំងប្រទេសកម្ពុជា។"
+              : "Interactive exploration of 29 verified Cambodian geosites. View natural landscape photography in modern hologram style, and examine scientific plates (geological maps, fossil specimens, thin sections, and stratigraphic columns) in the geological dossier."}
           </p>
         </div>
 
         {/* Global Action Tools */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-3">
           <a
             href="/geosites/coordinates.csv"
             download="Cambodia_Geosites_Coordinates.csv"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-xs hover:bg-slate-50 transition"
           >
-            <Download size={14} className="text-emerald-700" />
+            <Download size={16} className="text-emerald-700" />
             <span>{kh ? "ទាញយក Excel / CSV" : "Download Coordinates (CSV)"}</span>
           </a>
 
           <a
             href="/geosites/geosites.geojson"
             download="Cambodia_Geosites.geojson"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-xs hover:bg-slate-50 transition"
           >
-            <Layers size={14} className="text-emerald-700" />
+            <Layers size={16} className="text-emerald-700" />
             <span>{kh ? "ទាញយក GeoJSON" : "Download GeoJSON"}</span>
           </a>
 
@@ -359,25 +494,25 @@ export default function GeoparkExplorer() {
             href="/geosites/index.html"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-700 px-4 py-2 text-xs font-bold text-white shadow-2xs hover:bg-emerald-800 transition"
+            className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-bold text-white shadow-xs hover:bg-emerald-800 transition"
           >
-            <BookOpen size={14} />
+            <BookOpen size={16} />
             <span>{kh ? "បើកឯកសារកាតាឡុកដើម ↗" : "Full Geosite Catalogue ↗"}</span>
           </a>
         </div>
       </div>
 
       {/* PROVINCIAL FILTER PILLS */}
-      <div className="mb-4 flex flex-wrap items-center gap-2 overflow-x-auto pb-2 text-xs">
-        <span className="font-bold text-slate-500 mr-1 flex items-center gap-1">
-          <Filter size={13} /> {kh ? "ខេត្ត:" : "Province:"}
+      <div className="mb-6 flex flex-wrap items-center gap-2.5 overflow-x-auto pb-2 text-sm">
+        <span className="font-extrabold text-slate-600 mr-1 flex items-center gap-1.5 text-sm">
+          <Filter size={15} /> {kh ? "ខេត្ត:" : "Province:"}
         </span>
         <button
           type="button"
           onClick={() => setSelectedProvince("all")}
-          className={`rounded-lg px-3 py-1.5 font-bold transition ${
+          className={`rounded-xl px-4 py-2 text-sm font-bold transition ${
             selectedProvince === "all"
-              ? "bg-slate-900 text-white shadow-xs"
+              ? "bg-slate-900 text-white shadow-sm"
               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
           }`}
         >
@@ -388,9 +523,9 @@ export default function GeoparkExplorer() {
             key={provName}
             type="button"
             onClick={() => setSelectedProvince(provName)}
-            className={`rounded-lg px-3 py-1.5 font-bold transition ${
+            className={`rounded-xl px-4 py-2 text-sm font-bold transition ${
               selectedProvince === provName
-                ? "bg-emerald-700 text-white shadow-xs"
+                ? "bg-emerald-700 text-white shadow-sm"
                 : "bg-slate-100 text-slate-700 hover:bg-slate-200"
             }`}
           >
@@ -400,89 +535,108 @@ export default function GeoparkExplorer() {
       </div>
 
       {/* MAIN EXPLORER WORKSPACE (SIDEBAR + 3D MAP) */}
-      <div className="grid gap-5 lg:grid-cols-[330px_minmax(0,1fr)]">
+      <div className="grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]">
         {/* LEFT: Geosite Directory List with Instant Search */}
-        <aside className="flex flex-col h-[620px] rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+        <aside className="flex flex-col h-[680px] rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
           {/* Search Bar */}
-          <div className="relative mb-3">
-            <Search size={15} className="absolute left-3 top-3 text-slate-400" />
+          <div className="relative mb-3.5">
+            <Search size={18} className="absolute left-3.5 top-3.5 text-slate-400" />
             <input
               type="text"
-              placeholder={kh ? "ស្វែងរកឈ្មោះ ឬតំបន់..." : "Search geosite name or keyword..."}
+              placeholder={kh ? "ស្វែងរកឈ្មោះ តំបន់ ឬប្រភេទថ្ម..." : "Search geosite name, rock type, or keyword..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 py-2 pl-9 pr-3 text-xs focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 outline-none"
+              className="w-full rounded-xl border border-slate-300 py-2.5 pl-10 pr-9 text-sm focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 outline-none"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-2.5 text-xs text-slate-400 hover:text-slate-600 font-bold"
+                className="absolute right-3.5 top-3 text-sm text-slate-400 hover:text-slate-600 font-bold"
               >
                 ✕
               </button>
             )}
           </div>
 
-          <div className="flex items-center justify-between text-xs text-slate-500 font-medium px-1 mb-2">
-            <span>{filteredSites.length} {kh ? "ទីតាំង" : "localities"}</span>
-            <span>{kh ? "ចុចដើម្បីមើលលើផែនទី" : "Click pin to fly"}</span>
+          <div className="flex items-center justify-between text-xs md:text-sm text-slate-500 font-semibold px-1 mb-3">
+            <span>{filteredSites.length} {kh ? "ទីតាំងភូគព្ភស្ថាន" : "localities found"}</span>
+            <span>{kh ? "ចុចដើម្បីហោះទៅទីតាំង" : "Click card to fly"}</span>
           </div>
 
           {/* Scrollable List */}
-          <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+          <div className="flex-1 overflow-y-auto space-y-3 pr-1.5">
             {filteredSites.map((s) => {
               const isSelected = selectedSiteId === s.id;
               const hasCoords = s.coordinates && s.publish_pin;
+              const sNatural = s.gallery.filter((g) => getFigureClassification(g).category.type === "natural_photo");
+              const sScientific = s.gallery.filter((g) => getFigureClassification(g).category.type !== "natural_photo");
+
               return (
                 <div
                   key={s.id}
                   onClick={() => flyToSite(s)}
-                  className={`rounded-xl border p-3 cursor-pointer transition text-left ${
+                  className={`rounded-xl border p-4 cursor-pointer transition text-left ${
                     isSelected
-                      ? "border-emerald-600 bg-emerald-50/70 shadow-xs"
-                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/70"
+                      ? "border-emerald-600 bg-emerald-50/80 shadow-sm ring-1 ring-emerald-500"
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/80"
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <strong className="text-xs font-bold text-slate-900 leading-snug">
+                  <div className="flex items-start justify-between gap-2.5">
+                    <strong className="text-sm md:text-base font-bold text-slate-900 leading-snug">
                       {kh ? s.nameKm : s.name}
                     </strong>
                     {hasCoords ? (
-                      <span className="shrink-0 h-2 w-2 rounded-full bg-emerald-500 mt-1 shadow-xs" />
+                      <span className="shrink-0 h-2.5 w-2.5 rounded-full bg-emerald-500 mt-1 shadow-xs" title="Published coordinate pin" />
                     ) : (
-                      <span className="shrink-0 text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
+                      <span className="shrink-0 text-[11px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">
                         HOLD
                       </span>
                     )}
                   </div>
 
-                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500">
-                    <span className="font-semibold text-emerald-800 bg-emerald-100/60 px-1.5 py-0.5 rounded">
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-xs md:text-sm text-slate-600">
+                    <span className="font-bold text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded">
                       {s.province.en}
                     </span>
                     <span>·</span>
-                    <span className="truncate max-w-[150px]">{s.era}</span>
+                    <span className="truncate max-w-[200px] text-slate-500">{s.era}</span>
                   </div>
 
-                  {s.gallery.length > 0 && (
-                    <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2 text-[11px]">
-                      <span className="flex items-center gap-1 text-emerald-700 font-semibold">
-                        <Sparkles size={12} />
-                        {s.gallery.length} {kh ? "រូបភាពហូឡូក្រាម" : "images"}
-                      </span>
+                  {/* Photo & Scientific Figures Badges */}
+                  <div className="mt-3 flex flex-wrap items-center justify-between border-t border-slate-100 pt-2.5 text-xs gap-2">
+                    <div className="flex items-center gap-2">
+                      {sNatural.length > 0 && (
+                        <span className="flex items-center gap-1 text-cyan-700 font-bold bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200">
+                          <Sparkles size={12} className="text-cyan-600" />
+                          {sNatural.length} {kh ? "រូបធម្មជាតិ" : "photos"}
+                        </span>
+                      )}
+                      {sScientific.length > 0 && (
+                        <span className="flex items-center gap-1 text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                          <BookOpen size={12} className="text-purple-600" />
+                          {sScientific.length} {kh ? "ផ្ទាំងវិទ្យាសាស្ត្រ" : "scientific"}
+                        </span>
+                      )}
+                    </div>
+
+                    {sNatural.length > 0 ? (
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           flyToSite(s, true);
                         }}
-                        className="rounded px-2 py-0.5 bg-slate-900 text-white text-[10px] font-bold hover:bg-emerald-700 transition"
+                        className="rounded-lg px-2.5 py-1 bg-slate-900 text-cyan-300 text-xs font-extrabold hover:bg-cyan-600 hover:text-white transition shadow-xs"
                       >
-                        {kh ? "មើលរូប" : "Holo-View"}
+                        {kh ? "មើលរូបហូឡូ" : "Holo-View"}
                       </button>
-                    </div>
-                  )}
+                    ) : (
+                      <span className="text-[11px] font-medium text-slate-400 italic">
+                        {kh ? "ឯកសារវិទ្យាសាស្ត្រ" : "Dossier figures"}
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })}
@@ -490,18 +644,18 @@ export default function GeoparkExplorer() {
         </aside>
 
         {/* RIGHT: 3D MapLibre Interactive Canvas */}
-        <div className="relative flex flex-col h-[620px] rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-xl">
+        <div className="relative flex flex-col h-[680px] rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-xl">
           {/* Map Top Control Bar */}
-          <div className="z-10 flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 bg-slate-950/90 px-3.5 py-2.5 text-xs text-white backdrop-blur-md">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="z-10 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 bg-slate-950/90 px-4 py-3 text-xs md:text-sm text-white backdrop-blur-md">
+            <div className="flex flex-wrap items-center gap-2.5">
               <label className="flex items-center gap-1.5 font-semibold text-slate-300">
-                <Layers size={14} className="text-emerald-400" />
+                <Layers size={16} className="text-emerald-400" />
                 <span>Basemap:</span>
                 <select
                   aria-label="Basemap"
                   value={basemap}
                   onChange={(e) => setBasemap(e.target.value as Basemap)}
-                  className="rounded-lg bg-slate-800 px-2.5 py-1 text-xs text-white border border-slate-700 focus:outline-none"
+                  className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs md:text-sm text-white border border-slate-700 focus:outline-none"
                 >
                   <option value="satellite">Satellite (Esri Imagery)</option>
                   <option value="topo">Topographic Map</option>
@@ -513,7 +667,7 @@ export default function GeoparkExplorer() {
               <button
                 type="button"
                 onClick={() => setTerrain3D((x) => !x)}
-                className={`rounded-lg px-2.5 py-1 font-bold text-xs transition border ${
+                className={`rounded-lg px-3 py-1.5 font-bold text-xs md:text-sm transition border ${
                   terrain3D
                     ? "bg-emerald-700 text-white border-emerald-500 shadow-xs"
                     : "bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700"
@@ -529,7 +683,7 @@ export default function GeoparkExplorer() {
                   setPitch(v);
                   map.current?.easeTo({ pitch: v, duration: 600 });
                 }}
-                className="rounded-lg bg-slate-800 px-2.5 py-1 text-xs text-slate-300 border border-slate-700 hover:bg-slate-700 transition"
+                className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs md:text-sm text-slate-300 border border-slate-700 hover:bg-slate-700 transition font-medium"
               >
                 {pitch > 20 ? "Top View (0°)" : "3D Tilt (62°)"}
               </button>
@@ -537,21 +691,21 @@ export default function GeoparkExplorer() {
               <button
                 type="button"
                 onClick={() => map.current?.flyTo({ center: [104.5, 12.5], zoom: 7.2, pitch: 58, bearing: -15 })}
-                className="rounded-lg bg-slate-800 px-2.5 py-1 text-xs text-slate-300 border border-slate-700 hover:bg-slate-700 transition"
+                className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs md:text-sm text-slate-300 border border-slate-700 hover:bg-slate-700 transition font-medium"
               >
-                Reset Cambodia
+                {kh ? "មើលកម្ពុជាទាំងមូល" : "Reset Cambodia"}
               </button>
             </div>
 
-            {/* Quick Open Hologram Gallery Button */}
-            {selectedSite.gallery.length > 0 && (
+            {/* Quick Button to Launch Hologram Gallery */}
+            {naturalPhotos.length > 0 && (
               <button
                 type="button"
                 onClick={() => setIsHoloOpen(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-500/20 border border-cyan-400/50 px-3 py-1 font-bold text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.3)] hover:bg-cyan-500/30 transition text-xs"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-emerald-600 px-3 py-1.5 text-xs md:text-sm font-extrabold text-white shadow-md hover:from-cyan-500 hover:to-emerald-500 transition"
               >
-                <Sparkles size={13} className="text-cyan-300" />
-                <span>{kh ? "បើកហូឡូក្រាម" : "Open Hologram"} ({selectedSite.gallery.length})</span>
+                <Sparkles size={14} className="text-cyan-200" />
+                <span>{kh ? "បើករូបហូឡូក្រាម" : "Open Hologram"} ({naturalPhotos.length})</span>
               </button>
             )}
           </div>
@@ -560,23 +714,17 @@ export default function GeoparkExplorer() {
           <div ref={container} className="h-full w-full" aria-label="3D Geopark Interactive Map" />
 
           {/* Map Bottom Telemetry HUD */}
-          <div className="z-10 flex flex-wrap items-center justify-between gap-2 border-t border-slate-800 bg-slate-950/85 px-4 py-2 font-mono text-[11px] text-slate-400 backdrop-blur-md">
+          <div className="z-10 flex flex-wrap items-center justify-between gap-2 border-t border-slate-800 bg-slate-950/90 px-5 py-2.5 font-mono text-xs md:text-sm text-slate-300 backdrop-blur-md">
             <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
-              <Navigation size={12} />
+              <Navigation size={14} />
               {coords
                 ? `LAT ${coords[1].toFixed(5)}° · LON ${coords[0].toFixed(5)}° (WGS84)`
                 : "Hover on map to inspect coordinates"}
             </span>
             <span className="text-slate-300">
-              Selected: <strong className="text-white">{selectedSite.name}</strong>
+              Selected: <strong className="text-white font-bold">{selectedSite.name}</strong>
             </span>
           </div>
-
-          {error && (
-            <div className="absolute top-14 left-4 z-20 rounded-xl bg-rose-900/90 p-3 text-xs text-rose-200 border border-rose-700">
-              {error}
-            </div>
-          )}
         </div>
       </div>
 
@@ -588,52 +736,62 @@ export default function GeoparkExplorer() {
         key={selectedSite.id}
         data-no-translate="true"
         data-cms-inline="true"
-        className="mt-12 rounded-3xl border border-slate-200 bg-white p-6 md:p-9 shadow-sm transition-all duration-200"
+        className="mt-14 rounded-3xl border border-slate-200 bg-white p-7 md:p-10 shadow-sm transition-all duration-200"
       >
         {/* Narrative Top Bar */}
-        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-6">
+        <div className="flex flex-wrap items-start justify-between gap-5 border-b border-slate-100 pb-7">
           <div>
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-100 px-2.5 py-1 text-xs font-extrabold text-emerald-800">
-                <MapPin size={13} />
+            <div className="flex flex-wrap items-center gap-2.5 mb-3">
+              <span className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-100 px-3 py-1 text-sm font-extrabold text-emerald-900 border border-emerald-200">
+                <MapPin size={15} />
                 {selectedSite.province.en} ({selectedSite.province.km})
               </span>
-              <span className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-mono font-bold text-slate-700">
+              <span className="inline-flex items-center gap-1 rounded-xl bg-slate-100 px-3 py-1 text-sm font-mono font-bold text-slate-800 border border-slate-200">
                 {selectedSite.era}
               </span>
-              <span className="inline-flex items-center gap-1 rounded-lg bg-cyan-100 px-2.5 py-1 text-xs font-mono font-bold text-cyan-800">
+              <span className="inline-flex items-center gap-1 rounded-xl bg-cyan-100 px-3 py-1 text-sm font-mono font-bold text-cyan-900 border border-cyan-200">
                 ID: {selectedSite.id}
               </span>
               {selectedSite.publish_pin ? (
-                <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
-                  Published Pin
+                <span className="inline-flex items-center gap-1 rounded-xl bg-emerald-50 border border-emerald-300 px-3 py-1 text-xs md:text-sm font-bold text-emerald-800">
+                  ✓ Published Pin
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 rounded-lg bg-amber-50 border border-amber-200 px-2 py-0.5 text-[11px] font-bold text-amber-800">
+                <span className="inline-flex items-center gap-1 rounded-xl bg-amber-50 border border-amber-300 px-3 py-1 text-xs md:text-sm font-bold text-amber-900">
                   Coordinate Hold (Under Survey)
                 </span>
               )}
             </div>
 
-            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
               {kh ? selectedSite.nameKm : selectedSite.name}
             </h2>
-            <p className="text-sm font-semibold text-slate-500 mt-1">
+            <p className="text-base md:text-lg font-semibold text-slate-600 mt-2">
               {selectedSite.name} · {selectedSite.designation}
             </p>
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2">
-            {selectedSite.gallery.length > 0 && (
+          <div className="flex flex-wrap items-center gap-3">
+            {naturalPhotos.length > 0 && (
               <button
                 type="button"
                 onClick={() => setIsHoloOpen(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-extrabold text-white shadow-sm hover:bg-emerald-700 transition"
+                className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-cyan-300 shadow-md hover:bg-cyan-700 hover:text-white transition"
               >
-                <Sparkles size={15} className="text-emerald-400" />
-                <span>{kh ? "បើកវិចិត្រសាលហូឡូក្រាម" : "View Hologram Gallery"} ({selectedSite.gallery.length})</span>
+                <Sparkles size={16} className="text-cyan-400" />
+                <span>{kh ? "បើកវិចិត្រសាលហូឡូក្រាម" : "View Hologram Gallery"} ({naturalPhotos.length} {kh ? "រូបធម្មជាតិ" : "photos"})</span>
               </button>
+            )}
+
+            {scientificFigures.length > 0 && (
+              <a
+                href="#scientific-plates"
+                className="inline-flex items-center gap-2 rounded-xl bg-purple-50 border border-purple-300 px-4 py-3 text-sm font-bold text-purple-900 hover:bg-purple-100 transition shadow-2xs"
+              >
+                <BookOpen size={16} className="text-purple-700" />
+                <span>{kh ? "មើលផែនទី និងសំណាក" : "Scientific Plates"} ({scientificFigures.length})</span>
+              </a>
             )}
 
             {selectedSite.coordinates && (
@@ -641,9 +799,9 @@ export default function GeoparkExplorer() {
                 href={`https://www.google.com/maps?q=${selectedSite.coordinates[1]},${selectedSite.coordinates[0]}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition shadow-2xs"
               >
-                <Compass size={14} className="text-emerald-700" />
+                <Compass size={16} className="text-emerald-700" />
                 <span>Google Maps ↗</span>
               </a>
             )}
@@ -653,88 +811,88 @@ export default function GeoparkExplorer() {
         {/* Narrative Core Dossier (3 Columns Grid) */}
         <div className="mt-8 grid gap-8 md:grid-cols-3">
           {/* Column 1: Geological Journey & Deep-Time Story */}
-          <div className="space-y-4 md:col-span-2">
-            <div className="rounded-2xl bg-gradient-to-br from-emerald-50/70 via-white to-sky-50/40 p-6 border border-emerald-100">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5 mb-2">
-                <BookOpen size={16} />
+          <div className="space-y-6 md:col-span-2">
+            <div className="rounded-2xl bg-gradient-to-br from-emerald-50/70 via-white to-sky-50/40 p-7 md:p-8 border border-emerald-100">
+              <span className="text-sm font-extrabold uppercase tracking-wider text-emerald-800 flex items-center gap-2 mb-3">
+                <BookOpen size={18} />
                 {kh ? "ដំណើររឿងរ៉ាវភូគព្ភសាស្ត្រ (Geological Narrative)" : "Deep-Time Geological Narrative"}
               </span>
 
-              <h3 className="text-lg font-bold text-slate-900 mb-3">
+              <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">
                 {kh ? "ប្រវត្តិការកកើត និងទម្រង់សិលាសាស្ត្រ" : "Landscape Evolution & Geological Setting"}
               </h3>
 
-              <p className="text-sm leading-relaxed text-slate-700">
+              <p className="text-base md:text-lg leading-relaxed text-slate-800 font-normal">
                 {selectedSite.description}
               </p>
 
-              <p className="mt-3 text-sm leading-relaxed text-slate-700">
+              <p className="mt-4 text-base md:text-lg leading-relaxed text-slate-800 font-normal">
                 {kh ? selectedSite.narrative.geologicalSettingKm : selectedSite.narrative.geologicalSetting}
               </p>
             </div>
 
             {/* Mineralogy & Lithological Composition */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                <Mountain size={15} className="text-emerald-700" />
+            <div className="rounded-2xl border border-slate-200 bg-white p-7 space-y-3">
+              <span className="text-xs md:text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                <Mountain size={18} className="text-emerald-700" />
                 {kh ? "លក្ខណៈសិលាសាស្ត្រ និងរ៉ែ (Mineralogy & Petrology)" : "Mineralogy & Lithological Characteristics"}
               </span>
-              <p className="text-sm font-semibold text-slate-900 mt-1">
+              <p className="text-base md:text-lg font-bold text-slate-900 mt-1">
                 {selectedSite.mineralogy || "Quartz sandstone and sedimentary alluvial bedrock."}
               </p>
-              <p className="text-xs leading-relaxed text-slate-600 mt-2">
+              <p className="text-sm md:text-base leading-relaxed text-slate-700 mt-2">
                 {selectedSite.narrative.mineralogyNote}
               </p>
             </div>
           </div>
 
           {/* Column 2: Survey Provenance, GPS Coordinate Basis, and Technical Metadata */}
-          <div className="space-y-4">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-6 space-y-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                <Shield size={15} className="text-emerald-700" />
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-6 md:p-7 space-y-4">
+              <span className="text-xs md:text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                <Shield size={18} className="text-emerald-700" />
                 {kh ? "ប្រភពទិន្នន័យ និងកូអរដោណេ" : "Survey Provenance & Coordinate Basis"}
               </span>
 
-              <div className="text-xs space-y-3 text-slate-600">
+              <div className="text-sm md:text-base space-y-3.5 text-slate-700">
                 <div>
-                  <strong className="block text-slate-800 mb-0.5 font-bold">
+                  <strong className="block text-slate-900 mb-1 font-bold text-sm">
                     {kh ? "កូអរដោណេផ្លូវការ:" : "Spatial Position:"}
                   </strong>
                   {selectedSite.coordinates ? (
-                    <span className="font-mono text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded font-bold">
+                    <span className="font-mono text-emerald-900 bg-emerald-100 px-2.5 py-1 rounded-lg font-bold text-sm md:text-base">
                       {selectedSite.coordinates[1].toFixed(5)}° N, {selectedSite.coordinates[0].toFixed(5)}° E
                     </span>
                   ) : (
-                    <span className="font-mono text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-bold">
+                    <span className="font-mono text-amber-900 bg-amber-100 px-2.5 py-1 rounded-lg font-bold text-sm">
                       Position Unresolved / Hold
                     </span>
                   )}
                 </div>
 
                 <div>
-                  <strong className="block text-slate-800 mb-0.5 font-bold">
+                  <strong className="block text-slate-900 mb-1 font-bold text-sm">
                     {kh ? "ប្រភពទិន្នន័យដើម:" : "Published Source Basis:"}
                   </strong>
-                  <span className="leading-snug block">
+                  <span className="leading-snug block text-xs md:text-sm text-slate-600">
                     {selectedSite.coordinate_source}
                   </span>
                 </div>
 
                 {selectedSite.coordinate_notes && (
                   <div>
-                    <strong className="block text-slate-800 mb-0.5 font-bold">
+                    <strong className="block text-slate-900 mb-1 font-bold text-sm">
                       {kh ? "កំណត់សម្គាល់បន្ថែម:" : "Cartographic Notes:"}
                     </strong>
-                    <span className="italic block leading-snug">
+                    <span className="italic block leading-snug text-xs md:text-sm text-slate-600">
                       {selectedSite.coordinate_notes}
                     </span>
                   </div>
                 )}
 
                 {selectedSite.source_urls.length > 0 && (
-                  <div className="pt-2 border-t border-slate-200">
-                    <strong className="block text-slate-800 mb-1 font-bold">
+                  <div className="pt-3 border-t border-slate-200">
+                    <strong className="block text-slate-900 mb-1.5 font-bold text-sm">
                       {kh ? "ឯកសារយោង និងតំណភ្ជាប់:" : "Source Literature Links:"}
                     </strong>
                     {selectedSite.source_urls.map((u, i) => (
@@ -743,9 +901,9 @@ export default function GeoparkExplorer() {
                         href={u}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[11px] text-emerald-700 hover:underline break-all block mb-1"
+                        className="inline-flex items-center gap-1 text-xs md:text-sm text-emerald-700 hover:underline break-all block mb-1 font-medium"
                       >
-                        <ArrowUpRight size={11} /> {u.replace(/^https?:\/\//, "").slice(0, 38)}...
+                        <ArrowUpRight size={13} /> {u.replace(/^https?:\/\//, "").slice(0, 36)}...
                       </a>
                     ))}
                   </div>
@@ -753,52 +911,173 @@ export default function GeoparkExplorer() {
               </div>
             </div>
 
-            {/* Quick Gallery Teaser / Mini Hologram Card */}
-            {selectedSite.gallery.length > 0 && (
+            {/* Quick Gallery Teaser / Mini Hologram Card (Shows first natural photo) */}
+            {naturalPhotos.length > 0 ? (
               <div
                 onClick={() => setIsHoloOpen(true)}
-                className="group relative cursor-pointer overflow-hidden rounded-2xl border border-cyan-500/40 bg-slate-950 p-4 shadow-md transition hover:border-cyan-400 hover:shadow-[0_0_25px_rgba(6,182,212,0.35)]"
+                className="group relative cursor-pointer overflow-hidden rounded-2xl border border-cyan-500/40 bg-slate-950 p-5 shadow-md transition hover:border-cyan-400 hover:shadow-[0_0_25px_rgba(6,182,212,0.35)]"
               >
-                <div className="flex items-center justify-between text-xs text-cyan-300 font-bold mb-2">
+                <div className="flex items-center justify-between text-xs md:text-sm text-cyan-300 font-bold mb-2.5">
                   <span className="flex items-center gap-1.5">
-                    <Sparkles size={14} className="text-cyan-400" />
-                    HOLO-ARCHIVE ({selectedSite.gallery.length})
+                    <Sparkles size={16} className="text-cyan-400" />
+                    SCENIC HOLO-ARCHIVE ({naturalPhotos.length})
                   </span>
-                  <span className="text-[10px] font-mono uppercase text-emerald-400">READY</span>
+                  <span className="text-xs font-mono uppercase text-emerald-400 font-bold">READY</span>
                 </div>
 
                 <div className="relative aspect-video overflow-hidden rounded-xl border border-cyan-500/20 bg-slate-900">
                   <img
-                    src={`/geosites/${selectedSite.gallery[0].src}`}
-                    alt={selectedSite.gallery[0].caption}
+                    src={`/geosites/${naturalPhotos[0].src}`}
+                    alt={naturalPhotos[0].caption}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
-                  <div className="absolute bottom-2 left-2 right-2 text-[11px] font-medium text-white truncate">
-                    {selectedSite.gallery[0].caption}
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5 text-xs font-semibold text-white truncate">
+                    {naturalPhotos[0].caption}
                   </div>
                 </div>
 
-                <p className="mt-2.5 text-center text-xs font-extrabold text-cyan-300 group-hover:text-cyan-200">
+                <p className="mt-3 text-center text-xs md:text-sm font-extrabold text-cyan-300 group-hover:text-cyan-200">
                   {kh ? "ចុចដើម្បីបើកទិដ្ឋភាពហូឡូក្រាមពេញ ↗" : "Click to Launch Hologram Gallery ↗"}
                 </p>
               </div>
-            )}
+            ) : scientificFigures.length > 0 ? (
+              <div
+                onClick={() => {
+                  const el = document.getElementById("scientific-plates");
+                  el?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="group relative cursor-pointer overflow-hidden rounded-2xl border border-purple-400/40 bg-slate-950 p-5 shadow-md transition hover:border-purple-300"
+              >
+                <div className="flex items-center justify-between text-xs md:text-sm text-purple-300 font-bold mb-2.5">
+                  <span className="flex items-center gap-1.5">
+                    <BookOpen size={16} className="text-purple-400" />
+                    SCIENTIFIC PLATES ({scientificFigures.length})
+                  </span>
+                  <span className="text-xs font-mono uppercase text-purple-400 font-bold">MAPS/FOSSILS</span>
+                </div>
+
+                <div className="relative aspect-video overflow-hidden rounded-xl border border-purple-500/20 bg-slate-900">
+                  <img
+                    src={`/geosites/${scientificFigures[0].item.src}`}
+                    alt={scientificFigures[0].item.caption}
+                    className="h-full w-full object-contain p-1 transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5 text-xs font-semibold text-white truncate">
+                    {scientificFigures[0].item.caption}
+                  </div>
+                </div>
+
+                <p className="mt-3 text-center text-xs md:text-sm font-extrabold text-purple-300 group-hover:text-purple-200">
+                  {kh ? "ចុចដើម្បីពិនិត្យផ្ទាំងផែនទីខាងក្រោម ↓" : "Inspect Scientific Plates Below ↓"}
+                </p>
+              </div>
+            ) : null}
           </div>
         </div>
+
+        {/* ========================================================================= */}
+        {/* SCIENTIFIC PLATES: MAPS, FOSSILS, THIN SECTIONS & STRATIGRAPHIC COLUMNS */}
+        {/* ========================================================================= */}
+        {scientificFigures.length > 0 && (
+          <div id="scientific-plates" className="mt-12 rounded-2xl border border-slate-200 bg-slate-50/80 p-6 md:p-9">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-5 mb-7">
+              <div>
+                <div className="flex items-center gap-2 text-xs md:text-sm font-bold uppercase tracking-widest text-purple-800">
+                  <BookOpen size={18} className="text-purple-700" />
+                  {kh ? "ឯកសារ និងទិន្នន័យភូគព្ភសាស្ត្រស៊ីជម្រៅ" : "Scientific Geological Plates & Cartography"}
+                </div>
+                <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 mt-1.5 tracking-tight">
+                  {kh ? "ផែនទីភូគព្ភសាស្ត្រ សំណាកផូស៊ីល ចំណិតស្តើង និងស្រទាប់សិលា" : "Geological Maps, Fossil Horizons, Thin Sections & Stratigraphic Sections"}
+                </h3>
+                <p className="text-sm md:text-base text-slate-600 mt-1 max-w-4xl leading-relaxed">
+                  {kh
+                    ? `ផ្ទាំងវិទ្យាសាស្ត្រ និងផែនទីចំនួន ${scientificFigures.length} ផ្ទាំង ស្រង់ចេញពីការស្រាវជ្រាវបោះពុម្ពផ្លូវការសម្រាប់ទីតាំងនេះ។`
+                    : `Peer-reviewed scientific figures, regional geological maps, fossil specimens, and petrographic thin sections published for this specific Cambodian locality.`}
+                </p>
+              </div>
+              <span className="rounded-full bg-purple-100 px-4 py-1.5 text-xs md:text-sm font-extrabold text-purple-900 border border-purple-300">
+                {scientificFigures.length} Scientific Plates
+              </span>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {scientificFigures.map((fig, idx) => (
+                <div
+                  key={idx}
+                  className="group flex flex-col rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden hover:shadow-md transition duration-200"
+                >
+                  {/* Category Badge Header */}
+                  <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+                    <span className={`text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${fig.category.badgeColor}`}>
+                      {kh ? fig.category.labelKm : fig.category.labelEn}
+                    </span>
+                    <span className="text-xs font-mono font-bold text-slate-400">Fig {idx + 1}</span>
+                  </div>
+
+                  {/* High-res Image Preview */}
+                  <div
+                    onClick={() => setLightboxImg(fig.item)}
+                    className="relative aspect-video bg-slate-900 cursor-pointer overflow-hidden flex items-center justify-center"
+                    title="Click to inspect full-resolution figure"
+                  >
+                    <img
+                      src={`/geosites/${fig.item.src}`}
+                      alt={fig.item.caption}
+                      className="w-full h-full object-contain p-1.5 transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-slate-950/30 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <span className="rounded-xl bg-black/80 px-3.5 py-2 text-xs md:text-sm font-bold text-white shadow-md flex items-center gap-1.5 backdrop-blur-sm">
+                        <Maximize2 size={15} /> {kh ? "ពង្រីកមើលច្បាស់" : "Click to Enlarge"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Caption & Citations */}
+                  <div className="p-5 flex flex-col flex-1 justify-between gap-3 text-left">
+                    <div>
+                      <p className="text-sm md:text-base font-semibold text-slate-900 leading-snug">
+                        {fig.item.caption}
+                      </p>
+                      {fig.item.credit && (
+                        <p className="text-xs md:text-sm text-slate-500 mt-2 italic leading-relaxed">
+                          {fig.item.credit}
+                        </p>
+                      )}
+                    </div>
+
+                    {fig.item.source_urls && fig.item.source_urls.length > 0 && (
+                      <div className="pt-2.5 border-t border-slate-100">
+                        <a
+                          href={fig.item.source_urls[0]}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs md:text-sm font-bold text-purple-700 hover:text-purple-900 hover:underline"
+                        >
+                          <ExternalLink size={13} /> {kh ? "អានឯកសារដើម ↗" : "Source Literature ↗"}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* =================================================================================== */}
       {/* SECTION 3: MULTIPLE IMAGE HOLOGRAM GALLERY MODAL (CYBER-HOLOGRAPHIC STYLE) */}
       {/* =================================================================================== */}
-      {isHoloOpen && selectedSite.gallery.length > 0 && (
+      {isHoloOpen && (
         <div
           data-no-translate="true"
           data-cms-inline="true"
-          className="fixed inset-0 z-[5000] flex items-center justify-center bg-black/85 p-4 backdrop-blur-md"
+          className="fixed inset-0 z-[5000] flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
         >
           {/* Holographic Window */}
-          <div className="relative w-full max-w-5xl rounded-3xl border border-cyan-400/50 bg-slate-950/95 p-6 shadow-[0_0_50px_rgba(6,182,212,0.35)] text-white backdrop-blur-2xl overflow-hidden flex flex-col max-h-[92vh]">
+          <div className="relative w-full max-w-5xl rounded-3xl border border-cyan-400/50 bg-slate-950/95 p-6 md:p-8 shadow-[0_0_50px_rgba(6,182,212,0.35)] text-white backdrop-blur-2xl overflow-hidden flex flex-col max-h-[92vh]">
             {/* Holographic Grid Background & Scanline Overlay */}
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#06b6d4_1px,transparent_1px)] [background-size:24px_24px] opacity-15" />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/5 to-transparent" />
@@ -806,15 +1085,17 @@ export default function GeoparkExplorer() {
             {/* Hologram Header Bar */}
             <div className="relative z-10 flex items-center justify-between border-b border-cyan-500/30 pb-4 mb-4">
               <div>
-                <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest text-cyan-400">
-                  <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee]" />
-                  GEOSITE HOLO-ARCHIVE // TELEMETRY LINKED
+                <div className="flex items-center gap-2 text-xs md:text-sm font-mono font-bold tracking-widest text-cyan-400">
+                  <span className="h-2.5 w-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_#22d3ee]" />
+                  GEOSITE NATURAL SCENERY HOLO-ARCHIVE // FIELD IMAGERY
                 </div>
-                <h3 className="text-xl font-extrabold text-white mt-1 flex items-center gap-2">
+                <h3 className="text-xl md:text-2xl font-extrabold text-white mt-1.5 flex items-center gap-3 flex-wrap">
                   <span>{kh ? selectedSite.nameKm : selectedSite.name}</span>
-                  <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">
-                    {activeImageIdx + 1} / {selectedSite.gallery.length}
-                  </span>
+                  {naturalPhotos.length > 0 && (
+                    <span className="text-xs md:text-sm font-mono font-bold px-3 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">
+                      {activeImageIdx + 1} / {naturalPhotos.length} {kh ? "រូបភាពធម្មជាតិ" : "Scenic Photos"}
+                    </span>
+                  )}
                 </h3>
               </div>
 
@@ -825,95 +1106,122 @@ export default function GeoparkExplorer() {
                   className="rounded-full bg-slate-800 p-2 text-slate-300 hover:bg-rose-900/80 hover:text-white transition"
                   title="Close Hologram Gallery"
                 >
-                  <X size={18} />
+                  <X size={20} />
                 </button>
               </div>
             </div>
 
             {/* Hologram Active Viewport */}
-            <div className="relative z-10 flex-1 flex flex-col items-center justify-center min-h-[360px] overflow-hidden">
-              {/* Main Image Stage with Hologram Bracket Glow */}
-              <div className="relative max-h-[50vh] w-full flex items-center justify-center">
-                {/* Holographic Cyan Corner Reticles */}
-                <div className="pointer-events-none absolute -top-2 -left-2 h-6 w-6 border-t-2 border-l-2 border-cyan-400" />
-                <div className="pointer-events-none absolute -top-2 -right-2 h-6 w-6 border-t-2 border-r-2 border-cyan-400" />
-                <div className="pointer-events-none absolute -bottom-2 -left-2 h-6 w-6 border-b-2 border-l-2 border-cyan-400" />
-                <div className="pointer-events-none absolute -bottom-2 -right-2 h-6 w-6 border-b-2 border-r-2 border-cyan-400" />
+            {naturalPhotos.length > 0 ? (
+              <div className="relative z-10 flex-1 flex flex-col items-center justify-center min-h-[360px] overflow-hidden">
+                {/* Main Image Stage with Hologram Bracket Glow */}
+                <div className="relative max-h-[50vh] w-full flex items-center justify-center">
+                  <div className="pointer-events-none absolute -top-2 -left-2 h-6 w-6 border-t-2 border-l-2 border-cyan-400" />
+                  <div className="pointer-events-none absolute -top-2 -right-2 h-6 w-6 border-t-2 border-r-2 border-cyan-400" />
+                  <div className="pointer-events-none absolute -bottom-2 -left-2 h-6 w-6 border-b-2 border-l-2 border-cyan-400" />
+                  <div className="pointer-events-none absolute -bottom-2 -right-2 h-6 w-6 border-b-2 border-r-2 border-cyan-400" />
 
-                <img
-                  src={`/geosites/${selectedSite.gallery[activeImageIdx].src}`}
-                  alt={selectedSite.gallery[activeImageIdx].caption}
-                  className="max-h-[48vh] w-auto max-w-full rounded-xl object-contain shadow-[0_0_35px_rgba(6,182,212,0.3)] border border-cyan-400/30 cursor-pointer"
-                  onClick={() => setLightboxImg(selectedSite.gallery[activeImageIdx])}
-                />
+                  <img
+                    src={`/geosites/${naturalPhotos[activeImageIdx]?.src}`}
+                    alt={naturalPhotos[activeImageIdx]?.caption}
+                    className="max-h-[48vh] w-auto max-w-full rounded-xl object-contain shadow-[0_0_35px_rgba(6,182,212,0.3)] border border-cyan-400/30 cursor-pointer"
+                    onClick={() => setLightboxImg(naturalPhotos[activeImageIdx])}
+                  />
 
-                {/* Left / Right Carousel Controls */}
-                {selectedSite.gallery.length > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setActiveImageIdx((prev) =>
-                          prev > 0 ? prev - 1 : selectedSite.gallery.length - 1
-                        )
-                      }
-                      className="absolute left-3 rounded-full bg-slate-900/80 p-3 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500 hover:text-slate-950 transition shadow-lg"
-                    >
-                      <ChevronLeft size={20} />
-                    </button>
+                  {/* Left / Right Carousel Controls */}
+                  {naturalPhotos.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveImageIdx((prev) =>
+                            prev > 0 ? prev - 1 : naturalPhotos.length - 1
+                          )
+                        }
+                        className="absolute left-3 rounded-full bg-slate-900/85 p-3 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500 hover:text-slate-950 transition shadow-lg"
+                      >
+                        <ChevronLeft size={22} />
+                      </button>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setActiveImageIdx((prev) =>
-                          prev < selectedSite.gallery.length - 1 ? prev + 1 : 0
-                        )
-                      }
-                      className="absolute right-3 rounded-full bg-slate-900/80 p-3 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500 hover:text-slate-950 transition shadow-lg"
-                    >
-                      <ChevronRight size={20} />
-                    </button>
-                  </>
-                )}
-              </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveImageIdx((prev) =>
+                            prev < naturalPhotos.length - 1 ? prev + 1 : 0
+                          )
+                        }
+                        className="absolute right-3 rounded-full bg-slate-900/85 p-3 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500 hover:text-slate-950 transition shadow-lg"
+                      >
+                        <ChevronRight size={22} />
+                      </button>
+                    </>
+                  )}
+                </div>
 
-              {/* Hologram Caption & Scientific Credit Card */}
-              <div className="mt-4 w-full rounded-2xl bg-slate-900/80 p-4 border border-cyan-500/20 text-center">
-                <p className="text-sm font-semibold text-cyan-100">
-                  {selectedSite.gallery[activeImageIdx].caption}
-                </p>
-                {selectedSite.gallery[activeImageIdx].credit && (
-                  <p className="mt-1 text-xs text-slate-400 italic">
-                    {selectedSite.gallery[activeImageIdx].credit}
+                {/* Hologram Caption & Scientific Credit Card */}
+                <div className="mt-4 w-full rounded-2xl bg-slate-900/85 p-4 border border-cyan-500/20 text-center">
+                  <p className="text-sm md:text-base font-semibold text-cyan-100">
+                    {naturalPhotos[activeImageIdx]?.caption}
                   </p>
+                  {naturalPhotos[activeImageIdx]?.credit && (
+                    <p className="mt-1.5 text-xs text-slate-400 italic">
+                      {naturalPhotos[activeImageIdx]?.credit}
+                    </p>
+                  )}
+                </div>
+
+                {/* Hologram Thumbnail Filmstrip */}
+                {naturalPhotos.length > 1 && (
+                  <div className="relative z-10 mt-4 flex items-center justify-center gap-3 overflow-x-auto pb-1 border-t border-cyan-500/20 pt-3">
+                    {naturalPhotos.map((img, idx) => {
+                      const isActive = idx === activeImageIdx;
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setActiveImageIdx(idx)}
+                          className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-xl border transition ${
+                            isActive
+                              ? "border-cyan-400 shadow-[0_0_15px_#22d3ee] scale-105"
+                              : "border-slate-700 opacity-60 hover:opacity-100"
+                          }`}
+                        >
+                          <img
+                            src={`/geosites/${img.src}`}
+                            alt={img.caption}
+                            className="h-full w-full object-cover"
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
-            </div>
-
-            {/* Hologram Thumbnail Filmstrip */}
-            {selectedSite.gallery.length > 1 && (
-              <div className="relative z-10 mt-4 flex items-center justify-center gap-3 overflow-x-auto pb-1 border-t border-cyan-500/20 pt-3">
-                {selectedSite.gallery.map((img, idx) => {
-                  const isActive = idx === activeImageIdx;
-                  return (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setActiveImageIdx(idx)}
-                      className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-xl border transition ${
-                        isActive
-                          ? "border-cyan-400 shadow-[0_0_15px_#22d3ee] scale-105"
-                          : "border-slate-700 opacity-60 hover:opacity-100"
-                      }`}
-                    >
-                      <img
-                        src={`/geosites/${img.src}`}
-                        alt={img.caption}
-                        className="h-full w-full object-cover"
-                      />
-                    </button>
-                  );
-                })}
+            ) : (
+              <div className="relative z-10 flex flex-col items-center justify-center py-12 px-4 text-center">
+                <div className="max-w-lg rounded-2xl border border-cyan-500/30 bg-slate-900/70 p-8 shadow-xl">
+                  <Sparkles size={40} className="text-cyan-400 mx-auto mb-3 animate-pulse" />
+                  <h4 className="text-lg md:text-xl font-extrabold text-white mb-2">
+                    {kh ? "មិនមានរូបភាពទេសភាពធម្មជាតិក្នុងកាតាឡុកទេ" : "No Natural Field Photos In Catalogue"}
+                  </h4>
+                  <p className="text-sm md:text-base text-cyan-200/80 leading-relaxed mb-6">
+                    {kh
+                      ? "ទីតាំងភូគព្ភស្ថាននេះត្រូវបានចងក្រងជាចម្បងជាមួយផែនទីភូគព្ភសាស្ត្រ ចំណិតស្តើងសិលា និងសំណាកផូស៊ីល។ សូមពិនិត្យមើលផ្ទាំងវិទ្យាសាស្ត្រក្នុងឯកសារខាងក្រោមផែនទី។"
+                      : "This locality is documented with peer-reviewed geological maps, thin sections, and fossil specimens. Please inspect the Scientific Plates in the dossier below the map."}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsHoloOpen(false);
+                      const el = document.getElementById("scientific-plates");
+                      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                    className="inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-5 py-3 text-xs md:text-sm font-extrabold text-slate-950 hover:bg-cyan-300 transition shadow-lg"
+                  >
+                    <BookOpen size={16} />
+                    <span>{kh ? "ពិនិត្យមើលផ្ទាំងផែនទី និងសំណាកផូស៊ីល ↓" : "View Scientific Plates & Maps Below ↓"}</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -923,25 +1231,35 @@ export default function GeoparkExplorer() {
       {/* FULLSCREEN LIGHTBOX MODAL */}
       {lightboxImg && (
         <div
-          className="fixed inset-0 z-[6000] flex items-center justify-center bg-black/95 p-4"
+          data-no-translate="true"
+          data-cms-inline="true"
+          className="fixed inset-0 z-[6000] flex items-center justify-center bg-black/95 p-4 backdrop-blur-md"
           onClick={() => setLightboxImg(null)}
         >
           <button
             type="button"
             onClick={() => setLightboxImg(null)}
-            className="absolute top-5 right-5 text-white p-2 rounded-full bg-slate-800 hover:bg-slate-700 font-bold"
+            className="absolute top-5 right-5 text-white p-3 rounded-full bg-slate-800 hover:bg-rose-900 font-bold transition shadow-lg"
           >
             <X size={24} />
           </button>
-          <div className="max-w-6xl max-h-[90vh] flex flex-col items-center">
+          <div
+            className="max-w-6xl max-h-[92vh] flex flex-col items-center bg-slate-950/80 p-4 rounded-3xl border border-slate-800"
+            onClick={(e) => e.stopPropagation()}
+          >
             <img
               src={`/geosites/${lightboxImg.src}`}
               alt={lightboxImg.caption}
-              className="max-h-[82vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl"
+              className="max-h-[78vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl"
             />
-            <p className="mt-3 text-center text-sm font-semibold text-white">
+            <p className="mt-3.5 text-center text-sm md:text-base font-semibold text-white max-w-4xl px-4 leading-relaxed">
               {lightboxImg.caption}
             </p>
+            {lightboxImg.credit && (
+              <p className="mt-1 text-center text-xs text-slate-400 italic max-w-3xl px-4">
+                {lightboxImg.credit}
+              </p>
+            )}
           </div>
         </div>
       )}
