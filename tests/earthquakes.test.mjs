@@ -274,3 +274,65 @@ test('filterEarthquakes: filters by time window, magnitude threshold, and sort o
   assert.equal(tmdOnly.length, 1);
   assert.equal(tmdOnly[0].id, 'e3');
 });
+
+test('filterEarthquakes: handles scope (cambodia vs global) and global location search', () => {
+  const now = Date.now();
+  const mixedEvents = [
+    {
+      id: 'reg1',
+      location: 'Northern Thailand',
+      originTime: new Date(now - 3600 * 1000).toISOString(),
+      firstSeenAt: new Date(now - 3600 * 1000).toISOString(),
+      latitude: 18.5,
+      longitude: 99.0,
+      magnitude: 3.2,
+      isRegional: true,
+      distanceToCambodiaKm: 850,
+      reports: [{ provider: 'USGS', providerEventId: 'reg1', sourceUrl: '' }]
+    },
+    {
+      id: 'glob1',
+      location: 'near the east coast of Honshu, Japan',
+      originTime: new Date(now - 7200 * 1000).toISOString(),
+      firstSeenAt: new Date(now - 7200 * 1000).toISOString(),
+      latitude: 38.2,
+      longitude: 142.4,
+      magnitude: 6.2,
+      isRegional: false,
+      distanceToCambodiaKm: 4200,
+      reports: [{ provider: 'USGS', providerEventId: 'glob1', sourceUrl: '' }]
+    },
+    {
+      id: 'glob2',
+      location: 'Southern California, USA',
+      originTime: new Date(now - 14400 * 1000).toISOString(),
+      firstSeenAt: new Date(now - 14400 * 1000).toISOString(),
+      latitude: 34.0,
+      longitude: -118.2,
+      magnitude: 4.5,
+      isRegional: false,
+      distanceToCambodiaKm: 13500,
+      reports: [{ provider: 'USGS', providerEventId: 'glob2', sourceUrl: '' }]
+    }
+  ];
+
+  // Default cambodia scope only returns regional events
+  const cambodiaScope = filterEarthquakes(mixedEvents, { hoursWindow: 168, scope: 'cambodia' });
+  assert.equal(cambodiaScope.length, 1);
+  assert.equal(cambodiaScope[0].id, 'reg1');
+
+  // Global scope returns all events
+  const globalScope = filterEarthquakes(mixedEvents, { hoursWindow: 168, scope: 'global' });
+  assert.equal(globalScope.length, 3);
+
+  // Search query (e.g. "Japan") searches globally even if scope was cambodia
+  const searchJapan = filterEarthquakes(mixedEvents, { hoursWindow: 168, scope: 'cambodia', searchQuery: 'Japan' });
+  assert.equal(searchJapan.length, 1);
+  assert.equal(searchJapan[0].id, 'glob1');
+
+  // Search query "California"
+  const searchCal = filterEarthquakes(mixedEvents, { hoursWindow: 168, searchQuery: 'california' });
+  assert.equal(searchCal.length, 1);
+  assert.equal(searchCal[0].id, 'glob2');
+});
+

@@ -9,12 +9,14 @@ try {
 } catch {}
 import { type EarthquakeEvent, formatLocalIctTime } from "./earthquake-data";
 import { useI18n } from "@/lib/i18n";
-import { Layers, Navigation, Compass, ExternalLink } from "lucide-react";
+import { Layers, Navigation, Compass, Globe2, ExternalLink } from "lucide-react";
 
 interface EarthquakeMapProps {
   events: EarthquakeEvent[];
   selectedEventId?: string | null;
   onSelectEvent?: (event: EarthquakeEvent) => void;
+  scope?: "cambodia" | "global";
+  onScopeChange?: (scope: "cambodia" | "global") => void;
   className?: string;
 }
 
@@ -111,6 +113,8 @@ export default function EarthquakeMap({
   events,
   selectedEventId,
   onSelectEvent,
+  scope = "cambodia",
+  onScopeChange,
   className = "",
 }: EarthquakeMapProps) {
   const { lang } = useI18n();
@@ -126,7 +130,7 @@ export default function EarthquakeMap({
   const [coords, setCoords] = useState<[number, number] | null>(null);
   const [mapReady, setMapReady] = useState(false);
 
-  // Initialize MapLibre GL
+  // Initialize MapLibre GL - Default centered on Cambodia with global zoom capacity
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
 
@@ -134,8 +138,8 @@ export default function EarthquakeMap({
       container: mapContainer.current,
       center: [104.5, 13.0], // Centered on Cambodia & surrounding region
       zoom: 5.2,
-      minZoom: 3.5,
-      maxZoom: 14,
+      minZoom: 1.5, // Allow full global zoom out
+      maxZoom: 16,
       style: {
         version: 8,
         sources: {
@@ -234,26 +238,54 @@ export default function EarthquakeMap({
       el.innerHTML = renderMarkerHtml(event, isSelected);
       el.style.zIndex = isSelected ? "100" : "1";
 
+      const distanceText =
+        event.distanceToCambodiaKm !== undefined
+          ? event.distanceToCambodiaKm < 100
+            ? kh
+              ? "នៅក្នុងប្រទេសកម្ពុជា"
+              : "Within Cambodia"
+            : `~${Math.round(event.distanceToCambodiaKm).toLocaleString()} km ${
+                kh ? "ពីកម្ពុជា" : "from Cambodia"
+              }`
+          : "";
+
+      const regionBadge = event.isRegional
+        ? `<span style="font-size: 10px; background: #ecfdf5; color: #047857; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 1px solid #a7f3d0;">🇰🇭 Regional</span>`
+        : `<span style="font-size: 10px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 1px solid #cbd5e1;">🌐 Global</span>`;
+
       const popup = new maplibregl.Popup({
         offset: 18,
         closeButton: true,
         closeOnClick: false,
         className: "earthquake-info-popup",
       }).setHTML(`
-        <div style="font-family: system-ui, sans-serif; padding: 6px 10px; font-size: 13px; line-height: 1.4; color: #1e293b; max-width: 250px;">
+        <div style="font-family: system-ui, sans-serif; padding: 6px 10px; font-size: 13px; line-height: 1.4; color: #1e293b; max-width: 270px;">
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 6px;">
-            <strong style="font-size: 15px; color: #0f172a;">M ${event.magnitude !== null ? event.magnitude.toFixed(1) : "—"}</strong>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <strong style="font-size: 15px; color: #0f172a;">M ${event.magnitude !== null ? event.magnitude.toFixed(1) : "—"}</strong>
+              ${regionBadge}
+            </div>
             <span style="font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700;">${event.reports[0]?.provider || "USGS"}</span>
           </div>
           <div style="font-weight: 600; color: #0f172a; margin-bottom: 4px;">${event.location}</div>
           <div style="font-size: 11px; color: #64748b; margin-bottom: 2px;">
             Depth: <strong>${event.depthKm !== null ? `${event.depthKm.toFixed(0)} km` : "—"}</strong>
           </div>
+          ${
+            distanceText
+              ? `<div style="font-size: 11px; color: #2563eb; font-weight: 600; margin-bottom: 2px;">${distanceText}</div>`
+              : ""
+          }
           <div style="font-size: 11px; color: #64748b; margin-bottom: 6px;">
             Time: <strong>${formatLocalIctTime(event.originTime, lang, { includeDate: true })} ICT</strong>
           </div>
-          <div style="font-size: 10px; font-family: monospace; color: #94a3b8; border-top: 1px solid #f1f5f9; pt: 4px;">
-            ${event.latitude.toFixed(3)}°N, ${event.longitude.toFixed(3)}°E
+          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10px; font-family: monospace; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 4px;">
+            <span>${event.latitude.toFixed(3)}°, ${event.longitude.toFixed(3)}°</span>
+            ${
+              event.url
+                ? `<a href="${event.url}" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: underline; font-weight: 600;">Bulletin ↗</a>`
+                : ""
+            }
           </div>
         </div>
       `);
@@ -274,7 +306,7 @@ export default function EarthquakeMap({
 
       markersRef.current.set(event.id, { marker, el });
     });
-  }, [events, selectedEventId, mapReady, lang, onSelectEvent]);
+  }, [events, selectedEventId, mapReady, lang, onSelectEvent, kh]);
 
   // Center/Fly to selected event on map
   useEffect(() => {
@@ -296,6 +328,30 @@ export default function EarthquakeMap({
     }
   }, [selectedEventId, events, mapReady]);
 
+  // Handle fly to Cambodia Center
+  const handleFlyToCambodia = () => {
+    if (onScopeChange) onScopeChange("cambodia");
+    mapRef.current?.flyTo({
+      center: [104.5, 13.0],
+      zoom: 5.2,
+      pitch: 0,
+      bearing: 0,
+      speed: 1.2,
+    });
+  };
+
+  // Handle fly to Global View
+  const handleFlyToGlobal = () => {
+    if (onScopeChange) onScopeChange("global");
+    mapRef.current?.flyTo({
+      center: [104.5, 20.0],
+      zoom: 2.0,
+      pitch: 0,
+      bearing: 0,
+      speed: 1.2,
+    });
+  };
+
   return (
     <div
       data-no-translate="true"
@@ -304,8 +360,9 @@ export default function EarthquakeMap({
     >
       {/* Top Map Control Bar */}
       <div className="z-10 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 bg-slate-950/90 px-4 py-2.5 text-xs text-white backdrop-blur-md">
-        <div className="flex flex-wrap items-center gap-2.5">
-          <label className="flex items-center gap-1.5 font-semibold text-slate-300">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Basemap Selector */}
+          <label className="flex items-center gap-1.5 font-semibold text-slate-300 mr-1">
             <Layers size={14} className="text-primary" />
             <span>Basemap:</span>
             <select
@@ -320,29 +377,44 @@ export default function EarthquakeMap({
             </select>
           </label>
 
-          <button
-            type="button"
-            onClick={() =>
-              mapRef.current?.flyTo({
-                center: [104.5, 13.0],
-                zoom: 5.2,
-                pitch: 0,
-                bearing: 0,
-              })
-            }
-            className="rounded-lg bg-slate-800 px-2.5 py-1 text-xs text-slate-300 border border-slate-700 hover:bg-slate-700 transition font-medium"
-          >
-            {kh ? "កម្ពុជា និងតំបន់ (Reset)" : "Reset Cambodia & Region"}
-          </button>
+          {/* Quick Scope Views */}
+          <div className="inline-flex rounded-lg bg-slate-900 p-0.5 border border-slate-700">
+            <button
+              type="button"
+              onClick={handleFlyToCambodia}
+              className={`rounded-md px-2.5 py-1 text-xs font-bold transition ${
+                scope === "cambodia"
+                  ? "bg-primary text-white shadow-xs"
+                  : "text-slate-300 hover:text-white hover:bg-slate-800"
+              }`}
+              title="Reset view to Cambodia & Region"
+            >
+              {kh ? "🇰🇭 កម្ពុជា និងតំបន់ (លំនាំដើម)" : "🇰🇭 Cambodia & Region (Default)"}
+            </button>
+            <button
+              type="button"
+              onClick={handleFlyToGlobal}
+              className={`rounded-md px-2.5 py-1 text-xs font-bold transition ${
+                scope === "global"
+                  ? "bg-primary text-white shadow-xs"
+                  : "text-slate-300 hover:text-white hover:bg-slate-800"
+              }`}
+              title="Zoom out to worldwide view"
+            >
+              {kh ? "🌐 ទូទាំងពិភពលោក (Global)" : "🌐 Global / Worldwide"}
+            </button>
+          </div>
         </div>
 
         <span className="text-[11px] font-mono text-slate-400">
-          Showing {events.length} epicenters in region
+          {kh
+            ? `បង្ហាញចំណុចរញ្ជួយដីចំនួន ${events.length}`
+            : `Showing ${events.length} epicenters on map`}
         </span>
       </div>
 
       {/* Map Canvas */}
-      <div ref={mapContainer} className="h-full w-full min-h-[480px]" />
+      <div ref={mapContainer} className="h-full w-full min-h-[500px]" />
 
       {/* Map Legend (Magnitude & Marker Sizes) */}
       <div className="absolute bottom-10 left-3 z-10 rounded-xl border border-slate-800/90 bg-slate-950/85 p-3 text-[11px] text-white shadow-lg backdrop-blur-md max-w-[220px]">
@@ -369,16 +441,16 @@ export default function EarthquakeMap({
         </div>
       </div>
 
-      {/* Bottom Coordinates Telemetry */}
+      {/* Bottom Coordinates & Navigation Telemetry */}
       <div className="z-10 flex flex-wrap items-center justify-between gap-2 border-t border-slate-800 bg-slate-950/90 px-4 py-2 font-mono text-xs text-slate-400 backdrop-blur-md">
         <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
           <Navigation size={13} />
           {coords
             ? `LAT ${coords[1].toFixed(4)}° · LON ${coords[0].toFixed(4)}°`
-            : "Envelope: 5°–25°N, 92°–112°E (Cambodia & region)"}
+            : "Pan or search anywhere globally · Default: Cambodia & Region"}
         </span>
         <span className="text-slate-400 text-[11px]">
-          Data: USGS GeoJSON / TMD Feeds
+          Data: USGS Global Feed / TMD Feeds
         </span>
       </div>
     </div>

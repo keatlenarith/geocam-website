@@ -8,6 +8,7 @@ import {
   generateEventAnnouncement,
   formatLocalIctTime,
 } from "./earthquake-data";
+import { EarthquakeMiniMap } from "./EarthquakeMiniMap";
 import {
   Radio,
   Activity,
@@ -16,6 +17,10 @@ import {
   Clock,
   RefreshCw,
   ExternalLink,
+  MapPin,
+  Compass,
+  Layers,
+  ChevronRight,
 } from "lucide-react";
 
 interface EarthquakeAnnouncementsProps {
@@ -27,6 +32,7 @@ interface EarthquakeAnnouncementsProps {
   maxItems?: number;
   showViewAllLink?: boolean;
   onRefresh?: () => void;
+  onSelectEvent?: (event: EarthquakeEvent) => void;
   className?: string;
   isHomepage?: boolean;
 }
@@ -40,6 +46,7 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
   maxItems = 3,
   showViewAllLink = true,
   onRefresh,
+  onSelectEvent,
   className = "",
   isHomepage = false,
 }) => {
@@ -47,6 +54,22 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
   const kh = lang === "km";
 
   const displayedEvents = events.slice(0, maxItems);
+
+  // Helper for human-readable relative time
+  const getRelativeTime = (isoTime: string): string => {
+    try {
+      const diffMs = Date.now() - new Date(isoTime).getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      if (diffMins < 1) return kh ? "ទើបតែឥឡូវនេះ" : "just now";
+      if (diffMins < 60) return kh ? `${diffMins} នាទីមុន` : `${diffMins}m ago`;
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return kh ? `${diffHours} ម៉ោងមុន` : `${diffHours}h ago`;
+      const diffDays = Math.floor(diffHours / 24);
+      return kh ? `${diffDays} ថ្ងៃមុន` : `${diffDays}d ago`;
+    } catch {
+      return "";
+    }
+  };
 
   return (
     <div
@@ -60,17 +83,17 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
           <div className="flex items-center gap-2">
             <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
             <span className="text-xs font-bold uppercase tracking-wider text-primary">
-              {kh ? "ប្រព័ន្ធតាមដានការរញ្ជួយដីក្នុងតំបន់" : "Regional Earthquake Monitoring"}
+              {kh ? "ប្រព័ន្ធតាមដានការរញ្ជួយដីស្វ័យប្រវត្តិ" : "Automated Earthquake Seismological Feed"}
             </span>
           </div>
 
           <h3 className="text-xl md:text-2xl font-bold text-foreground mt-1 tracking-tight">
-            {kh ? "សេចក្តីជូនដំណឹង និងព្រឹត្តិការណ៍រញ្ជួយដីថ្មីៗ" : "Latest Regional Earthquake Bulletins"}
+            {kh ? "សេចក្តីជូនដំណឹង និងព្រឹត្តិការណ៍រញ្ជួយដីថ្មីៗ" : "Latest Earthquake Announcements & Bulletins"}
           </h3>
           <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
             {kh
-              ? "របាយការណ៍ស្វ័យប្រវត្តិតាមពេលវេលាជាក់ស្តែងពី USGS និងបណ្តាញរញ្ជួយដីក្នុងតំបន់ (កម្ពុជា ថៃ វៀតណាម ឡាវ មីយ៉ាន់ម៉ា)។"
-              : "Live automated bulletins from USGS & regional seismological monitoring networks for Cambodia and neighboring territories."}
+              ? "របាយការណ៍ស្វ័យប្រវត្តិតាមពេលវេលាជាក់ស្តែងពី USGS និងបណ្តាញរញ្ជួយដី (កម្ពុជា តំបន់ជុំវិញ និងទូទាំងពិភពលោក)។"
+              : "Live automated bulletins from USGS & regional networks for Cambodia, surrounding nations, and global seismicity."}
           </p>
         </div>
 
@@ -99,7 +122,7 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
               type="button"
               onClick={onRefresh}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1 text-xs font-bold text-foreground hover:bg-muted transition disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1 text-xs font-bold text-foreground hover:bg-muted transition disabled:opacity-50 cursor-pointer"
               title="Refresh bulletins"
             >
               <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
@@ -154,76 +177,217 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
         </div>
       )}
 
-      {/* Announcements List */}
-      <div className="mt-6 space-y-3.5">
+      {/* Announcements List with Epicenter Mini-Maps */}
+      <div className="mt-6 space-y-4">
         {loading && events.length === 0 ? (
-          <div className="py-8 text-center text-sm text-muted-foreground flex flex-col items-center gap-2">
-            <RefreshCw size={22} className="animate-spin text-primary" />
-            <span>{kh ? "កំពុងទាញយកទិន្នន័យរញ្ជួយដី..." : "Retrieving latest regional earthquake feeds..."}</span>
+          <div className="py-12 text-center text-sm text-muted-foreground flex flex-col items-center gap-2">
+            <RefreshCw size={24} className="animate-spin text-primary" />
+            <span>{kh ? "កំពុងទាញយកទិន្នន័យរញ្ជួយដី..." : "Retrieving latest earthquake feeds & bulletins..."}</span>
           </div>
         ) : displayedEvents.length > 0 ? (
           displayedEvents.map((event) => {
             const announcementText = generateEventAnnouncement(event, lang);
             const mag = event.magnitude !== null ? event.magnitude.toFixed(1) : "—";
-            const isSignificant = (event.magnitude ?? 0) >= 4.5;
+            const isSignificant = (event.magnitude ?? 0) >= 5.0;
+            const isModerate = (event.magnitude ?? 0) >= 4.0;
+            const relTime = getRelativeTime(event.originTime);
 
-            return (
-              <Link
-                key={event.id}
-                to={`/earthquake-monitoring?event=${encodeURIComponent(event.id)}`}
-                className={`group flex items-start justify-between gap-4 rounded-xl border p-4 transition-all hover:border-primary/50 hover:bg-secondary/20 ${
+            const cardContent = (
+              <div
+                className={`group flex flex-col md:flex-row items-stretch gap-4 rounded-xl border p-4 transition-all hover:border-primary/50 hover:bg-secondary/15 ${
                   isSignificant
-                    ? "border-amber-200 bg-amber-50/30"
+                    ? "border-rose-300/80 bg-rose-50/20 shadow-xs"
+                    : isModerate
+                    ? "border-amber-200 bg-amber-50/20"
                     : "border-border bg-card"
                 }`}
               >
-                <div className="flex items-start gap-3.5">
-                  {/* Magnitude Box */}
-                  <div
-                    className={`shrink-0 flex flex-col items-center justify-center rounded-xl px-2.5 py-1.5 border text-center ${
-                      isSignificant
-                        ? "bg-amber-100 text-amber-900 border-amber-300"
-                        : "bg-blue-50 text-blue-900 border-blue-200"
-                    }`}
-                  >
-                    <span className="text-[10px] font-bold uppercase tracking-wider opacity-75">
-                      MAG
-                    </span>
-                    <strong className="text-base font-extrabold font-mono">
-                      {mag}
-                    </strong>
+                {/* 1. Epicenter Mini Map */}
+                <div className="w-full md:w-[220px] shrink-0 flex items-center justify-center">
+                  <EarthquakeMiniMap
+                    latitude={event.latitude}
+                    longitude={event.longitude}
+                    magnitude={event.magnitude}
+                    location={event.location}
+                    depthKm={event.depthKm}
+                    isRegional={event.isRegional}
+                    zoom={event.isRegional ? 5 : 4}
+                    width={220}
+                    height={140}
+                    className="w-full h-[140px] shadow-sm"
+                  />
+                </div>
+
+                {/* 2. Structured Details & Narrative */}
+                <div className="flex-1 flex flex-col justify-between min-w-0">
+                  <div>
+                    {/* Top Row: Badges, Origin Time, Relative Time */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                      <div className="flex items-center gap-2">
+                        {/* Magnitude Pill */}
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-black font-mono tracking-tight shadow-2xs ${
+                            isSignificant
+                              ? "bg-rose-600 text-white"
+                              : isModerate
+                              ? "bg-amber-600 text-white"
+                              : "bg-blue-600 text-white"
+                          }`}
+                        >
+                          M {mag} {event.magnitudeType ? event.magnitudeType.toUpperCase() : ""}
+                        </span>
+
+                        {/* Region Tag */}
+                        <span
+                          className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                            event.isRegional
+                              ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                              : "bg-slate-100 text-slate-700 border border-slate-300"
+                          }`}
+                        >
+                          {event.isRegional
+                            ? kh
+                              ? "🇰🇭 តំបន់កម្ពុជា"
+                              : "🇰🇭 Cambodia Region"
+                            : kh
+                            ? "🌐 សកល"
+                            : "🌐 Global Event"}
+                        </span>
+
+                        {/* Provider Tag */}
+                        <span className="text-[10px] font-mono font-semibold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                          {event.reports[0]?.provider || "USGS"}
+                        </span>
+                      </div>
+
+                      {/* Origin Time ICT */}
+                      <span className="text-[11px] font-mono text-muted-foreground flex items-center gap-1">
+                        <Clock size={11} />
+                        {formatLocalIctTime(event.originTime, lang, { includeDate: true })}{" "}
+                        ICT
+                        {relTime && <span className="text-primary font-sans font-semibold">({relTime})</span>}
+                      </span>
+                    </div>
+
+                    {/* Announcement Narrative */}
+                    <h4 className="text-sm md:text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
+                      {announcementText}
+                    </h4>
+
+                    {/* Technical Telemetry Grid */}
+                    <div className="mt-2.5 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono bg-muted/40 p-2.5 rounded-lg border border-border/60">
+                      <div>
+                        <span className="block text-[10px] text-muted-foreground font-sans font-semibold uppercase">
+                          {kh ? "ជម្រៅរំញ័រ" : "Focal Depth"}
+                        </span>
+                        <strong className="text-foreground">
+                          {event.depthKm !== null ? `${event.depthKm.toFixed(1)} km` : "—"}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span className="block text-[10px] text-muted-foreground font-sans font-semibold uppercase">
+                          {kh ? "កូអរដោនេ" : "Coordinates"}
+                        </span>
+                        <strong className="text-foreground">
+                          {event.latitude >= 0 ? `${event.latitude.toFixed(2)}°N` : `${Math.abs(event.latitude).toFixed(2)}°S`},{" "}
+                          {event.longitude >= 0 ? `${event.longitude.toFixed(2)}°E` : `${Math.abs(event.longitude).toFixed(2)}°W`}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span className="block text-[10px] text-muted-foreground font-sans font-semibold uppercase">
+                          {kh ? "ចម្ងាយពីកម្ពុជា" : "From Cambodia"}
+                        </span>
+                        <strong className="text-foreground">
+                          {event.distanceToCambodiaKm !== undefined
+                            ? event.distanceToCambodiaKm < 100
+                              ? kh
+                                ? "ក្នុងប្រទេសកម្ពុជា"
+                                : "Within Cambodia"
+                              : `~${Math.round(event.distanceToCambodiaKm).toLocaleString()} km`
+                            : "—"}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span className="block text-[10px] text-muted-foreground font-sans font-semibold uppercase">
+                          {kh ? "ស្ថានភាពត្រួតពិនិត្យ" : "Review Status"}
+                        </span>
+                        <span
+                          className={`font-semibold capitalize text-[11px] ${
+                            event.status === "reviewed"
+                              ? "text-emerald-700"
+                              : "text-amber-700"
+                          }`}
+                        >
+                          {event.status || "preliminary"}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Announcement Text */}
-                  <div>
-                    <p className="text-sm md:text-base font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">
-                      {announcementText}
-                    </p>
-                    <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs font-mono text-muted-foreground">
+                  {/* Bottom Action Footer */}
+                  <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <MapPin size={11} className="text-primary" />
                       <span>{event.location}</span>
-                      <span>·</span>
-                      <span>
-                        {event.depthKm !== null ? `Depth ${event.depthKm.toFixed(0)} km` : "Depth unconfirmed"}
-                      </span>
-                      <span>·</span>
-                      <span>
-                        {event.latitude.toFixed(2)}°N, {event.longitude.toFixed(2)}°E
+                    </span>
+
+                    <div className="flex items-center gap-3">
+                      {event.url && (
+                        <a
+                          href={event.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-primary transition"
+                          title="Official source bulletin"
+                        >
+                          <span>{kh ? "ព្រឹត្តិបត្រផ្លូវការ" : "Official Bulletin"}</span>
+                          <ExternalLink size={11} />
+                        </a>
+                      )}
+
+                      <span className="inline-flex items-center gap-0.5 text-xs font-bold text-primary group-hover:translate-x-0.5 transition-transform">
+                        <span>{kh ? "មើលលើផែនទី" : "Inspect On Map"}</span>
+                        <ChevronRight size={14} />
                       </span>
                     </div>
                   </div>
                 </div>
+              </div>
+            );
 
-                <div className="shrink-0 pt-1 text-muted-foreground group-hover:text-primary transition-colors">
-                  <ArrowUpRight size={18} />
+            // If we have an onSelectEvent handler (e.g. inside /earthquake-monitoring), click to focus map
+            if (onSelectEvent) {
+              return (
+                <div
+                  key={event.id}
+                  onClick={() => onSelectEvent(event)}
+                  className="cursor-pointer"
+                >
+                  {cardContent}
                 </div>
+              );
+            }
+
+            // Otherwise, link to dedicated page with event ID
+            return (
+              <Link
+                key={event.id}
+                to={`/earthquake-monitoring?event=${encodeURIComponent(event.id)}`}
+                className="block"
+              >
+                {cardContent}
               </Link>
             );
           })
         ) : (
-          <div className="rounded-xl border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
+          <div className="rounded-xl border border-dashed border-border py-10 text-center text-sm text-muted-foreground">
             {kh
               ? "មិនមានព្រឹត្តិការណ៍រញ្ជួយដីត្រូវបានរាយការណ៍ក្នុងចន្លោះពេលដែលបានជ្រើសរើសឡើយ។"
-              : "No reported earthquakes detected in the selected time window for Cambodia & region."}
+              : "No reported earthquakes detected in the selected time window. Try expanding the time filter or minimum magnitude."}
           </div>
         )}
       </div>
@@ -235,8 +399,8 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
             ? "⚠️ របាយការណ៍ត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយស្វ័យប្រវត្តិ។ ព័ត៌មានលម្អិតបឋមអាចត្រូវបានកែសម្រួលដោយស្ថាប័នភូគព្ភសាស្ត្រផ្លូវការ។"
             : "⚠️ Automatically refreshed reports. Preliminary event details may be revised by official monitoring agencies."}
         </span>
-        <span className="font-mono text-[11px]">
-          Envelope: 5°–25°N, 92°–112°E
+        <span className="font-mono text-[11px] text-muted-foreground/90">
+          Default: Cambodia & Regional Envelope (5°–25°N, 92°–112°E) · Global search enabled
         </span>
       </div>
     </div>

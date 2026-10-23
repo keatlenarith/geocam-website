@@ -29,6 +29,7 @@ import {
   HelpCircle,
   ArrowUpRight,
   Info,
+  MapPin,
 } from "lucide-react";
 
 // Lazy load the Map component so map libraries are only loaded when visiting this page
@@ -39,7 +40,7 @@ const EarthquakeMap = React.lazy(
 export const RouteMeta = () =>
   meta(
     "Earthquake Monitoring — GeoCam Cambodia",
-    "Real-time reported earthquakes in Cambodia and surrounding Southeast Asian countries. Automated seismological bulletins from USGS and regional networks."
+    "Real-time reported earthquakes in Cambodia, surrounding Southeast Asian countries, and globally. Automated seismological bulletins from USGS and regional networks."
   );
 
 export default function EarthquakeMonitoringPage() {
@@ -47,6 +48,7 @@ export default function EarthquakeMonitoringPage() {
   const kh = lang === "km";
 
   // Filter states
+  const [scope, setScope] = useState<"cambodia" | "global">("cambodia");
   const [timeWindow, setTimeWindow] = useState<TimeWindowOption>("7d");
   const [minMagnitude, setMinMagnitude] = useState<number>(0);
   const [sortOrder, setSortOrder] = useState<SortOrderOption>("newest");
@@ -69,6 +71,8 @@ export default function EarthquakeMonitoringPage() {
     timeWindow,
     minMagnitude,
     sortOrder,
+    scope,
+    searchQuery,
     autoRefreshIntervalMs: 60000,
   });
 
@@ -83,17 +87,6 @@ export default function EarthquakeMonitoringPage() {
     } catch {}
   }, []);
 
-  // Filtered by search text in location
-  const displayedEvents = useMemo(() => {
-    if (!searchQuery.trim()) return events;
-    const q = searchQuery.toLowerCase().trim();
-    return events.filter(
-      (e) =>
-        e.location.toLowerCase().includes(q) ||
-        (e.magnitude !== null && `m${e.magnitude}`.includes(q))
-    );
-  }, [events, searchQuery]);
-
   const listContainerRef = useRef<HTMLDivElement>(null);
 
   // When an event is selected, scroll smoothly to it in the list if it's off-screen
@@ -106,6 +99,7 @@ export default function EarthquakeMonitoringPage() {
     setMinMagnitude(0);
     setSortOrder("newest");
     setSearchQuery("");
+    setScope("cambodia");
   };
 
   return (
@@ -123,7 +117,7 @@ export default function EarthquakeMonitoringPage() {
             <div className="flex items-center gap-2">
               <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]" />
               <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-primary">
-                {kh ? "ប្រព័ន្ធតាមដានរញ្ជួយដីកម្ពុជា និងតំបន់" : "Cambodia & Regional Seismological Observation"}
+                {kh ? "ប្រព័ន្ធតាមដានរញ្ជួយដីកម្ពុជា និងពិភពលោក" : "Seismological Observation Console · Cambodia & Global"}
               </span>
             </div>
 
@@ -132,28 +126,18 @@ export default function EarthquakeMonitoringPage() {
             </h1>
             <p className="mt-2 text-base md:text-lg text-slate-600 max-w-4xl leading-relaxed">
               {kh
-                ? "របាយការណ៍ស្វ័យប្រវត្តិនៃការរញ្ជួយដីថ្មីៗនៅកម្ពុជា និងបណ្តាប្រទេសជុំវិញ។ ព័ត៌មានលម្អិតបឋមអាចត្រូវបានកែសម្រួលដោយស្ថាប័នផ្លូវការ។"
-                : "Recent reported earthquakes in Cambodia and surrounding countries. Automatically refreshed reports. Preliminary event details may be revised."}
+                ? "របាយការណ៍ស្វ័យប្រវត្តិនៃការរញ្ជួយដីថ្មីៗនៅកម្ពុជា បណ្តាប្រទេសជុំវិញ និងទូទាំងពិភពលោក។ លំនាំដើមបង្ហាញតំបន់កម្ពុជា ប៉ុន្តែអ្នកអាចរំកិលផែនទី ឬស្វែងរកទីតាំងណាមួយលើពិភពលោក។"
+                : "Recent reported earthquakes in Cambodia, surrounding countries, and globally. Default view is centered on Cambodia, with full global search and free interactive map exploration."}
             </p>
           </div>
 
           {/* Action / Refresh Controls */}
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={refresh}
-              disabled={loading}
-              className="btn btn-outline !py-2.5 !px-4 text-xs md:text-sm font-bold shadow-2xs hover:border-primary disabled:opacity-50"
-            >
-              <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
-              <span>{loading ? (kh ? "កំពុងផ្ទុក..." : "Refreshing...") : kh ? "ផ្ទុកទិន្នន័យឡើងវិញ" : "Manual Refresh"}</span>
-            </button>
-
             {lastSuccessTime && (
-              <span className="inline-flex items-center gap-1.5 rounded-xl bg-card border border-border px-3.5 py-2 text-xs font-mono text-muted-foreground shadow-2xs">
-                <Clock size={13} />
-                {kh ? "ធ្វើបច្ចុប្បន្នភាព:" : "Last refresh:"}{" "}
-                <strong className="text-foreground">
+              <span className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground bg-card border border-border px-3 py-1.5 rounded-xl shadow-2xs">
+                <Clock size={13} className="text-primary" />
+                <span>{kh ? "បានធ្វើបច្ចុប្បន្នភាព:" : "Last refresh:"}</span>
+                <strong>
                   {formatLocalIctTime(lastSuccessTime.toISOString(), lang, {
                     includeDate: false,
                     includeSeconds: true,
@@ -162,71 +146,71 @@ export default function EarthquakeMonitoringPage() {
                 </strong>
               </span>
             )}
+
+            <button
+              type="button"
+              onClick={() => refresh()}
+              disabled={loading}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs md:text-sm font-bold text-white shadow-xs hover:bg-primary/90 transition disabled:opacity-50 cursor-pointer"
+            >
+              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+              <span>{loading ? (kh ? "កំពុងផ្ទុក..." : "Refreshing...") : kh ? "ធ្វើបច្ចុប្បន្នភាព" : "Manual Refresh"}</span>
+            </button>
           </div>
         </div>
 
-        {/* Source Providers Actual Status Bar */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs md:text-sm">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <span className="font-bold uppercase tracking-wider text-muted-foreground text-xs">
-              {kh ? "ស្ថានភាពស្ថាប័នផ្ដល់ទិន្នន័យ:" : "Data Provider Feeds:"}
+        {/* Live Provider Availability Status Chips */}
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mr-1">
+              {kh ? "ប្រភពទិន្នន័យផ្លូវការ:" : "Monitored Providers:"}
             </span>
-
             {Object.values(providerHealth).map((ph) => {
               const isAvail = ph.status === "available";
               const isDelay = ph.status === "delayed";
               return (
-                <div
+                <span
                   key={ph.provider}
-                  className={`inline-flex items-center gap-2 rounded-xl px-3 py-1.5 border ${
-                    isAvail
-                      ? "bg-emerald-50 text-emerald-900 border-emerald-300"
-                      : isDelay
-                        ? "bg-blue-50 text-blue-900 border-blue-300"
-                        : "bg-slate-100 text-slate-700 border-slate-300"
-                  }`}
                   title={ph.note || ph.name}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold ${
+                    isAvail
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                      : isDelay
+                        ? "bg-blue-50 text-blue-800 border-blue-200"
+                        : "bg-slate-100 text-slate-600 border-slate-300"
+                  }`}
                 >
                   <span
                     className={`h-2 w-2 rounded-full ${
-                      isAvail ? "bg-emerald-500 animate-pulse" : isDelay ? "bg-blue-500" : "bg-slate-400"
+                      isAvail ? "bg-emerald-500" : isDelay ? "bg-blue-500" : "bg-slate-400"
                     }`}
                   />
-                  <strong className="font-bold">{ph.provider}</strong>
-                  <span className="text-xs opacity-80">
+                  <strong>{ph.provider}</strong>
+                  <span className="capitalize text-[11px] opacity-80">
                     ({ph.status === "unavailable" ? "delayed / timeout" : ph.status})
                   </span>
-                </div>
+                </span>
               );
             })}
           </div>
 
-          <span className="text-xs font-mono text-muted-foreground">
-            {REGIONAL_BOUNDS.labelEn}
-          </span>
-        </div>
-
-        {isStale && (
-          <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs md:text-sm text-amber-900 flex items-center gap-2">
-            <AlertTriangle size={16} className="text-amber-700 shrink-0" />
-            <span>
-              {kh
-                ? "បណ្តាញ upstream កំពុងមានការពន្យារពេល។ ប្រព័ន្ធកំពុងបង្ហាញទិន្នន័យបម្រុងទុកដែលបានរក្សាទុកចុងក្រោយ។"
-                : "Upstream feed response delayed. Displaying verified cached bulletin data from the last successful synchronization."}
-            </span>
+          <div className="text-xs text-muted-foreground italic">
+            {kh
+              ? "ទិន្នន័យត្រូវបានធ្វើបច្ចុប្បន្នភាពស្វ័យប្រវត្តិ។ ព័ត៌មានលម្អិតបឋមអាចត្រូវបានកែសម្រួល។"
+              : "Automatically refreshed reports. Preliminary event details may be revised."}
           </div>
-        )}
+        </div>
       </div>
 
       {/* ========================================================================= */}
       {/* SECTION 2: SUMMARY METRIC CARDS */}
       {/* ========================================================================= */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Metric 1: Events in Window */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Metric 1: Reported Events Count */}
         <div className="rounded-2xl border border-border bg-card p-5.5 shadow-2xs">
           <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <Activity size={14} className="text-primary" />
-            {kh ? "ព្រឹត្តិការណ៍រាយការណ៍" : "Reported Events"}
+            {kh ? "ចំនួនព្រឹត្តិការណ៍" : "Reported Events"}
           </span>
           <div className="mt-2.5 flex items-baseline gap-2">
             <span className="text-3xl md:text-4xl font-extrabold font-mono text-foreground">
@@ -237,7 +221,13 @@ export default function EarthquakeMonitoringPage() {
             </span>
           </div>
           <span className="text-[11px] text-muted-foreground mt-1 block">
-            Across Cambodia & surrounding envelope
+            {scope === "cambodia" && !searchQuery
+              ? kh
+                ? "ក្នុងតំបន់កម្ពុជា និងប្រទេសជិតខាង"
+                : "Cambodia & regional envelope"
+              : kh
+              ? "ទូទាំងពិភពលោក (Global coverage)"
+              : "Global / Worldwide catalogue"}
           </span>
         </div>
 
@@ -280,19 +270,27 @@ export default function EarthquakeMonitoringPage() {
           </span>
         </div>
 
-        {/* Metric 4: Monitored Region Envelope */}
+        {/* Metric 4: Geographic Scope & Bounds */}
         <div className="rounded-2xl border border-border bg-card p-5.5 shadow-2xs">
           <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <Globe2 size={14} className="text-emerald-600" />
-            {kh ? "ដែនកំណត់ភូមិសាស្ត្រ" : "Geographic Bounds"}
+            {kh ? "ដែនកំណត់ភូមិសាស្ត្រ" : "Geographic Scope"}
           </span>
           <div className="mt-2.5">
             <strong className="text-sm md:text-base font-bold font-mono text-foreground block">
-              5°–25°N, 92°–112°E
+              {scope === "cambodia" && !searchQuery
+                ? "5°–25°N, 92°–112°E"
+                : "🌐 Worldwide (Global)"}
             </strong>
           </div>
           <span className="text-[11px] text-muted-foreground mt-1 block">
-            {kh ? "កម្ពុជា ថៃ វៀតណាម ឡាវ មីយ៉ាន់ម៉ា" : "Cambodia & regional context"}
+            {scope === "cambodia" && !searchQuery
+              ? kh
+                ? "កម្ពុជា ថៃ វៀតណាម ឡាវ មីយ៉ាន់ម៉ា"
+                : "Cambodia & regional context"
+              : kh
+              ? "ទិន្នន័យរញ្ជួយដីទូទាំងពិភពលោក"
+              : "Global seismicity from USGS network"}
           </span>
         </div>
       </div>
@@ -301,11 +299,37 @@ export default function EarthquakeMonitoringPage() {
       {/* SECTION 3: FILTER CONTROLS */}
       {/* ========================================================================= */}
       <div className="mb-6 rounded-2xl border border-border bg-card p-4.5 md:p-5 shadow-2xs flex flex-wrap items-center justify-between gap-4">
-        {/* Left: Time window & Minimum magnitude pills */}
+        {/* Left: Scope, Time window & Minimum magnitude pills */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase text-muted-foreground mr-1">
             <Filter size={14} />
             <span>{kh ? "តម្រង:" : "Filters:"}</span>
+          </div>
+
+          {/* Scope Toggle: Cambodia & Region vs Global */}
+          <div className="flex rounded-xl border border-border p-0.5 bg-muted/60 text-xs font-bold">
+            <button
+              type="button"
+              onClick={() => setScope("cambodia")}
+              className={`rounded-lg px-3 py-1.5 transition cursor-pointer ${
+                scope === "cambodia"
+                  ? "bg-primary text-white shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {kh ? "🇰🇭 កម្ពុជា និងតំបន់ (លំនាំដើម)" : "🇰🇭 Cambodia & Region (Default)"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setScope("global")}
+              className={`rounded-lg px-3 py-1.5 transition cursor-pointer ${
+                scope === "global"
+                  ? "bg-primary text-white shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {kh ? "🌐 ទូទាំងពិភពលោក (Global)" : "🌐 Global / Worldwide"}
+            </button>
           </div>
 
           {/* Time Window Buttons */}
@@ -315,7 +339,7 @@ export default function EarthquakeMonitoringPage() {
                 key={win}
                 type="button"
                 onClick={() => setTimeWindow(win)}
-                className={`rounded-lg px-3 py-1.5 transition ${
+                className={`rounded-lg px-3 py-1.5 transition cursor-pointer ${
                   timeWindow === win
                     ? "bg-primary text-white shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -332,7 +356,7 @@ export default function EarthquakeMonitoringPage() {
             <select
               value={minMagnitude}
               onChange={(e) => setMinMagnitude(Number(e.target.value))}
-              className="bg-transparent font-bold text-foreground focus:outline-none"
+              className="bg-transparent font-bold text-foreground focus:outline-none cursor-pointer"
             >
               <option value={0}>{kh ? "ទាំងអស់" : "All reported"}</option>
               <option value={2}>M 2.0+</option>
@@ -348,7 +372,7 @@ export default function EarthquakeMonitoringPage() {
             <select
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value as SortOrderOption)}
-              className="bg-transparent font-bold text-foreground focus:outline-none"
+              className="bg-transparent font-bold text-foreground focus:outline-none cursor-pointer"
             >
               <option value="newest">{kh ? "ថ្មីបំផុតមុន" : "Newest first"}</option>
               <option value="largest">{kh ? "ទំហំធំបំផុតមុន" : "Largest magnitude"}</option>
@@ -358,22 +382,22 @@ export default function EarthquakeMonitoringPage() {
 
         {/* Right: Search box & Reset */}
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-60">
+          <div className="relative flex-1 sm:w-64">
             <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
             <input
               type="text"
-              placeholder={kh ? "ស្វែងរកទីតាំង..." : "Search location..."}
+              placeholder={kh ? "ស្វែងរកទីតាំងលើពិភពលោក (ឧ. Japan, Myanmar)..." : "Search worldwide (e.g. Japan, Myanmar)..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full rounded-xl border border-border py-1.5 pl-8 pr-3 text-xs focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             />
           </div>
 
-          {(timeWindow !== "7d" || minMagnitude !== 0 || sortOrder !== "newest" || searchQuery) && (
+          {(timeWindow !== "7d" || minMagnitude !== 0 || sortOrder !== "newest" || searchQuery || scope !== "cambodia") && (
             <button
               type="button"
               onClick={handleResetFilters}
-              className="text-xs font-bold text-primary hover:underline whitespace-nowrap"
+              className="text-xs font-bold text-primary hover:underline whitespace-nowrap cursor-pointer"
             >
               {kh ? "កំណត់ឡើងវិញ" : "Reset filters"}
             </button>
@@ -398,9 +422,11 @@ export default function EarthquakeMonitoringPage() {
             }
           >
             <EarthquakeMap
-              events={displayedEvents}
+              events={events}
               selectedEventId={selectedEventId}
               onSelectEvent={handleSelectEvent}
+              scope={scope}
+              onScopeChange={setScope}
               className="h-full w-full"
             />
           </Suspense>
@@ -410,7 +436,7 @@ export default function EarthquakeMonitoringPage() {
         <div className="flex flex-col h-[580px] lg:h-[680px] rounded-2xl border border-border bg-card p-4 shadow-xs">
           <div className="flex items-center justify-between border-b border-border/80 pb-3 mb-3 px-1">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              {kh ? "បញ្ជីព្រឹត្តិការណ៍រញ្ជួយដី" : "Regional Event Directory"} ({displayedEvents.length})
+              {kh ? "បញ្ជីព្រឹត្តិការណ៍រញ្ជួយដី" : "Earthquake Directory"} ({events.length})
             </span>
             <span className="text-[11px] text-muted-foreground font-mono">
               Click to inspect on map
@@ -423,8 +449,8 @@ export default function EarthquakeMonitoringPage() {
             tabIndex={0}
             aria-label="Earthquake events list"
           >
-            {displayedEvents.length > 0 ? (
-              displayedEvents.map((e) => (
+            {events.length > 0 ? (
+              events.map((e) => (
                 <EarthquakeEventCard
                   key={e.id}
                   event={e}
@@ -441,8 +467,8 @@ export default function EarthquakeMonitoringPage() {
                 </p>
                 <p className="text-xs text-muted-foreground mt-1 max-w-xs">
                   {kh
-                    ? "សូមសាកល្បងពង្រីកចន្លោះពេល ឬបន្ថយកម្រិតរញ្ជួយដីអប្បបរមា។"
-                    : "Try widening the time window (e.g. 30 days) or lowering the minimum magnitude filter."}
+                    ? "សូមសាកល្បងប្តូរទៅជាទូទាំងពិភពលោក (Global) ឬពង្រីកចន្លោះពេល។"
+                    : "Try switching to Global view, widening the time window, or clearing your search."}
                 </p>
                 <button
                   type="button"
@@ -458,7 +484,7 @@ export default function EarthquakeMonitoringPage() {
       </div>
 
       {/* ========================================================================= */}
-      {/* SECTION 5: FACTUAL ANNOUNCEMENTS FEED */}
+      {/* SECTION 5: FACTUAL ANNOUNCEMENTS FEED (WITH MINI MAPS & FULL DETAILS) */}
       {/* ========================================================================= */}
       <div className="mb-12">
         <EarthquakeAnnouncements
@@ -470,6 +496,7 @@ export default function EarthquakeMonitoringPage() {
           maxItems={6}
           showViewAllLink={false}
           onRefresh={refresh}
+          onSelectEvent={handleSelectEvent}
         />
       </div>
 
@@ -492,7 +519,7 @@ export default function EarthquakeMonitoringPage() {
               {kh ? "១. ដែនកំណត់ភូមិសាស្ត្រ និងបណ្តាញរញ្ជួយដី" : "1. Geographic Coverage & Seismic Networks"}
             </h4>
             <p>
-              This console actively monitors the regional seismological envelope between <strong>5°–25°N and 92°–112°E</strong>, encompassing Cambodia, Thailand, Vietnam, Laos, Myanmar, parts of the Andaman Basin, and southern China. Because Cambodia has limited domestic seismic sensor stations, regional observations rely on validated international feeds from the <strong>United States Geological Survey (USGS)</strong>, the <strong>Thai Meteorological Department (TMD)</strong>, and national bulletins from the <strong>Institute of Geophysics (VAST Vietnam)</strong>.
+              This console defaults to the regional seismological envelope between <strong>5°–25°N and 92°–112°E</strong>, encompassing Cambodia, Thailand, Vietnam, Laos, Myanmar, parts of the Andaman Basin, and southern China. Users can freely toggle <strong>Global / Worldwide</strong> or search any location globally to discover international earthquakes. Regional observations rely on validated feeds from the <strong>United States Geological Survey (USGS)</strong>, the <strong>Thai Meteorological Department (TMD)</strong>, and bulletins from regional seismological observatories.
             </p>
           </div>
 

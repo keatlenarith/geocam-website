@@ -27,8 +27,17 @@ export interface EarthquakeEvent {
   magnitudeType?: string;
   location: string;
   reviewStatus?: string;
+  status?: string; // alias for reviewStatus
+  url?: string; // primary bulletin URL
+  isRegional?: boolean;
+  distanceToCambodiaKm?: number;
   reports: EarthquakeReport[];
 }
+
+export const CAMBODIA_CENTER = {
+  latitude: 12.5657,
+  longitude: 104.991,
+};
 
 export interface ProviderHealth {
   provider: ProviderName;
@@ -202,6 +211,10 @@ export function normalizeUsgsFeature(feature: any): EarthquakeEvent | null {
     : new Date().toISOString();
 
   const id = `usgs-${feature.id || Math.abs(lat + lon)}`;
+  const isRegional = isWithinRegionalEnvelope(lat, lon);
+  const distanceToCambodiaKm = Math.round(
+    haversineDistanceKm(CAMBODIA_CENTER.latitude, CAMBODIA_CENTER.longitude, lat, lon)
+  );
 
   return {
     id,
@@ -213,8 +226,12 @@ export function normalizeUsgsFeature(feature: any): EarthquakeEvent | null {
     depthKm: Number.isFinite(depth) ? depth : null,
     magnitude: Number.isFinite(feature.properties.mag) ? feature.properties.mag : null,
     magnitudeType: feature.properties.magType || "M",
-    location: (feature.properties.place || "Regional epicenter").trim(),
+    location: (feature.properties.place || (isRegional ? "Regional epicenter" : "Global epicenter")).trim(),
     reviewStatus: feature.properties.status || "automatic",
+    status: feature.properties.status || "automatic",
+    url: feature.properties.url || `https://earthquake.usgs.gov/earthquakes/eventpage/${feature.id}`,
+    isRegional,
+    distanceToCambodiaKm,
     reports: [
       {
         provider: "USGS",
@@ -275,6 +292,10 @@ export function parseTmdXml(xmlText: string): EarthquakeEvent[] {
         const cleanTitle = title.replace(/^Earthquake\s*/i, "").trim() || "Regional epicenter";
         const id = `tmd-${lat.toFixed(3)}-${lon.toFixed(3)}-${originTime.slice(0, 16)}`;
 
+        const distKm = Math.round(
+          haversineDistanceKm(CAMBODIA_CENTER.latitude, CAMBODIA_CENTER.longitude, lat, lon)
+        );
+
         events.push({
           id,
           originTime,
@@ -286,6 +307,10 @@ export function parseTmdXml(xmlText: string): EarthquakeEvent[] {
           magnitudeType: "mb",
           location: cleanTitle,
           reviewStatus: "preliminary",
+          status: "preliminary",
+          url: link,
+          isRegional: true,
+          distanceToCambodiaKm: distKm,
           reports: [
             {
               provider: "TMD",
@@ -357,7 +382,7 @@ export function deduplicateEvents(events: EarthquakeEvent[]): EarthquakeEvent[] 
 }
 
 /**
- * Filter events by time window (hours) and minimum magnitude
+ * Filter events by time window, magnitude, scope (cambodia vs global), and search query
  */
 export function filterEarthquakes(
   events: EarthquakeEvent[],
@@ -366,11 +391,15 @@ export function filterEarthquakes(
     minMagnitude?: number; // 0, 2, 3, 4, 5
     sortOrder?: "newest" | "largest";
     providerFilter?: string; // "all", "USGS", "TMD"
+    scope?: "cambodia" | "global" | "all"; // default: "cambodia"
+    searchQuery?: string;
   }
 ): EarthquakeEvent[] {
   const now = Date.now();
   const windowMs = (options.hoursWindow ?? 168) * 3600 * 1000;
   const minMag = options.minMagnitude ?? 0;
+  const scope = options.scope ?? "cambodia";
+  const search = options.searchQuery?.trim().toLowerCase() || "";
 
   return events
     .filter((e) => {
@@ -382,8 +411,22 @@ export function filterEarthquakes(
       const mag = e.magnitude ?? 0;
       if (mag < minMag) return false;
 
-      // Regional bounds check
-      if (!isWithinRegionalEnvelope(e.latitude, e.longitude)) return false;
+      // Geographic Scope check:
+      // If a search query is typed, search across the entire global database!
+      // Otherwise, if scope is "cambodia", filter to Cambodia & surrounding region
+      if (!search && scope === "cambodia" && !isWithinRegionalEnvelope(e.latitude, e.longitude)) {
+        return false;
+      }
+
+      // Search query filter (matches location name, provider, or coordinates)
+      if (search) {
+        const loc = (e.location || "").toLowerCase();
+        const providers = e.reports.map((r) => r.provider.toLowerCase()).join(" ");
+        const coords = `${e.latitude.toFixed(2)} ${e.longitude.toFixed(2)}`;
+        if (!loc.includes(search) && !providers.includes(search) && !coords.includes(search)) {
+          return false;
+        }
+      }
 
       // Provider filter check
       if (options.providerFilter && options.providerFilter !== "all") {

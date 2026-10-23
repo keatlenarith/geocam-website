@@ -90,47 +90,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       for (const f of data.features || []) {
         const [lon, lat, depth] = f.geometry?.coordinates || [];
-        // Filter strictly to Cambodia & region (5-25N, 92-112E)
-        if (
-          Number.isFinite(lat) &&
-          Number.isFinite(lon) &&
-          lat >= 5.0 &&
-          lat <= 25.0 &&
-          lon >= 92.0 &&
-          lon <= 112.0
-        ) {
-          const originTime = new Date(f.properties.time).toISOString();
-          rawEvents.push({
-            id: `usgs-${f.id}`,
-            originTime,
-            firstSeenAt: originTime,
-            updatedAt: f.properties.updated
-              ? new Date(f.properties.updated).toISOString()
-              : undefined,
-            latitude: lat,
-            longitude: lon,
-            depthKm: Number.isFinite(depth) ? depth : null,
-            magnitude: Number.isFinite(f.properties.mag)
-              ? f.properties.mag
-              : null,
-            magnitudeType: f.properties.magType || "M",
-            location: (f.properties.place || "Regional epicenter").trim(),
-            reviewStatus: f.properties.status || "automatic",
-            reports: [
-              {
-                provider: "USGS",
-                providerEventId: f.id,
-                sourceUrl:
-                  f.properties.url ||
-                  `https://earthquake.usgs.gov/earthquakes/eventpage/${f.id}`,
-                magnitude: f.properties.mag,
-                magnitudeType: f.properties.magType,
-                depthKm: Number.isFinite(depth) ? depth : null,
-              },
-            ],
-          });
-          count++;
-        }
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+
+        const isReg = lat >= 5.0 && lat <= 25.0 && lon >= 92.0 && lon <= 112.0;
+        const mag = f.properties.mag ?? null;
+
+        // Keep all regional earthquakes (any magnitude)
+        // Keep all global earthquakes with magnitude >= 2.0 (or >= 1.5 for 24h, >= 2.5 for 30d)
+        const minGlobalMag =
+          windowParam === "24h" || windowParam === "day"
+            ? 1.5
+            : windowParam === "30d" || windowParam === "month"
+            ? 2.5
+            : 2.0;
+        if (!isReg && (mag === null || mag < minGlobalMag)) continue;
+
+        const originTime = new Date(f.properties.time).toISOString();
+        const dLat = (lat - 12.5657) * 111;
+        const dLon = (lon - 104.991) * 111 * Math.cos((12.5657 * Math.PI) / 180);
+        const distKm = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
+
+        rawEvents.push({
+          id: `usgs-${f.id}`,
+          originTime,
+          firstSeenAt: originTime,
+          updatedAt: f.properties.updated
+            ? new Date(f.properties.updated).toISOString()
+            : undefined,
+          latitude: lat,
+          longitude: lon,
+          depthKm: Number.isFinite(depth) ? depth : null,
+          magnitude: mag,
+          magnitudeType: f.properties.magType || "M",
+          location: (f.properties.place || (isReg ? "Regional epicenter" : "Global epicenter")).trim(),
+          reviewStatus: f.properties.status || "automatic",
+          isRegional: isReg,
+          distanceToCambodiaKm: distKm,
+          reports: [
+            {
+              provider: "USGS",
+              providerEventId: f.id,
+              sourceUrl:
+                f.properties.url ||
+                `https://earthquake.usgs.gov/earthquakes/eventpage/${f.id}`,
+              magnitude: mag,
+              magnitudeType: f.properties.magType,
+              depthKm: Number.isFinite(depth) ? depth : null,
+            },
+          ],
+        });
+        count++;
       }
 
       providerHealth.USGS.status = "available";

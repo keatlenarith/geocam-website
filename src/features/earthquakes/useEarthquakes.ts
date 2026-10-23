@@ -17,6 +17,8 @@ export interface UseEarthquakesOptions {
   minMagnitude?: number;
   sortOrder?: SortOrderOption;
   providerFilter?: string;
+  scope?: "cambodia" | "global" | "all";
+  searchQuery?: string;
   autoRefreshIntervalMs?: number; // Default 60000 (60s)
 }
 
@@ -63,6 +65,8 @@ export function useEarthquakes(options: UseEarthquakesOptions = {}) {
     minMagnitude = 0,
     sortOrder = "newest",
     providerFilter = "all",
+    scope = "cambodia",
+    searchQuery = "",
     autoRefreshIntervalMs = 60000,
   } = options;
 
@@ -154,7 +158,11 @@ export function useEarthquakes(options: UseEarthquakesOptions = {}) {
           const data = await res.json();
           const parsed = (data.features || [])
             .map(normalizeUsgsFeature)
-            .filter((e: any): e is EarthquakeEvent => e !== null && isWithinRegionalEnvelope(e.latitude, e.longitude));
+            .filter((e: any): e is EarthquakeEvent => {
+              if (!e) return false;
+              if (e.isRegional) return true;
+              return (e.magnitude ?? 0) >= 2.0;
+            });
 
           const deduplicated = deduplicateEvents(parsed);
 
@@ -273,8 +281,10 @@ export function useEarthquakes(options: UseEarthquakesOptions = {}) {
       minMagnitude,
       sortOrder,
       providerFilter,
+      scope,
+      searchQuery,
     });
-  }, [rawEvents, hoursWindow, minMagnitude, sortOrder, providerFilter]);
+  }, [rawEvents, hoursWindow, minMagnitude, sortOrder, providerFilter, scope, searchQuery]);
 
   // Summary statistics calculated on filtered events
   const summary = useMemo(() => {
