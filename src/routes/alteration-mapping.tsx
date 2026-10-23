@@ -130,11 +130,53 @@ export default function AlterationMappingPage() {
   const [basemap, setBasemap] = useState<"satellite" | "hillshade">("satellite");
   const [boundaryGeoJson, setBoundaryGeoJson] = useState<any | null>(null);
   const [boundaryFileName, setBoundaryFileName] = useState<string>("");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressStep, setProgressStep] = useState<number>(0);
   const [processingLog, setProcessingLog] = useState<string[]>([]);
   const [resultsReady, setResultsReady] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+
+  // Hugging Face Space integration
+  const [hfSpaceUrl, setHfSpaceUrl] = useState<string>(() => {
+    return typeof window !== "undefined"
+      ? localStorage.getItem("geocam_hf_space_url") || ""
+      : "";
+  });
+  const [tempHfUrl, setTempHfUrl] = useState<string>("");
+  const [showHfModal, setShowHfModal] = useState(false);
+  const [hfTesting, setHfTesting] = useState(false);
+  const [hfStatus, setHfStatus] = useState<"connected" | "disconnected" | "testing">(() => {
+    return typeof window !== "undefined" && localStorage.getItem("geocam_hf_space_url")
+      ? "connected"
+      : "disconnected";
+  });
+
+  const testHfConnection = async (url: string) => {
+    const cleanUrl = url.trim().replace(/\/+$/, "");
+    if (!cleanUrl) {
+      setHfStatus("disconnected");
+      localStorage.removeItem("geocam_hf_space_url");
+      setHfSpaceUrl("");
+      return;
+    }
+    setHfTesting(true);
+    setHfStatus("testing");
+    try {
+      const res = await fetch(`${cleanUrl}/`, { method: "GET" });
+      if (res.ok) {
+        setHfStatus("connected");
+        setHfSpaceUrl(cleanUrl);
+        localStorage.setItem("geocam_hf_space_url", cleanUrl);
+      } else {
+        setHfStatus("disconnected");
+      }
+    } catch {
+      setHfStatus("disconnected");
+    } finally {
+      setHfTesting(false);
+    }
+  };
 
   // Layer visibility toggles
   const [layerVisibility, setLayerVisibility] = useState<Record<number, boolean>>({
@@ -279,6 +321,7 @@ export default function AlterationMappingPage() {
   const handleFileUpload = async (file: File) => {
     try {
       setBoundaryFileName(file.name);
+      setUploadedFile(file);
       setResultsReady(false);
       setDownloadSuccess(false);
 
@@ -323,6 +366,7 @@ export default function AlterationMappingPage() {
   // Load sample Cambodia boundary
   const loadDemoBoundary = () => {
     setBoundaryFileName("Cambodia_Kratie_Mondulkiri_Mineral_Corridor.kmz");
+    setUploadedFile(null);
     setBoundaryGeoJson(DEMO_CAMBODIA_ROI);
     setResultsReady(false);
     setDownloadSuccess(false);
@@ -394,6 +438,67 @@ export default function AlterationMappingPage() {
     } catch {}
 
     const logs: string[] = [];
+
+    // Attempt live processing via Hugging Face Space if configured
+    if (hfSpaceUrl) {
+      try {
+        const cleanUrl = hfSpaceUrl.trim().replace(/\/+$/, "");
+        logs.push(`[${new Date().toLocaleTimeString()}] ` + (km ? `កំពុងភ្ជាប់ទៅកាន់ Hugging Face Space (${cleanUrl})...` : `Connecting to Hugging Face Cloud Engine (${cleanUrl})...`));
+        setProcessingLog([...logs]);
+
+        const formData = new FormData();
+        if (uploadedFile) {
+          formData.append("file", uploadedFile);
+        } else {
+          const blob = new Blob([JSON.stringify(boundaryGeoJson)], { type: "application/geo+json" });
+          formData.append("file", blob, "boundary.geojson");
+        }
+
+        setProgressStep(2);
+        const res = await fetch(`${cleanUrl}/api/analyze`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          logs.push(`[${new Date().toLocaleTimeString()}] ` + (km ? "ដំណើរការ Landsat 9 ជោគជ័យពី Hugging Face!" : "Landsat 9 analysis succeeded on Hugging Face!"));
+          setProcessingLog([...logs]);
+          setProgressStep(STEPS.length);
+
+          const allFeatures = [
+            ...(data.alterations?.features || []),
+            ...(data.prospects?.features || []),
+          ];
+          setAlterationFeatures(allFeatures);
+          setResultsReady(true);
+          setIsProcessing(false);
+
+          if (data.download_url) {
+            const zipRes = await fetch(`${cleanUrl}${data.download_url}`);
+            if (zipRes.ok) {
+              const zipBlob = await zipRes.blob();
+              const downloadUrl = URL.createObjectURL(zipBlob);
+              const a = document.createElement("a");
+              a.href = downloadUrl;
+              a.download = `${data.job_id || "Landsat9_Alteration"}_GIS_Package.zip`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              setDownloadSuccess(true);
+              return;
+            }
+          }
+        } else {
+          logs.push(`[${new Date().toLocaleTimeString()}] ` + (km ? "Hugging Face ផ្តល់កំហុស។ កំពុងបន្តដោយប្រព័ន្ធក្នុង Browser..." : "Hugging Face server error. Falling back to client GIS engine..."));
+          setProcessingLog([...logs]);
+        }
+      } catch {
+        logs.push(`[${new Date().toLocaleTimeString()}] ` + (km ? "Hugging Face មិនទាន់ឆ្លើយតប។ កំពុងបន្តដោយប្រព័ន្ធក្នុង Browser..." : "Hugging Face endpoint offline or asleep. Continuing with client GIS engine..."));
+        setProcessingLog([...logs]);
+      }
+    }
+
     for (let s = 0; s < STEPS.length; s++) {
       setProgressStep(s + 1);
       logs.push(`[${new Date().toLocaleTimeString()}] ${km ? STEPS[s].km : STEPS[s].en}`);
@@ -757,33 +862,62 @@ Contact: keatlenarith@gmail.com · https://geocam-website.vercel.app
               </h3>
             </div>
 
-            {/* Basemap Switcher Buttons */}
-            <div className="flex items-center gap-2 rounded-xl bg-slate-100 p-1 border border-slate-200">
+            {/* Engine & Basemap Switcher Buttons */}
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                onClick={() => setBasemap("satellite")}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
-                  basemap === "satellite"
-                    ? "bg-white text-emerald-800 shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
+                onClick={() => {
+                  setTempHfUrl(hfSpaceUrl);
+                  setShowHfModal(true);
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition shadow-2xs ${
+                  hfStatus === "connected"
+                    ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
                 }`}
               >
-                <Satellite size={14} />
-                <span>{km ? "Satellite" : "Satellite"}</span>
+                <span className="text-sm">🤗</span>
+                <span>
+                  {hfStatus === "connected"
+                    ? (km ? "Hugging Face Cloud: បានភ្ជាប់" : "Hugging Face Engine: Connected")
+                    : (km ? "ភ្ជាប់ Hugging Face (Free)" : "Connect Hugging Face (Free)")}
+                </span>
+                <span
+                  className={`inline-block h-2 w-2 rounded-full ${
+                    hfStatus === "connected"
+                      ? "bg-emerald-500 animate-pulse"
+                      : "bg-slate-300"
+                  }`}
+                />
               </button>
 
-              <button
-                type="button"
-                onClick={() => setBasemap("hillshade")}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
-                  basemap === "hillshade"
-                    ? "bg-white text-emerald-800 shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                <Mountain size={14} />
-                <span>{km ? "Hillshade (DEM)" : "Hillshade"}</span>
-              </button>
+              <div className="flex items-center gap-2 rounded-xl bg-slate-100 p-1 border border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setBasemap("satellite")}
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                    basemap === "satellite"
+                      ? "bg-white text-emerald-800 shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <Satellite size={14} />
+                  <span>{km ? "Satellite" : "Satellite"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setBasemap("hillshade")}
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                    basemap === "hillshade"
+                      ? "bg-white text-emerald-800 shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <Mountain size={14} />
+                  <span>{km ? "Hillshade (DEM)" : "Hillshade"}</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1092,6 +1226,157 @@ Contact: keatlenarith@gmail.com · https://geocam-website.vercel.app
           </div>
         </section>
       </Container>
+
+      {/* Hugging Face Free Cloud Engine Configuration Modal */}
+      {showHfModal && (
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl border border-slate-200">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🤗</span>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">
+                    {km ? "ភ្ជាប់ជាមួយ Hugging Face Space (Free 100%)" : "Connect Hugging Face Space (100% Free)"}
+                  </h3>
+                  <span className="text-xs text-slate-500">
+                    {km ? "Cloud Server ឥតគិតថ្លៃ (CPU 2 Cores, RAM 16GB) សម្រាប់រត់កូដ Colab ផ្ទាល់" : "Free 24/7 Cloud Engine for real Landsat 9 Planetary Computer processing"}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowHfModal(false)}
+                className="text-slate-400 hover:text-slate-600 font-bold p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-4">
+              {/* Setup steps guide */}
+              <div className="rounded-xl bg-slate-50 border border-slate-200 p-4 text-xs space-y-2 text-slate-700">
+                <strong className="block text-slate-900 font-bold text-sm">
+                  {km ? "របៀបបង្កើត Hugging Face Space (ចំណាយពេល ២ នាទី):" : "3-Minute Setup on Hugging Face (Zero Payment):"}
+                </strong>
+                <ol className="list-decimal list-inside space-y-1 text-slate-600">
+                  <li>
+                    {km ? (
+                      <>ចូលទៅកាន់ <a href="https://huggingface.co/new-space" target="_blank" rel="noreferrer" className="text-emerald-700 font-bold underline">huggingface.co/new-space</a> (ចុះឈ្មោះ Free)</>
+                    ) : (
+                      <>Go to <a href="https://huggingface.co/new-space" target="_blank" rel="noreferrer" className="text-emerald-700 font-bold underline">huggingface.co/new-space</a> (Free sign up)</>
+                    )}
+                  </li>
+                  <li>
+                    {km ? "ដាក់ឈ្មោះ Space ឧទាហរណ៍៖ geocam-alteration-engine ហើយជ្រើសរើស Space SDK: Docker" : "Name your Space (e.g. geocam-alteration-engine) and choose Space SDK: Docker"}
+                  </li>
+                  <li>
+                    {km ? "Copy ឯកសារទាំង ៤ ក្នុង Folder huggingface-space/ (app.py, Dockerfile, requirements.txt, README.md) ទៅ Upload" : "Upload the 4 files from folder huggingface-space/ in this repo (app.py, Dockerfile, requirements.txt, README.md)"}
+                  </li>
+                  <li>
+                    {km ? "Copy លីង Public Space URL មក Paste ខាងក្រោមនេះ" : "Copy your public Space URL and paste below:"}
+                  </li>
+                </ol>
+              </div>
+
+              {/* URL Input */}
+              <div>
+                <label className="block text-xs font-bold text-slate-800 mb-1">
+                  {km ? "Hugging Face Space URL:" : "Hugging Face Space Endpoint URL:"}
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={tempHfUrl}
+                    onChange={(e) => setTempHfUrl(e.target.value)}
+                    placeholder="https://username-geocam-alteration-engine.hf.space"
+                    className="flex-1 rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-mono text-slate-800 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                  />
+                  <button
+                    type="button"
+                    disabled={hfTesting || !tempHfUrl}
+                    onClick={() => testHfConnection(tempHfUrl)}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-slate-800 px-4 py-2 text-xs font-bold text-white hover:bg-slate-700 transition disabled:opacity-50"
+                  >
+                    {hfTesting ? (
+                      <>
+                        <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        <span>Testing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check size={13} />
+                        <span>{km ? "សាកល្បងភ្ជាប់" : "Test"}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Connection Status indicator */}
+              <div className="flex items-center justify-between text-xs p-3 rounded-xl border border-slate-100 bg-slate-50">
+                <span className="text-slate-600">
+                  {km ? "ស្ថានភាពម៉ាស៊ីន Cloud:" : "Cloud Engine Status:"}
+                </span>
+                <span className="font-bold flex items-center gap-1.5">
+                  <span
+                    className={`h-2.5 w-2.5 rounded-full ${
+                      hfStatus === "connected"
+                        ? "bg-emerald-500 animate-pulse"
+                        : hfStatus === "testing"
+                        ? "bg-amber-500 animate-spin"
+                        : "bg-rose-400"
+                    }`}
+                  />
+                  <span
+                    className={
+                      hfStatus === "connected"
+                        ? "text-emerald-700"
+                        : hfStatus === "testing"
+                        ? "text-amber-700"
+                        : "text-rose-600"
+                    }
+                  >
+                    {hfStatus === "connected"
+                      ? (km ? "បានភ្ជាប់ជោគជ័យ (16GB RAM Online)" : "Connected (16GB RAM Online)")
+                      : hfStatus === "testing"
+                      ? (km ? "កំពុងសាកល្បង..." : "Testing endpoint...")
+                      : (km ? "មិនទាន់បានភ្ជាប់ (ដំណើរការតាម Browser)" : "Not connected (Uses browser GIS engine)")}
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4">
+              {hfSpaceUrl && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.removeItem("geocam_hf_space_url");
+                    setHfSpaceUrl("");
+                    setTempHfUrl("");
+                    setHfStatus("disconnected");
+                  }}
+                  className="rounded-xl border border-rose-200 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition"
+                >
+                  {km ? "ផ្តាច់ការភ្ជាប់" : "Disconnect"}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  if (tempHfUrl) {
+                    testHfConnection(tempHfUrl);
+                  }
+                  setShowHfModal(false);
+                }}
+                className="rounded-xl bg-emerald-600 px-5 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition"
+              >
+                {km ? "យល់ព្រម និងរក្សាទុក" : "Save & Close"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
