@@ -137,13 +137,25 @@ export default function AlterationMappingPage() {
   const [resultsReady, setResultsReady] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
-  // Hugging Face Space integration
+  // Google Colab Live Bridge & Cloud Engine integration
   const [hfSpaceUrl, setHfSpaceUrl] = useState<string>(() => {
     return typeof window !== "undefined"
       ? localStorage.getItem("geocam_hf_space_url") || ""
       : "";
   });
+  const [bridgeUsername, setBridgeUsername] = useState<string>(() => {
+    return typeof window !== "undefined"
+      ? localStorage.getItem("geocam_bridge_user") || "geocam"
+      : "geocam";
+  });
+  const [bridgePassword, setBridgePassword] = useState<string>(() => {
+    return typeof window !== "undefined"
+      ? localStorage.getItem("geocam_bridge_pass") || ""
+      : "";
+  });
   const [tempHfUrl, setTempHfUrl] = useState<string>("");
+  const [tempUser, setTempUser] = useState<string>("geocam");
+  const [tempPass, setTempPass] = useState<string>("");
   const [showHfModal, setShowHfModal] = useState(false);
   const [hfTesting, setHfTesting] = useState(false);
   const [hfStatus, setHfStatus] = useState<"connected" | "disconnected" | "testing">(() => {
@@ -152,7 +164,7 @@ export default function AlterationMappingPage() {
       : "disconnected";
   });
 
-  const testHfConnection = async (url: string) => {
+  const testHfConnection = async (url: string, user = tempUser, pass = tempPass) => {
     const cleanUrl = url.trim().replace(/\/+$/, "");
     if (!cleanUrl) {
       setHfStatus("disconnected");
@@ -163,11 +175,24 @@ export default function AlterationMappingPage() {
     setHfTesting(true);
     setHfStatus("testing");
     try {
-      const res = await fetch(`${cleanUrl}/`, { method: "GET" });
-      if (res.ok) {
-        setHfStatus("connected");
-        setHfSpaceUrl(cleanUrl);
-        localStorage.setItem("geocam_hf_space_url", cleanUrl);
+      const headers: Record<string, string> = {};
+      if (user && pass) {
+        headers["Authorization"] = "Basic " + btoa(`${user}:${pass}`);
+      }
+      const res = await fetch(`${cleanUrl}/`, { method: "GET", headers });
+      if (res.ok || res.status === 200 || res.status === 401) {
+        if (res.status === 401 && !pass) {
+          // Requires password
+          setHfStatus("disconnected");
+        } else {
+          setHfStatus("connected");
+          setHfSpaceUrl(cleanUrl);
+          setBridgeUsername(user);
+          setBridgePassword(pass);
+          localStorage.setItem("geocam_hf_space_url", cleanUrl);
+          localStorage.setItem("geocam_bridge_user", user);
+          localStorage.setItem("geocam_bridge_pass", pass);
+        }
       } else {
         setHfStatus("disconnected");
       }
@@ -439,30 +464,109 @@ export default function AlterationMappingPage() {
 
     const logs: string[] = [];
 
-    // Attempt live processing via Hugging Face Space if configured
+    // Attempt live processing via Google Colab / Gradio Live Bridge if configured
     if (hfSpaceUrl) {
       try {
         const cleanUrl = hfSpaceUrl.trim().replace(/\/+$/, "");
-        logs.push(`[${new Date().toLocaleTimeString()}] ` + (km ? `កំពុងភ្ជាប់ទៅកាន់ Hugging Face Space (${cleanUrl})...` : `Connecting to Hugging Face Cloud Engine (${cleanUrl})...`));
+        logs.push(`[${new Date().toLocaleTimeString()}] ` + (km ? `កំពុងភ្ជាប់ទៅកាន់ Colab Live Bridge (${cleanUrl})...` : `Connecting to Colab Live Engine (${cleanUrl})...`));
         setProcessingLog([...logs]);
 
+        const authHeaders: Record<string, string> = {};
+        if (bridgeUsername && bridgePassword) {
+          authHeaders["Authorization"] = "Basic " + btoa(`${bridgeUsername}:${bridgePassword}`);
+        }
+
+        setProgressStep(2);
+
+        // 1. First try Gradio Live /upload + /call/analyze
+        const upFormData = new FormData();
+        if (uploadedFile) {
+          upFormData.append("files", uploadedFile);
+        } else {
+          upFormData.append("files", new Blob([JSON.stringify(boundaryGeoJson)]), "boundary.kmz");
+        }
+
+        const upRes = await fetch(`${cleanUrl}/upload`, {
+          method: "POST",
+          headers: authHeaders,
+          body: upFormData,
+        });
+
+        if (upRes.ok) {
+          const paths = await upRes.json();
+          const filePath = Array.isArray(paths) ? paths[0] : paths;
+          logs.push(`[${new Date().toLocaleTimeString()}] ` + (km ? "ឯកសារ KMZ បានផ្ញើដល់ Colab។ កំពុងរត់ការវិភាគផ្កាយរណប Landsat 9..." : "KMZ uploaded to Colab. Executing full Landsat 9 raster analysis..."));
+          setProcessingLog([...logs]);
+
+          const callRes = await fetch(`${cleanUrl}/call/analyze`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", ...authHeaders },
+            body: JSON.stringify({ data: [{ path: filePath }] }),
+          });
+
+          if (callRes.ok) {
+            const { event_id } = await callRes.json();
+            const streamRes = await fetch(`${cleanUrl}/call/analyze/${event_id}`, { headers: authHeaders });
+            const reader = streamRes.body?.getReader();
+            const decoder = new TextDecoder();
+            let zipUrl = "";
+
+            if (reader) {
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value);
+                for (const line of chunk.split("\n")) {
+                  if (line.startsWith("data:")) {
+                    try {
+                      const p = JSON.parse(line.slice(5).trim());
+                      if (Array.isArray(p) && p[0]?.url) zipUrl = p[0].url;
+                    } catch {}
+                  }
+                }
+              }
+            }
+
+            if (zipUrl) {
+              const fullUrl = zipUrl.startsWith("http") ? zipUrl : `${cleanUrl}${zipUrl}`;
+              const zRes = await fetch(fullUrl, { headers: authHeaders });
+              if (zRes.ok) {
+                const zBlob = await zRes.blob();
+                const dUrl = URL.createObjectURL(zBlob);
+                const a = document.createElement("a");
+                a.href = dUrl;
+                a.download = "GeoCam_Colab_Landsat9_Alteration_Package.zip";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setDownloadSuccess(true);
+                logs.push(`[${new Date().toLocaleTimeString()}] ` + (km ? "ទាញយកកញ្ចប់ឯកសារ GIS ពី Colab ជោគជ័យ!" : "Downloaded real GIS package from Colab successfully!"));
+                setProcessingLog([...logs]);
+                setIsProcessing(false);
+                setResultsReady(true);
+                return;
+              }
+            }
+          }
+        }
+
+        // 2. Fallback to standard /api/analyze if REST API was used
         const formData = new FormData();
         if (uploadedFile) {
           formData.append("file", uploadedFile);
         } else {
-          const blob = new Blob([JSON.stringify(boundaryGeoJson)], { type: "application/geo+json" });
-          formData.append("file", blob, "boundary.geojson");
+          formData.append("file", new Blob([JSON.stringify(boundaryGeoJson)]), "boundary.geojson");
         }
 
-        setProgressStep(2);
         const res = await fetch(`${cleanUrl}/api/analyze`, {
           method: "POST",
+          headers: authHeaders,
           body: formData,
         });
 
         if (res.ok) {
           const data = await res.json();
-          logs.push(`[${new Date().toLocaleTimeString()}] ` + (km ? "ដំណើរការ Landsat 9 ជោគជ័យពី Hugging Face!" : "Landsat 9 analysis succeeded on Hugging Face!"));
+          logs.push(`[${new Date().toLocaleTimeString()}] ` + (km ? "ដំណើរការ Landsat 9 ជោគជ័យពី Colab Cloud!" : "Landsat 9 analysis succeeded from Colab Cloud!"));
           setProcessingLog([...logs]);
           setProgressStep(STEPS.length);
 
@@ -475,7 +579,7 @@ export default function AlterationMappingPage() {
           setIsProcessing(false);
 
           if (data.download_url) {
-            const zipRes = await fetch(`${cleanUrl}${data.download_url}`);
+            const zipRes = await fetch(`${cleanUrl}${data.download_url}`, { headers: authHeaders });
             if (zipRes.ok) {
               const zipBlob = await zipRes.blob();
               const downloadUrl = URL.createObjectURL(zipBlob);
@@ -490,11 +594,11 @@ export default function AlterationMappingPage() {
             }
           }
         } else {
-          logs.push(`[${new Date().toLocaleTimeString()}] ` + (km ? "Hugging Face ផ្តល់កំហុស។ កំពុងបន្តដោយប្រព័ន្ធក្នុង Browser..." : "Hugging Face server error. Falling back to client GIS engine..."));
+          logs.push(`[${new Date().toLocaleTimeString()}] ` + (km ? "Colab មិនទាន់ឆ្លើយតប។ កំពុងបន្តដោយប្រព័ន្ធក្នុង Browser..." : "Colab bridge error. Falling back to client GIS engine..."));
           setProcessingLog([...logs]);
         }
       } catch {
-        logs.push(`[${new Date().toLocaleTimeString()}] ` + (km ? "Hugging Face មិនទាន់ឆ្លើយតប។ កំពុងបន្តដោយប្រព័ន្ធក្នុង Browser..." : "Hugging Face endpoint offline or asleep. Continuing with client GIS engine..."));
+        logs.push(`[${new Date().toLocaleTimeString()}] ` + (km ? "Colab Bridge មិនទាន់ឆ្លើយតប។ កំពុងបន្តដោយប្រព័ន្ធក្នុង Browser..." : "Colab bridge endpoint offline. Continuing with client GIS engine..."));
         setProcessingLog([...logs]);
       }
     }
@@ -1227,19 +1331,19 @@ Contact: keatlenarith@gmail.com · https://geocam-website.vercel.app
         </section>
       </Container>
 
-      {/* Hugging Face Free Cloud Engine Configuration Modal */}
+      {/* Google Colab Live Bridge & Free Cloud Engine Configuration Modal */}
       {showHfModal && (
         <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
           <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between border-b border-slate-200 pb-4">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">🤗</span>
+                <span className="text-2xl">⚡</span>
                 <div>
                   <h3 className="text-lg font-bold text-slate-900">
-                    {km ? "ភ្ជាប់ជាមួយ Hugging Face Space (Free 100%)" : "Connect Hugging Face Space (100% Free)"}
+                    {km ? "ភ្ជាប់ជាមួយ Google Colab Live Bridge (Free ១០០%)" : "Connect Google Colab Live Bridge (100% Free)"}
                   </h3>
                   <span className="text-xs text-slate-500">
-                    {km ? "Cloud Server ឥតគិតថ្លៃ (CPU 2 Cores, RAM 16GB) សម្រាប់រត់កូដ Colab ផ្ទាល់" : "Free 24/7 Cloud Engine for real Landsat 9 Planetary Computer processing"}
+                    {km ? "ដំណើរការ Landsat 9 ផ្ទាល់ពី Colab របស់អ្នកដោយមិនបាច់បង់ប្រាក់សូម្បីតែ ១ សេន" : "Runs live Landsat 9 Planetary Computer processing directly from your Google Colab"}
                   </span>
                 </div>
               </div>
@@ -1256,45 +1360,83 @@ Contact: keatlenarith@gmail.com · https://geocam-website.vercel.app
               {/* Setup steps guide */}
               <div className="rounded-xl bg-slate-50 border border-slate-200 p-4 text-xs space-y-2 text-slate-700">
                 <strong className="block text-slate-900 font-bold text-sm">
-                  {km ? "របៀបបង្កើត Hugging Face Space (ចំណាយពេល ២ នាទី):" : "3-Minute Setup on Hugging Face (Zero Payment):"}
+                  {km ? "របៀបដំណើរការ Colab Live Bridge V17 (Free ស្រាប់):" : "How to launch your Colab Live Bridge V17:"}
                 </strong>
-                <ol className="list-decimal list-inside space-y-1 text-slate-600">
+                <ol className="list-decimal list-inside space-y-1.5 text-slate-600">
                   <li>
                     {km ? (
-                      <>ចូលទៅកាន់ <a href="https://huggingface.co/new-space" target="_blank" rel="noreferrer" className="text-emerald-700 font-bold underline">huggingface.co/new-space</a> (ចុះឈ្មោះ Free)</>
+                      <>បើកឯកសារ <strong>Landsat9_ASTER_GeoCam_Live_Bridge_V17.ipynb</strong> របស់អ្នកក្នុង Google Colab</>
                     ) : (
-                      <>Go to <a href="https://huggingface.co/new-space" target="_blank" rel="noreferrer" className="text-emerald-700 font-bold underline">huggingface.co/new-space</a> (Free sign up)</>
+                      <>Open your <strong>Landsat9_ASTER_GeoCam_Live_Bridge_V17.ipynb</strong> in Google Colab</>
                     )}
                   </li>
                   <li>
-                    {km ? "ដាក់ឈ្មោះ Space ឧទាហរណ៍៖ geocam-alteration-engine ហើយជ្រើសរើស Space SDK: Gradio (Free ១០០% មិនបាច់ប្រើ Docker ឡើយ)" : "Name your Space (e.g. geocam-alteration-engine) and choose Space SDK: Gradio (100% Free, No Docker needed)"}
+                    {km ? (
+                      <>ចុច Run <strong>Cell 1</strong> (!pip install...) រួចចុច Run <strong>Cell 34</strong> (ផ្នែក 14. GeoCam temporary live bridge)</>
+                    ) : (
+                      <>Run <strong>Cell 1</strong> (!pip install...) and then run <strong>Cell 34</strong> (Section 14. GeoCam temporary live bridge)</>
+                    )}
                   </li>
                   <li>
-                    {km ? "Copy ឯកសារក្នុង Folder huggingface-space/ (app.py, requirements.txt, packages.txt, README.md) ទៅ Upload" : "Upload the files from folder huggingface-space/ in this repo (app.py, requirements.txt, packages.txt, README.md)"}
+                    {km ? (
+                      <>Colab នឹងបង្ហាញលីង Public ដូចជា៖ <code className="bg-slate-200 px-1 py-0.5 rounded text-emerald-800 font-mono">Running on public URL: https://xxxx.gradio.live</code></>
+                    ) : (
+                      <>Colab will output: <code className="bg-slate-200 px-1 py-0.5 rounded text-emerald-800 font-mono">Running on public URL: https://xxxx.gradio.live</code></>
+                    )}
                   </li>
                   <li>
-                    {km ? "Copy លីង Public Space URL មក Paste ខាងក្រោមនេះ" : "Copy your public Space URL and paste below:"}
+                    {km ? "Copy លីង public URL និង Password ដែល Colab បង្ហាញ យកមក Paste ខាងក្រោមនេះ៖" : "Copy the public URL & Password output by Colab and paste below:"}
                   </li>
                 </ol>
               </div>
 
-              {/* URL Input */}
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">
-                  {km ? "Hugging Face Space URL:" : "Hugging Face Space Endpoint URL:"}
-                </label>
-                <div className="flex gap-2">
+              {/* URL & Credentials Input */}
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1">
+                    {km ? "Colab Public URL (gradio.live):" : "Colab Public Live URL (gradio.live):"}
+                  </label>
                   <input
                     type="url"
                     value={tempHfUrl}
                     onChange={(e) => setTempHfUrl(e.target.value)}
-                    placeholder="https://username-geocam-alteration-engine.hf.space"
-                    className="flex-1 rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-mono text-slate-800 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                    placeholder="https://xxxxxxxx.gradio.live"
+                    className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-mono text-slate-800 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      {km ? "Username (ពី Colab):" : "Username (from Colab):"}
+                    </label>
+                    <input
+                      type="text"
+                      value={tempUser}
+                      onChange={(e) => setTempUser(e.target.value)}
+                      placeholder="geocam"
+                      className="w-full rounded-xl border border-slate-300 px-3.5 py-1.5 text-xs font-mono text-slate-800 focus:border-emerald-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      {km ? "Password (ពី Colab):" : "Password (from Colab):"}
+                    </label>
+                    <input
+                      type="password"
+                      value={tempPass}
+                      onChange={(e) => setTempPass(e.target.value)}
+                      placeholder="Colab temporary password"
+                      className="w-full rounded-xl border border-slate-300 px-3.5 py-1.5 text-xs font-mono text-slate-800 focus:border-emerald-600"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-1">
                   <button
                     type="button"
                     disabled={hfTesting || !tempHfUrl}
-                    onClick={() => testHfConnection(tempHfUrl)}
+                    onClick={() => testHfConnection(tempHfUrl, tempUser, tempPass)}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-slate-800 px-4 py-2 text-xs font-bold text-white hover:bg-slate-700 transition disabled:opacity-50"
                   >
                     {hfTesting ? (
@@ -1305,7 +1447,7 @@ Contact: keatlenarith@gmail.com · https://geocam-website.vercel.app
                     ) : (
                       <>
                         <Check size={13} />
-                        <span>{km ? "សាកល្បងភ្ជាប់" : "Test"}</span>
+                        <span>{km ? "សាកល្បងភ្ជាប់ Colab" : "Test Colab Connection"}</span>
                       </>
                     )}
                   </button>
@@ -1315,7 +1457,7 @@ Contact: keatlenarith@gmail.com · https://geocam-website.vercel.app
               {/* Connection Status indicator */}
               <div className="flex items-center justify-between text-xs p-3 rounded-xl border border-slate-100 bg-slate-50">
                 <span className="text-slate-600">
-                  {km ? "ស្ថានភាពម៉ាស៊ីន Cloud:" : "Cloud Engine Status:"}
+                  {km ? "ស្ថានភាពម៉ាស៊ីន Colab:" : "Colab Engine Status:"}
                 </span>
                 <span className="font-bold flex items-center gap-1.5">
                   <span
@@ -1337,9 +1479,9 @@ Contact: keatlenarith@gmail.com · https://geocam-website.vercel.app
                     }
                   >
                     {hfStatus === "connected"
-                      ? (km ? "បានភ្ជាប់ជោគជ័យ (16GB RAM Online)" : "Connected (16GB RAM Online)")
+                      ? (km ? "បានភ្ជាប់ Colab ជោគជ័យ (100% Free Live)" : "Connected to Colab (100% Free Live)")
                       : hfStatus === "testing"
-                      ? (km ? "កំពុងសាកល្បង..." : "Testing endpoint...")
+                      ? (km ? "កំពុងសាកល្បងភ្ជាប់..." : "Testing endpoint...")
                       : (km ? "មិនទាន់បានភ្ជាប់ (ដំណើរការតាម Browser)" : "Not connected (Uses browser GIS engine)")}
                   </span>
                 </span>
@@ -1352,6 +1494,8 @@ Contact: keatlenarith@gmail.com · https://geocam-website.vercel.app
                   type="button"
                   onClick={() => {
                     localStorage.removeItem("geocam_hf_space_url");
+                    localStorage.removeItem("geocam_bridge_user");
+                    localStorage.removeItem("geocam_bridge_pass");
                     setHfSpaceUrl("");
                     setTempHfUrl("");
                     setHfStatus("disconnected");
@@ -1365,7 +1509,7 @@ Contact: keatlenarith@gmail.com · https://geocam-website.vercel.app
                 type="button"
                 onClick={() => {
                   if (tempHfUrl) {
-                    testHfConnection(tempHfUrl);
+                    testHfConnection(tempHfUrl, tempUser, tempPass);
                   }
                   setShowHfModal(false);
                 }}
