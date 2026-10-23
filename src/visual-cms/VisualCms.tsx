@@ -668,7 +668,6 @@ export const editablePages = [
   "/environmental-monitoring",
   "/news",
   "/contact",
-  "/geopark",
   "/mining",
   "/lexicon",
   "/dashboard",

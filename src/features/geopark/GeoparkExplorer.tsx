@@ -61,6 +61,27 @@ const TILES: Record<Basemap, { url: string; attribution: string; nameEn: string;
 
 const DEM_URL = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";
 
+function renderMarkerHtml(site: GeositeRecord, isActive: boolean): string {
+  if (isActive) {
+    return `
+      <div style="position: relative; width: 42px; height: 42px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+        <div style="position: absolute; inset: -4px; border-radius: 50%; background: rgba(245, 158, 11, 0.45); animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+        <div style="position: absolute; inset: 0; border-radius: 50%; background: rgba(234, 179, 8, 0.4); box-shadow: 0 0 24px #eab308;"></div>
+        <div style="position: relative; width: 22px; height: 22px; border-radius: 50%; background: #eab308; border: 3px solid #ffffff; box-shadow: 0 3px 12px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;">
+          <div style="width: 7px; height: 7px; border-radius: 50%; background: #ffffff;"></div>
+        </div>
+      </div>
+    `;
+  }
+  return `
+    <div style="position: relative; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+      <div style="position: absolute; inset: 0; border-radius: 50%; background: rgba(16, 185, 129, 0.35); animation: pulse 2s infinite;"></div>
+      <div style="position: absolute; inset: 4px; border-radius: 50%; background: rgba(6, 182, 212, 0.45); box-shadow: 0 0 15px #06b6d4;"></div>
+      <div style="position: relative; width: 16px; height: 16px; border-radius: 50%; background: #10b981; border: 2.5px solid #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.45);"></div>
+    </div>
+  `;
+}
+
 export default function GeoparkExplorer() {
   const { lang } = useI18n();
   const kh = lang === "km";
@@ -68,6 +89,7 @@ export default function GeoparkExplorer() {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const markers = useRef<maplibregl.Marker[]>([]);
+  const markerMap = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLElement }>>(new Map());
   const narrativeRef = useRef<HTMLDivElement>(null);
 
   // States
@@ -187,6 +209,7 @@ export default function GeoparkExplorer() {
     // Render Markers for all sites with coordinates
     markers.current.forEach((x) => x.remove());
     markers.current = [];
+    markerMap.current.clear();
 
     CAMBODIA_GEOSITES.forEach((site) => {
       if (!site.coordinates || !site.publish_pin) return;
@@ -195,34 +218,66 @@ export default function GeoparkExplorer() {
       el.className = "geosite-beacon-marker";
       el.title = `${site.name} (${site.gallery.length} images)`;
       el.setAttribute("aria-label", site.name);
+      el.style.cursor = "pointer";
 
-      el.innerHTML = `
-        <div style="position: relative; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-          <div style="position: absolute; inset: 0; border-radius: 50%; background: rgba(16, 185, 129, 0.35); animation: pulse 2s infinite;"></div>
-          <div style="position: absolute; inset: 4px; border-radius: 50%; background: rgba(6, 182, 212, 0.45); box-shadow: 0 0 15px #06b6d4;"></div>
-          <div style="position: relative; width: 16px; height: 16px; border-radius: 50%; background: #10b981; border: 2.5px solid #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.45);"></div>
-        </div>
-      `;
+      const isCurrent = site.id === selectedSiteId;
+      el.innerHTML = renderMarkerHtml(site, isCurrent);
 
-      el.onclick = () => {
-        flyToSite(site, site.gallery.length > 0);
+      el.addEventListener("click", (e) => {
+        e.stopPropagation();
+        flyToSite(site, false);
         narrativeRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      };
+      });
+
+      const popup = new maplibregl.Popup({
+        offset: 18,
+        closeButton: false,
+        className: "geosite-custom-popup",
+      }).setHTML(`
+        <div style="font-family: system-ui, sans-serif; padding: 6px 8px; font-size: 12px; line-height: 1.35; max-width: 220px; color: #0f172a;">
+          <div style="font-weight: 800; font-size: 13px;">${site.name}</div>
+          <div style="font-size: 11px; color: #047857; font-weight: 600; margin-top: 3px;">
+            ${site.province.en} (${site.province.km})
+          </div>
+          <div style="font-size: 10px; color: #64748b; margin-top: 2px;">
+            ${site.era} · ${site.gallery.length} photos
+          </div>
+        </div>
+      `);
 
       const marker = new maplibregl.Marker({ element: el })
         .setLngLat(site.coordinates)
+        .setPopup(popup)
         .addTo(m);
 
+      el.addEventListener("mouseenter", () => marker.togglePopup());
+      el.addEventListener("mouseleave", () => {
+        if (marker.getPopup().isOpen()) marker.togglePopup();
+      });
+
       markers.current.push(marker);
+      markerMap.current.set(site.id, { marker, el });
     });
 
     return () => {
       markers.current.forEach((x) => x.remove());
       markers.current = [];
+      markerMap.current.clear();
       m.remove();
       map.current = null;
     };
   }, []);
+
+  // Update marker visual highlight whenever selectedSiteId changes
+  useEffect(() => {
+    markerMap.current.forEach(({ el }, id) => {
+      const site = CAMBODIA_GEOSITES.find((s) => s.id === id);
+      if (!site) return;
+      const isCurrent = id === selectedSiteId;
+      el.innerHTML = renderMarkerHtml(site, isCurrent);
+      el.style.zIndex = isCurrent ? "50" : "1";
+    });
+  }, [selectedSiteId]);
 
   // Update Basemap Layer
   useEffect(() => {
@@ -258,7 +313,11 @@ export default function GeoparkExplorer() {
   }, [isHoloOpen, selectedSite.gallery.length]);
 
   return (
-    <section className="mx-auto max-w-[1720px] px-4 py-8 md:px-8">
+    <section
+      data-no-translate="true"
+      data-cms-inline="true"
+      className="mx-auto max-w-[1720px] px-4 py-8 md:px-8"
+    >
       {/* SECTION HEADER */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
@@ -524,7 +583,13 @@ export default function GeoparkExplorer() {
       {/* =================================================================================== */}
       {/* SECTION 2: DEEP-TIME GEOLOGICAL NARRATIVE (INFORMATION UNDER THE MAP) */}
       {/* =================================================================================== */}
-      <div ref={narrativeRef} className="mt-12 rounded-3xl border border-slate-200 bg-white p-6 md:p-9 shadow-sm">
+      <div
+        ref={narrativeRef}
+        key={selectedSite.id}
+        data-no-translate="true"
+        data-cms-inline="true"
+        className="mt-12 rounded-3xl border border-slate-200 bg-white p-6 md:p-9 shadow-sm transition-all duration-200"
+      >
         {/* Narrative Top Bar */}
         <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-6">
           <div>
@@ -727,7 +792,11 @@ export default function GeoparkExplorer() {
       {/* SECTION 3: MULTIPLE IMAGE HOLOGRAM GALLERY MODAL (CYBER-HOLOGRAPHIC STYLE) */}
       {/* =================================================================================== */}
       {isHoloOpen && selectedSite.gallery.length > 0 && (
-        <div className="fixed inset-0 z-[5000] flex items-center justify-center bg-black/85 p-4 backdrop-blur-md">
+        <div
+          data-no-translate="true"
+          data-cms-inline="true"
+          className="fixed inset-0 z-[5000] flex items-center justify-center bg-black/85 p-4 backdrop-blur-md"
+        >
           {/* Holographic Window */}
           <div className="relative w-full max-w-5xl rounded-3xl border border-cyan-400/50 bg-slate-950/95 p-6 shadow-[0_0_50px_rgba(6,182,212,0.35)] text-white backdrop-blur-2xl overflow-hidden flex flex-col max-h-[92vh]">
             {/* Holographic Grid Background & Scanline Overlay */}
