@@ -1,18 +1,17 @@
 ---
-title: GeoCam Mineral & Alteration Mapping API
+title: GeoCam Mineral & Alteration Mapping Engine
 emoji: 🛰️
 colorFrom: green
 colorTo: blue
-sdk: docker
-app_port: 7860
+sdk: gradio
+sdk_version: 4.44.0
+app_file: app.py
 pinned: false
 ---
 
-# GeoCam Landsat 9 & ASTER Alteration Mapping Engine
+# GeoCam Landsat 9 & ASTER Alteration Mapping Engine (Gradio - 100% Free)
 
-Automated mineral exploration, hydrothermal alteration mapping, and prospectivity ranking engine from KMZ boundary uploads.
+Automated mineral exploration and hydrothermal alteration mapping from KMZ boundary uploads.
 Built for the Geosciences Society of Cambodia (GeoCam).
 
-### Endpoints:
-- `GET /` : Health check & service info
-- `POST /api/analyze` : Accepts KMZ boundary, queries Planetary Computer STAC for Landsat 9 Collection 2, runs band math & Crosta PCA, and returns GeoJSON alteration layers and downloadable GIS ZIP package.
+Zero Docker required. Runs 100% free on Hugging Face Spaces with Gradio SDK.

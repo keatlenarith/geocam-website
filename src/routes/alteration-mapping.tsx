@@ -1267,10 +1267,10 @@ Contact: keatlenarith@gmail.com · https://geocam-website.vercel.app
                     )}
                   </li>
                   <li>
-                    {km ? "ដាក់ឈ្មោះ Space ឧទាហរណ៍៖ geocam-alteration-engine ហើយជ្រើសរើស Space SDK: Docker" : "Name your Space (e.g. geocam-alteration-engine) and choose Space SDK: Docker"}
+                    {km ? "ដាក់ឈ្មោះ Space ឧទាហរណ៍៖ geocam-alteration-engine ហើយជ្រើសរើស Space SDK: Gradio (Free ១០០% មិនបាច់ប្រើ Docker ឡើយ)" : "Name your Space (e.g. geocam-alteration-engine) and choose Space SDK: Gradio (100% Free, No Docker needed)"}
                   </li>
                   <li>
-                    {km ? "Copy ឯកសារទាំង ៤ ក្នុង Folder huggingface-space/ (app.py, Dockerfile, requirements.txt, README.md) ទៅ Upload" : "Upload the 4 files from folder huggingface-space/ in this repo (app.py, Dockerfile, requirements.txt, README.md)"}
+                    {km ? "Copy ឯកសារក្នុង Folder huggingface-space/ (app.py, requirements.txt, packages.txt, README.md) ទៅ Upload" : "Upload the files from folder huggingface-space/ in this repo (app.py, requirements.txt, packages.txt, README.md)"}
                   </li>
                   <li>
                     {km ? "Copy លីង Public Space URL មក Paste ខាងក្រោមនេះ" : "Copy your public Space URL and paste below:"}

@@ -7,53 +7,21 @@ import tempfile
 import traceback
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Dict, Any
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 
 import numpy as np
 import geopandas as gpd
 from shapely.geometry import Polygon, MultiPolygon, mapping, shape as shp_shape
-from shapely.ops import unary_union, transform as shapely_transform
-from pyproj import Transformer
+from shapely.ops import unary_union
 from lxml import etree
+import gradio as gr
 
-app = FastAPI(
-    title="GeoCam Landsat 9 Alteration Engine",
-    description="Automated hydrothermal alteration mapping & mineral prospectivity from KMZ boundaries.",
-    version="1.0.0",
-)
-
-# Enable CORS for GeoCam website
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Memory storage for downloaded zip files
+# Global in-memory storage for generated GIS ZIP packages
 JOBS_STORE: Dict[str, bytes] = {}
-
-
-@app.get("/")
-def health_check():
-    return {
-        "service": "GeoCam Landsat 9 & ASTER Alteration Mapping Engine",
-        "status": "online",
-        "platform": "Hugging Face Spaces (Free Cloud)",
-        "capabilities": [
-            "KMZ / KML / GeoJSON boundary ingestion",
-            "Planetary Computer Landsat 9 STAC query",
-            "Band math ratios (Ferric B4/B2, Clay B6/B7, SWIR B7/B6)",
-            "Vegetation (NDVI < 0.35) and water (NDWI < 0.15) masking",
-            "P90 prospectivity ranking & polygon extraction",
-            "Complete GIS Shapefile & Report compilation",
-        ],
-    }
 
 
 def parse_boundary_file(contents: bytes, filename: str) -> gpd.GeoDataFrame:
@@ -129,11 +97,10 @@ def generate_alteration_polygons(
     if not centers:
         centers.append((cx, cy))
 
-    # Alteration Class Definitions matching Landsat 9 V16 standards
     # Class 1: Fe oxide (ferric) candidate (Red/Blue ratio)
     # Class 2: Clay / argillic candidate (SWIR1/SWIR2 ratio)
     # Class 3: SWIR lithology / alteration (SWIR2/SWIR1 ratio)
-    # Class 4 / Prospects: High-Priority Ranked Target (>P90)
+    # Class 4: High-Priority Ranked Target (>P90)
 
     for c_idx, (c_lon, c_lat) in enumerate(centers):
         # 1. Fe oxide (ferric) polygons
@@ -218,7 +185,6 @@ def generate_alteration_polygons(
                 )
 
         # 4. Ranked High-Priority Target (> P90)
-        # Intersection zone where Ferric and Hydroxyl overlap
         rad = rng.uniform(0.002, 0.0045)
         poly = Polygon(
             [
@@ -336,31 +302,90 @@ https://geocam.org / https://geocam-website.vercel.app
     return buf.getvalue()
 
 
+# Build Gradio Interface (Zero Docker Needed)
+with gr.Blocks(title="GeoCam Alteration Mapping Engine") as demo:
+    gr.Markdown("""
+    # 🛰️ GeoCam Landsat 9 & ASTER Alteration Mapping Engine
+    ### Automated Mineral & Hydrothermal Alteration Mapping from KMZ / KML / GeoJSON
+    Developed for **Geosciences Society of Cambodia (GeoCam)**.
+    """)
+
+    with gr.Row():
+        with gr.Column():
+            file_input = gr.File(label="Upload KMZ / KML / GeoJSON Boundary", file_types=[".kmz", ".kml", ".geojson", ".json"])
+            run_btn = gr.Button("🚀 Run Alteration Analysis", variant="primary")
+        with gr.Column():
+            output_text = gr.Markdown("Ready to process boundary...")
+            output_file = gr.File(label="Download Complete GIS Package (.zip)")
+
+    def process_file_ui(file):
+        if not file:
+            return "Please upload a boundary file.", None
+        with open(file.name, "rb") as f:
+            contents = f.read()
+        filename = os.path.basename(file.name)
+        roi = parse_boundary_file(contents, filename)
+        geom = roi.geometry.iloc[0]
+        lon, lat = geom.centroid.x, geom.centroid.y
+        target_epsg = (32600 if lat >= 0 else 32700) + int((lon + 180) // 6) + 1
+        alt_gdf, pros_gdf = generate_alteration_polygons(roi, target_epsg)
+        clean_name = Path(filename).stem.replace(" ", "_")
+        zip_bytes = build_gis_zip_package(roi, alt_gdf, pros_gdf, clean_name, target_epsg)
+
+        out_zip_path = tempfile.mktemp(suffix=".zip")
+        with open(out_zip_path, "wb") as f:
+            f.write(zip_bytes)
+
+        summary = f"""
+        ### ✅ Analysis Succeeded!
+        - **Boundary File**: `{filename}`
+        - **Coordinate System**: `EPSG:{target_epsg}`
+        - **Area**: `{round(roi.to_crs(target_epsg).area.iloc[0] / 1e6, 2)} km²`
+        - **Fe Oxide (Gossan) Polygons**: `{len(alt_gdf[alt_gdf['class_id'] == 1]) if not alt_gdf.empty else 0}`
+        - **Clay (Argillic) Polygons**: `{len(alt_gdf[alt_gdf['class_id'] == 2]) if not alt_gdf.empty else 0}`
+        - **SWIR Lithology Polygons**: `{len(alt_gdf[alt_gdf['class_id'] == 3]) if not alt_gdf.empty else 0}`
+        - **Ranked Prospects (>P90)**: `{len(pros_gdf)}`
+        """
+        return summary, out_zip_path
+
+    run_btn.click(fn=process_file_ui, inputs=[file_input], outputs=[output_text, output_file])
+
+# Enable CORS on demo app for the GeoCam website
+app = demo.app
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/api/health")
+def api_health():
+    return {"status": "online", "engine": "GeoCam Landsat 9 Gradio Engine", "sdk": "gradio"}
+
+
 @app.post("/api/analyze")
 async def analyze_boundary(file: UploadFile = File(...)):
-    """Receives a KMZ, KML or GeoJSON boundary and computes alteration zones."""
+    """API endpoint called by the GeoCam website."""
     try:
         contents = await file.read()
         filename = file.filename or "exploration_boundary.kmz"
 
-        # 1. Parse boundary
         roi = parse_boundary_file(contents, filename)
         geom = roi.geometry.iloc[0]
         lon, lat = geom.centroid.x, geom.centroid.y
         target_epsg = (32600 if lat >= 0 else 32700) + int((lon + 180) // 6) + 1
 
-        # 2. Compute alteration and prospect vectors
         alt_gdf, pros_gdf = generate_alteration_polygons(roi, target_epsg)
 
-        # 3. Build GIS ZIP package
         clean_name = Path(filename).stem.replace(" ", "_")
         zip_bytes = build_gis_zip_package(roi, alt_gdf, pros_gdf, clean_name, target_epsg)
 
-        # Save in memory store
         job_id = f"{clean_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
         JOBS_STORE[job_id] = zip_bytes
 
-        # 4. Prepare GeoJSON response for Leaflet display
         return {
             "status": "success",
             "job_id": job_id,
@@ -387,7 +412,6 @@ async def analyze_boundary(file: UploadFile = File(...)):
 
 @app.get("/api/download/{job_id}")
 def download_package(job_id: str):
-    """Direct download endpoint for the generated GIS zip file."""
     if job_id not in JOBS_STORE:
         raise HTTPException(status_code=404, detail="Requested package expired or not found.")
     data = JOBS_STORE[job_id]
