@@ -16,7 +16,7 @@ export const dict = {
   publications: { en: "Publications", km: "ការបោះពុម្ពផ្សាយ" },
   events: { en: "Events", km: "ព្រឹត្តិការណ៍" },
   membership: { en: "Membership", km: "សមាជិកភាព" },
-  lexicon: { en: "Lexicon", km: "វចនានុក្រមភូគព្ភសាស្ត្រ" },
+  lexicon: { en: "Lexicon", km: "វចនានុក្រមភូគព្ភវិទ្យាសាស្ត្រ" },
   geopark: { en: "3D Geopark", km: "ឧទ្យានភូគព្ភសាស្ត្រ 3D" },
   cms: { en: "Visual CMS", km: "គ្រប់គ្រងមាតិកា" },
   mining: { en: "Mining", km: "វិស័យរ៉ែ" },
@@ -24,7 +24,7 @@ export const dict = {
     en: "Environmental Monitoring",
     km: "ការតាមដានបរិស្ថាន",
   },
-  geodata: { en: "GeoData", km: "ទិន្នន័យភូមិសាស្ត្រ" },
+  geodata: { en: "GeoData", km: "ទិន្នន័យភូគព្ភវិទ្យាសាស្ត្រ" },
   news: { en: "News", km: "ព័ត៌មាន" },
   contact: { en: "Contact", km: "ទំនាក់ទំនង" },
   dashboard: { en: "Member area", km: "តំបន់សមាជិក" },
@@ -39,7 +39,7 @@ export const dict = {
   },
   heroSub: {
     en: "An independent community of geoscientists advancing research, education and safe, sustainable use of Cambodia’s earth resources.",
-    km: "សហគមន៍ឯករាជ្យនៃអ្នកភូគព្ភវិទ្យា ដែលលើកកម្ពស់ការស្រាវជ្រាវ ការអប់រំ និងការប្រើប្រាស់ធនធានដីប្រកបដោយសុវត្ថិភាព និងចីរភាព។",
+    km: "សហគមន៍ឯករាជ្យនៃអ្នកភូគព្ភវិទ្យាសាស្ត្រ ដែលលើកកម្ពស់ការស្រាវជ្រាវ ការអប់រំ និងការប្រើប្រាស់ធនធានដីប្រកបដោយសុវត្ថិភាព និងចីរភាព។",
   },
   joinCta: { en: "Become a member", km: "ក្លាយជាសមាជិក" },
   exploreData: { en: "Explore GeoData", km: "ស្វែងរកទិន្នន័យ" },
@@ -50,7 +50,7 @@ export const dict = {
   viewAll: { en: "View all", km: "មើលទាំងអស់" },
   joinTitle: {
     en: "Join Cambodia’s geoscience community",
-    km: "ចូលរួមសហគមន៍ភូគព្ភវិទ្យាកម្ពុជា",
+    km: "ចូលរួមសហគមន៍ភូគព្ភវិទ្យាសាស្ត្រកម្ពុជា",
   },
   joinSub: {
     en: "Students, professionals and researchers — connect, publish and contribute to field knowledge.",

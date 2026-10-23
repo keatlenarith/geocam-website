@@ -85,11 +85,11 @@ function Research() {
           <div className="mb-6">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
               <Compass size={15} />
-              {lang === "km" ? "វិស័យសំខាន់ៗទាំង៥" : "5 Core Geoscience Disciplines"}
+              {lang === "km" ? "វិស័យសំខាន់ៗទាំង៥នៃភូគព្ភវិទ្យាសាស្ត្រ" : "5 Core Geoscience Disciplines"}
             </span>
             <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mt-1">
               {lang === "km"
-                ? "វិស័យសំខាន់ៗនៃភូគព្ភសាស្ត្រកម្ពុជា"
+                ? "វិស័យសំខាន់ៗនៃភូគព្ភវិទ្យាសាស្ត្រកម្ពុជា"
                 : "Cambodia's Key Geoscience Disciplines"}
             </h2>
             <p className="mt-2 text-base text-slate-600 max-w-3xl">

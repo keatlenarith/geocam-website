@@ -37,6 +37,7 @@ const navGroups = [
 ];
 
 function Logo() {
+  const { lang } = useI18n();
   return (
     <Link to="/" className="flex items-center gap-3" aria-label="GeoCam home">
       <img
@@ -49,7 +50,7 @@ function Logo() {
           GeoCam
         </span>
         <span className="block text-[11px] text-muted-foreground">
-          Geosciences Society of Cambodia
+          {lang === "km" ? "សមាគមភូគព្ភវិទ្យាសាស្ត្រកម្ពុជា" : "Geosciences Society of Cambodia"}
         </span>
       </span>
     </Link>

@@ -80,7 +80,7 @@ export default function ResearchTopic() {
         </div>
 
         {/* Main Post Article */}
-        <article className="card-surface p-6 md:p-10 shadow-sm rounded-2xl border border-slate-200">
+        <article className="card-surface mx-auto max-w-5xl p-6 md:p-10 shadow-sm rounded-2xl border border-slate-200">
           {/* Header metadata */}
           <div className="border-b border-slate-200 pb-6 mb-8">
             <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -115,12 +115,12 @@ export default function ResearchTopic() {
           </div>
 
           {/* Featured Image */}
-          <figure className="mb-10 rounded-xl border border-slate-200 bg-slate-50 overflow-visible p-2">
+          <figure className="mb-10 mx-auto max-w-3xl rounded-xl border border-slate-200 bg-slate-50 overflow-visible p-2">
             <img
               src={focus.image}
               alt={focus.imageAlt}
-              className="w-full object-contain bg-slate-50 mx-auto rounded-lg"
-              style={{ maxHeight: "none", height: "auto" }}
+              className="w-full max-h-[60vh] object-contain bg-slate-50 mx-auto rounded-lg"
+              style={{ maxHeight: "60vh", height: "auto" }}
               loading="lazy"
             />
             <figcaption className="p-3.5 text-xs text-center text-muted-foreground bg-slate-100/70 border-t border-slate-200 mt-2">
@@ -162,7 +162,7 @@ export default function ResearchTopic() {
                 {/* Optional Section Image */}
                 {section.image && (
                   <figure
-                    className="my-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs overflow-visible text-center"
+                    className="my-6 mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs overflow-visible text-center"
                     style={{ height: "auto" }}
                   >
                     <div
@@ -190,7 +190,7 @@ export default function ResearchTopic() {
                   section.images.map((imgItem, imgIdx) => (
                     <figure
                       key={imgIdx}
-                      className="my-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs overflow-visible text-center"
+                      className="my-6 mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs overflow-visible text-center"
                       style={{ height: "auto" }}
                     >
                       <div
@@ -347,7 +347,7 @@ export default function ResearchTopic() {
                 {lang === "km" ? "ស្វែងយល់បន្ថែម" : "Continue Reading"}
               </span>
               <h3 className="text-xl md:text-2xl font-bold text-slate-900 mt-1">
-                {lang === "km" ? "វិស័យសំខាន់ៗផ្សេងទៀតនៃភូគព្ភសាស្ត្រ" : "Other Key Research Disciplines"}
+                {lang === "km" ? "វិស័យសំខាន់ៗផ្សេងទៀតនៃភូគព្ភវិទ្យាសាស្ត្រ" : "Other Key Research Disciplines"}
               </h3>
             </div>
             <Link

@@ -55,7 +55,7 @@ export default function NewsItem() {
   return (
     <>
       <PageHeader
-        eyebrow={lang === "km" ? "ព័ត៌មានភូគព្ភសាស្ត្រ" : "Geoscience News"}
+        eyebrow={lang === "km" ? "ព័ត៌មានភូគព្ភវិទ្យាសាស្ត្រ" : "Geoscience News"}
         title={title}
       />
       <Container>

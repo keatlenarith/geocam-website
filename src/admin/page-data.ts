@@ -16,11 +16,11 @@ export const defaultPageData: Record<
     titleKm: "ទំព័រដើម",
     category: "Core Pages",
     headlineEn: "Cambodia Geoscience & Earth Observation",
-    headlineKm: "ភូគព្ភវិទ្យា និងការសង្កេតផែនដីនៃប្រទេសកម្ពុជា",
+    headlineKm: "ភូគព្ភវិទ្យាសាស្ត្រ និងការសង្កេតផែនដីនៃប្រទេសកម្ពុជា",
     subEn:
       "Advancing geological research, environmental monitoring, natural hazard resilience, and mineral resource sustainability.",
     subKm:
-      "លើកកម្ពស់ការស្រាវជ្រាវភូគព្ភវិទ្យា ការតាមដានបរិស្ថាន និងធនធានធម្មជាតិប្រកបដោយនិរន្តរភាព។",
+      "លើកកម្ពស់ការស្រាវជ្រាវភូគព្ភវិទ្យាសាស្ត្រ ការតាមដានបរិស្ថាន និងធនធានធម្មជាតិប្រកបដោយនិរន្តរភាព។",
     heroImage: "/images/focus/outcrop.jpg",
   },
   "/about": {
@@ -52,7 +52,7 @@ export const defaultPageData: Record<
     titleKm: "បណ្ណាល័យបោះពុម្ពផ្សាយ",
     category: "Science & Maps",
     headlineEn: "Peer-Reviewed Cambodian Geoscience Publications",
-    headlineKm: "ការបោះពុម្ពផ្សាយវិទ្យាសាស្ត្រភូគព្ភសាស្ត្រកម្ពុជា",
+    headlineKm: "ការបោះពុម្ពផ្សាយវិទ្យាសាស្ត្រភូគព្ភវិទ្យាសាស្ត្រកម្ពុជា",
     subEn:
       "Search, read, and cite academic papers, monographs, and geological field reports.",
     subKm:
@@ -78,7 +78,7 @@ export const defaultPageData: Record<
     titleKm: "សមាជិកភាព",
     category: "Core Pages",
     headlineEn: "Join the Geoscience Community",
-    headlineKm: "ចូលរួមជាមួយសហគមន៍ភូគព្ភវិទ្យា",
+    headlineKm: "ចូលរួមជាមួយសហគមន៍ភូគព្ភវិទ្យាសាស្ត្រ",
     subEn:
       "Student, Professional, and Corporate memberships are available for Cambodian earth science practitioners.",
     subKm:
@@ -163,14 +163,14 @@ export const defaultPageData: Record<
   },
   "/lexicon": {
     titleEn: "Geoscience Lexicon",
-    titleKm: "វចនានុក្រមភូគព្ភសាស្ត្រ",
+    titleKm: "វចនានុក្រមភូគព្ភវិទ្យាសាស្ត្រ",
     category: "Tools & Portals",
     headlineEn: "Standardized English-Khmer Geological Terminology",
-    headlineKm: "វចនានុក្រមពាក្យបច្ចេកទេសភូគព្ភសាស្ត្រ អង់គ្លេស-ខ្មែរ",
+    headlineKm: "វចនានុក្រមពាក្យបច្ចេកទេសភូគព្ភវិទ្យាសាស្ត្រ អង់គ្លេស-ខ្មែរ",
     subEn:
       "Browse definitions, geological classifications, and standardized Khmer scientific vocabulary.",
     subKm:
-      "ស្វែងរកនិយមន័យ ការបែងចែកប្រភេទភូគព្ភសាស្ត្រ និងពាក្យវិទ្យាសាស្ត្រជាភាសាខ្មែរ។",
+      "ស្វែងរកនិយមន័យ ការបែងចែកប្រភេទភូគព្ភវិទ្យាសាស្ត្រ និងពាក្យវិទ្យាសាស្ត្រជាភាសាខ្មែរ។",
     heroImage:
       "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=1000&q=85",
   },

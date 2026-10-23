@@ -524,3 +524,24 @@ table[style*="min-width"] {
 .geocam-drop-target-below {
   border-bottom: 4px solid #2563eb !important;
 }
+
+
+/* Responsive image sizing for Laptop & Desktop viewports */
+@media (min-width: 1024px) {
+  article figure,
+  .geocam-article-body figure,
+  .geocam-figure {
+    max-width: 820px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  article figure img,
+  .geocam-article-body img,
+  .geocam-img-wrapper img {
+    max-height: 65vh !important;
+    object-fit: contain !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: block !important;
+  }
+}
