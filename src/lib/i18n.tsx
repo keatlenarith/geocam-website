@@ -31,7 +31,7 @@ export const dict = {
   admin: { en: "Admin", km: "អ្នកគ្រប់គ្រង" },
   orgName: {
     en: "Geosciences Society of Cambodia",
-    km: "សមាគមភូគព្ភវិទ្យាកម្ពុជា",
+    km: "សមាគមភូគព្ភវិទ្យាសាស្ត្រកម្ពុជា",
   },
   heroTitle: {
     en: "Reading the deep history of Cambodia’s land",

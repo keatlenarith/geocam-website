@@ -89,7 +89,7 @@ export default function ResearchTopic() {
                 {lang === "km" ? focus.shortTitleKm : focus.shortTitleEn}
               </span>
               <span className="text-xs text-muted-foreground">
-                {lang === "km" ? "សមាគមភូគព្ភវិទ្យាកម្ពុជា" : "Geosciences Society of Cambodia"}
+                {lang === "km" ? "សមាគមភូគព្ភវិទ្យាសាស្ត្រកម្ពុជា" : "Geosciences Society of Cambodia"}
               </span>
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight">

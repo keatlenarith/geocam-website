@@ -22,6 +22,7 @@ const catalog: Record<string, string> = {
   ...glossary,
 };
 const pluralTerms: Record<string, string> = {
+  Geosciences: glossary.Geoscience,
   Faults: glossary.Fault,
   Minerals: glossary.Mineral,
   Geosites: glossary.Geosite,
@@ -36,7 +37,7 @@ const lookup = new Map(
 const backend: Record<string, string> = {
   "Loading page…": "កំពុងផ្ទុកទំព័រ…",
   "GeoCam | Geosciences Society of Cambodia":
-    "GeoCam | សមាគមភូគព្ភសាស្ត្រកម្ពុជា",
+    "GeoCam | សមាគមភូគព្ភវិទ្យាសាស្ត្រកម្ពុជា",
   Jan: "មករា",
   Feb: "កុម្ភៈ",
   Mar: "មីនា",
@@ -133,6 +134,8 @@ function dynamic(text: string): string | undefined {
   return undefined;
 }
 export function translateText(value: string): string {
+  // Also correct older Khmer society names retained in saved CMS text.
+  value = value.replace(/សមាគមភូគព្ភ(?:វិទ្យា(?!សាស្ត្រ)|សាស្ត្រ)/g, "សមាគម" + glossary.Geoscience);
   const text = normalize(value);
   if (!text) return value;
   const translated = lookup.get(text.toLowerCase()) || dynamic(text);

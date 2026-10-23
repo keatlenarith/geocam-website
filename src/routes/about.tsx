@@ -19,7 +19,7 @@ function About() {
         <div className="relative mt-7 mb-10 overflow-hidden rounded-2xl min-h-[250px] md:min-h-[330px]">
           <img src="/about-geology.jpg" alt="Cambodian geological landscape" className="absolute inset-0 h-full w-full object-cover" data-cms-id="about-background-image" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent pointer-events-none" />
-          <div className="absolute bottom-5 left-6 right-6 text-white pointer-events-none"><p className="text-2xl font-semibold" data-cms-id="about-hero-title">{km ? "សហគមន៍ភូគព្ភសាស្ត្រកម្ពុជា" : "Cambodia’s geoscience community"}</p></div>
+          <div className="absolute bottom-5 left-6 right-6 text-white pointer-events-none"><p className="text-2xl font-semibold" data-cms-id="about-hero-title">{km ? "សហគមន៍ភូគព្ភវិទ្យាសាស្ត្រកម្ពុជា" : "Cambodia’s geoscience community"}</p></div>
         </div>
         <div className="grid gap-6 md:grid-cols-3">
           {(km ? [

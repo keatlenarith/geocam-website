@@ -25,7 +25,7 @@ const navGroups = [
   },
   {
     en: "Geoscience & Data",
-    km: "ភូគព្ភសាស្ត្រ និងទិន្នន័យ",
+    km: "ភូគព្ភវិទ្យាសាស្ត្រ និងទិន្នន័យ",
     items: ["/geodata", "/environmental-monitoring", "/geopark", "/mining"],
   },
   {

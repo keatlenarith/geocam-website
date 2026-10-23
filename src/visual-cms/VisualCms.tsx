@@ -1098,7 +1098,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
           entry.value.endsWith(".svg");
         const value =
           !isObsoleteSvg && entry?.kind === (image ? "image" : "text")
-            ? entry.value
+            ? !image && lang === "km" ? translateText(entry.value) : entry.value
             : !image && lang === "km"
               ? translateText(original)
               : original;
