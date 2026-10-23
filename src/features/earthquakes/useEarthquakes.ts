@@ -5,6 +5,7 @@ import {
   type ProviderName,
   filterEarthquakes,
   normalizeUsgsFeature,
+  parseCencJson,
   isWithinRegionalEnvelope,
   deduplicateEvents,
 } from "./earthquake-data";
@@ -35,6 +36,13 @@ const DEFAULT_PROVIDERS: Record<ProviderName, ProviderHealth> = {
     status: "unavailable",
     officialUrl: "https://earthquake.tmd.go.th/",
     note: "Official regional feed monitored; upstream connection timeout",
+  },
+  CENC: {
+    provider: "CENC",
+    name: "China Earthquake Networks Center (CEA / 广东省地震局)",
+    status: "available",
+    officialUrl: "https://news.ceic.ac.cn/",
+    note: "China Earthquake Administration (CEA) & Guangdong Seismological Network",
   },
   VIETNAM: {
     provider: "VIETNAM",
@@ -164,7 +172,21 @@ export function useEarthquakes(options: UseEarthquakesOptions = {}) {
               return (e.magnitude ?? 0) >= 2.0;
             });
 
-          const deduplicated = deduplicateEvents(parsed);
+          let allFetchedEvents = [...parsed];
+
+          // Also fetch CENC (China Earthquake Administration / 广东省地震局) in client fallback
+          try {
+            const cencRes = await fetch("https://api.wolfx.jp/cenc_eqlist.json", {
+              signal: AbortSignal.timeout(3500),
+            });
+            if (cencRes.ok) {
+              const cencData = await cencRes.json();
+              const cencParsed = parseCencJson(cencData);
+              allFetchedEvents = [...allFetchedEvents, ...cencParsed];
+            }
+          } catch {}
+
+          const deduplicated = deduplicateEvents(allFetchedEvents);
 
           // Track new events
           if (initialLoadRef.current) {

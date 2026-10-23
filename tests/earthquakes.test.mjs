@@ -17,6 +17,7 @@ const {
   generateEventAnnouncement,
   normalizeUsgsFeature,
   parseTmdXml,
+  parseCencJson,
   deduplicateEvents,
   filterEarthquakes,
 } = await import('data:text/javascript;base64,' + Buffer.from(code).toString('base64'));
@@ -335,4 +336,48 @@ test('filterEarthquakes: handles scope (cambodia vs global) and global location 
   assert.equal(searchCal.length, 1);
   assert.equal(searchCal[0].id, 'glob2');
 });
+
+test('parseCencJson: parses China Earthquake Networks Center (CENC/CEA) & Guangdong data with Beijing Time conversion', () => {
+  const sampleData = {
+    No1: {
+      type: 'reviewed',
+      EventID: 'GD.20261023120000',
+      time: '2026-10-23 20:00:00', // Beijing Time (UTC+8) -> 12:00:00Z UTC -> 19:00:00 ICT
+      location: '广东河源市源城区',
+      magnitude: '3.6',
+      depth: '11',
+      latitude: '23.75',
+      longitude: '114.65',
+    },
+    No2: {
+      type: 'reviewed',
+      EventID: 'YN.20261021195218',
+      time: '2026-10-21 19:52:18', // Beijing Time (UTC+8) -> 11:52:18Z UTC
+      location: '云南玉溪市元江县',
+      magnitude: '3.0',
+      depth: '7',
+      latitude: '23.65',
+      longitude: '102.25',
+    }
+  };
+
+  const parsed = parseCencJson(sampleData);
+  assert.equal(parsed.length, 2);
+
+  const gdEvent = parsed.find(e => e.id.includes('GD.20261023120000'));
+  assert.ok(gdEvent);
+  assert.equal(gdEvent.magnitude, 3.6);
+  assert.equal(gdEvent.depthKm, 11);
+  assert.equal(gdEvent.latitude, 23.75);
+  assert.equal(gdEvent.longitude, 114.65);
+  assert.equal(gdEvent.originTime, '2026-10-23T12:00:00.000Z');
+  assert.ok(gdEvent.location.includes('Guangdong, China'));
+  assert.equal(gdEvent.url, 'http://www.gddzj.gov.cn/');
+  assert.equal(gdEvent.reports[0].provider, 'CENC');
+
+  const ynEvent = parsed.find(e => e.id.includes('YN.20261021195218'));
+  assert.ok(ynEvent);
+  assert.equal(ynEvent.isRegional, true); // (23.65N, 102.25E is within regional envelope 5-25N, 92-112E)
+});
+
 

@@ -59,6 +59,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       officialUrl: "https://earthquake.tmd.go.th/",
       lastChecked: new Date().toISOString(),
     },
+    CENC: {
+      provider: "CENC",
+      name: "China Earthquake Networks Center (CEA / 广东省地震局)",
+      status: "loading",
+      officialUrl: "https://news.ceic.ac.cn/",
+      lastChecked: new Date().toISOString(),
+      note: "China Earthquake Administration (CEA) & Guangdong Seismological Network",
+    },
     VIETNAM: {
       provider: "VIETNAM",
       name: "Institute of Geophysics (VAST Vietnam)",
@@ -249,6 +257,89 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (err: any) {
     providerHealth.TMD.status = "unavailable";
     providerHealth.TMD.note = "Upstream server timeout (inaccessible or delayed)";
+  }
+
+  // 3. Fetch China Earthquake Administration (CEA / CENC) & Guangdong Seismic Network
+  try {
+    const cencRes = await fetch("https://api.wolfx.jp/cenc_eqlist.json", {
+      signal: AbortSignal.timeout(4000),
+      headers: { "User-Agent": "GeoCam-Earthquake-Monitor/1.0" },
+    });
+
+    if (cencRes.ok) {
+      const data = await cencRes.json();
+      const itemKeys = Object.keys(data).filter((k) => k.startsWith("No"));
+      let cencCount = 0;
+
+      for (const k of itemKeys) {
+        const it = data[k];
+        if (!it || !it.time) continue;
+
+        const lat = parseFloat(it.latitude);
+        const lon = parseFloat(it.longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+
+        const mag = it.magnitude ? parseFloat(it.magnitude) : null;
+        const depth = it.depth ? parseFloat(it.depth) : null;
+
+        const beijingIso = `${it.time.replace(" ", "T")}+08:00`;
+        const originDate = new Date(beijingIso);
+        if (isNaN(originDate.getTime())) continue;
+        const originTime = originDate.toISOString();
+
+        const isReg = lat >= 5.0 && lat <= 25.0 && lon >= 92.0 && lon <= 112.0;
+        const dLat = (lat - 12.5657) * 111;
+        const dLon = (lon - 104.991) * 111 * Math.cos((12.5657 * Math.PI) / 180);
+        const distKm = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
+
+        const isGuangdong = Boolean(it.location && it.location.includes("广东"));
+        const cleanLoc = (it.location || it.placeName || "").trim();
+        const locationLabel = isGuangdong
+          ? `${cleanLoc} (Guangdong, China)`
+          : cleanLoc || (isReg ? "Regional epicenter" : "China / Global epicenter");
+
+        const id = `cenc-${it.EventID || `${lat.toFixed(2)}-${lon.toFixed(2)}-${originTime.slice(0, 16)}`}`;
+        const sourceUrl = isGuangdong
+          ? "http://www.gddzj.gov.cn/"
+          : "https://news.ceic.ac.cn/";
+
+        rawEvents.push({
+          id,
+          originTime,
+          firstSeenAt: originTime,
+          latitude: lat,
+          longitude: lon,
+          depthKm: Number.isFinite(depth) ? depth : null,
+          magnitude: Number.isFinite(mag) ? mag : null,
+          magnitudeType: "M",
+          location: locationLabel,
+          reviewStatus: it.type || "reviewed",
+          status: it.type || "reviewed",
+          url: sourceUrl,
+          isRegional: isReg,
+          distanceToCambodiaKm: distKm,
+          reports: [
+            {
+              provider: "CENC",
+              providerEventId: it.EventID || id,
+              sourceUrl,
+              magnitude: Number.isFinite(mag) ? mag : null,
+              depthKm: Number.isFinite(depth) ? depth : null,
+            },
+          ],
+        });
+        cencCount++;
+      }
+
+      providerHealth.CENC.status = "available";
+      providerHealth.CENC.eventCount = cencCount;
+    } else {
+      providerHealth.CENC.status = "unavailable";
+      providerHealth.CENC.note = `Upstream HTTP ${cencRes.status}`;
+    }
+  } catch (err: any) {
+    providerHealth.CENC.status = "delayed";
+    providerHealth.CENC.note = "Upstream connection timeout or delayed";
   }
 
   // Deduplicate events across providers (tolerance: 60s and 30km)

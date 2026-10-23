@@ -555,6 +555,22 @@ export default function EarthquakeMonitoringPage() {
                 <ArrowUpRight size={13} /> USGS Earthquake Hazards Program (United States)
               </a>
               <a
+                href="https://news.ceic.ac.cn/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 font-bold text-primary hover:underline block"
+              >
+                <ArrowUpRight size={13} /> China Earthquake Networks Center — CENC / CEA (中国地震台网中心)
+              </a>
+              <a
+                href="http://www.gddzj.gov.cn/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 font-bold text-primary hover:underline block"
+              >
+                <ArrowUpRight size={13} /> Guangdong Earthquake Administration (广东省地震局 · GDNET)
+              </a>
+              <a
                 href="https://earthquake.tmd.go.th/"
                 target="_blank"
                 rel="noopener noreferrer"

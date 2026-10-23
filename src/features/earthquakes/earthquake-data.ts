@@ -3,7 +3,7 @@
  * Models, validation, filtering, source normalization, deduplication, and factual announcement formatting.
  */
 
-export type ProviderName = "USGS" | "TMD" | "VIETNAM" | "PHIVOLCS";
+export type ProviderName = "USGS" | "TMD" | "VIETNAM" | "PHIVOLCS" | "CENC";
 export type ProviderStatus = "available" | "unavailable" | "loading" | "delayed";
 
 export interface EarthquakeReport {
@@ -322,6 +322,81 @@ export function parseTmdXml(xmlText: string): EarthquakeEvent[] {
           ],
         });
       }
+    } catch {
+      // Continue parsing remaining items
+    }
+  }
+
+  return events;
+}
+
+/**
+ * Parse CENC / China Earthquake Administration (CEA) & Guangdong Seismological Network JSON
+ */
+export function parseCencJson(jsonObj: Record<string, any>): EarthquakeEvent[] {
+  const events: EarthquakeEvent[] = [];
+  if (!jsonObj || typeof jsonObj !== "object") return events;
+
+  const itemKeys = Object.keys(jsonObj).filter((k) => k.startsWith("No"));
+  for (const k of itemKeys) {
+    try {
+      const it = jsonObj[k];
+      if (!it || !it.time) continue;
+
+      const lat = parseFloat(it.latitude);
+      const lon = parseFloat(it.longitude);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+
+      const mag = it.magnitude ? parseFloat(it.magnitude) : null;
+      const depth = it.depth ? parseFloat(it.depth) : null;
+
+      // it.time is China Standard Time (Beijing Time, UTC+8)
+      const beijingIso = `${it.time.replace(" ", "T")}+08:00`;
+      const originDate = new Date(beijingIso);
+      if (isNaN(originDate.getTime())) continue;
+      const originTime = originDate.toISOString();
+
+      const isReg = isWithinRegionalEnvelope(lat, lon);
+      const distKm = Math.round(
+        haversineDistanceKm(CAMBODIA_CENTER.latitude, CAMBODIA_CENTER.longitude, lat, lon)
+      );
+
+      const isGuangdong = Boolean(it.location && it.location.includes("广东"));
+      const cleanLoc = (it.location || it.placeName || "").trim();
+      const locationLabel = isGuangdong
+        ? `${cleanLoc} (Guangdong, China)`
+        : cleanLoc || (isReg ? "Regional epicenter" : "China / Global epicenter");
+
+      const eventId = `cenc-${it.EventID || `${lat.toFixed(2)}-${lon.toFixed(2)}-${originTime.slice(0, 16)}`}`;
+      const sourceUrl = isGuangdong
+        ? "http://www.gddzj.gov.cn/"
+        : `https://news.ceic.ac.cn/`;
+
+      events.push({
+        id: eventId,
+        originTime,
+        firstSeenAt: originTime,
+        latitude: lat,
+        longitude: lon,
+        depthKm: Number.isFinite(depth) ? depth : null,
+        magnitude: Number.isFinite(mag) ? mag : null,
+        magnitudeType: "M",
+        location: locationLabel,
+        reviewStatus: it.type || "reviewed",
+        status: it.type || "reviewed",
+        url: sourceUrl,
+        isRegional: isReg,
+        distanceToCambodiaKm: distKm,
+        reports: [
+          {
+            provider: "CENC",
+            providerEventId: it.EventID || eventId,
+            sourceUrl,
+            magnitude: Number.isFinite(mag) ? mag : null,
+            depthKm: Number.isFinite(depth) ? depth : null,
+          },
+        ],
+      });
     } catch {
       // Continue parsing remaining items
     }
