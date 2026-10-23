@@ -25,6 +25,10 @@ export function attachInlineText(
       else el.setAttribute(name, value);
     }
     if (persist && !cancel && value !== before) {
+      if (value.trim() === "") {
+        el.textContent = "";
+        el.style.setProperty("display", "none", "important");
+      }
       commit(key, value);
       complete?.(key, value);
     }

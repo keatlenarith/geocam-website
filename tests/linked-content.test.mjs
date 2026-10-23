@@ -32,3 +32,18 @@ test('Page patches exclude unapproved typography and preserve unrelated concurre
  const server={'/::en':{title:text('Live'),newer:text('Other editor')}};
  assert.deepEqual(rebaseDraft(server,baseline,local),{'/::en':{title:text('Local draft'),newer:text('Other editor')}});
 });
+test('Subroutes strictly isolate their content and do not bleed into or inherit from unprefixed keys',()=>{
+ const tectonicImage={kind:'image',value:'https://example.org/tectonic-map.png'};
+ const store={
+  '/research::en':{
+   'div:0/article:0/figure:0/img:0':tectonicImage,
+   'sub:topic-tectonics:div:0/article:0/figure:0/img:0':tectonicImage
+  }
+ };
+ // Geochemistry subroute query must NOT inherit the unprefixed tectonicImage
+ assert.equal(linkedEntry(store,'/research','en','sub:topic-geochemistry:div:0/article:0/figure:0/img:0'),undefined);
+ // Mineral deposits subroute query must NOT inherit the unprefixed tectonicImage
+ assert.equal(linkedEntry(store,'/research','en','sub:topic-mineral-deposits:div:0/article:0/figure:0/img:0'),undefined);
+ // Tectonics query gets its own image
+ assert.deepEqual(linkedEntry(store,'/research','en','sub:topic-tectonics:div:0/article:0/figure:0/img:0'),tectonicImage);
+});

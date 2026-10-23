@@ -72,13 +72,6 @@ export function linkedEntry(
     }
   }
 
-  // 3. Fallback without subroute prefix if still not found
-  if (!english && !local && key.startsWith("sub:")) {
-    const unprefixedKey = key.replace(/^sub:[^:]+:/, "");
-    english = englishStore[unprefixedKey];
-    local = localStore[unprefixedKey];
-  }
-
   if (english?.kind === "image") return english;
   if (local) return local;
   return english?.kind === "text" && language === "km"

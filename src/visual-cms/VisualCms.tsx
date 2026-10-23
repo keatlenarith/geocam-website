@@ -793,11 +793,17 @@ export function VisualCmsLayer({ page }: { page: string }) {
   const mainEl = typeof document !== "undefined" ? document.getElementById("main") : null;
 
   const getLinked = (rawKey: string): Entry | undefined => {
-    const prefixedKey =
-      prefix && !rawKey.startsWith("sub:") ? `${prefix}${rawKey}` : rawKey;
+    if (prefix) {
+      // Subrouted page (e.g. /research/topic?id=...): STRICTLY isolate by subroute prefix
+      // Never fall back to unprefixed shared canonical keys so topics never bleed into each other!
+      const prefixedKey =
+        !rawKey.startsWith("sub:") ? `${prefix}${rawKey}` : rawKey;
+      return (
+        linkedEntry(active, canonicalRoute, lang, prefixedKey) ||
+        linkedEntry(active, cleanPath, lang, prefixedKey)
+      );
+    }
     return (
-      linkedEntry(active, canonicalRoute, lang, prefixedKey) ||
-      linkedEntry(active, cleanPath, lang, prefixedKey) ||
       linkedEntry(active, cleanPath, lang, rawKey) ||
       linkedEntry(active, canonicalRoute, lang, rawKey)
     );
@@ -810,7 +816,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
       entry.kind === "image" ? `${canonicalRoute}::en` : `${canonicalRoute}::${lang}`;
     setEntry(targetSpace, prefixedKey, entry);
     saveInline(targetSpace, prefixedKey, entry);
-    if (cleanPath !== canonicalRoute) {
+    if (!prefix && cleanPath !== canonicalRoute) {
       const directSpace =
         entry.kind === "image" ? `${cleanPath}::en` : `${cleanPath}::${lang}`;
       setEntry(directSpace, rawKey, entry);
@@ -1109,129 +1115,195 @@ export function VisualCmsLayer({ page }: { page: string }) {
               ? `url(${JSON.stringify(value)})`
               : original;
         else if (el.tagName === "IMG") {
+          const isObsoleteSvg =
+            entry?.kind === "image" &&
+            typeof entry.value === "string" &&
+            entry.value.includes("<text") &&
+            entry.value.includes("Click to add image");
           const isRemoved =
             entry?.kind === "image" &&
-            (!entry.value || entry.value === EMPTY_IMAGE_PLACEHOLDER);
-          const displayValue = isRemoved
-            ? "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'><rect width='400' height='300' fill='%23f1f5f9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' fill='%2364748b'>+ Click to add image</text></svg>"
-            : value;
-          if (el.getAttribute("src") !== displayValue) el.setAttribute("src", displayValue);
+            (!entry.value ||
+              entry.value === EMPTY_IMAGE_PLACEHOLDER ||
+              entry.value === "__removed__" ||
+              isObsoleteSvg);
 
-          // Apply saved width, height, and fitMode so the edited size persists for all visitors!
-          if (entry?.kind === "image") {
-            if (entry.width) {
-              (el as HTMLImageElement).style.width = entry.width;
-              (el as HTMLImageElement).style.maxWidth = "none";
-              (el as HTMLImageElement).style.display = "block";
-              (el as HTMLImageElement).style.margin = "0 auto";
+          const fig = el.closest<HTMLElement>("figure") || el.closest<HTMLElement>(".geocam-img-wrapper");
+
+          if (isRemoved) {
+            (el as HTMLElement).style.setProperty("display", "none", "important");
+            if (fig) {
+              fig.style.setProperty("display", "none", "important");
+              fig.style.setProperty("margin", "0", "important");
+              fig.style.setProperty("padding", "0", "important");
+              fig.style.setProperty("height", "0", "important");
+              fig.style.setProperty("min-height", "0", "important");
+              fig.style.setProperty("border", "none", "important");
             }
-            if (entry.height && entry.height !== "auto") {
-              (el as HTMLImageElement).style.height = entry.height;
-              (el as HTMLImageElement).style.maxHeight = "none";
+            const bar = el.parentElement?.querySelector(`.geocam-img-controls-bar[data-key="${key}"]`);
+            if (bar) bar.remove();
+          } else {
+            (el as HTMLElement).style.display = "";
+            if (fig && fig.style.display === "none") {
+              fig.style.display = "";
+              fig.style.margin = "";
+              fig.style.padding = "";
+              fig.style.height = "";
+              fig.style.minHeight = "";
+              fig.style.border = "";
+            }
+            if (el.getAttribute("src") !== value) el.setAttribute("src", value);
+
+            // Apply saved width, height, and fitMode so the edited size persists for all visitors!
+            if (entry?.kind === "image") {
+              if (entry.width) {
+                (el as HTMLImageElement).style.width = entry.width;
+                (el as HTMLImageElement).style.maxWidth = "none";
+                (el as HTMLImageElement).style.display = "block";
+                (el as HTMLImageElement).style.margin = "0 auto";
+              }
+              if (entry.height && entry.height !== "auto") {
+                (el as HTMLImageElement).style.height = entry.height;
+                (el as HTMLImageElement).style.maxHeight = "none";
+              } else {
+                // ALWAYS default to height: auto so there is ZERO vertical dead space!
+                (el as HTMLImageElement).style.height = "auto";
+                (el as HTMLImageElement).style.maxHeight = "none";
+              }
+              if (entry.fit) {
+                (el as HTMLImageElement).style.objectFit = entry.fit;
+                el.setAttribute("data-fit-mode", entry.fit);
+              }
             } else {
-              // ALWAYS default to height: auto so there is ZERO vertical dead space!
               (el as HTMLImageElement).style.height = "auto";
               (el as HTMLImageElement).style.maxHeight = "none";
             }
-            if (entry.fit) {
-              (el as HTMLImageElement).style.objectFit = entry.fit;
-              el.setAttribute("data-fit-mode", entry.fit);
+            if (editingPage) {
+              const parent = el.parentElement;
+              if (parent && !parent.querySelector(`.geocam-img-controls-bar[data-key="${key}"]`)) {
+                if (getComputedStyle(parent).position === "static") {
+                  parent.style.position = "relative";
+                }
+                const bar = document.createElement("div");
+                bar.className = "geocam-img-controls-bar";
+                bar.dataset.key = key;
+
+                // 1. Crop button
+                const cropBtn = document.createElement("button");
+                cropBtn.type = "button";
+                cropBtn.className = "geocam-ctrl-crop";
+                cropBtn.innerHTML = "✂️ Crop";
+                cropBtn.title = "Crop image with ratio presets";
+                bar.appendChild(cropBtn);
+
+                // 2. Fit mode toggle button
+                const fitBtn = document.createElement("button");
+                fitBtn.type = "button";
+                fitBtn.className = "geocam-ctrl-fit";
+                const isContain =
+                  el.getAttribute("data-fit-mode") === "contain" ||
+                  el.style.objectFit === "contain";
+                fitBtn.innerHTML = isContain ? "🖼️ Fit (Contain)" : "🖼️ Cover";
+                fitBtn.title = "Toggle Fit Mode (Contain vs Cover)";
+                bar.appendChild(fitBtn);
+
+                // 3. 50% resize preset
+                const size50Btn = document.createElement("button");
+                size50Btn.type = "button";
+                size50Btn.className = "geocam-ctrl-50";
+                size50Btn.innerHTML = "50%";
+                size50Btn.title = "Resize to 50% width";
+                bar.appendChild(size50Btn);
+
+                // 4. 100% resize preset
+                const size100Btn = document.createElement("button");
+                size100Btn.type = "button";
+                size100Btn.className = "geocam-ctrl-100";
+                size100Btn.innerHTML = "100%";
+                size100Btn.title = "Resize to 100% width";
+                bar.appendChild(size100Btn);
+
+                // 4b. 150% resize preset
+                const size150Btn = document.createElement("button");
+                size150Btn.type = "button";
+                size150Btn.className = "geocam-ctrl-150";
+                size150Btn.innerHTML = "150%";
+                size150Btn.title = "Expand to 150% width (Uncapped)";
+                bar.appendChild(size150Btn);
+
+                // 4c. 200% resize preset
+                const size200Btn = document.createElement("button");
+                size200Btn.type = "button";
+                size200Btn.className = "geocam-ctrl-200";
+                size200Btn.innerHTML = "200%";
+                size200Btn.title = "Expand to 200% width (Uncapped)";
+                bar.appendChild(size200Btn);
+
+                // 4d. Free / Max resize preset (ពង្រីកពេញចិត្ត)
+                const sizeFreeBtn = document.createElement("button");
+                sizeFreeBtn.type = "button";
+                sizeFreeBtn.className = "geocam-ctrl-free";
+                sizeFreeBtn.innerHTML = "Free / Max";
+                sizeFreeBtn.title = "Uncapped full-extent size (ពង្រីកពេញចិត្ត)";
+                bar.appendChild(sizeFreeBtn);
+
+                // 5. Remove Image button (Collapses completely)
+                const removeBtn = document.createElement("button");
+                removeBtn.type = "button";
+                removeBtn.className = "geocam-ctrl-remove";
+                removeBtn.dataset.key = key;
+                removeBtn.title = "Remove photo completely (zero blank space)";
+                removeBtn.innerHTML = "✕ Remove Image";
+                bar.appendChild(removeBtn);
+
+                // 5b. Remove Caption button
+                const removeCapBtn = document.createElement("button");
+                removeCapBtn.type = "button";
+                removeCapBtn.className = "geocam-ctrl-remove-caption";
+                removeCapBtn.dataset.key = key;
+                removeCapBtn.title = "Remove caption completely";
+                removeCapBtn.innerHTML = "✕ Remove Caption";
+                bar.appendChild(removeCapBtn);
+
+                parent.appendChild(bar);
+
+                // 6. Corner resize handle
+                if (!parent.querySelector(`.geocam-resize-handle[data-key="${key}"]`)) {
+                  const handle = document.createElement("div");
+                  handle.className = "geocam-resize-handle";
+                  handle.dataset.key = key;
+                  handle.title = "Drag corner to resize image to whatever size you prefer (no limit)";
+                  parent.appendChild(handle);
+                }
+              }
             }
+          }
+        } else if (el.tagName === "FIGCAPTION") {
+          const isCaptionRemoved =
+            entry?.value === "__removed__" ||
+            value === "__removed__" ||
+            (entry?.kind === "text" && entry.value.trim() === "");
+          if (isCaptionRemoved) {
+            el.textContent = "";
+            (el as HTMLElement).style.setProperty("display", "none", "important");
+            (el as HTMLElement).style.setProperty("margin", "0", "important");
+            (el as HTMLElement).style.setProperty("padding", "0", "important");
+            (el as HTMLElement).style.setProperty("border", "none", "important");
           } else {
-            (el as HTMLImageElement).style.height = "auto";
-            (el as HTMLImageElement).style.maxHeight = "none";
+            (el as HTMLElement).style.display = "";
+            (el as HTMLElement).style.margin = "";
+            (el as HTMLElement).style.padding = "";
+            (el as HTMLElement).style.border = "";
+            if (el.textContent !== value) el.textContent = value;
           }
-          if (editingPage) {
-            const parent = el.parentElement;
-            if (parent && !parent.querySelector(`.geocam-img-controls-bar[data-key="${key}"]`)) {
-              if (getComputedStyle(parent).position === "static") {
-                parent.style.position = "relative";
-              }
-              const bar = document.createElement("div");
-              bar.className = "geocam-img-controls-bar";
-              bar.dataset.key = key;
-
-              // 1. Crop button
-              const cropBtn = document.createElement("button");
-              cropBtn.type = "button";
-              cropBtn.className = "geocam-ctrl-crop";
-              cropBtn.innerHTML = "✂️ Crop";
-              cropBtn.title = "Crop image with ratio presets";
-              bar.appendChild(cropBtn);
-
-              // 2. Fit mode toggle button
-              const fitBtn = document.createElement("button");
-              fitBtn.type = "button";
-              fitBtn.className = "geocam-ctrl-fit";
-              const isContain =
-                el.getAttribute("data-fit-mode") === "contain" ||
-                el.style.objectFit === "contain";
-              fitBtn.innerHTML = isContain ? "🖼️ Fit (Contain)" : "🖼️ Cover";
-              fitBtn.title = "Toggle Fit Mode (Contain vs Cover)";
-              bar.appendChild(fitBtn);
-
-              // 3. 50% resize preset
-              const size50Btn = document.createElement("button");
-              size50Btn.type = "button";
-              size50Btn.className = "geocam-ctrl-50";
-              size50Btn.innerHTML = "50%";
-              size50Btn.title = "Resize to 50% width";
-              bar.appendChild(size50Btn);
-
-              // 4. 100% resize preset
-              const size100Btn = document.createElement("button");
-              size100Btn.type = "button";
-              size100Btn.className = "geocam-ctrl-100";
-              size100Btn.innerHTML = "100%";
-              size100Btn.title = "Resize to 100% width";
-              bar.appendChild(size100Btn);
-
-              // 4b. 150% resize preset
-              const size150Btn = document.createElement("button");
-              size150Btn.type = "button";
-              size150Btn.className = "geocam-ctrl-150";
-              size150Btn.innerHTML = "150%";
-              size150Btn.title = "Expand to 150% width (Uncapped)";
-              bar.appendChild(size150Btn);
-
-              // 4c. 200% resize preset
-              const size200Btn = document.createElement("button");
-              size200Btn.type = "button";
-              size200Btn.className = "geocam-ctrl-200";
-              size200Btn.innerHTML = "200%";
-              size200Btn.title = "Expand to 200% width (Uncapped)";
-              bar.appendChild(size200Btn);
-
-              // 4d. Free / Max resize preset (ពង្រីកពេញចិត្ត)
-              const sizeFreeBtn = document.createElement("button");
-              sizeFreeBtn.type = "button";
-              sizeFreeBtn.className = "geocam-ctrl-free";
-              sizeFreeBtn.innerHTML = "Free / Max";
-              sizeFreeBtn.title = "Uncapped full-extent size (ពង្រីកពេញចិត្ត)";
-              bar.appendChild(sizeFreeBtn);
-
-              // 5. Remove button
-              const removeBtn = document.createElement("button");
-              removeBtn.type = "button";
-              removeBtn.className = "geocam-ctrl-remove";
-              removeBtn.dataset.key = key;
-              removeBtn.title = "Remove photo";
-              removeBtn.innerHTML = "✕ Remove";
-              bar.appendChild(removeBtn);
-
-              parent.appendChild(bar);
-
-              // 6. Corner resize handle
-              if (!parent.querySelector(`.geocam-resize-handle[data-key="${key}"]`)) {
-                const handle = document.createElement("div");
-                handle.className = "geocam-resize-handle";
-                handle.dataset.key = key;
-                handle.title = "Drag corner to resize image to whatever size you prefer (no limit)";
-                parent.appendChild(handle);
-              }
-            }
+        } else if (el.textContent !== value) {
+          if (entry?.value === "__removed__" || value === "__removed__") {
+            el.textContent = "";
+            (el as HTMLElement).style.setProperty("display", "none", "important");
+          } else {
+            (el as HTMLElement).style.display = "";
+            el.textContent = value;
           }
-        } else if (el.textContent !== value) el.textContent = value;
+        }
         record.rendered = value;
         el.dataset.cmsKey = key;
         el.classList.toggle("geocam-editable", editingPage);
@@ -1463,17 +1535,54 @@ export function VisualCmsLayer({ page }: { page: string }) {
           return;
         }
 
-        // E. Remove button
+        // E. Remove Image button (Collapses image and figure completely)
         if (
           target.closest(".geocam-ctrl-remove") ||
           target.closest(".geocam-img-remove-btn")
         ) {
           const entry: Entry = {
             kind: "image",
-            value: EMPTY_IMAGE_PLACEHOLDER,
+            value: "__removed__",
           };
           persistEntry(key, entry);
-          setNotice("Photo removed. Click placeholder or upload to change.");
+          const barEl = target.closest(".geocam-img-controls-bar");
+          const imgEl = barEl?.parentElement?.querySelector("img");
+          const fig = imgEl?.closest<HTMLElement>("figure") || imgEl?.closest<HTMLElement>(".geocam-img-wrapper");
+          if (imgEl) (imgEl as HTMLElement).style.setProperty("display", "none", "important");
+          if (fig) {
+            fig.style.setProperty("display", "none", "important");
+            fig.style.setProperty("margin", "0", "important");
+            fig.style.setProperty("padding", "0", "important");
+            fig.style.setProperty("height", "0", "important");
+            fig.style.setProperty("min-height", "0", "important");
+            fig.style.setProperty("border", "none", "important");
+          }
+          barEl?.remove();
+          setNotice("Photo removed completely (blank space collapsed).");
+          return;
+        }
+
+        // E2. Remove Caption button (Collapses caption completely)
+        if (target.closest(".geocam-ctrl-remove-caption")) {
+          const barEl = target.closest(".geocam-img-controls-bar");
+          const fig = barEl?.closest("figure") || barEl?.parentElement?.closest("figure") || barEl?.parentElement;
+          const caption = fig?.querySelector<HTMLElement>("figcaption");
+          if (caption) {
+            const capKey = caption.dataset.cmsKey || caption.getAttribute("data-cms-id") || stableKey(caption, main);
+            const entry: Entry = {
+              kind: "text",
+              value: "__removed__",
+            };
+            persistEntry(capKey, entry);
+            caption.textContent = "";
+            caption.style.setProperty("display", "none", "important");
+            caption.style.setProperty("margin", "0", "important");
+            caption.style.setProperty("padding", "0", "important");
+            caption.style.setProperty("border", "none", "important");
+            setNotice("Caption removed completely.");
+          } else {
+            setNotice("No caption found to remove.");
+          }
           return;
         }
         return;
@@ -1805,19 +1914,21 @@ export function VisualCmsLayer({ page }: { page: string }) {
         setNotice("");
         const prefixedKey =
           prefix && !rawKey.startsWith("sub:") ? `${prefix}${rawKey}` : rawKey;
-        setEntry(canonicalRoute + "::" + lang, prefixedKey, { kind: "text", value });
+        const finalVal = value.trim() === "" ? "__removed__" : value;
+        setEntry(canonicalRoute + "::" + lang, prefixedKey, { kind: "text", value: finalVal });
         setEntry(canonicalRoute + "::" + (lang === "en" ? "km" : "en"), prefixedKey, {
           kind: "text",
-          value: lang === "en" ? translateText(value) || value : value,
+          value: finalVal === "__removed__" ? "__removed__" : (lang === "en" ? translateText(value) || value : value),
         });
         if (cleanPath !== canonicalRoute) {
-          setEntry(cleanPath + "::" + lang, rawKey, { kind: "text", value });
+          setEntry(cleanPath + "::" + lang, rawKey, { kind: "text", value: finalVal });
         }
       },
       complete: (rawKey, value) => {
         const prefixedKey =
           prefix && !rawKey.startsWith("sub:") ? `${prefix}${rawKey}` : rawKey;
-        saveInline(canonicalRoute + "::" + lang, prefixedKey, { kind: "text", value });
+        const finalVal = value.trim() === "" ? "__removed__" : value;
+        saveInline(canonicalRoute + "::" + lang, prefixedKey, { kind: "text", value: finalVal });
       },
     });
   }, [canonicalRoute, cleanPath, prefix, normalizedPage, lang, editingPage, busy, setEntry, saveInline]);
