@@ -73,7 +73,7 @@ function LangSwitch() {
           aria-pressed={lang === l}
           className={`rounded-full px-3 py-1 ${lang === l ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
         >
-          {l === "en" ? "EN" : "ខ្មែរ"}
+          {l === "en" ? "EN" : "KH"}
         </button>
       ))}
     </div>
@@ -151,6 +151,12 @@ export function SiteHeader() {
           className="gc-mobile-nav border-t border-border px-4 pb-4 lg:hidden"
           aria-label="Mobile"
         >
+          <div className="flex items-center justify-between py-3 border-b border-border/60 mb-2">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {lang === "km" ? "ភាសា / Language" : "Language"}
+            </span>
+            <LangSwitch />
+          </div>
           {navGroups.map((group) => (
             <details key={group.en} className="gc-mobile-group">
               <summary>{lang === "km" ? group.km : group.en}</summary>
