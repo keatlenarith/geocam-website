@@ -980,11 +980,15 @@ Contact: keatlenarith@gmail.com · https://geocam-website.vercel.app
                     : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
                 }`}
               >
-                <span className="text-sm">🤗</span>
+                <img
+                  src="https://colab.research.google.com/assets/colab-badge.svg"
+                  alt="Colab"
+                  className="h-4"
+                />
                 <span>
                   {hfStatus === "connected"
-                    ? (km ? "Hugging Face Cloud: បានភ្ជាប់" : "Hugging Face Engine: Connected")
-                    : (km ? "ភ្ជាប់ Hugging Face (Free)" : "Connect Hugging Face (Free)")}
+                    ? (km ? "Colab Live Bridge: បានភ្ជាប់" : "Colab Live Bridge: Connected")
+                    : (km ? "ភ្ជាប់ Colab (Free)" : "Connect Colab (Free)")}
                 </span>
                 <span
                   className={`inline-block h-2 w-2 rounded-full ${
