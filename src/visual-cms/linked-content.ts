@@ -44,9 +44,42 @@ export function linkedEntry(
   key: string,
 ): Entry | undefined {
   const base = page.replace(/::(en|km)$/, "");
-  const english = store[base + "::en"]?.[key] || store[base]?.[key];
+  const englishStore = store[base + "::en"] || store[base] || {};
+  const localStore = store[base + "::" + language] || {};
+
+  // 1. Direct match
+  let english = englishStore[key];
+  let local = localStore[key];
+
+  // 2. Case-insensitive and alias-tolerant fallback
+  if (!english && !local) {
+    const keyLower = key.toLowerCase();
+    const normalizeSub = (k: string) =>
+      k.toLowerCase().replace(/^sub:(topic-)?/, "sub:");
+    const targetNorm = normalizeSub(keyLower);
+
+    for (const [k, v] of Object.entries(englishStore)) {
+      if (k.toLowerCase() === keyLower || normalizeSub(k) === targetNorm) {
+        english = v;
+        break;
+      }
+    }
+    for (const [k, v] of Object.entries(localStore)) {
+      if (k.toLowerCase() === keyLower || normalizeSub(k) === targetNorm) {
+        local = v;
+        break;
+      }
+    }
+  }
+
+  // 3. Fallback without subroute prefix if still not found
+  if (!english && !local && key.startsWith("sub:")) {
+    const unprefixedKey = key.replace(/^sub:[^:]+:/, "");
+    english = englishStore[unprefixedKey];
+    local = localStore[unprefixedKey];
+  }
+
   if (english?.kind === "image") return english;
-  const local = store[base + "::" + language]?.[key];
   if (local) return local;
   return english?.kind === "text" && language === "km"
     ? { ...english, value: translateText(english.value) }

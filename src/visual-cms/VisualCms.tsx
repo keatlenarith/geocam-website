@@ -797,6 +797,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
       prefix && !rawKey.startsWith("sub:") ? `${prefix}${rawKey}` : rawKey;
     return (
       linkedEntry(active, canonicalRoute, lang, prefixedKey) ||
+      linkedEntry(active, cleanPath, lang, prefixedKey) ||
       linkedEntry(active, cleanPath, lang, rawKey) ||
       linkedEntry(active, canonicalRoute, lang, rawKey)
     );
