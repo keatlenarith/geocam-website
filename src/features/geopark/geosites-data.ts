@@ -12,6 +12,7 @@ export interface GeositeGalleryItem {
   height?: number;
   relationship?: string;
   catalogue_figure?: number;
+  user_attachment_number?: number;
 }
 
 export interface GeositeRecord {

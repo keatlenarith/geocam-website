@@ -16,6 +16,7 @@ const nav: { to: string; k: TKey }[] = [
   { to: "/lexicon", k: "lexicon" },
   { to: "/contact", k: "contact" },
   { to: "/environmental-monitoring", k: "environmentalMonitoring" },
+  { to: "/earthquake-monitoring", k: "earthquakeMonitoring" },
 ];
 const navGroups = [
   {
@@ -26,7 +27,7 @@ const navGroups = [
   {
     en: "Geoscience & Data",
     km: "ភូគព្ភវិទ្យាសាស្ត្រ និងទិន្នន័យ",
-    items: ["/geodata", "/environmental-monitoring", "/geopark", "/mining"],
+    items: ["/geodata", "/environmental-monitoring", "/earthquake-monitoring", "/geopark", "/mining"],
   },
   {
     en: "Knowledge & Research",

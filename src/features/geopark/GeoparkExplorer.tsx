@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as maplibregl from "maplibre-gl";
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import "maplibre-gl/dist/maplibre-gl.css";
+
+// Configure MapLibre Worker URL to prevent worker 404 in Vite
+try {
+  maplibregl.setWorkerUrl(maplibreWorkerUrl);
+} catch {}
 import { useI18n } from "@/lib/i18n";
 import {
   CAMBODIA_GEOSITES,
@@ -52,10 +58,10 @@ const TILES: Record<Basemap, { url: string; attribution: string; nameEn: string;
     nameKm: "ស្រមោលកម្ពស់ដី (DEM)",
   },
   terrain: {
-    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}",
-    attribution: "© Esri World Terrain Base",
-    nameEn: "Terrain",
-    nameKm: "ទម្រង់ដី",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}",
+    attribution: "© Esri World Shaded Relief",
+    nameEn: "Shaded Relief",
+    nameKm: "ទម្រង់ដី / ចំណោតភ្នំ",
   },
 };
 
@@ -324,12 +330,15 @@ export default function GeoparkExplorer() {
     map.current = m;
     m.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
 
-    m.on("load", () => {
+    const handleReady = () => {
       setReady(true);
       if (selectedSite.coordinates) {
         m.flyTo({ center: selectedSite.coordinates, zoom: 11.5, pitch: 60, speed: 0.8 });
       }
-    });
+    };
+
+    m.on("load", handleReady);
+    m.on("style.load", handleReady);
 
     // Handle map errors non-blockingly (avoiding false "connection lost" banners on transient tile events)
     m.on("error", (e) => {
@@ -415,11 +424,42 @@ export default function GeoparkExplorer() {
   }, [selectedSiteId]);
 
   // Update Basemap Layer
+  const currentBasemapRef = useRef<Basemap>(basemap);
   useEffect(() => {
     const m = map.current;
     if (!m || !ready) return;
-    const source = m.getSource("background") as maplibregl.RasterTileSource | undefined;
-    source?.setTiles([TILES[basemap].url]);
+    if (currentBasemapRef.current === basemap && m.getSource("background")) return;
+
+    try {
+      if (m.getLayer("basemap")) {
+        m.removeLayer("basemap");
+      }
+      if (m.getSource("background")) {
+        m.removeSource("background");
+      }
+
+      m.addSource("background", {
+        type: "raster",
+        tiles: [TILES[basemap].url],
+        tileSize: 256,
+        attribution: TILES[basemap].attribution,
+      });
+
+      const layers = m.getStyle()?.layers || [];
+      const firstNonBasemap = layers.find((l) => l.id !== "basemap")?.id;
+
+      m.addLayer(
+        {
+          id: "basemap",
+          type: "raster",
+          source: "background",
+        },
+        firstNonBasemap
+      );
+      currentBasemapRef.current = basemap;
+    } catch (err) {
+      console.warn("Failed to switch basemap:", err);
+    }
   }, [basemap, ready]);
 
   // Update 3D Terrain

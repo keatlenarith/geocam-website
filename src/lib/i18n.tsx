@@ -19,6 +19,10 @@ export const dict = {
   lexicon: { en: "Lexicon", km: "វចនានុក្រមភូគព្ភវិទ្យាសាស្ត្រ" },
   geopark: { en: "3D Geopark", km: "ឧទ្យានភូគព្ភសាស្ត្រ 3D" },
   cms: { en: "Visual CMS", km: "គ្រប់គ្រងមាតិកា" },
+  earthquakeMonitoring: {
+    en: "Earthquake Monitoring",
+    km: "ការតាមដានការរញ្ជួយដី",
+  },
   mining: { en: "Mining", km: "វិស័យរ៉ែ" },
   environmentalMonitoring: {
     en: "Environmental Monitoring",

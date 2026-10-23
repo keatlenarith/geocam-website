@@ -25,6 +25,9 @@ const MiningPortal = React.lazy(() => import("./features/mining/MiningPortal"));
 const GeoparkExplorer = React.lazy(
   () => import("./features/geopark/GeoparkExplorer"),
 );
+const EarthquakeMonitoring = React.lazy(
+  () => import("./routes/earthquake-monitoring"),
+);
 import NewsItem from "./routes/news-item";
 import ArticleReader from "./admin/PublicPosts";
 import ResearchTopic from "./routes/research-topic";
@@ -53,6 +56,7 @@ const pages: Record<string, React.ComponentType<any>> = {
   "/dashboard": Dashboard.component,
   "/lexicon": LexiconEmbed,
   "/geopark": GeoparkExplorer,
+  "/earthquake-monitoring": EarthquakeMonitoring,
   "/mining": MiningPortal,
   "/articles/read": ArticleReader,
   "/news/item": NewsItem,
