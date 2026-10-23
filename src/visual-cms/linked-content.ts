@@ -97,6 +97,7 @@ export function canonicalDbRoute(path: string): string {
   if (clean.startsWith("/events")) return "/events";
   if (clean.startsWith("/membership")) return "/membership";
   if (clean.startsWith("/geodata")) return "/geodata";
+  if (clean.startsWith("/alteration-mapping")) return "/alteration-mapping";
   if (clean.startsWith("/environmental-monitoring")) return "/environmental-monitoring";
   if (clean.startsWith("/contact")) return "/contact";
   if (clean.startsWith("/geopark")) return "/geopark";

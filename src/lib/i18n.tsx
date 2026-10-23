@@ -20,6 +20,10 @@ export const dict = {
   geopark: { en: "3D Geopark", km: "ឧទ្យានភូគព្ភសាស្ត្រ 3D" },
   cms: { en: "Visual CMS", km: "គ្រប់គ្រងមាតិកា" },
   mining: { en: "Mining", km: "វិស័យរ៉ែ" },
+  alterationMapping: {
+    en: "Alteration Mapping (Colab)",
+    km: "ការវិភាគរ៉ែ និងបម្រែបម្រួល (Colab)",
+  },
   environmentalMonitoring: {
     en: "Environmental Monitoring",
     km: "ការតាមដានបរិស្ថាន",
