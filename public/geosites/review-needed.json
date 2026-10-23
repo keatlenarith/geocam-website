@@ -1,0 +1,324 @@
+[
+  {
+    "id": "phnom-bak-fossil-natural-heritage-site-in-banteay-meanchey",
+    "name": "Phnom Bak fossil / natural heritage site in Banteay Meanchey",
+    "type": "geosite",
+    "designation": "Research or heritage locality; no geopark designation asserted",
+    "coordinates": null,
+    "coordinate_order": "longitude, latitude",
+    "crs": "EPSG:4326 interpreted from catalogue",
+    "coordinate_status": "unresolved",
+    "publish_pin": false,
+    "coordinate_source": "Basis: Unresolved location identity. Source: Sub-decree 71 annex contains official map and coordinate table.",
+    "original_coordinate_expression": "",
+    "coordinate_notes": "Multiple nearby Phnom Bak hill/peak records disagree; use official annex to identify the protected fossil site before placing a public pin.",
+    "source_urls": [
+      "https://data.opendevelopmentcambodia.net/dataset/sub-decree-no-71-on-establishment-of-phnom-bak-natural-heritage-site"
+    ],
+    "description": "Phnom Bak is a reported marine-fossil and natural-heritage locality near Sisophon. The exact protected fossil site must be identified from the official annex before a public map point is assigned.",
+    "mineralogy": "Reported fossiliferous limestone; specimen and horizon verification needed",
+    "gallery": [
+      {
+        "src": "images/phnom-bak-1.png",
+        "caption": "Phnom Bak: tree-lined approach and steps beneath the rocky hill.",
+        "credit": "User-supplied photograph; photographer not identified in the supplied image.",
+        "source_urls": [],
+        "scope": "Phnom Bak locality identified by user",
+        "reuse_status": "User supplied for website use on 2026-10-23",
+        "width": 700,
+        "height": 450,
+        "relationship": "site image supplied by user"
+      },
+      {
+        "src": "images/phnom-bak-2.png",
+        "caption": "Phnom Bak: view across the water toward a wooded hill.",
+        "credit": "User-supplied photograph; photographer not identified in the supplied image.",
+        "source_urls": [],
+        "scope": "Phnom Bak locality identified by user",
+        "reuse_status": "User supplied for website use on 2026-10-23",
+        "width": 700,
+        "height": 450,
+        "relationship": "site image supplied by user"
+      },
+      {
+        "src": "images/phnom-bak-3.png",
+        "caption": "Phnom Bak: exposed cliffs and vegetation.",
+        "credit": "User-supplied photograph; photographer not identified in the supplied image.",
+        "source_urls": [],
+        "scope": "Phnom Bak locality identified by user",
+        "reuse_status": "User supplied for website use on 2026-10-23",
+        "width": 700,
+        "height": 450,
+        "relationship": "site image supplied by user"
+      }
+    ]
+  },
+  {
+    "id": "phnom-kang-va-fossil-site-in-banteay-meanchey",
+    "name": "Phnom Kang Va fossil site in Banteay Meanchey",
+    "type": "geosite",
+    "designation": "Research or heritage locality; no geopark designation asserted",
+    "coordinates": null,
+    "coordinate_order": "longitude, latitude",
+    "crs": "EPSG:4326 interpreted from catalogue",
+    "coordinate_status": "unresolved",
+    "publish_pin": false,
+    "coordinate_source": "Basis: Exact fossil hill / exposure not verified. Source: Fossils at Kang Va mountain.",
+    "original_coordinate_expression": "",
+    "coordinate_notes": "Do not substitute Kang Va village or reservoir coordinates for the fossil exposure.",
+    "source_urls": [
+      "https://ams.com.kh/khmercivilization/detail/5311"
+    ],
+    "description": "Phnom Kang Va is a reported marine-fossil locality near Serey Sophorn. Village or reservoir coordinates cannot identify the fossil exposure; the hill and fossil horizon remain to be located.",
+    "mineralogy": "Reported fossiliferous limestone; taxonomy and age require verification",
+    "gallery": [
+      {
+        "src": "images/phnom-kang-va-1.png",
+        "caption": "Phnom Kang Va: aerial view of wooded hills and the surrounding landscape.",
+        "credit": "User-supplied photograph; photographer not identified in the supplied image.",
+        "source_urls": [],
+        "scope": "Phnom Kang Va locality identified by user",
+        "reuse_status": "User supplied for website use on 2026-10-23",
+        "width": 739,
+        "height": 415,
+        "relationship": "site image supplied by user"
+      },
+      {
+        "src": "images/phnom-kang-va-2.png",
+        "caption": "Phnom Kang Va: layered rock exposure beneath woodland.",
+        "credit": "User-supplied photograph; photographer not identified in the supplied image.",
+        "source_urls": [],
+        "scope": "Phnom Kang Va locality identified by user",
+        "reuse_status": "User supplied for website use on 2026-10-23",
+        "width": 720,
+        "height": 405,
+        "relationship": "site image supplied by user"
+      },
+      {
+        "src": "images/phnom-kang-va-3.png",
+        "caption": "Phnom Kang Va: rock passage with a gated entrance.",
+        "credit": "User-supplied photograph; photographer not identified in the supplied image.",
+        "source_urls": [],
+        "scope": "Phnom Kang Va locality identified by user",
+        "reuse_status": "User supplied for website use on 2026-10-23",
+        "width": 720,
+        "height": 405,
+        "relationship": "site image supplied by user"
+      }
+    ]
+  },
+  {
+    "id": "pulung-waterfall-in-mondulkiri",
+    "name": "Pulung waterfall in Mondulkiri",
+    "type": "geosite",
+    "designation": "Research or heritage locality; no geopark designation asserted",
+    "coordinates": [
+      107.2792,
+      12.50563
+    ],
+    "coordinate_order": "longitude, latitude",
+    "crs": "EPSG:4326 interpreted from catalogue",
+    "coordinate_status": "indicative_source_position",
+    "publish_pin": true,
+    "coordinate_source": "Basis: Published local-operator marker. Source: Pulung Waterfall.",
+    "original_coordinate_expression": "Original coordinate expression: 12.50563, 107.2792.",
+    "coordinate_notes": "",
+    "source_urls": [
+      "https://naturelodgecambodia.com/Mondulkiri_maps.html"
+    ],
+    "description": "Pulung is a waterfall locality identified by a published Mondulkiri operator map. The catalogue supplies a location lead but no site-specific geological description or verified photograph.",
+    "mineralogy": "Unresolved; field identification required",
+    "gallery": []
+  },
+  {
+    "id": "leng-kun-waterfall-and-cave-area-in-mondulkiri",
+    "name": "Leng Kun waterfall and cave area in Mondulkiri",
+    "type": "geosite",
+    "designation": "Research or heritage locality; no geopark designation asserted",
+    "coordinates": [
+      107.12796,
+      12.37787
+    ],
+    "coordinate_order": "longitude, latitude",
+    "crs": "EPSG:4326 interpreted from catalogue",
+    "coordinate_status": "indicative_source_position",
+    "publish_pin": true,
+    "coordinate_source": "Basis: Published local-operator marker. Source: Leng Kun Waterfall and Bat Cave.",
+    "original_coordinate_expression": "Original coordinate expression: 12.37787, 107.12796.",
+    "coordinate_notes": "Public access and specific cave entrance require local confirmation.",
+    "source_urls": [
+      "https://naturelodgecambodia.com/Mondulkiri_maps.html"
+    ],
+    "description": "Leng Kun is recorded as a waterfall and cave area in Mondulkiri. The supplied marker identifies the area rather than a surveyed cave entrance; local confirmation is needed for access and interpretation.",
+    "mineralogy": "Unresolved; cave host rock not established in the catalogue",
+    "gallery": []
+  },
+  {
+    "id": "kep-national-park-eastern-forest-edge-in-kep",
+    "name": "Kep National Park eastern forest edge in Kep",
+    "type": "geosite",
+    "designation": "Research or heritage locality; no geopark designation asserted",
+    "coordinates": [
+      104.303611,
+      10.490278
+    ],
+    "coordinate_order": "longitude, latitude",
+    "crs": "EPSG:4326 interpreted from catalogue",
+    "coordinate_status": "indicative_source_position",
+    "publish_pin": true,
+    "coordinate_source": "Basis: Converted published DMS coordinate. Source: Kosterin 2010, p.56.",
+    "original_coordinate_expression": "Original coordinate expression: 10°29′25″ N; 104°18′13″ E.",
+    "coordinate_notes": "Historical biodiversity sampling locality; not park headquarters.",
+    "source_urls": [
+      "https://dragonflyfund.org/en/idf-report-29-2010-english/"
+    ],
+    "description": "This point marks a historical biodiversity sampling locality at the eastern forest edge of Kep National Park. It represents coastal forest context and is not the park headquarters or a surveyed geological exposure.",
+    "mineralogy": "No site-specific geological or mineral analysis supplied",
+    "gallery": []
+  },
+  {
+    "id": "ream-recreation-centre-survey-area-in-preah-sihanouk",
+    "name": "Ream recreation centre survey area in Preah Sihanouk",
+    "type": "geosite",
+    "designation": "Research or heritage locality; no geopark designation asserted",
+    "coordinates": [
+      103.617222,
+      10.515833
+    ],
+    "coordinate_order": "longitude, latitude",
+    "crs": "EPSG:4326 interpreted from catalogue",
+    "coordinate_status": "indicative_source_position",
+    "publish_pin": true,
+    "coordinate_source": "Basis: Converted published DMS coordinate. Source: Kosterin 2010, p.55.",
+    "original_coordinate_expression": "Original coordinate expression: 10°30′57″ N; 103°37′02″ E.",
+    "coordinate_notes": "Historical survey location from 2010; confirm current access and landscape.",
+    "source_urls": [
+      "https://dragonflyfund.org/en/idf-report-29-2010-english/"
+    ],
+    "description": "The Ream recreation-centre point is a historical coastal biodiversity survey locality. It provides a reference for the wider coastal landscape; its modern access and surroundings require confirmation.",
+    "mineralogy": "No site-specific lithology or mineral analysis supplied",
+    "gallery": []
+  },
+  {
+    "id": "koh-moul-mesozoic-fossil-horizon-in-koh-kong",
+    "name": "Koh Moul Mesozoic Fossil Horizon in Koh Kong",
+    "type": "geosite",
+    "designation": "Research or heritage locality; no geopark designation asserted",
+    "coordinates": [
+      103.008,
+      11.712
+    ],
+    "coordinate_order": "longitude, latitude",
+    "crs": "EPSG:4326 interpreted from catalogue",
+    "coordinate_status": "coordinate_conflict_hold",
+    "publish_pin": false,
+    "coordinate_source": "Basis: Published geological survey locality. Source: Buffetaut et al. 2024.",
+    "original_coordinate_expression": "Original coordinate expression: Koh Moul island, Koh Kong Province.",
+    "coordinate_notes": "Continental Mesozoic sandstone exposures yielding fossil freshwater turtles and fossil wood. HOLD: Tong et al. 2026 describes Koh Moul about 30 km south of Koh Kong and Koh Paur about 30 km north of Koh Moul. Catalogue latitude 11.712 is north of its Koh Paur latitude 11.5368. https://doi.org/10.3390/d18050249",
+    "source_urls": [
+      "https://www.researchgate.net/publication/379404387_Fossil-bearing_non-marine_Mesozoic_formations_of_south-western_Cambodia"
+    ],
+    "description": "Intertidal beds at Koh Moul preserve turtle remains and fossil wood. Published specimen plates and the site map support palaeontological interpretation. The catalogue coordinate conflicts with the published geographic description and is withheld from the upload layer.",
+    "mineralogy": "Sandstone, siltstone and mudstone; fossil turtle and conifer-type wood",
+    "gallery": [
+      {
+        "src": "images/figure-45-1.webp",
+        "caption": "Figure 45. (A) Geographical position of Koh Moul in south-western Cambodia; (B) location of the fossil site on Koh Moul; (C) conifer-type fossil wood (tracheidoxyl); (D) turtle bridge peripherals (MOEC-4) before preparation; (E, F) beach outcrop of the fossil site at low tide. Scale bar = 5 cm.",
+        "credit": "Source: Tong et al. (2026), Turtle remains from Koh Moul (SW Cambodia) and their stratigraphical implications, Diversity 18(5), 249, Figure 1. Credit: Tong et al. 2026 (CC BY 4.0).",
+        "source_urls": [],
+        "scope": "Published figure; may include regional context or multiple sites",
+        "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+        "width": 1223,
+        "height": 1469,
+        "relationship": "site or regional context as stated in caption",
+        "catalogue_figure": 45
+      },
+      {
+        "src": "images/figure-46-1.webp",
+        "caption": "Figure 46. Turtle shell fragments in cross-section in greenish-grey sandstone in the lower part of the Grès Supérieurs, Koh Moul Island, Koh Kong Province. Scale bar = 10 mm.",
+        "credit": "Source: Buffetaut et al. (2024), Proceedings of GEOSEA 2024, Khon Kaen, 55–63, Figure 6. Credit: Buffetaut et al. 2024.",
+        "source_urls": [],
+        "scope": "Published figure; may include regional context or multiple sites",
+        "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+        "width": 527,
+        "height": 337,
+        "relationship": "site or regional context as stated in caption",
+        "catalogue_figure": 46
+      },
+      {
+        "src": "images/figure-47-1.webp",
+        "caption": "Figure 47. Turtle specimens from Koh Moul: (A, B) entoplastron (MOEC-2) in ventral and dorsal views; (C–E) bridge peripherals (MOEC-4) in dorsal, ventral and anterior views; (F, G) costal fragment (MOEC-3) and close-up of its ornamentation. Red arrows indicate scars. Scale bar = 5 cm.",
+        "credit": "Source: Tong et al. (2026), Turtle remains from Koh Moul (SW Cambodia) and their stratigraphical implications, Diversity 18(5), 249, Figure 2. Credit: Tong et al. 2026 (CC BY 4.0).",
+        "source_urls": [
+          "https://doi.org/10.3390/d18050249"
+        ],
+        "scope": "Published figure; may include regional context or multiple sites",
+        "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+        "width": 1223,
+        "height": 1367,
+        "relationship": "site or regional context as stated in caption",
+        "catalogue_figure": 47
+      }
+    ]
+  },
+  {
+    "id": "phnom-sampeu-la-ang-pracheu-bat-cave-in-battambang",
+    "name": "Phnom Sampeu La Ang Pracheu bat cave in Battambang",
+    "type": "geosite",
+    "designation": "Research or heritage locality; no geopark designation asserted",
+    "coordinates": [
+      103.099832,
+      13.026548
+    ],
+    "coordinate_order": "longitude, latitude",
+    "crs": "EPSG:4326 interpreted from catalogue",
+    "coordinate_status": "datum_unconfirmed",
+    "publish_pin": true,
+    "coordinate_source": "Basis: Published GPS observation. Source: Karst Biodiversity Report 2026, p.17, Table 1, C-32.",
+    "original_coordinate_expression": "Original coordinate expression: 13.026548 N, 103.099832 E.",
+    "coordinate_notes": "A named cave record, not entire hill boundary. Report coordinate datum not explicitly verified; WGS84 interpretation requires confirmation.",
+    "source_urls": [
+      "https://www.fauna-flora.org/wp-content/uploads/2026/03/fauna-flora-karst-biodiversity-report-2026.pdf"
+    ],
+    "description": "La Ang Pracheu is a named bat cave at Phnom Sampeu. The limestone hill links cave development, bat habitat and cultural heritage. The source report’s coordinate datum remains unconfirmed.",
+    "mineralogy": "Limestone karst; no site-specific mineral analysis",
+    "gallery": [
+      {
+        "src": "images/user-image-1.png",
+        "caption": "Phnom Sampeu: cliff carvings beside a rock opening.",
+        "credit": "Visible credit: CamNess / Ky Chamna.",
+        "source_urls": [],
+        "scope": "Phnom Sampeu locality supplied by user",
+        "reuse_status": "User supplied for website use on 2026-10-23",
+        "width": 1279,
+        "height": 1280,
+        "relationship": "site image supplied by user",
+        "user_attachment_number": 1
+      },
+      {
+        "src": "images/user-image-2.png",
+        "caption": "Phnom Sampeu: reclining and seated Buddha carvings on the cliff face.",
+        "credit": "User-supplied photograph; photographer not identified in the supplied image.",
+        "source_urls": [],
+        "scope": "Phnom Sampeu locality supplied by user",
+        "reuse_status": "User supplied for website use on 2026-10-23",
+        "width": 2555,
+        "height": 2233,
+        "relationship": "site image supplied by user",
+        "user_attachment_number": 2
+      },
+      {
+        "src": "images/user-image-3.png",
+        "caption": "La Ang Pracheu, Phnom Sampeu: bats emerging above the cave and limestone cliff.",
+        "credit": "User-supplied photograph; photographer not identified in the supplied image.",
+        "source_urls": [],
+        "scope": "Phnom Sampeu locality supplied by user",
+        "reuse_status": "User supplied for website use on 2026-10-23",
+        "width": 900,
+        "height": 600,
+        "relationship": "site image supplied by user",
+        "user_attachment_number": 3
+      }
+    ]
+  }
+]

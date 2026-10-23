@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Lomphat / Sayos petrified wood lead",
+    "raw_utm": "720755 E, 1482844 N; WGS1984 UTM Zone 48N",
+    "raw_geographic": "13°44′N 107°0′E",
+    "status": "hold: catalogue describes an approximate district position; expressions do not identify a verified fossil-tree exposure"
+  },
+  {
+    "name": "Sre pork forest study-area lead",
+    "raw": "WGS1984(765847-1437406)",
+    "status": "hold: projected coordinates without an explicitly stated zone or verified geosite identity in that paragraph"
+  }
+]

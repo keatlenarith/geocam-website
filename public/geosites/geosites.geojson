@@ -1,0 +1,1407 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "phnom-kulen-waterfall-in-siem-reap",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.107,
+          13.5685
+        ]
+      },
+      "properties": {
+        "name": "Phnom Kulen waterfall in Siem Reap",
+        "description": "Bedded sandstone forms the ledge and waterfall on Phnom Kulen. The plateau links sedimentary geology, forest water catchments and cultural heritage. The marker represents the surveyed waterfall area. Geology/mineralogy: Sandstone; quartz-rich sandstone documented regionally Coordinate note: Area reference, not exact waterfall lip or entrance.",
+        "site_id": "phnom-kulen-waterfall-in-siem-reap",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-10-1.webp",
+            "caption": "Figure 10. Phnom Kulen waterfall under contrasting water conditions.",
+            "credit": "Source: Kosterin & Smith (2020), Odonata of Phnom Kulen Mts, IDF-Report 154, 99–184, Figure 6, PDF page 104. Credit: Oleg E. Kosterin; Kosterin & Smith 2020, Figure 6.",
+            "source_urls": [
+              "https://dragonflyfund.org/en/idf-report-154-2020-english/"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 426,
+            "height": 602,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 10
+          },
+          {
+            "src": "images/figure-55-1.webp",
+            "caption": "Figure 55. The Kulen waterfall, the plateau’s main visitor attraction for swimming and picnics.",
+            "credit": "Source: Ministry of Environment (2017), Phnom Kulen National Park Management Program 2018–2027, back cover photograph [D46].",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1350,
+            "height": 1800,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 55
+          },
+          {
+            "src": "images/figure-04-1.webp",
+            "caption": "Figure 4. Published geological map and sandstone sampling sites in Kulen.",
+            "credit": "Source: Choon et al. (2022), Techno-Science Research Journal 10(2), 8–16, Figure 1, PDF page 2. Credit: Choon et al. 2022, Figure 1.",
+            "source_urls": [
+              "https://techno-srj.itc.edu.kh/public/journal/document/2.pdf"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 681,
+            "height": 477,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 4
+          },
+          {
+            "src": "images/figure-01-1.webp",
+            "caption": "Figure 1. Published archaeological map of Greater Angkor and Phnom Kulen.",
+            "credit": "Source: Chevance et al. (2019), Antiquity 93, 1303–1321, Figure 1, PDF page 2. Credit: Chevance et al. 2019, Figure 1; CC BY 4.0.",
+            "source_urls": [
+              "https://doi.org/10.15184/aqy.2019.133"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1135,
+            "height": 766,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 1
+          }
+        ],
+        "gallery_url": "geosites/index.html#phnom-kulen-waterfall-in-siem-reap"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "kbal-spean-carvings-and-upstream-river-in-siem-reap",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.015,
+          13.689
+        ]
+      },
+      "properties": {
+        "name": "Kbal Spean carvings and upstream river in Siem Reap",
+        "description": "Angkorian carvings occupy a sandstone riverbed at Kbal Spean. Flowing water, exposed bedding and forest habitat connect the geological landscape with sacred water heritage. This pin is the midpoint of a surveyed river reach. Geology/mineralogy: Sandstone; no site-specific mineral analysis supplied Coordinate note: Survey reach midpoint; downstream waterfall is a separate reach.",
+        "site_id": "kbal-spean-carvings-and-upstream-river-in-siem-reap",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-14-1.webp",
+            "caption": "Figure 14. Sandstone riverbed carvings at Kbal Spean.",
+            "credit": "Source: Kosterin & Smith (2020), Odonata of Phnom Kulen Mts, IDF-Report 154, 99–184, Figure 12, PDF page 108. Credit: Oleg E. Kosterin; Kosterin & Smith 2020, Figure 12.",
+            "source_urls": [
+              "https://dragonflyfund.org/en/idf-report-154-2020-english/"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 668,
+            "height": 471,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 14
+          },
+          {
+            "src": "images/figure-15-1.webp",
+            "caption": "Figure 15. Forest river upstream of the Kbal Spean carvings.",
+            "credit": "Source: Kosterin & Smith (2020), Odonata of Phnom Kulen Mts, IDF-Report 154, 99–184, Figure 14, PDF page 110. Credit: Oleg E. Kosterin; Kosterin & Smith 2020, Figure 14.",
+            "source_urls": [
+              "https://dragonflyfund.org/en/idf-report-154-2020-english/"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 666,
+            "height": 974,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 15
+          },
+          {
+            "src": "images/figure-01-1.webp",
+            "caption": "Figure 1. Published archaeological map of Greater Angkor and Phnom Kulen.",
+            "credit": "Source: Chevance et al. (2019), Antiquity 93, 1303–1321, Figure 1, PDF page 2. Credit: Chevance et al. 2019, Figure 1; CC BY 4.0.",
+            "source_urls": [
+              "https://doi.org/10.15184/aqy.2019.133"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1135,
+            "height": 766,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 1
+          },
+          {
+            "src": "images/figure-02-1.webp",
+            "caption": "Figure 2. Mahendraparvata archaeological map over lidar hillshade.",
+            "credit": "Source: Chevance et al. (2019), Antiquity 93, 1303–1321, Figure 4, PDF page 8. Credit: Chevance et al. 2019, Figure 4; CC BY 4.0.",
+            "source_urls": [
+              "https://doi.org/10.15184/aqy.2019.133"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 761,
+            "height": 866,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 2
+          }
+        ],
+        "gallery_url": "geosites/index.html#kbal-spean-carvings-and-upstream-river-in-siem-reap"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "kulen-river-of-1000-lingas-in-siem-reap",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.1035,
+          13.566
+        ]
+      },
+      "properties": {
+        "name": "Kulen River of 1000 Lingas in Siem Reap",
+        "description": "Lingas carved into sandstone record the cultural use of the Kulen riverbed. This locality is separate from Kbal Spean and provides a link between bedrock, water and religious heritage. Geology/mineralogy: Sandstone Coordinate note: Distinct from Kbal Spean.",
+        "site_id": "kulen-river-of-1000-lingas-in-siem-reap",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-12-1.webp",
+            "caption": "Figure 12. Linga carvings in the sandstone bed of the Kulen river.",
+            "credit": "Source: Kosterin & Smith (2020), Odonata of Phnom Kulen Mts, IDF-Report 154, 99–184, Figure 8, PDF page 106. Credit: Oleg E. Kosterin; Kosterin & Smith 2020, Figure 8.",
+            "source_urls": [
+              "https://dragonflyfund.org/en/idf-report-154-2020-english/"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 668,
+            "height": 445,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 12
+          },
+          {
+            "src": "images/figure-04-1.webp",
+            "caption": "Figure 4. Published geological map and sandstone sampling sites in Kulen.",
+            "credit": "Source: Choon et al. (2022), Techno-Science Research Journal 10(2), 8–16, Figure 1, PDF page 2. Credit: Choon et al. 2022, Figure 1.",
+            "source_urls": [
+              "https://techno-srj.itc.edu.kh/public/journal/document/2.pdf"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 681,
+            "height": 477,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 4
+          },
+          {
+            "src": "images/figure-01-1.webp",
+            "caption": "Figure 1. Published archaeological map of Greater Angkor and Phnom Kulen.",
+            "credit": "Source: Chevance et al. (2019), Antiquity 93, 1303–1321, Figure 1, PDF page 2. Credit: Chevance et al. 2019, Figure 1; CC BY 4.0.",
+            "source_urls": [
+              "https://doi.org/10.15184/aqy.2019.133"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1135,
+            "height": 766,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 1
+          }
+        ],
+        "gallery_url": "geosites/index.html#kulen-river-of-1000-lingas-in-siem-reap"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "tnal-mareh-floating-forest-in-siem-reap",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.1585,
+          13.529
+        ]
+      },
+      "properties": {
+        "name": "Tnal Mareh floating forest in Siem Reap",
+        "description": "Swamp forest at Tnal Mareh illustrates how drainage and standing water shape the Kulen landscape. The published photograph documents pneumatophores and wetland vegetation; the coordinate is a research locality. Geology/mineralogy: Sandstone plateau context; no local mineral analysis Coordinate note: Research locality; not verified as a public visitor attraction.",
+        "site_id": "tnal-mareh-floating-forest-in-siem-reap",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-11-1.webp",
+            "caption": "Figure 11. Swamp forest and pneumatophores at Tnal Mareh, Kulen.",
+            "credit": "Source: Kosterin & Smith (2020), Odonata of Phnom Kulen Mts, IDF-Report 154, 99–184, Figure 7, PDF page 105. Credit: Oleg E. Kosterin; Kosterin & Smith 2020, Figure 7.",
+            "source_urls": [
+              "https://dragonflyfund.org/en/idf-report-154-2020-english/"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 665,
+            "height": 497,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 11
+          },
+          {
+            "src": "images/figure-04-1.webp",
+            "caption": "Figure 4. Published geological map and sandstone sampling sites in Kulen.",
+            "credit": "Source: Choon et al. (2022), Techno-Science Research Journal 10(2), 8–16, Figure 1, PDF page 2. Credit: Choon et al. 2022, Figure 1.",
+            "source_urls": [
+              "https://techno-srj.itc.edu.kh/public/journal/document/2.pdf"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 681,
+            "height": 477,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 4
+          },
+          {
+            "src": "images/figure-01-1.webp",
+            "caption": "Figure 1. Published archaeological map of Greater Angkor and Phnom Kulen.",
+            "credit": "Source: Chevance et al. (2019), Antiquity 93, 1303–1321, Figure 1, PDF page 2. Credit: Chevance et al. 2019, Figure 1; CC BY 4.0.",
+            "source_urls": [
+              "https://doi.org/10.15184/aqy.2019.133"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1135,
+            "height": 766,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 1
+          }
+        ],
+        "gallery_url": "geosites/index.html#tnal-mareh-floating-forest-in-siem-reap"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "kulen-sandstone-veal-stream-in-siem-reap",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.12,
+          13.5235
+        ]
+      },
+      "properties": {
+        "name": "Kulen sandstone veal stream in Siem Reap",
+        "description": "An exposed sandstone streambed crosses an open veal landscape on Kulen. The locality offers a view of bedrock, surface drainage and vegetation on the plateau. Geology/mineralogy: Sandstone; quartz arenite and sub-litharenite reported in Kulen studies Coordinate note: Research locality; local guide and access confirmation needed.",
+        "site_id": "kulen-sandstone-veal-stream-in-siem-reap",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-16-1.webp",
+            "caption": "Figure 16. Exposed sandstone streambed and open veal landscape on Kulen.",
+            "credit": "Source: Kosterin & Smith (2020), Odonata of Phnom Kulen Mts, IDF-Report 154, 99–184, Figure 22, PDF page 117. Credit: Oleg E. Kosterin; Kosterin & Smith 2020, Figure 22.",
+            "source_urls": [
+              "https://dragonflyfund.org/en/idf-report-154-2020-english/"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 668,
+            "height": 308,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 16
+          },
+          {
+            "src": "images/figure-04-1.webp",
+            "caption": "Figure 4. Published geological map and sandstone sampling sites in Kulen.",
+            "credit": "Source: Choon et al. (2022), Techno-Science Research Journal 10(2), 8–16, Figure 1, PDF page 2. Credit: Choon et al. 2022, Figure 1.",
+            "source_urls": [
+              "https://techno-srj.itc.edu.kh/public/journal/document/2.pdf"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 681,
+            "height": 477,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 4
+          },
+          {
+            "src": "images/figure-05-1.webp",
+            "caption": "Figure 5. Kulen Takhok measured section and outcrop photographs.",
+            "credit": "Source: Choon et al. (2022), Techno-Science Research Journal 10(2), 8–16, Figure 2, PDF page 3. Credit: Choon et al. 2022, Figure 2.",
+            "source_urls": [
+              "https://techno-srj.itc.edu.kh/public/journal/document/2.pdf"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1441,
+            "height": 1015,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 5
+          }
+        ],
+        "gallery_url": "geosites/index.html#kulen-sandstone-veal-stream-in-siem-reap"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "srae-tbong-former-reservoir-wetland-in-siem-reap",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.1578,
+          13.5237
+        ]
+      },
+      "properties": {
+        "name": "Srae Tbong former reservoir wetland in Siem Reap",
+        "description": "Wetland at the former Srae Tbong reservoir connects historic water management with modern wetland habitat. The marker lies within the surveyed eastern margin. Geology/mineralogy: Sandstone plateau context; wetland sediments not analysed here Coordinate note: Reference point within the surveyed eastern margin.",
+        "site_id": "srae-tbong-former-reservoir-wetland-in-siem-reap",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-17-1.webp",
+            "caption": "Figure 17. Wetland in the former Srae Tbong reservoir, Kulen.",
+            "credit": "Source: Kosterin & Smith (2020), Odonata of Phnom Kulen Mts, IDF-Report 154, 99–184, Figure 23, PDF page 117. Credit: Oleg E. Kosterin; Kosterin & Smith 2020, Figure 23.",
+            "source_urls": [
+              "https://dragonflyfund.org/en/idf-report-154-2020-english/"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 667,
+            "height": 445,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 17
+          },
+          {
+            "src": "images/figure-01-1.webp",
+            "caption": "Figure 1. Published archaeological map of Greater Angkor and Phnom Kulen.",
+            "credit": "Source: Chevance et al. (2019), Antiquity 93, 1303–1321, Figure 1, PDF page 2. Credit: Chevance et al. 2019, Figure 1; CC BY 4.0.",
+            "source_urls": [
+              "https://doi.org/10.15184/aqy.2019.133"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1135,
+            "height": 766,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 1
+          },
+          {
+            "src": "images/figure-02-1.webp",
+            "caption": "Figure 2. Mahendraparvata archaeological map over lidar hillshade.",
+            "credit": "Source: Chevance et al. (2019), Antiquity 93, 1303–1321, Figure 4, PDF page 8. Credit: Chevance et al. 2019, Figure 4; CC BY 4.0.",
+            "source_urls": [
+              "https://doi.org/10.15184/aqy.2019.133"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 761,
+            "height": 866,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 2
+          }
+        ],
+        "gallery_url": "geosites/index.html#srae-tbong-former-reservoir-wetland-in-siem-reap"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "sra-srang-reservoir-angkor-in-siem-reap",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.9035,
+          13.43
+        ]
+      },
+      "properties": {
+        "name": "Sra Srang reservoir, Angkor in Siem Reap",
+        "description": "Sra Srang is a cultural water-heritage locality in the Angkor landscape. Its reservoir setting helps explain the relationship between terrain, water storage and the archaeological city. Geology/mineralogy: Regional sandstone and laterite construction context Coordinate note: Cultural water heritage reference point.",
+        "site_id": "sra-srang-reservoir-angkor-in-siem-reap",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-01-1.webp",
+            "caption": "Figure 1. Published archaeological map of Greater Angkor and Phnom Kulen.",
+            "credit": "Source: Chevance et al. (2019), Antiquity 93, 1303–1321, Figure 1, PDF page 2. Credit: Chevance et al. 2019, Figure 1; CC BY 4.0.",
+            "source_urls": [
+              "https://doi.org/10.15184/aqy.2019.133"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1135,
+            "height": 766,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 1
+          },
+          {
+            "src": "images/figure-02-1.webp",
+            "caption": "Figure 2. Mahendraparvata archaeological map over lidar hillshade.",
+            "credit": "Source: Chevance et al. (2019), Antiquity 93, 1303–1321, Figure 4, PDF page 8. Credit: Chevance et al. 2019, Figure 4; CC BY 4.0.",
+            "source_urls": [
+              "https://doi.org/10.15184/aqy.2019.133"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 761,
+            "height": 866,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 2
+          }
+        ],
+        "gallery_url": "geosites/index.html#sra-srang-reservoir-angkor-in-siem-reap"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "tra-peang-cha-sandstone-quarry-geosite-in-siem-reap",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.112,
+          13.578
+        ]
+      },
+      "properties": {
+        "name": "Tra Peang Cha Sandstone Quarry Geosite in Siem Reap",
+        "description": "Ancient quarry traces at Tra Peang Cha link Kulen sandstone with Angkorian building stone. The catalogue describes extraction marks and tool channels; regional maps place the site in the candidate Kulen study area. Geology/mineralogy: Quartz-rich sandstone; regional quartz arenite and sub-litharenite Coordinate note: Ancient Angkorian sandstone quarry outcrop with visible block extraction marks and tool channels.",
+        "site_id": "tra-peang-cha-sandstone-quarry-geosite-in-siem-reap",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-30-1.webp",
+            "caption": "Sandstone quarry photograph grouped under catalogue Figure 30; exact quarry identity requires confirmation.",
+            "credit": "Source: Eng et al. (2025/2026), Assessing Geodiversity in the Kulen Area, ITC Faculty of Geo-resources and Geotechnical Engineering, Slide 12. Credit: ITC GGG Geoteam.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1280,
+            "height": 960,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 30
+          },
+          {
+            "src": "images/figure-26-1.webp",
+            "caption": "Figure 26. Published geosite inventory map of the Kulen candidate geopark area (23 geosites).",
+            "credit": "Source: Eng et al. (2025/2026), Assessing Geodiversity in the Kulen Area, Siem Reap Province, Cambodia: A Potential Geopark Candidate, ITC Faculty of Geo-resources and Geotechnical Engineering, Slide 8. Credit: ITC GGG Geoteam.",
+            "source_urls": [
+              "https://www.itc.edu.kh"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1280,
+            "height": 905,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 26
+          },
+          {
+            "src": "images/figure-04-1.webp",
+            "caption": "Figure 4. Published geological map and sandstone sampling sites in Kulen.",
+            "credit": "Source: Choon et al. (2022), Techno-Science Research Journal 10(2), 8–16, Figure 1, PDF page 2. Credit: Choon et al. 2022, Figure 1.",
+            "source_urls": [
+              "https://techno-srj.itc.edu.kh/public/journal/document/2.pdf"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 681,
+            "height": 477,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 4
+          },
+          {
+            "src": "images/figure-01-1.webp",
+            "caption": "Figure 1. Published archaeological map of Greater Angkor and Phnom Kulen.",
+            "credit": "Source: Chevance et al. (2019), Antiquity 93, 1303–1321, Figure 1, PDF page 2. Credit: Chevance et al. 2019, Figure 1; CC BY 4.0.",
+            "source_urls": [
+              "https://doi.org/10.15184/aqy.2019.133"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1135,
+            "height": 766,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 1
+          }
+        ],
+        "gallery_url": "geosites/index.html#tra-peang-cha-sandstone-quarry-geosite-in-siem-reap"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poeung-takho-viewpoint-and-escarpment-in-siem-reap",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.095,
+          13.553
+        ]
+      },
+      "properties": {
+        "name": "Poeung Takho Viewpoint and Escarpment in Siem Reap",
+        "description": "Poeung Takho is an escarpment viewpoint on the Kulen sandstone plateau. Thick sandstone beds and the contrast between plateau and plain support landscape interpretation. Geology/mineralogy: Quartz arenite reported in the catalogue; regional sandstone evidence Coordinate note: Panoramic cliff viewpoint exposing thick beds of Jurassic-Cretaceous quartz arenite.",
+        "site_id": "poeung-takho-viewpoint-and-escarpment-in-siem-reap",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-28-1.webp",
+            "caption": "Figure 28. Published map of scenic viewing spots across the Kulen sandstone escarpment (4 viewing spots).",
+            "credit": "Source: Eng et al. (2025/2026), Assessing Geodiversity in the Kulen Area, ITC Faculty of Geo-resources and Geotechnical Engineering, Slide 10. Credit: ITC GGG Geoteam.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1280,
+            "height": 905,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 28
+          },
+          {
+            "src": "images/figure-05-1.webp",
+            "caption": "Figure 5. Kulen Takhok measured section and outcrop photographs.",
+            "credit": "Source: Choon et al. (2022), Techno-Science Research Journal 10(2), 8–16, Figure 2, PDF page 3. Credit: Choon et al. 2022, Figure 2.",
+            "source_urls": [
+              "https://techno-srj.itc.edu.kh/public/journal/document/2.pdf"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1441,
+            "height": 1015,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 5
+          },
+          {
+            "src": "images/figure-04-1.webp",
+            "caption": "Figure 4. Published geological map and sandstone sampling sites in Kulen.",
+            "credit": "Source: Choon et al. (2022), Techno-Science Research Journal 10(2), 8–16, Figure 1, PDF page 2. Credit: Choon et al. 2022, Figure 1.",
+            "source_urls": [
+              "https://techno-srj.itc.edu.kh/public/journal/document/2.pdf"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 681,
+            "height": 477,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 4
+          },
+          {
+            "src": "images/figure-01-1.webp",
+            "caption": "Figure 1. Published archaeological map of Greater Angkor and Phnom Kulen.",
+            "credit": "Source: Chevance et al. (2019), Antiquity 93, 1303–1321, Figure 1, PDF page 2. Credit: Chevance et al. 2019, Figure 1; CC BY 4.0.",
+            "source_urls": [
+              "https://doi.org/10.15184/aqy.2019.133"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1135,
+            "height": 766,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 1
+          }
+        ],
+        "gallery_url": "geosites/index.html#poeung-takho-viewpoint-and-escarpment-in-siem-reap"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "lake-yeak-laom-volcanic-maar-in-ratanakiri",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          107.018,
+          13.725
+        ]
+      },
+      "properties": {
+        "name": "Lake Yeak Laom Volcanic Maar in Ratanakiri",
+        "description": "Lake Yeak Laom is a near-circular volcanic crater lake in Ratanakiri. Its basin, surrounding forest and Tampuen cultural heritage connect volcanic landforms with community stewardship. A precise crater age is not assigned here. Geology/mineralogy: Regional basalt and zircon context; no lake-specific mineral analysis Coordinate note: Near-circular 4,000-year-old basaltic volcanic maar crater lake of high cultural and geomorphological significance.",
+        "site_id": "lake-yeak-laom-volcanic-maar-in-ratanakiri",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-49-2.webp",
+            "caption": "Lake Yeak Laom aerial photograph grouped under catalogue Figure 49; individual image credit follows catalogue attribution.",
+            "credit": "Source: General Department of Mineral Resources (GDMR), Country Report of Cambodia, CCOP Annual Session 2018. Credit: GDMR.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 684,
+            "height": 449,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 49
+          },
+          {
+            "src": "images/figure-51-1.webp",
+            "caption": "Figure 51. Katieng waterfall cascading over columnar jointed Neogene plateau basalt, Ratanakiri Province.",
+            "credit": "Source: General Department of Mineral Resources (GDMR), Country Report of Cambodia, CCOP Annual Session 2018. Credit: GDMR.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 620,
+            "height": 400,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 51
+          }
+        ],
+        "gallery_url": "geosites/index.html#lake-yeak-laom-volcanic-maar-in-ratanakiri"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "nam-lea-rom-el-stone-dome-in-mondulkiri",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          107.53572,
+          12.53797
+        ]
+      },
+      "properties": {
+        "name": "Nam Lea / Rom El stone dome in Mondulkiri",
+        "description": "Nam Lea, also called Nam Lear or Rom El, is a bare rock dome rising above the Mondulkiri forest. Its rock type, age and origin remain unresolved in the reviewed studies. Regional basalt imagery is contextual evidence, not a photograph or identification of the dome. Geology/mineralogy: Unresolved; do not label the dome basalt without site-specific evidence Coordinate note: Dome marker, not sanctuary centroid. No verified site-specific rock identification or age from the reviewed papers.",
+        "site_id": "nam-lea-rom-el-stone-dome-in-mondulkiri",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-06-1.webp",
+            "caption": "Figure 6. Regional basalt map with Bou Sra, Dakdam, Ka Chanh and Cha Ong waterfall photographs.",
+            "credit": "Source: Seng et al. (2024), Techno-Science Research Journal 12 Special Issue, 126–133, Figure 1, PDF page 2. Credit: Seng et al. 2024, Figure 1; map panel adapted by original authors from their reference 10.",
+            "source_urls": [
+              "https://techno-srj.itc.edu.kh/public/journal/document/Special%20Issue-Eraget%202023.pdf"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 537,
+            "height": 982,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 6
+          }
+        ],
+        "gallery_url": "geosites/index.html#nam-lea-rom-el-stone-dome-in-mondulkiri"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "bou-sra-waterfall-in-mondulkiri",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          107.4183,
+          12.56702
+        ]
+      },
+      "properties": {
+        "name": "Bou Sra waterfall in Mondulkiri",
+        "description": "Bou Sra waterfall descends over volcanic rock in the Mondulkiri landscape. The regional publication includes Bou Sra in panel B alongside other northeastern waterfalls and a basalt map. Geology/mineralogy: Basalt reported regionally; no site-specific mineral inventory Coordinate note: Seng et al. 2024 Figure 1B provides published site photograph; marker accuracy not surveyed here.",
+        "site_id": "bou-sra-waterfall-in-mondulkiri",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-06-1.webp",
+            "caption": "Figure 6. Regional basalt map with Bou Sra, Dakdam, Ka Chanh and Cha Ong waterfall photographs.",
+            "credit": "Source: Seng et al. (2024), Techno-Science Research Journal 12 Special Issue, 126–133, Figure 1, PDF page 2. Credit: Seng et al. 2024, Figure 1; map panel adapted by original authors from their reference 10.",
+            "source_urls": [
+              "https://techno-srj.itc.edu.kh/public/journal/document/Special%20Issue-Eraget%202023.pdf"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 537,
+            "height": 982,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 6
+          }
+        ],
+        "gallery_url": "geosites/index.html#bou-sra-waterfall-in-mondulkiri"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pulung-waterfall-in-mondulkiri",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          107.2792,
+          12.50563
+        ]
+      },
+      "properties": {
+        "name": "Pulung waterfall in Mondulkiri",
+        "description": "Pulung is a waterfall locality identified by a published Mondulkiri operator map. The catalogue supplies a location lead but no site-specific geological description or verified photograph. Geology/mineralogy: Unresolved; field identification required Coordinate note: ",
+        "site_id": "pulung-waterfall-in-mondulkiri",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [],
+        "gallery_url": "geosites/index.html#pulung-waterfall-in-mondulkiri"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "leng-kun-waterfall-and-cave-area-in-mondulkiri",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          107.12796,
+          12.37787
+        ]
+      },
+      "properties": {
+        "name": "Leng Kun waterfall and cave area in Mondulkiri",
+        "description": "Leng Kun is recorded as a waterfall and cave area in Mondulkiri. The supplied marker identifies the area rather than a surveyed cave entrance; local confirmation is needed for access and interpretation. Geology/mineralogy: Unresolved; cave host rock not established in the catalogue Coordinate note: Public access and specific cave entrance require local confirmation.",
+        "site_id": "leng-kun-waterfall-and-cave-area-in-mondulkiri",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [],
+        "gallery_url": "geosites/index.html#leng-kun-waterfall-and-cave-area-in-mondulkiri"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "phnom-chhngok-cave-entrance-in-kampot",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.26964,
+          10.64224
+        ]
+      },
+      "properties": {
+        "name": "Phnom Chhngok cave entrance in Kampot",
+        "description": "A limestone cave at Phnom Chhngok contains a pre-Angkorian brick shrine among natural cave formations. The locality connects carbonate dissolution, underground space and religious heritage. Regional karst photographs are context rather than verified photographs of this entrance. Geology/mineralogy: Limestone; carbonate cave formations; no analytical mineral list Coordinate note: Coordinate data: © OpenStreetMap contributors, ODbL. Cave spelling varies: Chhnork / Chhngauk.",
+        "site_id": "phnom-chhngok-cave-entrance-in-kampot",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-24-1.webp",
+            "caption": "Figure 24. Isolated limestone karst hill in Kampot Province.",
+            "credit": "Source: Furey / Fauna & Flora (©2025; released 2026), Cambodian Caves: Guidelines for Sustainable Development and Management, Photograph, printed p. 8, PDF page 7. Credit: Nehru Pry; Fauna & Flora, Cambodian Caves.",
+            "source_urls": [
+              "https://www.fauna-flora.org/publications/cambodian-caves-guidelines-for-sustainable-development-and-management/"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1800,
+            "height": 1280,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 24
+          },
+          {
+            "src": "images/user-image-4.png",
+            "caption": "Karst hill and surrounding fields; supplied as replacement regional context for Figure 25.",
+            "credit": "Visible credit: © 2024 Kep-Cambodia.com.",
+            "source_urls": [],
+            "scope": "Regional context; exact hill or cave identity not supplied",
+            "reuse_status": "User supplied for website use on 2026-10-23",
+            "width": 687,
+            "height": 446,
+            "relationship": "replacement regional context",
+            "user_attachment_number": 4
+          },
+          {
+            "src": "images/user-image-5.png",
+            "caption": "Karst landscape among fields and a pond; supplied as replacement regional context for Figure 25.",
+            "credit": "User-supplied photograph; photographer not identified in the supplied image.",
+            "source_urls": [],
+            "scope": "Regional context; exact hill or cave identity not supplied",
+            "reuse_status": "User supplied for website use on 2026-10-23",
+            "width": 399,
+            "height": 501,
+            "relationship": "replacement regional context",
+            "user_attachment_number": 5
+          },
+          {
+            "src": "images/user-image-6.png",
+            "caption": "Cave pool and rock formations; supplied as replacement regional context for Figure 25.",
+            "credit": "User-supplied photograph; photographer not identified in the supplied image.",
+            "source_urls": [],
+            "scope": "Regional context; exact hill or cave identity not supplied",
+            "reuse_status": "User supplied for website use on 2026-10-23",
+            "width": 620,
+            "height": 400,
+            "relationship": "replacement regional context",
+            "user_attachment_number": 6
+          }
+        ],
+        "gallery_url": "geosites/index.html#phnom-chhngok-cave-entrance-in-kampot"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "kampong-trach-water-pond-cave-in-kampot",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.47122,
+          10.57993
+        ]
+      },
+      "properties": {
+        "name": "Kampong Trach Water Pond Cave in Kampot",
+        "description": "Water Pond Cave is a specific entrance in the Kampong Trach karst, rather than a point representing the entire complex. The surrounding limestone landscape records cave development by dissolution and supports cultural and biodiversity interpretation. Geology/mineralogy: Limestone; no site-specific mineral analysis Coordinate note: Specific named cave, not the whole karst complex. Coordinate data: © OpenStreetMap contributors, ODbL.",
+        "site_id": "kampong-trach-water-pond-cave-in-kampot",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-24-1.webp",
+            "caption": "Figure 24. Isolated limestone karst hill in Kampot Province.",
+            "credit": "Source: Furey / Fauna & Flora (©2025; released 2026), Cambodian Caves: Guidelines for Sustainable Development and Management, Photograph, printed p. 8, PDF page 7. Credit: Nehru Pry; Fauna & Flora, Cambodian Caves.",
+            "source_urls": [
+              "https://www.fauna-flora.org/publications/cambodian-caves-guidelines-for-sustainable-development-and-management/"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1800,
+            "height": 1280,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 24
+          },
+          {
+            "src": "images/user-image-4.png",
+            "caption": "Karst hill and surrounding fields; supplied as replacement regional context for Figure 25.",
+            "credit": "Visible credit: © 2024 Kep-Cambodia.com.",
+            "source_urls": [],
+            "scope": "Regional context; exact hill or cave identity not supplied",
+            "reuse_status": "User supplied for website use on 2026-10-23",
+            "width": 687,
+            "height": 446,
+            "relationship": "replacement regional context",
+            "user_attachment_number": 4
+          },
+          {
+            "src": "images/user-image-5.png",
+            "caption": "Karst landscape among fields and a pond; supplied as replacement regional context for Figure 25.",
+            "credit": "User-supplied photograph; photographer not identified in the supplied image.",
+            "source_urls": [],
+            "scope": "Regional context; exact hill or cave identity not supplied",
+            "reuse_status": "User supplied for website use on 2026-10-23",
+            "width": 399,
+            "height": 501,
+            "relationship": "replacement regional context",
+            "user_attachment_number": 5
+          },
+          {
+            "src": "images/user-image-6.png",
+            "caption": "Cave pool and rock formations; supplied as replacement regional context for Figure 25.",
+            "credit": "User-supplied photograph; photographer not identified in the supplied image.",
+            "source_urls": [],
+            "scope": "Regional context; exact hill or cave identity not supplied",
+            "reuse_status": "User supplied for website use on 2026-10-23",
+            "width": 620,
+            "height": 400,
+            "relationship": "replacement regional context",
+            "user_attachment_number": 6
+          }
+        ],
+        "gallery_url": "geosites/index.html#kampong-trach-water-pond-cave-in-kampot"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "tatai-waterfall-in-koh-kong",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.095833,
+          11.586944
+        ]
+      },
+      "properties": {
+        "name": "Tatai waterfall in Koh Kong",
+        "description": "The Tatai River drops across broad exposed bedrock ledges in Koh Kong. Published waterfall and river photographs document the historical landscape; the research coordinate identifies the vicinity rather than an exact modern visitor entrance. Geology/mineralogy: Bedrock exposed; lithology not established by the photograph alone Coordinate note: Research point differs by about 150 m from current OSM waterfall marker; use as site vicinity until checked.",
+        "site_id": "tatai-waterfall-in-koh-kong",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-20-1.webp",
+            "caption": "Figure 20. Tatai waterfall over exposed bedrock.",
+            "credit": "Source: Kosterin (2010), IDF-Report 29, 1–75, Figure 12, PDF page 21. Credit: Oleg E. Kosterin; Kosterin 2010, Figure 12.",
+            "source_urls": [
+              "https://dragonflyfund.org/en/idf-report-29-2010-english/"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 966,
+            "height": 644,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 20
+          },
+          {
+            "src": "images/figure-21-1.webp",
+            "caption": "Figure 21. Tatai river landscapes at Phnom Doung bridge.",
+            "credit": "Source: Kosterin (2010), IDF-Report 29, 1–75, Figure 16, PDF page 26. Credit: Oleg E. Kosterin; Kosterin 2010, Figure 16.",
+            "source_urls": [
+              "https://dragonflyfund.org/en/idf-report-29-2010-english/"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 966,
+            "height": 1345,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 21
+          }
+        ],
+        "gallery_url": "geosites/index.html#tatai-waterfall-in-koh-kong"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "kbal-chhay-cascades-in-preah-sihanouk",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.608611,
+          10.675694
+        ]
+      },
+      "properties": {
+        "name": "Kbal Chhay cascades in Preah Sihanouk",
+        "description": "Kbal Chhay is a cascade landscape near Sihanoukville. A published photograph records the rock ledges and flowing water. The marker is the midpoint of a historical surveyed reach. Geology/mineralogy: Exposed bedrock; site-specific lithology not confirmed Coordinate note: Survey reach midpoint; not a car park.",
+        "site_id": "kbal-chhay-cascades-in-preah-sihanouk",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-22-1.webp",
+            "caption": "Figure 22. Kbal Chhay cascades near Sihanoukville.",
+            "credit": "Source: Kosterin (2010), IDF-Report 29, 1–75, Figure 27, PDF page 37. Credit: Oleg E. Kosterin; Kosterin 2010, Figure 27.",
+            "source_urls": [
+              "https://dragonflyfund.org/en/idf-report-29-2010-english/"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 966,
+            "height": 680,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 22
+          }
+        ],
+        "gallery_url": "geosites/index.html#kbal-chhay-cascades-in-preah-sihanouk"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "bokor-hill-station-survey-area-in-kampot",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.024444,
+          10.626944
+        ]
+      },
+      "properties": {
+        "name": "Bokor hill station survey area in Kampot",
+        "description": "The historic Bokor hill-station area lies on a sandstone plateau above the coast. The gallery combines a 2010 landscape view with regional escarpment and forest evidence. This marker is a survey-area midpoint, not a summit or hotel entrance. Geology/mineralogy: Quartz-rich sandstone; regional quartz arenite Coordinate note: Historical survey area midpoint; not summit, hotel or park gate.",
+        "site_id": "bokor-hill-station-survey-area-in-kampot",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-23-1.webp",
+            "caption": "Figure 23. Bokor hill station landscape photographed in 2010.",
+            "credit": "Source: Kosterin (2010), IDF-Report 29, 1–75, Figure 31, PDF page 42. Credit: Oleg E. Kosterin; Kosterin 2010, Figure 31.",
+            "source_urls": [
+              "https://dragonflyfund.org/en/idf-report-29-2010-english/"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 966,
+            "height": 667,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 23
+          },
+          {
+            "src": "images/figure-36-1.webp",
+            "caption": "Figure 36. South-facing sandstone escarpment of the Bokor Plateau looking out to the Gulf of Thailand, with Phu Quoc Island (Vietnam) in the distance, March 2001.",
+            "credit": "Source: Rundel & Middleton (2017), Cambodian Journal of Natural History 2017(1), 17–37, Figure 1. Credit: © Rasoul Sharifi.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 472,
+            "height": 620,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 36
+          },
+          {
+            "src": "images/figure-37-1.webp",
+            "caption": "Figure 37. Stunted forest of the Bokor Plateau with emergent trees of Dacrydium elatum, March 2001.",
+            "credit": "Source: Rundel & Middleton (2017), Cambodian Journal of Natural History 2017(1), 17–37, Figure 2. Credit: © Philip Rundel.",
+            "source_urls": [
+              "https://cdn.angkordatabase.asia/libs/docs/2017-floraoftheBokorPlateau.pdf"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 473,
+            "height": 340,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 37
+          },
+          {
+            "src": "images/figure-38-1.webp",
+            "caption": "Figure 38. Transition from montane wet evergreen forest to stunted forest near Popokvil Waterfall on the Bokor Plateau, March 2001.",
+            "credit": "Source: Rundel & Middleton (2017), Cambodian Journal of Natural History 2017(1), 17–37, Figure 3. Credit: © Rasoul Sharifi.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 473,
+            "height": 620,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 38
+          }
+        ],
+        "gallery_url": "geosites/index.html#bokor-hill-station-survey-area-in-kampot"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "kep-national-park-eastern-forest-edge-in-kep",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.303611,
+          10.490278
+        ]
+      },
+      "properties": {
+        "name": "Kep National Park eastern forest edge in Kep",
+        "description": "This point marks a historical biodiversity sampling locality at the eastern forest edge of Kep National Park. It represents coastal forest context and is not the park headquarters or a surveyed geological exposure. Geology/mineralogy: No site-specific geological or mineral analysis supplied Coordinate note: Historical biodiversity sampling locality; not park headquarters.",
+        "site_id": "kep-national-park-eastern-forest-edge-in-kep",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [],
+        "gallery_url": "geosites/index.html#kep-national-park-eastern-forest-edge-in-kep"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "ream-recreation-centre-survey-area-in-preah-sihanouk",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.617222,
+          10.515833
+        ]
+      },
+      "properties": {
+        "name": "Ream recreation centre survey area in Preah Sihanouk",
+        "description": "The Ream recreation-centre point is a historical coastal biodiversity survey locality. It provides a reference for the wider coastal landscape; its modern access and surroundings require confirmation. Geology/mineralogy: No site-specific lithology or mineral analysis supplied Coordinate note: Historical survey location from 2010; confirm current access and landscape.",
+        "site_id": "ream-recreation-centre-survey-area-in-preah-sihanouk",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [],
+        "gallery_url": "geosites/index.html#ream-recreation-centre-survey-area-in-preah-sihanouk"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "koh-paur-dinosaur-fossil-site-in-koh-kong",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.0245,
+          11.5368
+        ]
+      },
+      "properties": {
+        "name": "Koh Paur Dinosaur Fossil Site in Koh Kong",
+        "description": "Koh Paur preserves a sauropod fibula from continental Lower Cretaceous sandstone. Published figures show the fossil in its host rock and cross-bedded sandstone, linking sedimentary environments with Cambodia’s dinosaur record. Geology/mineralogy: Sandstone of the Grès Supérieurs; fossil bone MOEC-1 Coordinate note: Discovery locality of Cambodia’s first dinosaur (Lower Cretaceous sauropod fibula MOEC-1).",
+        "site_id": "koh-paur-dinosaur-fossil-site-in-koh-kong",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-40-1.webp",
+            "caption": "Figure 40. Cross-bedded sandstone in the lower part of the Grès Supérieurs on Koh Paur Island, Koh Kong Province.",
+            "credit": "Source: Buffetaut et al. (2024), Fossil-bearing non-marine Mesozoic formations of south-western Cambodia, Proceedings of GEOSEA 2024, Khon Kaen, 55–63, Figure 1. Credit: Buffetaut et al. 2024.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1194,
+            "height": 482,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 40
+          },
+          {
+            "src": "images/figure-44-1.webp",
+            "caption": "Figure 44. Sauropod dinosaur fibula in situ in greyish-brown sandstone of the lower part of the Grès Supérieurs at Koh Paur Island, Koh Kong Province.",
+            "credit": "Source: Buffetaut et al. (2024), Fossil-bearing non-marine Mesozoic formations of south-western Cambodia, Proceedings of GEOSEA 2024, Khon Kaen, 55–63, Figure 5. Credit: Buffetaut et al. 2024.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 624,
+            "height": 243,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 44
+          }
+        ],
+        "gallery_url": "geosites/index.html#koh-paur-dinosaur-fossil-site-in-koh-kong"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "phnom-khley-black-shale-section-in-kampot",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.385,
+          10.612
+        ]
+      },
+      "properties": {
+        "name": "Phnom Khley Black Shale Section in Kampot",
+        "description": "At Phnom Khley, black shale occurs between sandstone beds of the Bokor Formation. Organic microscopy and measured sections document the sedimentary succession; the multi-site figures include other Kampot sections. Geology/mineralogy: Alginite and bituminite are organic macerals; pyrite is a mineral reported in the study Coordinate note: 100 m long by 50 m high section of interbedded sandstone and organic black shale in Bokor Formation.",
+        "site_id": "phnom-khley-black-shale-section-in-kampot",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-32-1.webp",
+            "caption": "Figure 32. Published study location map of black shale outcrops in Kampot Province, southern Cambodia.",
+            "credit": "Source: Heng et al. (2022), International Journal of Oil, Gas and Coal Engineering 10(4), 90–96, Figure 1. Credit: Heng et al. 2022.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1141,
+            "height": 807,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 32
+          },
+          {
+            "src": "images/figure-33-1.webp",
+            "caption": "Figure 33. Outcrop photographs of Bokor Formation shale, interbedded sandstones, and marine invertebrate fossils.",
+            "credit": "Source: Heng et al. (2022), International Journal of Oil, Gas and Coal Engineering 10(4), 90–96, Figure 2. Credit: Heng et al. 2022.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 746,
+            "height": 771,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 33
+          },
+          {
+            "src": "images/figure-34-1.webp",
+            "caption": "Figure 34. Photomicrographs of shale macerals in the Bokor Formation taken under reflected white light.",
+            "credit": "Source: Heng et al. (2022), International Journal of Oil, Gas and Coal Engineering 10(4), 90–96, Figure 4. Credit: Heng et al. 2022.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 572,
+            "height": 788,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 34
+          },
+          {
+            "src": "images/figure-35-1.webp",
+            "caption": "Figure 35. Stratigraphic columns of the Bokor Formation outcrop sections in Kampot Province: (A) Phnom Khley, (B) Phnom Chakrey and (C) Phnom Monprey. Red stars mark the stratigraphic positions of the analysed samples.",
+            "credit": "Source: Heng et al. (2022), International Journal of Oil, Gas and Coal Engineering 10(4), 90–96, Figure 3. Credit: Heng et al. 2022.",
+            "source_urls": [
+              "https://doi.org/10.11648/j.ogce.20221004.11"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1344,
+            "height": 936,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 35
+          }
+        ],
+        "gallery_url": "geosites/index.html#phnom-khley-black-shale-section-in-kampot"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "phnom-monprey-section-in-kampot",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.421,
+          10.635
+        ]
+      },
+      "properties": {
+        "name": "Phnom Monprey Section in Kampot",
+        "description": "The Phnom Monprey section contains limestone and shale with reported Syringopora corals. Published outcrop photographs, stratigraphic columns and organic microscopy connect marine fossils with the Bokor Formation study. Geology/mineralogy: Limestone and shale; organic macerals reported in the source study Coordinate note: Dark grey limestone and shale section preserving fossil Syringopora tabulate corals.",
+        "site_id": "phnom-monprey-section-in-kampot",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-32-1.webp",
+            "caption": "Figure 32. Published study location map of black shale outcrops in Kampot Province, southern Cambodia.",
+            "credit": "Source: Heng et al. (2022), International Journal of Oil, Gas and Coal Engineering 10(4), 90–96, Figure 1. Credit: Heng et al. 2022.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1141,
+            "height": 807,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 32
+          },
+          {
+            "src": "images/figure-33-1.webp",
+            "caption": "Figure 33. Outcrop photographs of Bokor Formation shale, interbedded sandstones, and marine invertebrate fossils.",
+            "credit": "Source: Heng et al. (2022), International Journal of Oil, Gas and Coal Engineering 10(4), 90–96, Figure 2. Credit: Heng et al. 2022.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 746,
+            "height": 771,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 33
+          },
+          {
+            "src": "images/figure-34-1.webp",
+            "caption": "Figure 34. Photomicrographs of shale macerals in the Bokor Formation taken under reflected white light.",
+            "credit": "Source: Heng et al. (2022), International Journal of Oil, Gas and Coal Engineering 10(4), 90–96, Figure 4. Credit: Heng et al. 2022.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 572,
+            "height": 788,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 34
+          },
+          {
+            "src": "images/figure-35-1.webp",
+            "caption": "Figure 35. Stratigraphic columns of the Bokor Formation outcrop sections in Kampot Province: (A) Phnom Khley, (B) Phnom Chakrey and (C) Phnom Monprey. Red stars mark the stratigraphic positions of the analysed samples.",
+            "credit": "Source: Heng et al. (2022), International Journal of Oil, Gas and Coal Engineering 10(4), 90–96, Figure 3. Credit: Heng et al. 2022.",
+            "source_urls": [
+              "https://doi.org/10.11648/j.ogce.20221004.11"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 1344,
+            "height": 936,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 35
+          }
+        ],
+        "gallery_url": "geosites/index.html#phnom-monprey-section-in-kampot"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "bokor-plateau-sandstone-and-cloud-forest-in-kampot",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.025,
+          10.627
+        ]
+      },
+      "properties": {
+        "name": "Bokor Plateau Sandstone and Cloud Forest in Kampot",
+        "description": "The Bokor sandstone plateau supports stunted forest, wetland and sphagnum bog habitats. Nutrient-poor sandy substrates and drainage help explain the vegetation mosaic. The gallery includes historical escarpment and forest photographs. Geology/mineralogy: Quartz-rich sandstone; sandy weathering products Coordinate note: High-altitude (~1,000 m) quartz sandstone plateau with stunted cloud forest and 22 endemic plant species.",
+        "site_id": "bokor-plateau-sandstone-and-cloud-forest-in-kampot",
+        "coordinate_status": "indicative_source_position",
+        "gallery": [
+          {
+            "src": "images/figure-36-1.webp",
+            "caption": "Figure 36. South-facing sandstone escarpment of the Bokor Plateau looking out to the Gulf of Thailand, with Phu Quoc Island (Vietnam) in the distance, March 2001.",
+            "credit": "Source: Rundel & Middleton (2017), Cambodian Journal of Natural History 2017(1), 17–37, Figure 1. Credit: © Rasoul Sharifi.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 472,
+            "height": 620,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 36
+          },
+          {
+            "src": "images/figure-37-1.webp",
+            "caption": "Figure 37. Stunted forest of the Bokor Plateau with emergent trees of Dacrydium elatum, March 2001.",
+            "credit": "Source: Rundel & Middleton (2017), Cambodian Journal of Natural History 2017(1), 17–37, Figure 2. Credit: © Philip Rundel.",
+            "source_urls": [
+              "https://cdn.angkordatabase.asia/libs/docs/2017-floraoftheBokorPlateau.pdf"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 473,
+            "height": 340,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 37
+          },
+          {
+            "src": "images/figure-38-1.webp",
+            "caption": "Figure 38. Transition from montane wet evergreen forest to stunted forest near Popokvil Waterfall on the Bokor Plateau, March 2001.",
+            "credit": "Source: Rundel & Middleton (2017), Cambodian Journal of Natural History 2017(1), 17–37, Figure 3. Credit: © Rasoul Sharifi.",
+            "source_urls": [],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 473,
+            "height": 620,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 38
+          },
+          {
+            "src": "images/figure-39-1.webp",
+            "caption": "Figure 39. Sphagnum bog and seasonally waterlogged wetland on white sandy soil in poorly drained areas of the Bokor Plateau, March 2001.",
+            "credit": "Source: Rundel & Middleton (2017), Cambodian Journal of Natural History 2017(1), 17–37, Figure 4. Credit: © Rasoul Sharifi.",
+            "source_urls": [
+              "https://cdn.angkordatabase.asia/libs/docs/2017-floraoftheBokorPlateau.pdf"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 469,
+            "height": 341,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 39
+          },
+          {
+            "src": "images/figure-23-1.webp",
+            "caption": "Figure 23. Bokor hill station landscape photographed in 2010.",
+            "credit": "Source: Kosterin (2010), IDF-Report 29, 1–75, Figure 31, PDF page 42. Credit: Oleg E. Kosterin; Kosterin 2010, Figure 31.",
+            "source_urls": [
+              "https://dragonflyfund.org/en/idf-report-29-2010-english/"
+            ],
+            "scope": "Published figure; may include regional context or multiple sites",
+            "reuse_status": "User confirmed all catalogue images free to use on 2026-10-23",
+            "width": 966,
+            "height": 667,
+            "relationship": "site or regional context as stated in caption",
+            "catalogue_figure": 23
+          }
+        ],
+        "gallery_url": "geosites/index.html#bokor-plateau-sandstone-and-cloud-forest-in-kampot"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "phnom-sampeu-la-ang-pracheu-bat-cave-in-battambang",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.099832,
+          13.026548
+        ]
+      },
+      "properties": {
+        "name": "Phnom Sampeu La Ang Pracheu bat cave in Battambang",
+        "description": "La Ang Pracheu is a named bat cave at Phnom Sampeu. The limestone hill links cave development, bat habitat and cultural heritage. The source report’s coordinate datum remains unconfirmed. Geology/mineralogy: Limestone karst; no site-specific mineral analysis Coordinate note: A named cave record, not entire hill boundary. Report coordinate datum not explicitly verified; WGS84 interpretation requires confirmation.",
+        "site_id": "phnom-sampeu-la-ang-pracheu-bat-cave-in-battambang",
+        "coordinate_status": "datum_unconfirmed",
+        "gallery": [
+          {
+            "src": "images/user-image-1.png",
+            "caption": "Phnom Sampeu: cliff carvings beside a rock opening.",
+            "credit": "Visible credit: CamNess / Ky Chamna.",
+            "source_urls": [],
+            "scope": "Phnom Sampeu locality supplied by user",
+            "reuse_status": "User supplied for website use on 2026-10-23",
+            "width": 1279,
+            "height": 1280,
+            "relationship": "site image supplied by user",
+            "user_attachment_number": 1
+          },
+          {
+            "src": "images/user-image-2.png",
+            "caption": "Phnom Sampeu: reclining and seated Buddha carvings on the cliff face.",
+            "credit": "User-supplied photograph; photographer not identified in the supplied image.",
+            "source_urls": [],
+            "scope": "Phnom Sampeu locality supplied by user",
+            "reuse_status": "User supplied for website use on 2026-10-23",
+            "width": 2555,
+            "height": 2233,
+            "relationship": "site image supplied by user",
+            "user_attachment_number": 2
+          },
+          {
+            "src": "images/user-image-3.png",
+            "caption": "La Ang Pracheu, Phnom Sampeu: bats emerging above the cave and limestone cliff.",
+            "credit": "User-supplied photograph; photographer not identified in the supplied image.",
+            "source_urls": [],
+            "scope": "Phnom Sampeu locality supplied by user",
+            "reuse_status": "User supplied for website use on 2026-10-23",
+            "width": 900,
+            "height": 600,
+            "relationship": "site image supplied by user",
+            "user_attachment_number": 3
+          }
+        ],
+        "gallery_url": "geosites/index.html#phnom-sampeu-la-ang-pracheu-bat-cave-in-battambang"
+      }
+    }
+  ]
+}
