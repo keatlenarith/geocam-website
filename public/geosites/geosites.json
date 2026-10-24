@@ -610,6 +610,19 @@
       "mineralogy": "Quartz-rich sandstone; regional quartz arenite and sub-litharenite",
       "gallery": [
         {
+          "src": "images/ancient-stone-quarry.jpg",
+          "caption": "Ancient Angkorian Sandstone Quarry Outcrop — Tra Peang Cha block extraction face at Phnom Kulen showing manual quarrying channels and historic building stone extraction.",
+          "credit": "Source: GeoCam Geoparks Survey & Documentation Catalogue (2026). Photo: Ancient stone quarry outcrop.",
+          "source_urls": [
+            "/geoparks/Ancient stone quarry.jpg"
+          ],
+          "scope": "Site-specific field photograph of ancient sandstone quarry face",
+          "reuse_status": "GeoCam Geoparks documentation",
+          "width": 1600,
+          "height": 1200,
+          "relationship": "direct site outcrop photograph"
+        },
+        {
           "src": "images/figure-30-1.webp",
           "caption": "Sandstone quarry photograph grouped under catalogue Figure 30; exact quarry identity requires confirmation.",
           "credit": "Source: Eng et al. (2025/2026), Assessing Geodiversity in the Kulen Area, ITC Faculty of Geo-resources and Geotechnical Engineering, Slide 12. Credit: ITC GGG Geoteam.",
@@ -1678,6 +1691,83 @@
           "height": 600,
           "relationship": "site image supplied by user",
           "user_attachment_number": 3
+        }
+      ]
+    },
+    {
+      "id": "lom-phat-petrified-wood-geosite-in-ratanakiri",
+      "name": "Lom Phat Petrified Wood Geosite in Ratanakiri",
+      "nameKm": "ទីតាំងភូគព្ភសាស្ត្រដើមឈើផូស៊ីលលំផាត់ (ខេត្តរតនគិរី)",
+      "type": "geosite",
+      "designation": "National Heritage Park Geosite (Ministry of Environment & ITC)",
+      "coordinates": [
+        107.03868,
+        13.405085
+      ],
+      "coordinate_order": "longitude, latitude",
+      "crs": "EPSG:4326 (WGS84 UTM 48N: 720755, 1482844)",
+      "coordinate_status": "verified_field_coordinate",
+      "publish_pin": true,
+      "coordinate_source": "Department Heritage Park, Ministry of Environment & ITC Faculty of Geo-Resources and Geotechnical Engineering (2024). WGS1984(720755, 1482844).",
+      "original_coordinate_expression": "WGS1984(720755, 1482844), Lom Phat area, Ratanakiri Province",
+      "coordinate_notes": "Excavation sites (Pits H1, AC2, J3) exposing massive permineralized fossil tree trunks with intact cellular anatomy, situated near Douer Mountain in Lom Phat district.",
+      "source_urls": [
+        "/geoparks/Internship report_1.pdf",
+        "/geoparks/Internship report_PROGRESS.docx"
+      ],
+      "description": "Silicified petrified wood forest deposits in Lom Phat district, Ratanakiri. Excavations conducted with the Department of Heritage Park, Ministry of Environment and ITC documented massive petrified tree trunks of the ancient conifer family Araucariaceae (Agathis genera) preserved in late Mesozoic (Upper Jurassic to Lower Cretaceous) fluvial-deltaic high-terrace sandstones.",
+      "mineralogy": "Microcrystalline quartz linings (silicified wood cells), opal-to-quartz diagenesis; host rock is Feldspathic litharenite sandstone (quartz, plagioclase, lithic fragments, muscovite, limonite)",
+      "province": {
+        "en": "Ratanakiri",
+        "km": "រតនគិរី"
+      },
+      "era": "Late Mesozoic (Upper Jurassic – Lower Cretaceous)",
+      "narrative": {
+        "overview": "The Lom Phat Petrified Wood Geosite in Ratanakiri represents one of Cambodia's premier paleobotanical geoheritage sites. Discovered in Lom Phat district and investigated in collaboration with the Department of Heritage Park, General Department of Local Community, Ministry of Environment and the Institute of Technology of Cambodia (ITC), the site preserves fossilized gymnosperm tree trunks embedded in high-terrace fluvial sandstones.",
+        "geologicalSetting": "The study area lies approximately 514 km northeast of Phnom Penh in the Mesozoic continental basin of Ratanakiri. Deposition occurred in a non-marine, fluvial to deltaic system where fallen conifer trees were rapidly buried in low-oxygen sediment. Petrographic thin-section analysis identifies the wood as the Agathis genus of the Araucariaceae family, characterized by early wood cells with thin walls and late wood with tangentially flattened thick-walled cells. The host rock is classified as feldspathic litharenite sandstone based on Pettijohn and Folk classifications, with geochemical discrimination (Fe2O3 vs MgO and log K2O/Al2O3 vs log MgO/Al2O3) confirming continental fluvial/alluvial deposition.",
+        "geologicalSettingKm": "ភូគព្ភស្ថាននេះជាចំណុចគន្លឹះមួយក្នុងស្ថាបត្យកម្មភូគព្ភសាស្ត្រតំបន់នៃខេត្តរតនគិរី ភាគឦសានប្រទេសកម្ពុជា។ កំណកកកើតឡើងក្នុងបរិស្ថានទន្លេនិងដីសណ្ដ (fluvial-deltaic) ដោយដើមឈើធ្លាក់កប់ក្នុងល្បាប់ដីខ្វះអុកស៊ីសែន ធ្វើឱ្យកោសិកាឈើត្រូវជំនួសដោយជាតិស៊ីលីកា (Silicification) ក្លាយជាថ្ម។ ការវិភាគមីក្រូទស្សន៍សិលាស្តើងបានកំណត់អត្តសញ្ញាណដើមឈើផូស៊ីលនេះជាពពួក Agathis នៃអម្បូរ Araucariaceae ហើយស្រទាប់ថ្មម្ចាស់ជាថ្មភក់ប្រភេទ Feldspathic litharenite ដែលបញ្ជាក់ពីបរិស្ថានទឹកសាបលើគោក។",
+        "mineralogyNote": "Crystalline and microcrystalline quartz linings replacing cellular cavities; progressive opal-A to opal-CT to chalcedony and crystalline quartz diagenesis; host rock contains quartz, plagioclase, muscovite, hematite, and limonite.",
+        "provenanceNote": "Fieldwork and petrographic study by Faculty of Geo-Resources and Geotechnical Engineering, ITC & Department of Heritage Park, Ministry of Environment, Cambodia (2024)."
+      },
+      "gallery": [
+        {
+          "src": "images/lom-phat-excavation.png",
+          "caption": "Figure 3.3. Petrified wood excavation site at Lom Phat district, Ratanakiri (Department Heritage Park, General Department of Local Community, Ministry of Environment & ITC).",
+          "credit": "Source: Dy Rattha, Heng Muoy Yi (ITC) & Lim Vanchan (Department Heritage Park, Ministry of Environment, Cambodia).",
+          "source_urls": [
+            "/geoparks/Internship report_1.pdf"
+          ],
+          "scope": "Site excavation photo showing partially excavated fossil tree trunk",
+          "reuse_status": "Department Heritage Park, Ministry of Environment & ITC",
+          "width": 1280,
+          "height": 720,
+          "relationship": "direct excavation site photograph"
+        },
+        {
+          "src": "images/lom-phat-petrified-cells.png",
+          "caption": "Figure 4.1. Tangential thin-section photomicrograph showing silicified wood cells, elongate rays, and microcrystalline quartz (Mq) under cross-polarized light (XPL).",
+          "credit": "Source: Faculty of Geo-Resources and Geotechnical Engineering, ITC.",
+          "source_urls": [
+            "/geoparks/Internship report_PROGRESS.docx"
+          ],
+          "scope": "Petrographic thin-section showing cell replacement by quartz",
+          "reuse_status": "Department Heritage Park, Ministry of Environment & ITC",
+          "width": 1280,
+          "height": 960,
+          "relationship": "thin-section photomicrograph"
+        },
+        {
+          "src": "images/lom-phat-radial-section.png",
+          "caption": "Figure 4.3. Radial thin-section photomicrograph showing tracheid rays and quartz-filled wood vascular structure of Araucariaceae (Agathis).",
+          "credit": "Source: Faculty of Geo-Resources and Geotechnical Engineering, ITC.",
+          "source_urls": [
+            "/geoparks/Internship report_PROGRESS.docx"
+          ],
+          "scope": "Radial thin-section showing anatomical details of wood cells",
+          "reuse_status": "Department Heritage Park, Ministry of Environment & ITC",
+          "width": 1280,
+          "height": 960,
+          "relationship": "thin-section photomicrograph"
         }
       ]
     }

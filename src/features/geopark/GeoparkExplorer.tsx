@@ -34,6 +34,10 @@ import {
   BookOpen,
   Navigation,
   ArrowUpRight,
+  FileText,
+  FolderArchive,
+  FolderOpen,
+  FileDown,
 } from "lucide-react";
 
 type Basemap = "satellite" | "topo" | "hillshade" | "terrain";
@@ -227,6 +231,7 @@ export default function GeoparkExplorer() {
   const [isHoloOpen, setIsHoloOpen] = useState(false);
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [lightboxImg, setLightboxImg] = useState<GeositeGalleryItem | null>(null);
+  const [isDocsOpen, setIsDocsOpen] = useState(false);
 
   // Selected site record
   const selectedSite = useMemo(() => {
@@ -473,6 +478,14 @@ export default function GeoparkExplorer() {
 
   // Keyboard navigation for Hologram Gallery
   useEffect(() => {
+    const handleDocsKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsDocsOpen(false);
+    };
+    window.addEventListener("keydown", handleDocsKey);
+    return () => window.removeEventListener("keydown", handleDocsKey);
+  }, []);
+
+  useEffect(() => {
     if (!isHoloOpen || naturalPhotos.length === 0) return;
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsHoloOpen(false);
@@ -504,9 +517,7 @@ export default function GeoparkExplorer() {
             {kh ? "ឧទ្យានភូគព្ភសាស្ត្រ និងភូគព្ភស្ថានកម្ពុជា" : "Cambodia Geoparks & Geosites Explorer"}
           </h1>
           <p className="mt-2 text-base md:text-lg text-slate-600 leading-relaxed max-w-4xl">
-            {kh
-              ? "រុករកទិន្នន័យកូអរដោណេផ្ទៀងផ្ទាត់ រូបភាពទេសភាពធម្មជាតិហូឡូក្រាម និងផ្ទាំងវិទ្យាសាស្ត្រ (ផែនទីភូគព្ភសាស្ត្រ សំណាកផូស៊ីល និងចំណិតស្តើងសិលា) នៃភូគព្ភស្ថានចំនួន ២៩ កន្លែងទូទាំងប្រទេសកម្ពុជា។"
-              : "Interactive exploration of 29 verified Cambodian geosites. View natural landscape photography in modern hologram style, and examine scientific plates (geological maps, fossil specimens, thin sections, and stratigraphic columns) in the geological dossier."}
+            {kh ? `រុករកទិន្នន័យកូអរដោណេផ្ទៀងផ្ទាត់ រូបភាពទេសភាពធម្មជាតិហូឡូក្រាម និងផ្ទាំងវិទ្យាសាស្ត្រ (ផែនទីភូគព្ភសាស្ត្រ សំណាកផូស៊ីល និងចំណិតស្តើងសិលា) នៃភូគព្ភស្ថានចំនួន ${CAMBODIA_GEOSITES.length} កន្លែងទូទាំងប្រទេសកម្ពុជា។` : `Interactive exploration of ${CAMBODIA_GEOSITES.length} verified Cambodian geosites. View natural landscape photography in modern hologram style, and examine scientific plates (geological maps, fossil specimens, thin sections, and stratigraphic columns) in the geological dossier.`}
           </p>
         </div>
 
@@ -529,6 +540,15 @@ export default function GeoparkExplorer() {
             <Layers size={16} className="text-emerald-700" />
             <span>{kh ? "ទាញយក GeoJSON" : "Download GeoJSON"}</span>
           </a>
+
+          <button
+            type="button"
+            onClick={() => setIsDocsOpen(true)}
+            className="inline-flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-900 shadow-xs hover:bg-emerald-100 transition"
+          >
+            <FolderArchive size={16} className="text-emerald-700" />
+            <span>{kh ? "ឯកសារស្រាវជ្រាវ Geoparks" : "Geoparks Research & Data"}</span>
+          </button>
 
           <a
             href="/geosites/index.html"
@@ -1303,6 +1323,261 @@ export default function GeoparkExplorer() {
           </div>
         </div>
       )}
+
+      {/* GEOPARKS RESEARCH DOCUMENTS & DATA MODAL */}
+      {isDocsOpen && (
+        <div
+          data-no-translate="true"
+          data-cms-inline="true"
+          className="fixed inset-0 z-[6000] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md overflow-y-auto"
+          onClick={() => setIsDocsOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-700 bg-slate-900 text-slate-100 p-6 md:p-8 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setIsDocsOpen(false)}
+              className="absolute top-5 right-5 text-slate-400 p-2.5 rounded-full hover:bg-slate-800 hover:text-white transition"
+              aria-label="Close"
+            >
+              <X size={22} />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="rounded-2xl bg-emerald-500/20 p-3 text-emerald-400 border border-emerald-500/30">
+                <FolderArchive size={28} />
+              </div>
+              <div>
+                <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">
+                  {kh ? "បណ្ណសារ និងទិន្នន័យស្រាវជ្រាវ" : "Official Scientific Repository"}
+                </span>
+                <h2 className="text-2xl md:text-3xl font-extrabold text-white">
+                  {kh ? "ឯកសារស្រាវជ្រាវ និងទិន្នន័យភូគព្ភស្ថានកម្ពុជា" : "Cambodia Geoparks Research Documents & Data"}
+                </h2>
+              </div>
+            </div>
+
+            <p className="mt-3 text-sm md:text-base text-slate-300 leading-relaxed">
+              {kh
+                ? "រាល់ឯកសារស្រាវជ្រាវ កាតាឡុកបេតិកភណ្ឌ របាយការណ៍បឋម និងរូបភាពទីវាលទាំងអស់ត្រូវបានរក្សាទុកដោយផ្ទាល់នៅក្នុងថតវេបសាយ (public/geoparks/) ដើម្បីសម្រួលដល់ការសិក្សាស្រាវជ្រាវ និងការទាញយកទិន្នន័យដោយសេរី។"
+                : "All research monographs, heritage catalogues, scientific reports, and field photographs are stored directly inside the website repository (/geoparks/) for open geological research, education, and geospatial analysis."}
+            </p>
+
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Document 1: Catalogue */}
+              <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-5 flex flex-col justify-between hover:border-emerald-500/50 transition">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-blue-500/20 px-2.5 py-1 text-xs font-bold text-blue-300 border border-blue-500/30">
+                      <FileText size={13} /> DOCX · 56.2 MB
+                    </span>
+                    <span className="text-xs text-slate-400">National Catalogue</span>
+                  </div>
+                  <h3 className="mt-3 text-base font-bold text-white leading-snug">
+                    {kh ? "កាតាឡុកភូគព្ភស្ថានកម្ពុជា" : "Cambodia Geosites Document Catalogue"}
+                  </h3>
+                  <p className="mt-1.5 text-xs text-slate-400 leading-relaxed">
+                    {kh
+                      ? "ឯកសារចងក្រងភូគព្ភស្ថានទូទាំងប្រទេសកម្ពុជា រួមមានភ្នំគូលែន បាត់ដំបង កំពត កោះកុង ជាមួយរូបភាពទីវាល និងកំណត់ត្រាភូគព្ភសាស្ត្រលម្អិត។"
+                      : "Comprehensive geological heritage catalogue documenting geosites across Cambodia with stratigraphic columns, outcrop surveys, and field photographs."}
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                  <span className="text-[11px] font-mono text-slate-400">/geoparks/Cambodia_Geosites_Document_Catalogue.docx</span>
+                  <a
+                    href="/geoparks/Cambodia_Geosites_Document_Catalogue.docx"
+                    download="Cambodia_Geosites_Document_Catalogue.docx"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-500 transition shadow-sm"
+                  >
+                    <Download size={13} />
+                    <span>{kh ? "ទាញយក" : "Download"}</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Document 2: Lom Phat Report PDF */}
+              <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-5 flex flex-col justify-between hover:border-emerald-500/50 transition">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-rose-500/20 px-2.5 py-1 text-xs font-bold text-rose-300 border border-rose-500/30">
+                      <FileText size={13} /> PDF · 1.99 MB
+                    </span>
+                    <span className="text-xs text-emerald-400 font-semibold">ITC & MoE Report</span>
+                  </div>
+                  <h3 className="mt-3 text-base font-bold text-white leading-snug">
+                    {kh ? "របាយការណ៍ឈើក្លាយជាថ្ម លំផាត់ រតនគិរី (PDF)" : "Lom Phat Petrified Wood Report (PDF)"}
+                  </h3>
+                  <p className="mt-1.5 text-xs text-slate-400 leading-relaxed">
+                    {kh
+                      ? "របាយការណ៍ផ្លូវការ៖ បរិស្ថានកំណកកកើត និងការកំណត់អត្តសញ្ញាណដើមឈើក្លាយជាថ្ម នៅស្រុកលំផាត់ ខេត្តរតនគិរី ដោយនិស្សិត ITC និងនាយកដ្ឋានឧទ្យានបេតិកភណ្ឌ ក្រសួងបរិស្ថាន។"
+                      : "Official research report: Depositional Environment and Petrified wood Identification at Lom Phat district, Ratanakiri (ITC & Dept. of Heritage Park, Ministry of Environment)."}
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                  <span className="text-[11px] font-mono text-slate-400">/geoparks/Internship report_1.pdf</span>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="/geoparks/Internship report_1.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-xs font-bold text-slate-200 hover:bg-slate-700 transition"
+                    >
+                      <Eye size={13} />
+                      <span>{kh ? "មើល" : "View"}</span>
+                    </a>
+                    <a
+                      href="/geoparks/Internship report_1.pdf"
+                      download="Internship report_1.pdf"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-500 transition shadow-sm"
+                    >
+                      <Download size={13} />
+                      <span>{kh ? "ទាញយក" : "Download"}</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Document 3: Lom Phat Monograph Full DOCX */}
+              <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-5 flex flex-col justify-between hover:border-emerald-500/50 transition">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-purple-500/20 px-2.5 py-1 text-xs font-bold text-purple-300 border border-purple-500/30">
+                      <FileText size={13} /> DOCX · 29.5 MB
+                    </span>
+                    <span className="text-xs text-purple-300 font-semibold">Full Monograph</span>
+                  </div>
+                  <h3 className="mt-3 text-base font-bold text-white leading-snug">
+                    {kh ? "អត្ថបទស្រាវជ្រាវពេញលេញ ឈើក្លាយជាថ្មលំផាត់" : "Lom Phat Petrified Wood Full Study"}
+                  </h3>
+                  <p className="mt-1.5 text-xs text-slate-400 leading-relaxed">
+                    {kh
+                      ? "កំណែស្រាវជ្រាវពេញលេញ មានចំណិតស្តើងមីក្រូទស្សន៍កោសិកាឈើស្រល់បុរាណ Agathis (Araucariaceae), ស្រទាប់ដីកកកុញ និងរូបភាពកំណាយផ្ទាល់។"
+                      : "Complete research study containing high-resolution thin sections of tracheid bordered pits, radial sections, cross fields, and geological logging in Lom Phat."}
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                  <span className="text-[11px] font-mono text-slate-400">/geoparks/Internship report_PROGRESS.docx</span>
+                  <a
+                    href="/geoparks/Internship report_PROGRESS.docx"
+                    download="Internship report_PROGRESS.docx"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-500 transition shadow-sm"
+                  >
+                    <Download size={13} />
+                    <span>{kh ? "ទាញយក" : "Download"}</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Document 4: Ancient Stone Quarry Photo */}
+              <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-5 flex flex-col justify-between hover:border-emerald-500/50 transition">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/20 px-2.5 py-1 text-xs font-bold text-amber-300 border border-amber-500/30">
+                      <Eye size={13} /> JPG · 642 KB
+                    </span>
+                    <span className="text-xs text-amber-300 font-semibold">High-Res Outcrop</span>
+                  </div>
+                  <h3 className="mt-3 text-base font-bold text-white leading-snug">
+                    {kh ? "រូបភាពទីវាល រណ្តៅយកថ្មបុរាណភ្នំគូលែន" : "Ancient Angkor Sandstone Quarry Photo"}
+                  </h3>
+                  <p className="mt-1.5 text-xs text-slate-400 leading-relaxed">
+                    {kh
+                      ? "រូបភាពទីវាលកម្រិតច្បាស់ខ្ពស់នៃរណ្តៅយកថ្មភក់បុរាណត្រពាំងចារនៅលើភ្នំគូលែន បង្ហាញស្លាកស្នាមកាប់ថ្មសម្រាប់សាងសង់ប្រាសាទអង្គរ។"
+                      : "Original high-resolution outcrop photo of the Tra Peang Cha ancient sandstone quarry on Phnom Kulen, showing extraction beds and block separation trenches."}
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                  <span className="text-[11px] font-mono text-slate-400">/geoparks/Ancient stone quarry.jpg</span>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="/geoparks/Ancient stone quarry.jpg"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-xs font-bold text-slate-200 hover:bg-slate-700 transition"
+                    >
+                      <Eye size={13} />
+                      <span>{kh ? "មើល" : "View"}</span>
+                    </a>
+                    <a
+                      href="/geoparks/Ancient stone quarry.jpg"
+                      download="Ancient stone quarry.jpg"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-500 transition shadow-sm"
+                    >
+                      <Download size={13} />
+                      <span>{kh ? "ទាញយក" : "Download"}</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Document 5: GIS CSV */}
+              <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-5 flex flex-col justify-between hover:border-emerald-500/50 transition">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/20 px-2.5 py-1 text-xs font-bold text-emerald-300 border border-emerald-500/30">
+                      <FileDown size={13} /> CSV · 4.6 KB
+                    </span>
+                    <span className="text-xs text-slate-400 font-mono">30 Geosites</span>
+                  </div>
+                  <h3 className="mt-3 text-base font-bold text-white leading-snug">
+                    {kh ? "តារាងកូអរដោណេភូគព្ភស្ថាន (CSV)" : "Geosites Coordinates Table (CSV)"}
+                  </h3>
+                  <p className="mt-1.5 text-xs text-slate-400 leading-relaxed">
+                    {kh
+                      ? "ទិន្នន័យកូអរដោណេភូមិសាស្ត្រ WGS84, តំបន់ UTM, រយៈកម្ពស់, និងចំណាត់ថ្នាក់ភូគព្ភសាស្ត្រនៃភូគព្ភស្ថានទាំង ៣០ កន្លែង។"
+                      : "Tabular dataset containing WGS84 lat/long, UTM coordinates, elevations, and geological classifications for all 30 Cambodian geosites."}
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                  <span className="text-[11px] font-mono text-slate-400">/geosites/coordinates.csv</span>
+                  <a
+                    href="/geosites/coordinates.csv"
+                    download="Cambodia_Geosites_Coordinates.csv"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-500 transition shadow-sm"
+                  >
+                    <Download size={13} />
+                    <span>{kh ? "ទាញយក CSV" : "Download CSV"}</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Document 6: GeoJSON */}
+              <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-5 flex flex-col justify-between hover:border-emerald-500/50 transition">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-cyan-500/20 px-2.5 py-1 text-xs font-bold text-cyan-300 border border-cyan-500/30">
+                      <Layers size={13} /> GeoJSON · 16.5 KB
+                    </span>
+                    <span className="text-xs text-slate-400 font-mono">GIS Spatial Layer</span>
+                  </div>
+                  <h3 className="mt-3 text-base font-bold text-white leading-snug">
+                    {kh ? "ស្រទាប់ផែនទីឌីជីថល (GeoJSON)" : "Spatial Vector Layer (GeoJSON)"}
+                  </h3>
+                  <p className="mt-1.5 text-xs text-slate-400 leading-relaxed">
+                    {kh
+                      ? "ទម្រង់ទិន្នន័យផែនទីស្ដង់ដារសម្រាប់បើកលើ QGIS, ArcGIS, MapLibre ឬប្រព័ន្ធ GIS ផ្សេងៗ។"
+                      : "Standard spatial layer ready for direct import into QGIS, ArcGIS, Google Earth, and Web GIS mapping applications."}
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                  <span className="text-[11px] font-mono text-slate-400">/geosites/geosites.geojson</span>
+                  <a
+                    href="/geosites/geosites.geojson"
+                    download="Cambodia_Geosites.geojson"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-500 transition shadow-sm"
+                  >
+                    <Download size={13} />
+                    <span>{kh ? "ទាញយក GeoJSON" : "Download GeoJSON"}</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </section>
   );
 }

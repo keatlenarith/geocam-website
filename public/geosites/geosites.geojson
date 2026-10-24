@@ -1402,6 +1402,30 @@
         ],
         "gallery_url": "geosites/index.html#phnom-sampeu-la-ang-pracheu-bat-cave-in-battambang"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          107.03868,
+          13.405085
+        ]
+      },
+      "properties": {
+        "id": "lom-phat-petrified-wood-geosite-in-ratanakiri",
+        "name": "Lom Phat Petrified Wood Geosite in Ratanakiri",
+        "nameKm": "ទីតាំងភូគព្ភសាស្ត្រដើមឈើផូស៊ីលលំផាត់ (ខេត្តរតនគិរី)",
+        "type": "geosite",
+        "designation": "National Heritage Park Geosite (Ministry of Environment & ITC)",
+        "coordinate_status": "verified_field_coordinate",
+        "publish_pin": true,
+        "description": "Silicified petrified wood forest deposits in Lom Phat district, Ratanakiri. Excavations conducted with the Department of Heritage Park, Ministry of Environment and ITC documented massive petrified tree trunks of the ancient conifer family Araucariaceae (Agathis genera) preserved in late Mesozoic (Upper Jurassic to Lower Cretaceous) fluvial-deltaic high-terrace sandstones.",
+        "mineralogy": "Microcrystalline quartz linings (silicified wood cells), opal-to-quartz diagenesis; host rock is Feldspathic litharenite sandstone (quartz, plagioclase, lithic fragments, muscovite, limonite)",
+        "province": "Ratanakiri",
+        "era": "Late Mesozoic (Upper Jurassic – Lower Cretaceous)",
+        "image_count": 3
+      }
     }
   ]
 }
