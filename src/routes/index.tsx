@@ -73,7 +73,7 @@ function Home() {
   <span className="gc-kicker"><Microscope size={15}/> {lang === "km" ? "វិទ្យាសាស្ត្រ និងការស្រាវជ្រាវ" : "SCIENCE & RESEARCH"}</span>
   <h2 className="gc-title mt-5">{c.areas}</h2>
   <p className="gc-subtitle">{c.areasSub}</p>
-  <div className="mt-10 grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+  <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
     {researchAreas.map((r,i)=>{
       const imgSrc = focusImages[r.key]?.src || r.image;
       const title = lang === 'km' ? (r.km || r.key) : r.key;
