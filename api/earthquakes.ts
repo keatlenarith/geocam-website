@@ -18,6 +18,112 @@ interface UsgsGeoJson {
   }>;
 }
 
+
+/**
+ * Sanitize raw location from TMD or regional RSS feeds.
+ * Guarantees zero Thai or Lao script reaches the client.
+ */
+function sanitizeTmdLocation(raw: string): string {
+  if (!raw) return "Regional epicenter";
+  let text = raw.replace(/^Earthquake\s*/i, "").trim();
+
+  // Extract English from parenthesis if present e.g. "ประเทศเมียนมา (Myanmar)"
+  const parenMatch = text.match(/\(([^)]+)\)/);
+  const englishParen = parenMatch ? parenMatch[1].trim() : null;
+
+  // Dictionary replacements
+  const rules = [
+    [/(?:ทาง)?ทิศตะวันตกเฉียงใต้ของ/g, "SW of "],
+    [/(?:ทาง)?ทิศตะวันตกเฉียงเหนือของ/g, "NW of "],
+    [/(?:ทาง)?ทิศตะวันออกเฉียงใต้ของ/g, "SE of "],
+    [/(?:ทาง)?ทิศตะวันออกเฉียงเหนือของ/g, "NE of "],
+    [/(?:ทาง)?ทิศเหนือของ/g, "N of "],
+    [/(?:ทาง)?ทิศใต้ของ/g, "S of "],
+    [/(?:ทาง)?ทิศตะวันออกของ/g, "E of "],
+    [/(?:ทาง)?ทิศตะวันตกของ/g, "W of "],
+    [/นอกชายฝั่ง/g, "Off coast of "],
+    [/ชายฝั่ง/g, "Coast of "],
+    [/พรมแดน/g, "Border region of "],
+    [/ประเทศเมียนมา|เมียนมา|พม่า|ປະເທດມຽນມາ|ມຽນມາ/g, "Myanmar"],
+    [/ประเทศลาว|สปป\.ลาว|ลาว|ປະເທດລາວ|ສປປ\.ລາວ|ລາວ/g, "Laos"],
+    [/ประเทศไทย|ไทย|ປະເທດໄທ|ໄທ/g, "Thailand"],
+    [/ประเทศเวียดนาม|เวียดนาม|ປະເທດຫວຽດນາມ|ຫວຽດນາມ/g, "Vietnam"],
+    [/ประเทศจีน|จีน|ປະເທດຈີນ|ຈີນ/g, "China"],
+    [/ประเทศกัมพูชา|กัมพูชา|ປະເທດກຳປູເຈຍ|ກຳປູເຈຍ/g, "Cambodia"],
+    [/ประเทศอินโดนีเซีย|อินโดนีเซีย/g, "Indonesia"],
+    [/ประเทศฟิลิปปินส์|ฟิลิปปินส์/g, "Philippines"],
+    [/ประเทศมาเลเซีย|มาเลเซีย/g, "Malaysia"],
+    [/ประเทศอินเดีย|อินเดีย/g, "India"],
+    [/หมู่เกาะอันดามัน|เกาะอันดามัน/g, "Andaman Islands"],
+    [/ทะเลอันดามัน/g, "Andaman Sea"],
+    [/อ่าวเบงกอล/g, "Bay of Bengal"],
+    [/แขวงบ่อแก้ว|ບໍ່ແກ້ວ|บ่อแก้ว/g, "Bokeo Province, Laos"],
+    [/แขวงไชยบุรี|แขวงไซยะบูลี|แขวงไชยบูลี|ໄຊຍະບູລີ|ไชยบุรี|ไซยะบูลี/g, "Xayabury Province, Laos"],
+    [/แขวงหลวงพระบาง|หลวงพระบาง/g, "Luang Prabang Province, Laos"],
+    [/แขวงอุดมไซ|ອຸດົມໄຊ|อุดมไซ/g, "Oudomxay Province, Laos"],
+    [/แขวงพงสาลี|ຜົ້ງສາລີ|พงสาลี/g, "Phongsaly Province, Laos"],
+    [/แขวงหลวงน้ำทา|ຫຼວງນ້ຳທາ|หลวงน้ำทา/g, "Luang Namtha Province, Laos"],
+    [/แขวงหัวพัน|ຫົວພັນ|หัวพัน/g, "Houaphanh Province, Laos"],
+    [/แขวงเวียงจันทน์|ວຽງຈັນ|เวียงจันทน์/g, "Vientiane Province, Laos"],
+    [/แขวงคำม่วน|ຄຳມ່ວນ|คำม่วน/g, "Khammouane Province, Laos"],
+    [/แขวงสะหวันนะเขต|ສະຫວັນນະເຂດ|สะหวันนะเขต/g, "Savannakhet Province, Laos"],
+    [/แขวงจำปาศักดิ์|ຈຳປາສັກ|จำปาศักดิ์/g, "Champasak Province, Laos"],
+    [/รัฐฉาน/g, "Shan State, Myanmar"],
+    [/รัฐกะฉิ่น/g, "Kachin State, Myanmar"],
+    [/แม่ฮ่องสอน/g, "Mae Hong Son"],
+    [/เชียงใหม่/g, "Chiang Mai"],
+    [/เชียงราย/g, "Chiang Rai"],
+    [/ลำปาง/g, "Lampang"],
+    [/ลำพูน/g, "Lamphun"],
+    [/แพร่/g, "Phrae"],
+    [/น่าน/g, "Nan"],
+    [/พะเยา/g, "Phayao"],
+    [/ตาก/g, "Tak"],
+    [/พิษณุโลก/g, "Phitsanulok"],
+    [/กาญจนบุรี/g, "Kanchanaburi"],
+    [/ปาย/g, "Pai"],
+    [/สันทราย/g, "San Sai"],
+    [/แม่แตง/g, "Mae Taeng"],
+    [/แม่ริม/g, "Mae Rim"],
+    [/แม่สรวย/g, "Mae Suai"],
+    [/เวียงป่าเป้า/g, "Wiang Pa Pao"],
+    [/พาน/g, "Phan"],
+    [/แม่สาย/g, "Mae Sai"],
+    [/แม่จัน/g, "Mae Chan"],
+    [/เชียงของ/g, "Chiang Khong"],
+    [/เชียงแสน/g, "Chiang Saen"],
+    [/วังเหนือ/g, "Wang Nuea"],
+    [/งาว/g, "Ngao"],
+    [/เวียงเหนือ/g, "Wiang Nuea"],
+    [/เวียงใต้/g, "Wiang Tai"],
+    [/ต\.\s*/g, "Subdistrict "],
+    [/อ\.\s*/g, ", District "],
+    [/จ\.\s*/g, ", Province "],
+    [/แขวง|ແຂວງ/g, "Province "],
+    [/เมือง|ເມືອງ/g, "District "],
+  ] as const;
+
+  for (const [pattern, rep] of rules) {
+    text = text.replace(pattern, rep);
+  }
+
+  if (englishParen && text.includes(englishParen)) {
+    const dupRegex = new RegExp(`\\b${englishParen}\\b\\s*\\(${englishParen}\\)`, "i");
+    text = text.replace(dupRegex, englishParen);
+    text = text.replace(/\(\s*\)/g, "").trim();
+  }
+
+  // Absolute sanitization: Strip 100% of any remaining Thai and Lao characters
+  text = text.replace(/[\u0E00-\u0E7F\u0E80-\u0EFF]/g, "");
+  text = text.replace(/,\s*,+/g, ",").replace(/\s+/g, " ").replace(/^[,;:\-\s]+|[,;:\-\s]+$/g, "").trim();
+
+  if (text.includes("Mae Hong Son") || text.includes("Chiang Mai") || text.includes("Chiang Rai")) {
+    if (!text.toLowerCase().includes("thailand")) text = `${text}, Thailand`;
+  }
+
+  return text || "Regional epicenter";
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS and Cache Headers
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -236,7 +342,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             depthKm: depth,
             magnitude: mag,
             magnitudeType: "mb",
-            location: title.replace(/^Earthquake\s*/i, "").trim() || "Regional epicenter",
+            location: sanitizeTmdLocation(title),
             reviewStatus: "preliminary",
             reports: [
               {

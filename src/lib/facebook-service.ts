@@ -1,3 +1,4 @@
+import { translateEarthquakeLocation } from "../features/earthquakes/earthquake-data.ts";
 /**
  * Facebook Integration & Auto-Publisher Service for GeoCam
  * Connected Page: Geosciences Society of Cambodia (ID: 105049257586051)
@@ -131,12 +132,15 @@ export async function broadcastToFacebook(payload: PublishPayload): Promise<{
     const mag = payload.meta?.mag ? Number(payload.meta.mag).toFixed(1) : "3.5";
     const depth = payload.meta?.depth || 10;
     const time = payload.meta?.timeIct || new Date().toLocaleString("en-GB", { timeZone: "Asia/Phnom_Penh" });
-    const location = payload.meta?.place || payload.title;
+    const rawLocation = payload.meta?.place || payload.title;
+    const locKm = translateEarthquakeLocation(rawLocation, "km");
+    const locEn = translateEarthquakeLocation(rawLocation, "en");
+    const locDisplay = locKm === locEn ? locEn : `${locEn} (${locKm})`;
 
     message = [
       `🚨 [EARTHQUAKE ALERT / ដំណឹងរញ្ជួយដី]`,
       `🔴 Magnitude: M ${mag} | កម្រិតរញ្ជួយ: ${mag} រ៉ិចទ័រ`,
-      `📍 Location / ទីតាំង: ${location}`,
+      `📍 Location: ${locEn} | ទីតាំង: ${locKm}`,
       `⏱ Indochina Time / ម៉ោងនៅកម្ពុជា: ${time} (ICT, UTC+7)`,
       `📏 Focal Depth / ជម្រៅចំណុចកណ្តាល: ${depth} km`,
       ``,

@@ -2,6 +2,7 @@ import React from "react";
 import {
   type EarthquakeEvent,
   formatLocalIctTime,
+  translateEarthquakeLocation,
 } from "./earthquake-data";
 import { useI18n } from "@/lib/i18n";
 import { ExternalLink, Radio, Activity, Compass, Clock } from "lucide-react";
@@ -130,7 +131,7 @@ export const EarthquakeEventCard: React.FC<EarthquakeEventCardProps> = ({
 
       {/* Location Name */}
       <h4 className="mt-3 text-base md:text-lg font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
-        {event.location}
+        {translateEarthquakeLocation(event.location, lang)}
       </h4>
 
       {/* Depth & Coordinates Grid */}

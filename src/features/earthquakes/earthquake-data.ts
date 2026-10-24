@@ -1,4 +1,587 @@
 /**
+ * GeoCam Earthquake Location Translator & Sanitizer
+ *
+ * Guarantees that:
+ * 1. Under no circumstances will Thai script ([\u0E00-\u0E7F]) or Lao script ([\u0E80-\u0EFF]) appear in either language.
+ * 2. In English mode (en), locations are rendered in clean, accurate English (e.g. "Myanmar", "Laos", "Chiang Mai, Thailand").
+ * 3. In Khmer mode (km), locations are translated into formal Khmer (e.g. "ប្រទេសមីយ៉ាន់ម៉ា (Myanmar)", "ប្រទេសឡាវ (Laos)", "ខេត្តឈៀងម៉ៃ, ប្រទេសថៃ").
+ */
+
+export const THAI_SCRIPT_REGEX = /[\u0E00-\u0E7F]/g;
+export const LAO_SCRIPT_REGEX = /[\u0E80-\u0EFF]/g;
+
+interface TranslationEntry {
+  pattern: RegExp;
+  en: string;
+  km: string;
+}
+
+// Ordered substitution rules (longer/more specific phrases first)
+const LOCATION_RULES: TranslationEntry[] = [
+  // --- Directional & Relative Modifiers ---
+  {
+    pattern: /(?:ทาง)?ทิศตะวันตกเฉียงใต้ของ/g,
+    en: "SW of ",
+    km: "ភាគនិរតីនៃ ",
+  },
+  {
+    pattern: /(?:ทาง)?ทิศตะวันตกเฉียงเหนือของ/g,
+    en: "NW of ",
+    km: "ភាគពាយព្យនៃ ",
+  },
+  {
+    pattern: /(?:ทาง)?ทิศตะวันออกเฉียงใต้ของ/g,
+    en: "SE of ",
+    km: "ភាគអាគ្នេយ៍នៃ ",
+  },
+  {
+    pattern: /(?:ทาง)?ทิศตะวันออกเฉียงเหนือของ/g,
+    en: "NE of ",
+    km: "ភាគឦសាននៃ ",
+  },
+  {
+    pattern: /(?:ทาง)?ทิศเหนือของ/g,
+    en: "N of ",
+    km: "ភាគខាងជើងនៃ ",
+  },
+  {
+    pattern: /(?:ทาง)?ทิศใต้ของ/g,
+    en: "S of ",
+    km: "ភាគខាងត្បូងនៃ ",
+  },
+  {
+    pattern: /(?:ทาง)?ทิศตะวันออกของ/g,
+    en: "E of ",
+    km: "ភាគខាងកើតនៃ ",
+  },
+  {
+    pattern: /(?:ทาง)?ทิศตะวันตกของ/g,
+    en: "W of ",
+    km: "ភាគខាងលិចនៃ ",
+  },
+  {
+    pattern: /นอกชายฝั่ง(?:ทาง)?ตอนใต้ของ/g,
+    en: "Off the southern coast of ",
+    km: "ក្រៅឆ្នេរសមុទ្រភាគខាងត្បូងនៃ ",
+  },
+  {
+    pattern: /นอกชายฝั่ง(?:ทาง)?ตอนเหนือของ/g,
+    en: "Off the northern coast of ",
+    km: "ក្រៅឆ្នេរសមុទ្រភាគខាងជើងនៃ ",
+  },
+  {
+    pattern: /นอกชายฝั่ง/g,
+    en: "Off coast of ",
+    km: "ក្រៅឆ្នេរសមុទ្រនៃ ",
+  },
+  {
+    pattern: /ชายฝั่ง/g,
+    en: "Coast of ",
+    km: "ឆ្នេរសមុទ្រនៃ ",
+  },
+  {
+    pattern: /พรมแดน(?:ระหว่าง)?/g,
+    en: "Border region of ",
+    km: "តំបន់ព្រំដែន ",
+  },
+  {
+    pattern: /ตอนใต้ของ/g,
+    en: "Southern ",
+    km: "ភាគខាងត្បូងនៃ ",
+  },
+  {
+    pattern: /ตอนเหนือของ/g,
+    en: "Northern ",
+    km: "ភាគខាងជើងនៃ ",
+  },
+
+  // --- Countries (Thai & Lao forms) ---
+  {
+    pattern: /ประเทศเมียนมา|เมียนมา|พม่า|ປະເທດມຽນມາ|ມຽນມາ/g,
+    en: "Myanmar",
+    km: "ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+  {
+    pattern: /ประเทศลาว|สปป\.ลาว|ลาว|ປະເທດລາວ|ສປປ\.ລາວ|ລາວ/g,
+    en: "Laos",
+    km: "ប្រទេសឡាវ",
+  },
+  {
+    pattern: /ประเทศไทย|ไทย|ປະເທດໄທ|ໄທ/g,
+    en: "Thailand",
+    km: "ប្រទេសថៃ",
+  },
+  {
+    pattern: /ประเทศเวียดนาม|เวียดนาม|ປະເທດຫວຽດນາມ|ຫວຽດນາມ/g,
+    en: "Vietnam",
+    km: "ប្រទេសវៀតណាម",
+  },
+  {
+    pattern: /ประเทศจีน|จีน|ປະເທດຈີນ|ຈີນ/g,
+    en: "China",
+    km: "ប្រទេសចិន",
+  },
+  {
+    pattern: /ประเทศกัมพูชา|กัมพูชา|ປະເທດກຳປູເຈຍ|ກຳປູເຈຍ/g,
+    en: "Cambodia",
+    km: "ប្រទេសកម្ពុជា",
+  },
+  {
+    pattern: /ประเทศอินโดนีเซีย|อินโดนีเซีย/g,
+    en: "Indonesia",
+    km: "ប្រទេសឥណ្ឌូណេស៊ី",
+  },
+  {
+    pattern: /ประเทศฟิลิปปินส์|ฟิลิปปินส์/g,
+    en: "Philippines",
+    km: "ប្រទេសហ្វីលីពីន",
+  },
+  {
+    pattern: /ประเทศมาเลเซีย|มาเลเซีย/g,
+    en: "Malaysia",
+    km: "ប្រទេសម៉ាឡេស៊ី",
+  },
+  {
+    pattern: /ประเทศอินเดีย|อินเดีย/g,
+    en: "India",
+    km: "ប្រទេសឥណ្ឌា",
+  },
+  {
+    pattern: /ประเทศบังกลาเทศ|บังกลาเทศ/g,
+    en: "Bangladesh",
+    km: "ប្រទេសបង់ក្លាដែស",
+  },
+  {
+    pattern: /ประเทศญี่ปุ่น|ญี่ปุ่น/g,
+    en: "Japan",
+    km: "ប្រទេសជប៉ុន",
+  },
+  {
+    pattern: /ประเทศไต้หวัน|ไต้หวัน/g,
+    en: "Taiwan",
+    km: "តៃវ៉ាន់",
+  },
+
+  // --- Water Bodies & Islands ---
+  {
+    pattern: /หมู่เกาะอันดามัน|เกาะอันดามัน/g,
+    en: "Andaman Islands",
+    km: "ប្រជុំកោះអាន់ដាម៉ាន",
+  },
+  {
+    pattern: /ทะเลอันดามัน/g,
+    en: "Andaman Sea",
+    km: "សមុទ្រអាន់ដាម៉ាន",
+  },
+  {
+    pattern: /อ่าวเบงกอล/g,
+    en: "Bay of Bengal",
+    km: "ឈូងសមុទ្របង់ហ្គាល់",
+  },
+  {
+    pattern: /หมู่เกาะนิโคบาร์/g,
+    en: "Nicobar Islands",
+    km: "ប្រជុំកោះនីកូបា",
+  },
+  {
+    pattern: /ช่องแคบมะละกา/g,
+    en: "Strait of Malacca",
+    km: "ច្រកសមុទ្រម៉ាឡាកា",
+  },
+  {
+    pattern: /ทะเลจีนใต้/g,
+    en: "South China Sea",
+    km: "សមុទ្រចិនខាងត្បូង",
+  },
+  {
+    pattern: /อ่าวไทย/g,
+    en: "Gulf of Thailand",
+    km: "ឈូងសមុទ្រថៃ",
+  },
+
+  // --- Laos Provinces & Towns ---
+  {
+    pattern: /แขวงบ่อแก้ว|ບໍ່ແກ້ວ|บ่อแก้ว/g,
+    en: "Bokeo Province, Laos",
+    km: "ខេត្តបកែវ ប្រទេសឡាវ",
+  },
+  {
+    pattern: /แขวงไชยบุรี|แขวงไซยะบูลี|แขวงไชยบูลี|ໄຊຍະບູລີ|ไชยบุรี|ไซยะบูลี/g,
+    en: "Xayabury Province, Laos",
+    km: "ខេត្តសាយ៉ាបូរី ប្រទេសឡាវ",
+  },
+  {
+    pattern: /แขวงหลวงพระบาง|ຫຼວງພະບາງ|หลวงพระบาง/g,
+    en: "Luang Prabang Province, Laos",
+    km: "ខេត្តហ្លួងព្រះបាង ប្រទេសឡាវ",
+  },
+  {
+    pattern: /แขวงอุดมไซ|ອຸດົມໄຊ|อุดมไซ/g,
+    en: "Oudomxay Province, Laos",
+    km: "ខេត្តឧត្តមជ័យ ប្រទេសឡាវ",
+  },
+  {
+    pattern: /แขวงพงสาลี|ຜົ້ງສາລີ|พงสาลี/g,
+    en: "Phongsaly Province, Laos",
+    km: "ខេត្តផុងសាលី ប្រទេសឡាវ",
+  },
+  {
+    pattern: /แขวงหลวงน้ำทา|ຫຼວງນ້ຳທາ|หลวงน้ำทา/g,
+    en: "Luang Namtha Province, Laos",
+    km: "ខេត្តហ្លួងណាំថា ប្រទេសឡាវ",
+  },
+  {
+    pattern: /แขวงหัวพัน|ຫົວພັນ|หัวพัน/g,
+    en: "Houaphanh Province, Laos",
+    km: "ខេត្តហួរផាន់ ប្រទេសឡាវ",
+  },
+  {
+    pattern: /แขวงเชียงขวาง|ຊຽງຂວາງ|เชียงขวาง/g,
+    en: "Xiangkhouang Province, Laos",
+    km: "ខេត្តឈៀងខ្វាង ប្រទេសឡាវ",
+  },
+  {
+    pattern: /แขวงเวียงจันทน์|ວຽງຈັນ|เวียงจันทน์/g,
+    en: "Vientiane Province, Laos",
+    km: "ខេត្តវៀងចន្ទន៍ ប្រទេសឡាវ",
+  },
+  {
+    pattern: /แขวงคำม่วน|ຄຳມ່ວນ|คำม่วน/g,
+    en: "Khammouane Province, Laos",
+    km: "ខេត្តខាំមួន ប្រទេសឡាវ",
+  },
+  {
+    pattern: /แขวงสะหวันนะเขต|ສະຫວັນນະເຂດ|สะหวันนะเขต/g,
+    en: "Savannakhet Province, Laos",
+    km: "ខេត្តសុវណ្ណខេត្ត ប្រទេសឡាវ",
+  },
+  {
+    pattern: /แขวงสาละวัน|ສາລະວັນ|สาละวัน/g,
+    en: "Salavan Province, Laos",
+    km: "ខេត្តសារ៉ាវ៉ាន់ ប្រទេសឡាវ",
+  },
+  {
+    pattern: /แขวงเซกอง|ເຊກອງ|เซกอง/g,
+    en: "Sekong Province, Laos",
+    km: "ខេត្តសេកុង ប្រទេសឡាវ",
+  },
+  {
+    pattern: /แขวงอัตตะปือ|ອັດຕະປື|อัตตะปือ/g,
+    en: "Attapeu Province, Laos",
+    km: "ខេត្តអាត្តាពឺ ប្រទេសឡាវ",
+  },
+  {
+    pattern: /แขวงจำปาศักดิ์|ຈຳປາສັກ|จำปาศักดิ์/g,
+    en: "Champasak Province, Laos",
+    km: "ខេត្តចម្ប៉ាសក្តិ ប្រទេសឡាវ",
+  },
+  {
+    pattern: /เมืองต้นผึ้ง|ຕົ້ນເຜິ້ງ|ต้นผึ้ง/g,
+    en: "Ton Pheung, Bokeo, Laos",
+    km: "ស្រុកតុនភើង ខេត្តបកែវ ប្រទេសឡាវ",
+  },
+  {
+    pattern: /เมืองห้วยทราย|ຫ້ວຍຊາຍ|ห้วยทราย/g,
+    en: "Houayxay, Bokeo, Laos",
+    km: "ស្រុកហួយសាយ ខេត្តបកែវ ប្រទេសឡាវ",
+  },
+
+  // --- Myanmar Regions & Cities in TMD ---
+  {
+    pattern: /รัฐฉาน/g,
+    en: "Shan State, Myanmar",
+    km: "រដ្ឋសាន ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+  {
+    pattern: /รัฐกะฉิ่น/g,
+    en: "Kachin State, Myanmar",
+    km: "រដ្ឋកាឈីន ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+  {
+    pattern: /รัฐกะเหรี่ยง/g,
+    en: "Kayin State, Myanmar",
+    km: "រដ្ឋការ៉ែន ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+  {
+    pattern: /รัฐมอญ/g,
+    en: "Mon State, Myanmar",
+    km: "រដ្ឋមន ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+  {
+    pattern: /รัฐยะไข่/g,
+    en: "Rakhine State, Myanmar",
+    km: "រដ្ឋរ៉ាខាញ ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+  {
+    pattern: /มัณฑะเลย์/g,
+    en: "Mandalay, Myanmar",
+    km: "ក្រុងម៉ាន់ដាឡាយ ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+  {
+    pattern: /เนปยีดอ|เนปิดอว์|เนปิโด/g,
+    en: "Naypyidaw, Myanmar",
+    km: "រាជធានីណៃពិដោ ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+  {
+    pattern: /ย่างกุ้ง/g,
+    en: "Yangon, Myanmar",
+    km: "ក្រុងយ៉ាំងហ្គោន ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+  {
+    pattern: /พะโค|หงสาวดี/g,
+    en: "Bago, Myanmar",
+    km: "ក្រុងបាហ្គោ ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+  {
+    pattern: /ท่าขี้เหล็ก/g,
+    en: "Tachileik, Myanmar",
+    km: "ក្រុងតាឈីលេក ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+  {
+    pattern: /เชียงตุง/g,
+    en: "Kengtung, Myanmar",
+    km: "ក្រុងឈៀងទុង ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+  {
+    pattern: /ตองยี/g,
+    en: "Taunggyi, Myanmar",
+    km: "ក្រុងតោនជី ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+  {
+    pattern: /พะอัน/g,
+    en: "Hpa-An, Myanmar",
+    km: "ក្រុងផាអាន ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+  {
+    pattern: /เมียวดี/g,
+    en: "Myawaddy, Myanmar",
+    km: "ក្រុងម្យ៉ាវ៉ាឌី ប្រទេសមីយ៉ាន់ម៉ា",
+  },
+
+  // --- Thailand Provinces ---
+  { pattern: /แม่ฮ่องสอน/g, en: "Mae Hong Son", km: "ម៉ែហុងសន" },
+  { pattern: /เชียงใหม่/g, en: "Chiang Mai", km: "ឈៀងម៉ៃ" },
+  { pattern: /เชียงราย/g, en: "Chiang Rai", km: "ឈៀងរ៉ៃ" },
+  { pattern: /ลำปาง/g, en: "Lampang", km: "ឡាំប៉ាង" },
+  { pattern: /ลำพูน/g, en: "Lamphun", km: "ឡាំភូន" },
+  { pattern: /แพร่/g, en: "Phrae", km: "ភ្រែ" },
+  { pattern: /น่าน/g, en: "Nan", km: "ណាន" },
+  { pattern: /พะเยา/g, en: "Phayao", km: "ផាយ៉ាវ" },
+  { pattern: /ตาก/g, en: "Tak", km: "តាក" },
+  { pattern: /อุตรดิตถ์/g, en: "Uttaradit", km: "ឧត្តរទិត្ថ" },
+  { pattern: /พิษณุโลก/g, en: "Phitsanulok", km: "ពិស្ណុលោក" },
+  { pattern: /สุโขทัย/g, en: "Sukhothai", km: "សុខោទ័យ" },
+  { pattern: /กำแพงเพชร/g, en: "Kamphaeng Phet", km: "កំពែងពេជ្រ" },
+  { pattern: /เพชรบูรณ์/g, en: "Phetchabun", km: "ពេជ្របូរណ៍" },
+  { pattern: /พิจิตร/g, en: "Phichit", km: "ពិចិត្រ" },
+  { pattern: /นครสวรรค์/g, en: "Nakhon Sawan", km: "នគរសួគ៌" },
+  { pattern: /อุทัยธานี/g, en: "Uthai Thani", km: "ឧទ័យធានី" },
+  { pattern: /กาญจนบุรี/g, en: "Kanchanaburi", km: "កញ្ចនបុរី" },
+  { pattern: /สุพรรณบุรี/g, en: "Suphan Buri", km: "សុវណ្ណបុរី" },
+  { pattern: /ราชบุรี/g, en: "Ratchaburi", km: "រាជបុរី" },
+  { pattern: /เพชรบุรี/g, en: "Phetchaburi", km: "ពេជ្របុរី" },
+  { pattern: /ประจวบคีรีขันธ์/g, en: "Prachuap Khiri Khan", km: "ប្រជួបគិរីខ័ន្ធ" },
+  { pattern: /ชุมพร/g, en: "Chumphon", km: "ជុំពរ" },
+  { pattern: /ระนอง/g, en: "Ranong", km: "រនង" },
+  { pattern: /สุราษฎร์ธานี/g, en: "Surat Thani", km: "សុរាស្ត្រធានី" },
+  { pattern: /พังงา/g, en: "Phang Nga", km: "ផាំងង៉ា" },
+  { pattern: /ภูเก็ต/g, en: "Phuket", km: "ភូកេត" },
+  { pattern: /กระบี่/g, en: "Krabi", km: "ក្របី" },
+  { pattern: /ตรัง/g, en: "Trang", km: "ត្រាំង" },
+  { pattern: /พัทลุง/g, en: "Phatthalung", km: "ព័ទ្ធលុង" },
+  { pattern: /สงขลา/g, en: "Songkhla", km: "សង្ខលា" },
+  { pattern: /สตูล/g, en: "Satun", km: "ស្តូល" },
+  { pattern: /ปัตตานี/g, en: "Pattani", km: "ប៉ាតានី" },
+  { pattern: /ยะลา/g, en: "Yala", km: "យ៉ាឡា" },
+  { pattern: /นราธิวาส/g, en: "Narathiwat", km: "នរាធិវាស" },
+  { pattern: /เลย/g, en: "Loei", km: "ឡើយ" },
+  { pattern: /หนองคาย/g, en: "Nong Khai", km: "ណងខាយ" },
+  { pattern: /บึงกาฬ/g, en: "Bueng Kan", km: "បឹងកាល" },
+  { pattern: /หนองบัวลำภู/g, en: "Nong Bua Lamphu", km: "ណងបួលំភូ" },
+  { pattern: /อุดรธานี/g, en: "Udon Thani", km: "ឧដរធានី" },
+  { pattern: /สกลนคร/g, en: "Sakon Nakhon", km: "សកលនគរ" },
+  { pattern: /นครพนม/g, en: "Nakhon Phanom", km: "នគរភ្នំ" },
+  { pattern: /มุกดาหาร/g, en: "Mukdahan", km: "មុកដាហាន" },
+  { pattern: /ขอนแก่น/g, en: "Khon Kaen", km: "ខនកែន" },
+  { pattern: /กาฬสินธุ์/g, en: "Kalasin", km: "កាឡាស៊ីន" },
+  { pattern: /มหาสารคาม/g, en: "Maha Sarakham", km: "មហាសារខាម" },
+  { pattern: /ร้อยเอ็ด/g, en: "Roi Et", km: "រយអេច" },
+  { pattern: /ยโสธร/g, en: "Yasothon", km: "យសោធរ" },
+  { pattern: /อำนาจเจริญ/g, en: "Amnat Charoen", km: "អំណាចចម្រើន" },
+  { pattern: /อุบลราชธานี/g, en: "Ubon Ratchathani", km: "ឧប៊ុនរាជធានី" },
+  { pattern: /ศรีสะเกษ/g, en: "Si Sa Ket", km: "ស៊ីសាកេត" },
+  { pattern: /สุรินทร์/g, en: "Surin", km: "សុរិន្ទ" },
+  { pattern: /บุรีรัมย์/g, en: "Buri Ram", km: "បុរីរម្យ" },
+  { pattern: /นครราชสีมา/g, en: "Nakhon Ratchasima", km: "នគររាជសីមា" },
+  { pattern: /ชัยภูมิ/g, en: "Chaiyaphum", km: "ជ័យភូមិ" },
+  { pattern: /สระแก้ว/g, en: "Sa Kaeo", km: "ស្រះកែវ" },
+  { pattern: /ปราจีนบุรี/g, en: "Prachin Buri", km: "ប្រាចិនបុរី" },
+  { pattern: /นครนายก/g, en: "Nakhon Nayok", km: "នគរនាយក" },
+  { pattern: /ฉะเชิงเทรา/g, en: "Chachoengsao", km: "ឆាក់ជើងសៅ" },
+  { pattern: /ชลบุรี/g, en: "Chon Buri", km: "ជលបុរី" },
+  { pattern: /ระยอง/g, en: "Rayong", km: "រយ៉ង" },
+  { pattern: /จันทบุรี/g, en: "Chanthaburi", km: "ចន្ទបុរី" },
+  { pattern: /ตราด/g, en: "Trat", km: "ត្រាត" },
+  { pattern: /กรุงเทพมหานคร|กรุงเทพฯ/g, en: "Bangkok", km: "ក្រុងបាងកក" },
+
+  // --- Common Thai Seismic Districts & Subdistricts ---
+  { pattern: /ปาย/g, en: "Pai", km: "ប៉ាយ" },
+  { pattern: /ปางมะผ้า/g, en: "Pang Mapha", km: "ប៉ាងម៉ាក់ផា" },
+  { pattern: /ขุนยวม/g, en: "Khun Yuam", km: "ឃុនយួម" },
+  { pattern: /สบเมย/g, en: "Sop Moei", km: "សុបមើយ" },
+  { pattern: /แม่ลาน้อย/g, en: "Mae La Noi", km: "ម៉ែឡាណយ" },
+  { pattern: /แม่สะเรียง/g, en: "Mae Sariang", km: "ម៉ែសារៀង" },
+  { pattern: /แม่แตง/g, en: "Mae Taeng", km: "ម៉ែតែង" },
+  { pattern: /แม่ริม/g, en: "Mae Rim", km: "ម៉ែរីម" },
+  { pattern: /สันทราย/g, en: "San Sai", km: "សានសាយ" },
+  { pattern: /สันกำแพง/g, en: "San Kamphaeng", km: "សានកំផែង" },
+  { pattern: /ดอยสะเก็ด/g, en: "Doi Saket", km: "ដូយសាកេត" },
+  { pattern: /ฮอด/g, en: "Hot", km: "ហត" },
+  { pattern: /จอมทอง/g, en: "Chom Thong", km: "ចមថង" },
+  { pattern: /ฝาง/g, en: "Fang", km: "ហ្វាង" },
+  { pattern: /แม่อาย/g, en: "Mae Ai", km: "ម៉ែអាយ" },
+  { pattern: /พร้าว/g, en: "Phrao", km: "ព្រាវ" },
+  { pattern: /เชียงดาว/g, en: "Chiang Dao", km: "ឈៀងដាវ" },
+  { pattern: /สะเมิง/g, en: "Samoeng", km: "សាមឿង" },
+  { pattern: /แม่วาง/g, en: "Mae Wang", km: "ម៉ែវ៉ាង" },
+  { pattern: /แม่แจ่ม/g, en: "Mae Chaem", km: "ម៉ែជែម" },
+  { pattern: /แม่สรวย/g, en: "Mae Suai", km: "ម៉ែស្រួយ" },
+  { pattern: /เวียงป่าเป้า/g, en: "Wiang Pa Pao", km: "វៀងប៉ាប៉ាវ" },
+  { pattern: /พาน/g, en: "Phan", km: "ផាន" },
+  { pattern: /แม่สาย/g, en: "Mae Sai", km: "ម៉ែសាយ" },
+  { pattern: /แม่จัน/g, en: "Mae Chan", km: "ម៉ែចាន់" },
+  { pattern: /เชียงของ/g, en: "Chiang Khong", km: "ឈៀងខង" },
+  { pattern: /เชียงแสน/g, en: "Chiang Saen", km: "ឈៀងសែន" },
+  { pattern: /เทิง/g, en: "Thoeng", km: "ធើង" },
+  { pattern: /เวียงแก่น/g, en: "Wiang Kaen", km: "វៀងកែន" },
+  { pattern: /วังเหนือ/g, en: "Wang Nuea", km: "វ៉ាងហ្នឿ" },
+  { pattern: /งาว/g, en: "Ngao", km: "ង៉ាវ" },
+  { pattern: /ร้องกวาง/g, en: "Rong Kwang", km: "រ៉ងក្វាង" },
+  { pattern: /สอง/g, en: "Song", km: "សង" },
+  { pattern: /ลอง/g, en: "Long", km: "ឡង" },
+  { pattern: /เด่นชัย/g, en: "Den Chai", km: "ដេនជ័យ" },
+  { pattern: /ทุ่งช้าง/g, en: "Thung Chang", km: "ធុងឆាង" },
+  { pattern: /เชียงกลาง/g, en: "Chiang Klang", km: "ឈៀងក្លាង" },
+  { pattern: /ปัว/g, en: "Pua", km: "ប៉ួ" },
+  { pattern: /ท่าวังผา/g, en: "Tha Wang Pha", km: "ថាវ៉ាងផា" },
+  { pattern: /เวียงเหนือ/g, en: "Wiang Nuea", km: "វៀងហ្នឿ" },
+  { pattern: /เวียงใต้/g, en: "Wiang Tai", km: "វៀងតៃ" },
+  { pattern: /แม่นาเติง/g, en: "Mae Na Toeng", km: "ម៉ែណាទើង" },
+
+  // --- Administrative Prefixes ---
+  { pattern: /ต\.\s*/g, en: "Subdistrict ", km: "ឃុំ" },
+  { pattern: /ตำบล\s*/g, en: "Subdistrict ", km: "ឃុំ" },
+  { pattern: /อ\.\s*/g, en: ", District ", km: " ស្រុក" },
+  { pattern: /อำเภอ\s*/g, en: ", District ", km: " ស្រុក" },
+  { pattern: /จ\.\s*/g, en: ", Province ", km: " ខេត្ត" },
+  { pattern: /จังหวัด\s*/g, en: ", Province ", km: " ខេត្ត" },
+  { pattern: /แขวง|ແຂວງ/g, en: "Province ", km: "ខេត្ត" },
+  { pattern: /เมือง|ເມືອງ/g, en: "District ", km: "ស្រុក" },
+  { pattern: /เกาะ/g, en: "Island ", km: "កោះ" },
+  { pattern: /บ้าน/g, en: "Ban ", km: "ភូមិ" },
+
+  // --- Chinese Provinces (CENC) ---
+  { pattern: /广东/g, en: "Guangdong", km: "ក្វាងទុង" },
+  { pattern: /云南/g, en: "Yunnan", km: "យូណាន" },
+  { pattern: /四川/g, en: "Sichuan", km: "ស៊ីឈួន" },
+  { pattern: /西藏/g, en: "Tibet", km: "ទីបេ" },
+  { pattern: /新疆/g, en: "Xinjiang", km: "ស៊ីនជាំង" },
+  { pattern: /青海/g, en: "Qinghai", km: "ឈីងហាយ" },
+  { pattern: /台湾/g, en: "Taiwan", km: "តៃវ៉ាន់" },
+  { pattern: /海南/g, en: "Hainan", km: "ហៃណាន" },
+  { pattern: /广西/g, en: "Guangxi", km: "ក្វាងស៊ី" },
+  { pattern: /福建/g, en: "Fujian", km: "ហ្វូជាន" },
+  { pattern: /市/g, en: " City, ", km: "ក្រុង" },
+  { pattern: /县/g, en: " County, ", km: "ស្រុក" },
+  { pattern: /区/g, en: " District, ", km: "ខណ្ឌ" },
+
+];
+
+/**
+ * Format and sanitize an earthquake location string.
+ * Guarantees zero Thai or Lao characters in the final output.
+ */
+export function translateEarthquakeLocation(
+  rawLocation: string | undefined | null,
+  lang: "en" | "km" = "en"
+): string {
+  if (!rawLocation || typeof rawLocation !== "string") {
+    return lang === "km" ? "ចំណុចកណ្តាលរញ្ជួយដី" : "Regional epicenter";
+  }
+
+  let text = rawLocation.replace(/^Earthquake\s*/i, "").trim();
+
+  // Check if string contains an English name inside parentheses e.g. "ประเทศเมียนมา (Myanmar)"
+  const parenMatch = text.match(/\(([^)]+)\)/);
+  const englishParen = parenMatch ? parenMatch[1].trim() : null;
+
+  let en = text;
+  let km = text;
+
+  // Apply substitutions
+  for (const rule of LOCATION_RULES) {
+    en = en.replace(rule.pattern, rule.en);
+    km = km.replace(rule.pattern, rule.km);
+  }
+
+  // Handle parenthetical English like "(Myanmar)" or "(Laos)"
+  if (englishParen) {
+    // In English mode, if parenthetical matches or is clean English, eliminate duplicate wrapping
+    if (en.includes(englishParen)) {
+      en = en.replace(THAI_SCRIPT_REGEX, "").replace(LAO_SCRIPT_REGEX, "");
+      // Replace "Myanmar (Myanmar)" -> "Myanmar"
+      const duplicateRegex = new RegExp(`\\b${englishParen}\\b\\s*\\(${englishParen}\\)`, "i");
+      en = en.replace(duplicateRegex, englishParen);
+      en = en.replace(/\(\s*\)/g, "").trim();
+    }
+
+    // In Khmer mode, strip any remaining Thai/Lao
+    km = km.replace(THAI_SCRIPT_REGEX, "").replace(LAO_SCRIPT_REGEX, "");
+    km = km.replace(/\(\s*\)/g, "").trim();
+  }
+
+  // STRICT INVARIANT: Strip 100% of any remaining Thai or Lao unicode characters
+  en = en.replace(THAI_SCRIPT_REGEX, "").replace(LAO_SCRIPT_REGEX, "");
+  km = km.replace(THAI_SCRIPT_REGEX, "").replace(LAO_SCRIPT_REGEX, "");
+
+  // Clean trailing commas, hyphens, and whitespace collapses
+  en = en
+    .replace(/,\s*,+/g, ",")
+    .replace(/\s+/g, " ")
+    .replace(/^[,;:\-\s]+|[,;:\-\s]+$/g, "")
+    .trim();
+
+  km = km
+    .replace(/,\s*,+/g, ",")
+    .replace(/\s+/g, " ")
+    .replace(/^[,;:\-\s]+|[,;:\-\s]+$/g, "")
+    .trim();
+
+  // If Thai administrative units were converted (e.g. Wiang Nuea, Pai, Mae Hong Son), append country if missing
+  if (en.includes("Mae Hong Son") || en.includes("Chiang Mai") || en.includes("Chiang Rai")) {
+    if (!en.toLowerCase().includes("thailand")) {
+      en = `${en}, Thailand`;
+    }
+  }
+  if (km.includes("ម៉ែហុងសន") || km.includes("ឈៀងម៉ៃ") || km.includes("ឈៀងរ៉ៃ")) {
+    if (!km.includes("ប្រទេសថៃ")) {
+      km = `${km}, ប្រទេសថៃ`;
+    }
+  }
+
+  // Fallbacks if string was entirely non-English/non-Khmer script and got completely cleared
+  if (!en) {
+    en = "Regional epicenter";
+  }
+  if (!km) {
+    km = "ចំណុចកណ្តាលរញ្ជួយក្នុងតំបន់";
+  }
+
+  return lang === "km" ? km : en;
+}
+
+
+/**
  * GeoCam Earthquake Monitoring Data Layer
  * Models, validation, filtering, source normalization, deduplication, and factual announcement formatting.
  */
@@ -190,11 +773,13 @@ export function generateEventAnnouncement(
         day: "numeric",
       }).format(date);
 
+  const displayLocation = translateEarthquakeLocation(event.location, lang);
+
   if (lang === "km") {
-    return `ការរញ្ជួយដីកម្រិត M${magStr} ត្រូវបានរាយការណ៍នៅជិត ${event.location} នៅម៉ោង ${timeIct} ICT ថ្ងៃទី ${dateIctKm}។ ជម្រៅ៖ ${depthStrKm}។ ប្រភព៖ ${providerNames}។`;
+    return `ការរញ្ជួយដីកម្រិត M${magStr} ត្រូវបានរាយការណ៍នៅជិត ${displayLocation} នៅម៉ោង ${timeIct} ICT ថ្ងៃទី ${dateIctKm}។ ជម្រៅ៖ ${depthStrKm}។ ប្រភព៖ ${providerNames}។`;
   }
 
-  return `M${magStr} earthquake reported near ${event.location} at ${timeIct} ICT on ${dateIct}. Depth: ${depthStr}. Source: ${providerNames}.`;
+  return `M${magStr} earthquake reported near ${displayLocation} at ${timeIct} ICT on ${dateIct}. Depth: ${depthStr}. Source: ${providerNames}.`;
 }
 
 /**
@@ -289,7 +874,8 @@ export function parseTmdXml(xmlText: string): EarthquakeEvent[] {
       }
 
       if (Number.isFinite(lat) && Number.isFinite(lon) && isWithinRegionalEnvelope(lat, lon)) {
-        const cleanTitle = title.replace(/^Earthquake\s*/i, "").trim() || "Regional epicenter";
+        const rawLoc = title.replace(/^Earthquake\s*/i, "").trim() || "Regional epicenter";
+        const cleanTitle = translateEarthquakeLocation(rawLoc, "en");
         const id = `tmd-${lat.toFixed(3)}-${lon.toFixed(3)}-${originTime.slice(0, 16)}`;
 
         const distKm = Math.round(

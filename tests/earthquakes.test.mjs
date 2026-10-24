@@ -20,6 +20,7 @@ const {
   parseCencJson,
   deduplicateEvents,
   filterEarthquakes,
+  translateEarthquakeLocation,
 } = await import('data:text/javascript;base64,' + Buffer.from(code).toString('base64'));
 
 test('isWithinRegionalEnvelope: accepts Cambodia and surrounding region (5-25N, 92-112E), rejects distant points', () => {
@@ -385,3 +386,95 @@ test('parseCencJson: parses China Earthquake Networks Center (CENC/CEA) & Guangd
 });
 
 
+
+test('translateEarthquakeLocation: eliminates 100% of Thai and Lao script and translates accurately', () => {
+  const THAI_LAO_REGEX = /[\u0E00-\u0E7F\u0E80-\u0EFF]/;
+
+  const cases = [
+    {
+      raw: 'ประเทศเมียนมา (Myanmar)',
+      enExpected: 'Myanmar',
+      kmExpectedSubstring: 'ប្រទេសមីយ៉ាន់ម៉ា',
+    },
+    {
+      raw: 'ประเทศลาว (Laos)',
+      enExpected: 'Laos',
+      kmExpectedSubstring: 'ប្រទេសឡាវ',
+    },
+    {
+      raw: 'ประเทศไทย (Thailand)',
+      enExpected: 'Thailand',
+      kmExpectedSubstring: 'ប្រទេសថៃ',
+    },
+    {
+      raw: 'ต.เวียงเหนือ อ.ปาย จ.แม่ฮ่องสอน',
+      enExpectedContains: 'Mae Hong Son',
+      kmExpectedSubstring: 'ម៉ែហុងសន',
+    },
+    {
+      raw: 'อ.สันทราย จ.เชียงใหม่',
+      enExpectedContains: 'Chiang Mai',
+      kmExpectedSubstring: 'ឈៀងម៉ៃ',
+    },
+    {
+      raw: 'แขวงบ่อแก้ว (Bokeo)',
+      enExpectedContains: 'Bokeo',
+      kmExpectedSubstring: 'បកែវ',
+    },
+    {
+      raw: 'หมู่เกาะอันดามัน (Andaman Islands)',
+      enExpected: 'Andaman Islands',
+      kmExpectedSubstring: 'អាន់ដាម៉ាន',
+    },
+    {
+      raw: 'สดใสดึงดูด',
+      enExpected: 'Regional epicenter',
+      kmExpectedSubstring: 'ចំណុចកណ្តាលរញ្ជួយ',
+    },
+  ];
+
+  for (const c of cases) {
+    const en = translateEarthquakeLocation(c.raw, 'en');
+    const km = translateEarthquakeLocation(c.raw, 'km');
+
+    // STRICT INVARIANT: ZERO Thai or Lao characters permitted
+    assert.equal(THAI_LAO_REGEX.test(en), false, `Expected zero Thai/Lao in EN for "${c.raw}", got: "${en}"`);
+    assert.equal(THAI_LAO_REGEX.test(km), false, `Expected zero Thai/Lao in KM for "${c.raw}", got: "${km}"`);
+
+    if (c.enExpected) {
+      assert.equal(en, c.enExpected);
+    }
+    if (c.enExpectedContains) {
+      assert.ok(en.includes(c.enExpectedContains), `Expected EN "${en}" to include "${c.enExpectedContains}"`);
+    }
+    if (c.kmExpectedSubstring) {
+      assert.ok(km.includes(c.kmExpectedSubstring), `Expected KM "${km}" to include "${c.kmExpectedSubstring}"`);
+    }
+  }
+});
+
+test('generateEventAnnouncement: generates clean Khmer and English text without Thai/Lao from raw TMD inputs', () => {
+  const THAI_LAO_REGEX = /[\u0E00-\u0E7F\u0E80-\u0EFF]/;
+
+  const tmdEvent = {
+    id: 'tmd-test-1',
+    originTime: '2026-10-24T13:23:00.000Z',
+    firstSeenAt: '2026-10-24T13:25:00.000Z',
+    latitude: 20.89,
+    longitude: 99.11,
+    depthKm: null,
+    magnitude: null,
+    location: 'ประเทศเมียนมา (Myanmar)',
+    reports: [{ provider: 'TMD', providerEventId: 'tmd-1', sourceUrl: 'https://earthquake.tmd.go.th/' }],
+  };
+
+  const kmText = generateEventAnnouncement(tmdEvent, 'km');
+  assert.equal(THAI_LAO_REGEX.test(kmText), false, `Khmer announcement must not contain Thai script: "${kmText}"`);
+  assert.ok(kmText.includes('ប្រទេសមីយ៉ាន់ម៉ា (Myanmar)'));
+  assert.ok(kmText.includes('TMD'));
+
+  const enText = generateEventAnnouncement(tmdEvent, 'en');
+  assert.equal(THAI_LAO_REGEX.test(enText), false, `English announcement must not contain Thai script: "${enText}"`);
+  assert.ok(enText.includes('Myanmar'));
+  assert.ok(enText.includes('TMD'));
+});

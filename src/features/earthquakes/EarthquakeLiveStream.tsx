@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { type EarthquakeEvent } from "./earthquake-data";
+import { type EarthquakeEvent, translateEarthquakeLocation } from "./earthquake-data";
 import { type TimeWindowOption } from "./useEarthquakes";
 import { useI18n } from "@/lib/i18n";
 import { Radio, Volume2, VolumeX, RefreshCw, ExternalLink, Zap } from "lucide-react";
@@ -243,7 +243,7 @@ export const EarthquakeLiveStream: React.FC<EarthquakeLiveStreamProps> = ({
                   </span>
 
                   <span className="max-w-[200px] truncate font-medium text-foreground">
-                    {ev.location}
+                    {translateEarthquakeLocation(ev.location, lang)}
                   </span>
 
                   <span className="font-mono text-[11px] text-muted-foreground whitespace-nowrap">

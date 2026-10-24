@@ -7,7 +7,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 try {
   maplibregl.setWorkerUrl(maplibreWorkerUrl);
 } catch {}
-import { type EarthquakeEvent, formatLocalIctTime } from "./earthquake-data";
+import { type EarthquakeEvent, formatLocalIctTime, translateEarthquakeLocation } from "./earthquake-data";
 import { useI18n } from "@/lib/i18n";
 import { Layers, Navigation, Compass, Globe2, ExternalLink } from "lucide-react";
 
@@ -285,7 +285,7 @@ export default function EarthquakeMap({
             </div>
             <span style="font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700;">${event.reports[0]?.provider || "USGS"}</span>
           </div>
-          <div style="font-weight: 600; color: #0f172a; margin-bottom: 4px;">${event.location}</div>
+          <div style="font-weight: 600; color: #0f172a; margin-bottom: 4px;">${translateEarthquakeLocation(event.location, lang)}</div>
           <div style="font-size: 11px; color: #64748b; margin-bottom: 2px;">
             Depth: <strong>${event.depthKm !== null ? `${event.depthKm.toFixed(0)} km` : "—"}</strong>
           </div>

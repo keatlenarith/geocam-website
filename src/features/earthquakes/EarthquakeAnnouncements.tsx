@@ -7,6 +7,7 @@ import {
   type ProviderName,
   generateEventAnnouncement,
   formatLocalIctTime,
+  translateEarthquakeLocation,
 } from "./earthquake-data";
 import { EarthquakeMiniMap } from "./EarthquakeMiniMap";
 import {
@@ -208,7 +209,7 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
                     latitude={event.latitude}
                     longitude={event.longitude}
                     magnitude={event.magnitude}
-                    location={event.location}
+                    location={translateEarthquakeLocation(event.location, lang)}
                     depthKm={event.depthKm}
                     isRegional={event.isRegional}
                     zoom={event.isRegional ? 5 : 4}
@@ -333,7 +334,7 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
                   <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
                       <MapPin size={11} className="text-primary" />
-                      <span>{event.location}</span>
+                      <span>{translateEarthquakeLocation(event.location, lang)}</span>
                     </span>
 
                     <div className="flex items-center gap-3">
