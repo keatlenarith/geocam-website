@@ -8,7 +8,7 @@ import {
 
 test("Facebook Service has correct Page ID and URL configured", () => {
   assert.equal(FACEBOOK_PAGE_ID, "105049257586051");
-  assert.equal(FACEBOOK_PAGE_URL, "https://www.facebook.com/GeoCam101/");
+  assert.equal(FACEBOOK_PAGE_URL, "https://www.facebook.com/geoscience.cambodia/");
 });
 
 test("Default settings enable auto-post for articles, events, news, and earthquakes", () => {

@@ -16,7 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({
       status: "active",
       pageId: process.env.FB_PAGE_ID || DEFAULT_PAGE_ID,
-      pageUrl: "https://www.facebook.com/GeoCam101/",
+      pageUrl: "https://www.facebook.com/geoscience.cambodia/",
       hasServerToken: Boolean(process.env.FB_PAGE_ACCESS_TOKEN),
     });
   }
