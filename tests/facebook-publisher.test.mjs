@@ -7,13 +7,13 @@ import {
 } from "../src/lib/facebook-service.ts";
 
 test("Facebook Service has correct Page ID and URL configured", () => {
-  assert.equal(FACEBOOK_PAGE_ID, "360240070266245");
-  assert.equal(FACEBOOK_PAGE_URL, "https://www.facebook.com/geoscience.cambodia/");
+  assert.equal(FACEBOOK_PAGE_ID, "105049257586051");
+  assert.equal(FACEBOOK_PAGE_URL, "https://www.facebook.com/GeoCam101/");
 });
 
 test("Default settings enable auto-post for articles, events, news, and earthquakes", () => {
   const defaults = getDefaultFacebookSettings();
-  assert.equal(defaults.pageId, "360240070266245");
+  assert.equal(defaults.pageId, "105049257586051");
   assert.equal(defaults.autoPostArticles, true);
   assert.equal(defaults.autoPostEvents, true);
   assert.equal(defaults.autoPostNews, true);

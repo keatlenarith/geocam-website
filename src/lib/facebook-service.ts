@@ -1,12 +1,12 @@
 /**
  * Facebook Integration & Auto-Publisher Service for GeoCam
- * Connected Page: Geosciences Society of Cambodia (ID: 360240070266245)
- * URL: https://www.facebook.com/geoscience.cambodia/
+ * Connected Page: Geosciences Society of Cambodia (ID: 105049257586051)
+ * URL: https://www.facebook.com/GeoCam101/
  */
 
-export const FACEBOOK_PAGE_ID = "360240070266245";
-export const FACEBOOK_PAGE_URL = "https://www.facebook.com/geoscience.cambodia/";
-export const FACEBOOK_PAGE_NAME = "Geosciences Society of Cambodia · GeoCam";
+export const FACEBOOK_PAGE_ID = "105049257586051";
+export const FACEBOOK_PAGE_URL = "https://www.facebook.com/GeoCam101/";
+export const FACEBOOK_PAGE_NAME = "GeoCam101 · Geosciences Society of Cambodia";
 
 export interface FacebookSettings {
   pageId: string;

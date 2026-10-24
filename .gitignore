@@ -10,3 +10,10 @@ artifacts/
 .env*
 
 /Geoparks/
+
+# Facebook token exports (always contain credentials)
+*facebook-tokens*.json
+.facebook-token-venv/
+
+__pycache__/
+*.pyc

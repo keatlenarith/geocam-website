@@ -129,7 +129,7 @@ export function SiteHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <a
-            href="https://www.facebook.com/geoscience.cambodia/"
+            href="https://www.facebook.com/GeoCam101/"
             target="_blank"
             rel="noopener noreferrer"
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition shadow-xs dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-600 dark:hover:text-white"
@@ -219,7 +219,7 @@ export function SiteFooter() {
           </a>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <a
-              href="https://www.facebook.com/geoscience.cambodia/"
+              href="https://www.facebook.com/GeoCam101/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-blue-500 transition"

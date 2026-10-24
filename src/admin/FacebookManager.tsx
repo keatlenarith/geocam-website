@@ -134,7 +134,8 @@ export function FacebookManager() {
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
                   Target Page Linked
                 </span>
-                <span className="text-xs text-slate-500 font-mono">ID: {FACEBOOK_PAGE_ID}</span>
+                <span className="text-xs text-slate-500 font-mono">Page ID: {FACEBOOK_PAGE_ID}</span>
+                <span className="text-xs text-slate-400 font-mono hidden sm:inline">(Business: 360240070266245)</span>
               </div>
               <h2 className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
                 {FACEBOOK_PAGE_NAME}
@@ -246,7 +247,7 @@ export function FacebookManager() {
             <p className="font-bold text-slate-800 dark:text-slate-200">How to generate a permanent token:</p>
             <ol className="mt-1.5 list-decimal pl-4 space-y-1 text-[11px]">
               <li>Go to <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Meta Graph API Explorer ↗</a>.</li>
-              <li>Select your app &amp; page <strong>(ID: 360240070266245)</strong>.</li>
+              <li>Select your app &amp; page <strong>(ID: 105049257586051)</strong>.</li>
               <li>Grant permissions: <code>pages_manage_posts</code> and <code>pages_read_engagement</code>.</li>
               <li>Generate the Access Token and paste it above.</li>
             </ol>

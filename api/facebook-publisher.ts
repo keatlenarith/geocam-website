@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-const DEFAULT_PAGE_ID = "360240070266245";
+const DEFAULT_PAGE_ID = "105049257586051";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS configuration
@@ -16,7 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({
       status: "active",
       pageId: process.env.FB_PAGE_ID || DEFAULT_PAGE_ID,
-      pageUrl: "https://www.facebook.com/geoscience.cambodia/",
+      pageUrl: "https://www.facebook.com/GeoCam101/",
       hasServerToken: Boolean(process.env.FB_PAGE_ACCESS_TOKEN),
     });
   }
