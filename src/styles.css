@@ -134,7 +134,9 @@ img.geocam-editable:hover { outline: 4px solid #f59e0b !important; outline-offse
    locally installed face; Noto Sans Khmer is the publicly hosted fallback. */
 :root { --geocam-font-en: "Times New Roman", Times, Georgia, serif;
         --geocam-font-km: "Google Sans Khmer", "Noto Sans Khmer", "Khmer OS Siemreap", sans-serif; }
-html { font-size: 16px; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html { font-size: 22px; /* English font scale 1.375x (22px vs 16px) */ -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html:lang(en) { font-size: 22px; }
+html:has(.wp-admin-app) { font-size: 14px !important; }
 html:lang(en) body, html:lang(en) button, html:lang(en) input,
 html:lang(en) textarea, html:lang(en) select { font-family: var(--geocam-font-en); }
 html:lang(en) h1, html:lang(en) h2, html:lang(en) h3, html:lang(en) h4,
