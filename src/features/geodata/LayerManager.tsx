@@ -309,22 +309,10 @@ export default function LayerManager({
           </p>
         </div>
       ) : (
-        <div className="mt-4 rounded-xl bg-muted/50 p-4">
-          <p className="text-sm">
-            Explore published geology, faults, trends, minerals, geosites and
-            potential zones.
-          </p>
-          <a
-            className="btn btn-primary mt-3 w-full text-sm"
-            href="/admin/login"
-          >
-            <UploadCloud size={16} />
-            Sign in to upload layers
-          </a>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Administrator access required to upload or publish.
-          </p>
-        </div>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Explore published geology, faults, trends, minerals, geosites and
+          potential zones.
+        </p>
       )}
       {admin && (
         <div className="mt-3 flex flex-wrap gap-3 text-xs">
@@ -344,27 +332,29 @@ export default function LayerManager({
           </button>
         </div>
       )}
-      <label className="mt-5 block text-sm font-semibold">
-        Filter layers
-        <select
-          className="field mt-2 w-full"
-          value={filter}
-          onChange={(event) => setFilter(event.target.value)}
-        >
-          <option value="all">All categories ({layers.length})</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.label} (
-              {
-                layers.filter(
-                  (layer) => (layer.category || "other") === category.id,
-                ).length
-              }
-              )
-            </option>
-          ))}
-        </select>
-      </label>
+      {layers.length > 0 && (
+        <label className="mt-5 block text-sm font-semibold">
+          Filter layers
+          <select
+            className="field mt-2 w-full"
+            value={filter}
+            onChange={(event) => setFilter(event.target.value)}
+          >
+            <option value="all">All categories ({layers.length})</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.label} (
+                {
+                  layers.filter(
+                    (layer) => (layer.category || "other") === category.id,
+                  ).length
+                }
+                )
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       {progress && (
         <p aria-live="polite" className="mt-3 break-words text-xs">
           {progress}
@@ -377,7 +367,9 @@ export default function LayerManager({
       )}
       {!layers.length && (
         <p className="mt-3 text-sm text-muted-foreground">
-          No uploaded layers available.
+          {admin
+            ? "No uploaded layers available."
+            : "No published layers available."}
         </p>
       )}
       {layers.length > 0 && visibleLayers.length === 0 && (

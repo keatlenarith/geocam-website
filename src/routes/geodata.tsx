@@ -9,6 +9,7 @@ import {
   meta,
 } from "@/components/site/Chrome";
 import { useI18n } from "@/lib/i18n";
+import { useAdmin } from "../admin/Auth";
 import { toUtm48N } from "@/lib/utm";
 import type { LayerKey, BaseMapKey } from "@/components/site/GeoMap";
 
@@ -31,6 +32,7 @@ const layerInfo: { k: LayerKey; label: string }[] = [
 
 function GeoData() {
   const { t } = useI18n();
+  const { admin } = useAdmin();
   const [datasets, setDatasets] = useState<MapDataset[]>([]);
   const [active, setActive] = useState<Record<LayerKey, boolean>>({
     geology: true,
@@ -50,7 +52,11 @@ function GeoData() {
       <PageHeader
         eyebrow={t("geodata")}
         title={t("geodata")}
-        sub="Explore published geodata and demonstration layers. Upload KMZ, KML or GeoJSON after signing in as an administrator. Source coordinates use WGS84 (EPSG:4326)."
+        sub={
+          admin
+            ? "Explore published geodata and demonstration layers. Upload KMZ, KML or GeoJSON as an administrator. Source coordinates use WGS84 (EPSG:4326)."
+            : "Explore published geodata and demonstration layers. Source coordinates use WGS84 (EPSG:4326)."
+        }
       />
       <Container>
         <a
@@ -61,8 +67,9 @@ function GeoData() {
         </a>
         <DemoNote>
           The built-in geology, mineral and structure layers are illustrative.
-          Uploaded layers are contributed separately; check each dataset’s
-          source and licence before use.
+          {admin
+            ? " Uploaded layers are contributed separately; check each dataset’s source and licence before use."
+            : " Published layers are contributed separately; check each dataset’s source and licence before use."}
         </DemoNote>
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
           <ClientOnly fallback={Fallback}>
@@ -153,10 +160,12 @@ function GeoData() {
                 </p>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Use Download source on an uploaded layer to retrieve its original
-              file.
-            </p>
+            {admin && (
+              <p className="text-xs text-muted-foreground">
+                Use Download source on an uploaded layer to retrieve its original
+                file.
+              </p>
+            )}
           </aside>
         </div>
 
