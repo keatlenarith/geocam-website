@@ -30,9 +30,9 @@ export const defaultSeedNews: NewsItem[] = seedNews
   .map((item) => ({
     ...item,
     titleKm: item.titleKm || "",
-    excerptKm: "",
+    excerptKm: item.excerptKm || "",
     content: item.excerpt,
-    contentKm: "",
+    contentKm: item.excerptKm || "",
     image: item.image || "",
     updatedAt: item.date,
   }))

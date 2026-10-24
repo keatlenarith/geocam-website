@@ -13,7 +13,8 @@ export const Route = createFileRoute("/publications")({
   component: Pubs,
 });
 function Pubs() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const km = lang === "km";
   const [q, setQ] = useState("");
   const [topic, setTopic] = useState("All");
   const [year, setYear] = useState("All");
@@ -45,27 +46,28 @@ function Pubs() {
   return (
     <>
       <PageHeader
-        eyebrow="Research library"
+        eyebrow={km ? "បណ្ណាល័យស្រាវជ្រាវ" : "Research library"}
         title={t("publications")}
-        sub="Explore Cambodian geology, mineral resources, tectonics, groundwater, karst and the environment."
+        sub={km ? "ស្វែងយល់ពីភូគព្ភសាស្ត្រកម្ពុជា ធនធានរ៉ែ តិចតូនិក ទឹកក្រោមដី កាស្ត និងបរិស្ថាន។" : "Explore Cambodian geology, mineral resources, tectonics, groundwater, karst and the environment."}
       />
       <Container>
         <div className="card-surface p-6">
           <p className="font-semibold">
-            {publications.length} references · 45 collected documents · Updated
-            19 October 2026
+            {km
+              ? `ឯកសារយោង ${publications.length} · ឯកសារប្រមូលបាន ៤៥ · បានធ្វើបច្ចុប្បន្នភាពថ្ងៃទី ១៩ ខែតុលា ឆ្នាំ២០២៦`
+              : `${publications.length} references · 45 collected documents · Updated 19 October 2026`}
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Journal articles, regional references, technical guides and
-            preprints. Source links are provided where a PDF was unavailable.
-            Check local documents marked unverified for full citation details.
+            {km
+              ? "អត្ថបទទស្សនាវដ្តី ឯកសារយោងតំបន់ មគ្គុទ្ទេសក៍បច្ចេកទេស និងអត្ថបទមុនបោះពុម្ព។ តំណប្រភពត្រូវបានផ្ដល់នៅពេលគ្មាន PDF។ សូមពិនិត្យឯកសារមូលដ្ឋានដែលសម្គាល់ថាមិនទាន់បានផ្ទៀងផ្ទាត់ ដើម្បីទទួលបានព័ត៌មានយោងពេញលេញ។"
+              : "Journal articles, regional references, technical guides and preprints. Source links are provided where a PDF was unavailable. Check local documents marked unverified for full citation details."}
           </p>
           <div className="mt-4 flex flex-wrap gap-4 text-sm font-semibold text-accent">
             <a href="/research/catalog.csv" download>
-              Download catalog (CSV)
+              {km ? "ទាញយកបញ្ជីឯកសារ (CSV)" : "Download catalog (CSV)"}
             </a>
             <a href="/research/references.ris" download>
-              Export internet citations (RIS)
+              {km ? "នាំចេញឯកសារយោងអ៊ីនធឺណិត (RIS)" : "Export internet citations (RIS)"}
             </a>
           </div>
         </div>
@@ -76,7 +78,7 @@ function Pubs() {
           <input
             id="q"
             className="field"
-            placeholder="Search title, journal or subject…"
+            placeholder={km ? "ស្វែងរកចំណងជើង ទស្សនាវដ្ដី ឬប្រធានបទ…" : "Search title, journal or subject…"}
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
@@ -86,7 +88,7 @@ function Pubs() {
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
           >
-            <option value="All">All topics</option>
+            <option value="All">{km ? "គ្រប់ប្រធានបទ" : "All topics"}</option>
             {topics.map((x) => (
               <option key={x}>{x}</option>
             ))}
@@ -97,11 +99,11 @@ function Pubs() {
             value={year}
             onChange={(e) => setYear(e.target.value)}
           >
-            <option value="All">All years</option>
+            <option value="All">{km ? "គ្រប់ឆ្នាំ" : "All years"}</option>
             {years.map((y) => (
               <option key={y}>{y}</option>
             ))}
-            <option value="Unverified">Year unverified</option>
+            <option value="Unverified">{km ? "មិនទាន់បញ្ជាក់ឆ្នាំ" : "Year unverified"}</option>
           </select>
           <select
             aria-label="Availability"
@@ -109,13 +111,13 @@ function Pubs() {
             value={access}
             onChange={(e) => setAccess(e.target.value)}
           >
-            <option value="All">All references</option>
-            <option value="Documents">Documents available</option>
-            <option value="Sources">Source links only</option>
+            <option value="All">{km ? "គ្រប់ឯកសារយោង" : "All references"}</option>
+            <option value="Documents">{km ? "មានឯកសារភ្ជាប់" : "Documents available"}</option>
+            <option value="Sources">{km ? "តែតំណប្រភព" : "Source links only"}</option>
           </select>
         </div>
         <p className="mt-4 text-sm text-muted-foreground" aria-live="polite">
-          {`${list.length} results`}
+          {km ? `លទ្ធផល ${list.length}` : `${list.length} results`}
         </p>
         <div className="mt-4 space-y-4">
           {list.map((p) => (
@@ -137,18 +139,18 @@ function Pubs() {
               <p className="mt-3 text-sm">{p.abstract}</p>
               <p className="mt-4 font-semibold text-accent">
                 {p.pdfUrl
-                  ? "Read PDF →"
+                  ? (km ? "អាន PDF →" : "Read PDF →")
                   : p.fileUrl
-                    ? "Open document →"
-                    : "View publication source →"}
+                    ? (km ? "បើកឯកសារ →" : "Open document →")
+                    : (km ? "មើលប្រភពបោះពុម្ពផ្សាយ →" : "View publication source →")}
               </p>
             </Link>
           ))}
           {!list.length && (
             <div className="card-surface p-8 text-center">
-              <h2 className="text-xl font-semibold">No matching references</h2>
+              <h2 className="text-xl font-semibold">{km ? "រកមិនឃើញឯកសារត្រូវគ្នា" : "No matching references"}</h2>
               <p className="mt-2">
-                Try another search term or clear the filters.
+                {km ? "សូមសាកល្បងពាក្យស្វែងរកផ្សេង ឬកំណត់តម្រងឡើងវិញ។" : "Try another search term or clear the filters."}
               </p>
               <button
                 className="btn btn-outline mt-4"
@@ -159,7 +161,7 @@ function Pubs() {
                   setAccess("All");
                 }}
               >
-                Clear filters
+                {km ? "កំណត់តម្រងឡើងវិញ" : "Clear filters"}
               </button>
             </div>
           )}

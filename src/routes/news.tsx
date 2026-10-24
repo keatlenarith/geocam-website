@@ -1,3 +1,4 @@
+import { translateText } from "@/lib/translation";
 import { createFileRoute, Link } from "@/lib/spa-router";
 import { Container, PageHeader, meta } from "@/components/site/Chrome";
 import {
@@ -83,7 +84,7 @@ function News() {
             {error}
           </p>
         )}
-        {loading && <p role="status">Loading news…</p>}
+        {loading && <p role="status">{lang === "km" ? "កំពុងផ្ទុកព័ត៌មាន…" : "Loading news…"}</p>}
         {/* Search & Category Filter Bar */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           {/* Category Chips */}
@@ -101,7 +102,7 @@ function News() {
                     : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                 }`}
               >
-                {c}
+                {c === "All" ? (lang === "km" ? "ទាំងអស់" : "All") : (lang === "km" ? (c === "General" ? "ទូទៅ" : translateText(c)) : c)}
               </button>
             ))}
           </div>
@@ -154,12 +155,12 @@ function News() {
                         loading="lazy"
                       />
                       <span className="absolute top-3 left-3 rounded-md bg-slate-900/80 px-2.5 py-1 text-xs font-semibold text-emerald-400 backdrop-blur-md">
-                        {n.tag}
+                        {lang === "km" ? translateText(n.tag) : n.tag}
                       </span>
                     </div>
                     <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
-                      {n.tag} · {n.date}
-                      {!isManagedNews(n.id) && " · DEMO"}
+                      {lang === "km" ? translateText(n.tag) : n.tag} · {n.date}
+                      {!isManagedNews(n.id) && (lang === "km" ? " · គំរូសាកល្បង" : " · DEMO")}
                     </p>
                     <h2 className="mt-2 text-2xl font-bold text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-2">
                       {displayTitle}

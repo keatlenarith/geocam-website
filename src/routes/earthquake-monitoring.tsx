@@ -217,7 +217,7 @@ export default function EarthquakeMonitoringPage() {
               {summary.totalCount}
             </span>
             <span className="text-xs text-muted-foreground">
-              in selected {timeWindow}
+              {kh ? `ក្នុងរយៈពេល ${timeWindow} ដែលបានជ្រើសរើស` : `in selected ${timeWindow}`}
             </span>
           </div>
           <span className="text-[11px] text-muted-foreground mt-1 block">
@@ -226,7 +226,7 @@ export default function EarthquakeMonitoringPage() {
                 ? "ក្នុងតំបន់កម្ពុជា និងប្រទេសជិតខាង"
                 : "Cambodia & regional envelope"
               : kh
-              ? "ទូទាំងពិភពលោក (Global coverage)"
+              ? "ទូទាំងពិភពលោក"
               : "Global / Worldwide catalogue"}
           </span>
         </div>
@@ -243,12 +243,12 @@ export default function EarthquakeMonitoringPage() {
             </span>
             {summary.largestMag !== null && (
               <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                Peak in window
+                {kh ? "កម្រិតខ្ពស់បំផុតក្នុងចន្លោះពេល" : "Peak in window"}
               </span>
             )}
           </div>
           <span className="text-[11px] text-muted-foreground mt-1 block">
-            {summary.largestMag ? "Highest seismological record" : "No event recorded in window"}
+            {summary.largestMag ? (kh ? "កំណត់ត្រារញ្ជួយដីកម្រិតខ្ពស់បំផុត" : "Highest seismological record") : (kh ? "មិនមានទិន្នន័យក្នុងចន្លោះពេល" : "No event recorded in window")}
           </span>
         </div>
 
@@ -266,7 +266,7 @@ export default function EarthquakeMonitoringPage() {
             </span>
           </div>
           <span className="text-[11px] text-muted-foreground mt-1 block">
-            Cambodia Local Time (UTC+7)
+            {kh ? "ម៉ោងនៅកម្ពុជា (UTC+7)" : "Cambodia Local Time (UTC+7)"}
           </span>
         </div>
 
@@ -280,7 +280,7 @@ export default function EarthquakeMonitoringPage() {
             <strong className="text-sm md:text-base font-bold font-mono text-foreground block">
               {scope === "cambodia" && !searchQuery
                 ? "5°–25°N, 92°–112°E"
-                : "🌐 Worldwide (Global)"}
+                : (kh ? "🌐 ទូទាំងពិភពលោក" : "🌐 Worldwide (Global)")}
             </strong>
           </div>
           <span className="text-[11px] text-muted-foreground mt-1 block">
@@ -328,7 +328,7 @@ export default function EarthquakeMonitoringPage() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {kh ? "🌐 ទូទាំងពិភពលោក (Global)" : "🌐 Global / Worldwide"}
+              {kh ? "🌐 ទូទាំងពិភពលោក" : "🌐 Global / Worldwide"}
             </button>
           </div>
 
@@ -416,7 +416,7 @@ export default function EarthquakeMonitoringPage() {
               <div className="flex h-full w-full items-center justify-center rounded-2xl border border-border bg-slate-900 text-white font-mono text-sm">
                 <div className="flex flex-col items-center gap-3">
                   <RefreshCw size={28} className="animate-spin text-primary" />
-                  <span>Loading Seismological Map Canvas...</span>
+                  <span>{kh ? "កំពុងផ្ទុកផ្ទាំងផែនទីរញ្ជួយដី..." : "Loading Seismological Map Canvas..."}</span>
                 </div>
               </div>
             }
@@ -439,7 +439,7 @@ export default function EarthquakeMonitoringPage() {
               {kh ? "បញ្ជីព្រឹត្តិការណ៍រញ្ជួយដី" : "Earthquake Directory"} ({events.length})
             </span>
             <span className="text-[11px] text-muted-foreground font-mono">
-              Click to inspect on map
+              {kh ? "ចុចដើម្បីពិនិត្យលើផែនទី" : "Click to inspect on map"}
             </span>
           </div>
 
@@ -475,7 +475,7 @@ export default function EarthquakeMonitoringPage() {
                   onClick={handleResetFilters}
                   className="mt-4 btn btn-outline !py-1 !px-3 !text-xs font-bold"
                 >
-                  Reset filters
+                  {kh ? "កំណត់ឡើងវិញ" : "Reset filters"}
                 </button>
               </div>
             )}
@@ -518,27 +518,45 @@ export default function EarthquakeMonitoringPage() {
             <h4 className="font-bold text-foreground text-sm uppercase tracking-wide">
               {kh ? "១. ដែនកំណត់ភូមិសាស្ត្រ និងបណ្តាញរញ្ជួយដី" : "1. Geographic Coverage & Seismic Networks"}
             </h4>
-            <p>
-              This console defaults to the regional seismological envelope between <strong>5°–25°N and 92°–112°E</strong>, encompassing Cambodia, Thailand, Vietnam, Laos, Myanmar, parts of the Andaman Basin, and southern China. Users can freely toggle <strong>Global / Worldwide</strong> or search any location globally to discover international earthquakes. Regional observations rely on validated feeds from the <strong>United States Geological Survey (USGS)</strong>, the <strong>Thai Meteorological Department (TMD)</strong>, and bulletins from regional seismological observatories.
-            </p>
+            {kh ? (
+              <p>
+                ប្រព័ន្ធតាមដាននេះកំណត់លំនាំដើមលើតំបន់ភូគព្ភសាស្ត្ររញ្ជួយដីចន្លោះ <strong>5°–25°N និង 92°–112°E</strong> ដែលគ្របដណ្តប់ប្រទេសកម្ពុជា ថៃ វៀតណាម ឡាវ មីយ៉ាន់ម៉ា ផ្នែកខ្លះនៃអាងសមុទ្រអាន់ដាម៉ាន និងភាគខាងត្បូងប្រទេសចិន។ អ្នកប្រើប្រាស់អាចជ្រើសរើស <strong>ទូទាំងពិភពលោក</strong> ឬស្វែងរកទីតាំងណាមួយលើពិភពលោក ដើម្បីស្វែងយល់ពីការរញ្ជួយដីអន្តរជាតិ។ ការសង្កេតក្នុងតំបន់ផ្អែកលើប្រភពទិន្នន័យផ្លូវការដែលបានផ្ទៀងផ្ទាត់ពី <strong>ការស្ទង់ភូគព្ភសាស្ត្រសហរដ្ឋអាមេរិក (USGS)</strong>, <strong>នាយកដ្ឋានឧតុនិយមថៃ (TMD)</strong>, <strong>បណ្តាញតាមដានរញ្ជួយដីចិន (CENC/CEA)</strong> និងព្រឹត្តិបត្រពីស្ថានីយអង្កេតក្នុងតំបន់។
+              </p>
+            ) : (
+              <p>
+                This console defaults to the regional seismological envelope between <strong>5°–25°N and 92°–112°E</strong>, encompassing Cambodia, Thailand, Vietnam, Laos, Myanmar, parts of the Andaman Basin, and southern China. Users can freely toggle <strong>Global / Worldwide</strong> or search any location globally to discover international earthquakes. Regional observations rely on validated feeds from the <strong>United States Geological Survey (USGS)</strong>, the <strong>Thai Meteorological Department (TMD)</strong>, and bulletins from regional seismological observatories.
+              </p>
+            )}
           </div>
 
           <div className="space-y-3">
             <h4 className="font-bold text-foreground text-sm uppercase tracking-wide">
               {kh ? "២. ការកែសម្រួលទិន្នន័យបឋម និងការពន្យារពេល" : "2. Preliminary Revisions & Reporting Delays"}
             </h4>
-            <p>
-              Bulletins originate from automated detection algorithms and are subsequently reviewed by seismologists. Reported magnitudes (such as \(M_w\), \(M_b\), or \(M_L\)), focal depths, and exact epicentral coordinates are frequently revised following manual waveform analysis. A newly reported event does not imply immediate ground shaking in Cambodia unless officially documented.
-            </p>
+            {kh ? (
+              <p>
+                ព្រឹត្តិបត្រព័ត៌មានមានប្រភពចេញពីក្បួនដោះស្រាយស្វ័យប្រវត្តិ ហើយត្រូវបានពិនិត្យផ្ទៀងផ្ទាត់ឡើងវិញដោយអ្នកភូគព្ភសាស្ត្រជំនាញ។ ទំហំរំញ័រដែលបានរាយការណ៍ (ដូចជា \(M_w\), \(M_b\) ឬ \(M_L\)) ជម្រៅរំញ័រ និងកូអរដោនេផ្ចិតរញ្ជួយដីជាក់លាក់ អាចត្រូវបានកែសម្រួលជាញឹកញាប់បន្ទាប់ពីការវិភាគទម្រង់រលកដោយដៃ។ ការរាយការណ៍ព្រឹត្តិការណ៍ថ្មី មិនមានន័យថាមានការរញ្ជួយដីដល់កម្ពុជាភ្លាមៗឡើយ លុះត្រាតែមានការបញ្ជាក់ជាផ្លូវការ។
+              </p>
+            ) : (
+              <p>
+                Bulletins originate from automated detection algorithms and are subsequently reviewed by seismologists. Reported magnitudes (such as \(M_w\), \(M_b\), or \(M_L\)), focal depths, and exact epicentral coordinates are frequently revised following manual waveform analysis. A newly reported event does not imply immediate ground shaking in Cambodia unless officially documented.
+              </p>
+            )}
           </div>
 
           <div className="space-y-3">
             <h4 className="font-bold text-foreground text-sm uppercase tracking-wide">
               {kh ? "៣. មិនមែនជាប្រព័ន្ធព្យាករណ៍ ឬប្រកាសអាសន្នបន្ទាន់" : "3. Scientific Monitoring Disclaimer"}
             </h4>
-            <p>
-              This public dashboard is designed for educational, research, and scientific awareness. <strong>It is NOT an earthquake prediction system or emergency early-warning siren.</strong> Earthquakes cannot be predicted in advance. For immediate emergency guidance or civil safety advisories, always refer to the National Committee for Disaster Management (NCDM) of Cambodia.
-            </p>
+            {kh ? (
+              <p>
+                ផ្ទាំងព័ត៌មានសាធារណៈនេះត្រូវបានរៀបចំឡើងសម្រាប់ការអប់រំ ការស្រាវជ្រាវ និងការយល់ដឹងផ្នែកវិទ្យាសាស្ត្រ។ <strong>នេះមិនមែនជាប្រព័ន្ធព្យាករណ៍ការរញ្ជួយដី ឬប្រព័ន្ធប្រកាសអាសន្នគ្រោះអាសន្នឡើយ។</strong> ការរញ្ជួយដីមិនអាចទាយទុកជាមុនបានទេ។ សម្រាប់ការណែនាំបន្ទាន់ ឬសេចក្តីជូនដំណឹងសុវត្ថិភាពសាធារណៈ សូមយោងតាមគណៈកម្មាធិការជាតិគ្រប់គ្រងគ្រោះមហន្តរាយ (NCDM) នៃព្រះរាជាណាចក្រកម្ពុជាជានិច្ច។
+              </p>
+            ) : (
+              <p>
+                This public dashboard is designed for educational, research, and scientific awareness. <strong>It is NOT an earthquake prediction system or emergency early-warning siren.</strong> Earthquakes cannot be predicted in advance. For immediate emergency guidance or civil safety advisories, always refer to the National Committee for Disaster Management (NCDM) of Cambodia.
+              </p>
+            )}
           </div>
 
           <div className="space-y-3">
@@ -552,7 +570,7 @@ export default function EarthquakeMonitoringPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 font-bold text-primary hover:underline block"
               >
-                <ArrowUpRight size={13} /> USGS Earthquake Hazards Program (United States)
+                <ArrowUpRight size={13} /> {kh ? "កម្មវិធីគ្រោះថ្នាក់រញ្ជួយដី USGS (សហរដ្ឋអាមេរិក)" : "USGS Earthquake Hazards Program (United States)"}
               </a>
               <a
                 href="https://news.ceic.ac.cn/"
@@ -560,7 +578,7 @@ export default function EarthquakeMonitoringPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 font-bold text-primary hover:underline block"
               >
-                <ArrowUpRight size={13} /> China Earthquake Networks Center — CENC / CEA (中国地震台网中心)
+                <ArrowUpRight size={13} /> {kh ? "មជ្ឈមណ្ឌលបណ្តាញរញ្ជួយដីចិន — CENC / CEA (中国地震台网中心)" : "China Earthquake Networks Center — CENC / CEA (中国地震台网中心)"}
               </a>
               <a
                 href="http://www.gddzj.gov.cn/"
@@ -568,7 +586,7 @@ export default function EarthquakeMonitoringPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 font-bold text-primary hover:underline block"
               >
-                <ArrowUpRight size={13} /> Guangdong Earthquake Administration (广东省地震局 · GDNET)
+                <ArrowUpRight size={13} /> {kh ? "រដ្ឋបាលរញ្ជួយដីក្វាងទុង (广东省地震局 · GDNET)" : "Guangdong Earthquake Administration (广东省地震局 · GDNET)"}
               </a>
               <a
                 href="https://earthquake.tmd.go.th/"
@@ -576,7 +594,7 @@ export default function EarthquakeMonitoringPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 font-bold text-primary hover:underline block"
               >
-                <ArrowUpRight size={13} /> TMD Earthquake Observation Division (Thailand)
+                <ArrowUpRight size={13} /> {kh ? "ផ្នែកអង្កេតការរញ្ជួយដី TMD (ប្រទេសថៃ)" : "TMD Earthquake Observation Division (Thailand)"}
               </a>
               <a
                 href="https://igp-vast.vn/index.php/en/earthquake-news"
@@ -584,7 +602,7 @@ export default function EarthquakeMonitoringPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 font-bold text-primary hover:underline block"
               >
-                <ArrowUpRight size={13} /> Institute of Geophysics — VAST (Vietnam)
+                <ArrowUpRight size={13} /> {kh ? "វិទ្យាស្ថានភូគព្ភរូបវិទ្យា — VAST (ប្រទេសវៀតណាម)" : "Institute of Geophysics — VAST (Vietnam)"}
               </a>
               <a
                 href="https://earthquake.phivolcs.dost.gov.ph/"
@@ -592,7 +610,7 @@ export default function EarthquakeMonitoringPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 font-bold text-primary hover:underline block"
               >
-                <ArrowUpRight size={13} /> PHIVOLCS DOST (Philippines)
+                <ArrowUpRight size={13} /> {kh ? "PHIVOLCS DOST (ប្រទេសហ្វីលីពីន)" : "PHIVOLCS DOST (Philippines)"}
               </a>
             </div>
           </div>

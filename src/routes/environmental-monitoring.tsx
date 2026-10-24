@@ -46,14 +46,14 @@ export default function EnvironmentalMonitoring() {
           </a>
           <button className="btn btn-outline" onClick={fullscreen}>
             <Maximize2 size={16} />
-            Full screen
+            {kh ? "ពេញអេក្រង់" : "Full screen"}
           </button>
           <button
             className="btn btn-outline"
             onClick={() => setVersion((value) => value + 1)}
           >
             <RefreshCw size={16} />
-            Reload dashboard
+            {kh ? "ផ្ទុកផ្ទាំងតាមដានឡើងវិញ" : "Reload dashboard"}
           </button>
           <a href="/geodata" className="btn btn-outline">
             GeoData layers
@@ -64,10 +64,10 @@ export default function EnvironmentalMonitoring() {
         <div className="flex flex-wrap items-center justify-between gap-2 border-b bg-muted/50 px-5 py-3 text-xs">
           <span className="flex items-center gap-2 font-semibold">
             <span className="h-2 w-2 rounded-full bg-emerald-600" />
-            Mining monitoring · Earth Engine app
+            {kh ? "ការតាមដានវិស័យរ៉ែ · កម្មវិធី Earth Engine" : "Mining monitoring · Earth Engine app"}
           </span>
           <span>
-            Hosted by ministry-of-mines-and-energy.projects.earthengine.app
+            {kh ? "បង្ហោះដោយ ministry-of-mines-and-energy.projects.earthengine.app" : "Hosted by ministry-of-mines-and-energy.projects.earthengine.app"}
           </span>
         </div>
         <iframe
@@ -87,10 +87,9 @@ export default function EnvironmentalMonitoring() {
         </p>
       )}
       <p className="mt-4 text-sm leading-6 text-muted-foreground">
-        This page displays the original Earth Engine app. Its datasets,
-        analysis, access requirements and availability are managed by the app
-        owner. If the embedded dashboard does not load, use Open original
-        dashboard.
+        {kh
+          ? "ទំព័រនេះបង្ហាញកម្មវិធី Earth Engine ដើម។ សំណុំទិន្នន័យ ការវិភាគ លក្ខខណ្ឌចូលប្រើ និងភាពអាចរកបានរបស់កម្មវិធី ត្រូវបានគ្រប់គ្រងដោយម្ចាស់កម្មវិធី។ ប្រសិនបើផ្ទាំងបង្កប់មិនដំណើរការ សូមប្រើ «បើកកម្មវិធីដើម»។"
+          : "This page displays the original Earth Engine app. Its datasets, analysis, access requirements and availability are managed by the app owner. If the embedded dashboard does not load, use Open original dashboard."}
       </p>
     </section>
   );

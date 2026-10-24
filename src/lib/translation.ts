@@ -85,6 +85,20 @@ function dynamic(text: string): string | undefined {
     return `វត្ថុភូមិសាស្ត្រ ${m[1]} · ${m[2]}`;
   if ((m = text.match(/^All categories \((\d+)\)$/i)))
     return `គ្រប់ប្រភេទ (${m[1]})`;
+if ((m = text.match(/^(\d+)\s+references\s*·\s*(\d+)\s+collected documents\s*·\s*Updated\s+(.+)$/i)))
+    return `ឯកសារយោង ${m[1]} · ឯកសារប្រមូលបាន ${m[2]} · បានធ្វើបច្ចុប្បន្នភាព ${translateText(m[3]) || m[3]}`;
+  if ((m = text.match(/^(\d+)\s+member\(s\)\s+hidden by privacy preference\s*·\s*sample names$/i)))
+    return `សមាជិក ${m[1]} ត្រូវបានលាក់តាមការកំណត់ឯកជនភាព · ឈ្មោះគំរូ`;
+  if ((m = text.match(/^in selected\s+(\d+[hd])$/i)))
+    return `ក្នុងរយៈពេល ${m[1]} ដែលបានជ្រើសរើស`;
+  if ((m = text.match(/^Showing (\d+) epicenters on map$/i)))
+    return `បង្ហាញចំណុចរញ្ជួយដីចំនួន ${m[1]} លើផែនទី`;
+  if ((m = text.match(/^(\d+) localities found$/i)))
+    return `រកឃើញ ${m[1]} ទីតាំង`;
+  if ((m = text.match(/^(\d+) photos?$/i)))
+    return `រូបថត ${m[1]}`;
+  if ((m = text.match(/^(\d+) scientific$/i)))
+    return `រូបបែបវិទ្យាសាស្ត្រ ${m[1]}`;
   if ((m = text.match(/^(.+) \((\d+)\)$/))) {
     const label = lookup.get(m[1].toLowerCase());
     if (label) return `${label} (${m[2]})`;

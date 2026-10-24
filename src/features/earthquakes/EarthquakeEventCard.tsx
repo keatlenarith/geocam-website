@@ -13,7 +13,7 @@ interface EarthquakeEventCardProps {
   onSelect?: (event: EarthquakeEvent) => void;
 }
 
-export function getMagnitudeBadgeStyle(mag: number | null): {
+export function getMagnitudeBadgeStyle(mag: number | null, kh: boolean = false): {
   bg: string;
   text: string;
   border: string;
@@ -24,7 +24,7 @@ export function getMagnitudeBadgeStyle(mag: number | null): {
       bg: "bg-slate-100",
       text: "text-slate-700",
       border: "border-slate-300",
-      label: "Unrated",
+      label: kh ? "មិនទាន់កំណត់" : "Unrated",
     };
   }
   if (mag >= 5.5) {
@@ -32,7 +32,7 @@ export function getMagnitudeBadgeStyle(mag: number | null): {
       bg: "bg-rose-50",
       text: "text-rose-700",
       border: "border-rose-300 ring-1 ring-rose-200",
-      label: "Significant (M5.5+)",
+      label: kh ? "ខ្លាំង (M5.5+)" : "Significant (M5.5+)",
     };
   }
   if (mag >= 4.5) {
@@ -40,7 +40,7 @@ export function getMagnitudeBadgeStyle(mag: number | null): {
       bg: "bg-amber-50",
       text: "text-amber-800",
       border: "border-amber-300",
-      label: "Moderate (M4.5+)",
+      label: kh ? "មធ្យម (M4.5+)" : "Moderate (M4.5+)",
     };
   }
   if (mag >= 3.0) {
@@ -48,14 +48,14 @@ export function getMagnitudeBadgeStyle(mag: number | null): {
       bg: "bg-blue-50",
       text: "text-blue-700",
       border: "border-blue-300",
-      label: "Minor (M3.0+)",
+      label: kh ? "ខ្សោយ (M3.0+)" : "Minor (M3.0+)",
     };
   }
   return {
     bg: "bg-slate-50",
     text: "text-slate-700",
     border: "border-slate-200",
-    label: "Micro (<M3.0)",
+    label: kh ? "តូចបំផុត (<M3.0)" : "Micro (<M3.0)",
   };
 }
 
@@ -68,7 +68,7 @@ export const EarthquakeEventCard: React.FC<EarthquakeEventCardProps> = ({
   const { lang } = useI18n();
   const kh = lang === "km";
 
-  const badgeStyle = getMagnitudeBadgeStyle(event.magnitude);
+  const badgeStyle = getMagnitudeBadgeStyle(event.magnitude, kh);
   const magDisplay = event.magnitude !== null ? event.magnitude.toFixed(1) : "—";
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -114,7 +114,9 @@ export const EarthquakeEventCard: React.FC<EarthquakeEventCardProps> = ({
 
           {event.reviewStatus && (
             <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200 capitalize">
-              {event.reviewStatus}
+              {kh
+                ? (event.reviewStatus === "reviewed" ? "បានពិនិត្យ" : "ស្វ័យប្រវត្ត")
+                : event.reviewStatus}
             </span>
           )}
         </div>
@@ -143,7 +145,7 @@ export const EarthquakeEventCard: React.FC<EarthquakeEventCardProps> = ({
 
         <div>
           <span className="text-muted-foreground block text-[11px] font-medium">
-            {kh ? "កូអរដោណេ:" : "Coordinates:"}
+            {kh ? "កូអរដោនេ:" : "Coordinates:"}
           </span>
           <span className="font-mono text-slate-700 text-xs">
             {event.latitude.toFixed(3)}°N, {event.longitude.toFixed(3)}°E

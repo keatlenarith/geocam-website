@@ -697,10 +697,10 @@ export default function GeoparkExplorer() {
                   onChange={(e) => setBasemap(e.target.value as Basemap)}
                   className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs md:text-sm text-white border border-slate-700 focus:outline-none"
                 >
-                  <option value="satellite">Satellite (Esri Imagery)</option>
-                  <option value="topo">Topographic Map</option>
-                  <option value="hillshade">Hillshade DEM</option>
-                  <option value="terrain">Terrain Base</option>
+                  <option value="satellite">{kh ? "រូបភាពផ្កាយរណប" : "Satellite (Esri Imagery)"}</option>
+                  <option value="topo">{kh ? "ផែនទីភូមិសាស្ត្រ" : "Topographic Map"}</option>
+                  <option value="hillshade">{kh ? "ស្រមោលកម្ពស់ដី (DEM)" : "Hillshade DEM"}</option>
+                  <option value="terrain">{kh ? "ទម្រង់ដី" : "Terrain Base"}</option>
                 </select>
               </label>
 
@@ -713,7 +713,7 @@ export default function GeoparkExplorer() {
                     : "bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700"
                 }`}
               >
-                {terrain3D ? "3D Elevation Active" : "2D Flat Map"}
+                {terrain3D ? (kh ? "កម្ពស់ 3D សកម្ម" : "3D Elevation Active") : (kh ? "ផែនទីរាបស្មើ 2D" : "2D Flat Map")}
               </button>
 
               <button
@@ -725,7 +725,7 @@ export default function GeoparkExplorer() {
                 }}
                 className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs md:text-sm text-slate-300 border border-slate-700 hover:bg-slate-700 transition font-medium"
               >
-                {pitch > 20 ? "Top View (0°)" : "3D Tilt (62°)"}
+                {pitch > 20 ? (kh ? "ទិដ្ឋភាពពីលើ (0°)" : "Top View (0°)") : (kh ? "ទិដ្ឋភាពទេរ 3D (62°)" : "3D Tilt (62°)")}
               </button>
 
               <button

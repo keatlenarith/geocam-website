@@ -321,7 +321,9 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
                               : "text-amber-700"
                           }`}
                         >
-                          {event.status || "preliminary"}
+                          {kh
+                            ? (event.status === "reviewed" ? "បានពិនិត្យរួច" : "បឋម")
+                            : (event.status || "preliminary")}
                         </span>
                       </div>
                     </div>
@@ -400,7 +402,9 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
             : "⚠️ Automatically refreshed reports. Preliminary event details may be revised by official monitoring agencies."}
         </span>
         <span className="font-mono text-[11px] text-muted-foreground/90">
-          Default: Cambodia & Regional Envelope (5°–25°N, 92°–112°E) · Global search enabled
+          {kh
+            ? "លំនាំដើម៖ កម្ពុជា និងតំបន់ (5°–25°N, 92°–112°E) · អាចស្វែងរកទូទាំងពិភពលោក"
+            : "Default: Cambodia & Regional Envelope (5°–25°N, 92°–112°E) · Global search enabled"}
         </span>
       </div>
     </div>

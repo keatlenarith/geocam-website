@@ -153,7 +153,7 @@ export function SiteHeader() {
         >
           <div className="flex items-center justify-between py-3 border-b border-border/60 mb-2">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {lang === "km" ? "ភាសា / Language" : "Language"}
+              {lang === "km" ? "ភាសា" : "Language"}
             </span>
             <LangSwitch />
           </div>
@@ -189,7 +189,7 @@ export function SiteHeader() {
 }
 
 export function SiteFooter() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   return (
     <footer className="mt-24 bg-forest-deep text-on-dark">
       <div className="strata h-2" aria-hidden />
@@ -229,8 +229,9 @@ export function SiteFooter() {
         </div>
       </div>
       <p className="border-t border-on-dark/15 py-5 text-center text-xs opacity-60">
-        © 2026 GeoCam prototype · Sample content only · No official endorsements
-        implied
+        {lang === "km"
+          ? "© ២០២៦ GeoCam · គេហទំព័រគំរូ · មាតិកាគំរូប៉ុណ្ណោះ · មិនសំដៅលើការទទួលស្គាល់ជាផ្លូវការទេ"
+          : "© 2026 GeoCam prototype · Sample content only · No official endorsements implied"}
       </p>
     </footer>
   );

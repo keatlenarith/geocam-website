@@ -1,3 +1,4 @@
+import { translateText } from "@/lib/translation";
 import { Container, PageHeader } from "@/components/site/Chrome";
 import { Link } from "@/lib/spa-router";
 import { useEffect, useState } from "react";
@@ -73,7 +74,7 @@ export default function NewsItem() {
           </Link>
 
           {loading ? (
-            <p role="status">Loading article…</p>
+            <p role="status">{lang === "km" ? "កំពុងផ្ទុកអត្ថបទ…" : "Loading article…"}</p>
           ) : error ? (
             <p role="alert" className="rounded bg-red-50 p-4 text-red-800">
               {error}
@@ -103,7 +104,7 @@ export default function NewsItem() {
               <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-semibold text-slate-500 pb-6 border-b border-slate-100">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-emerald-800">
-                    <Tag size={12} /> {article.tag}
+                    <Tag size={12} /> {lang === "km" ? translateText(article.tag) : article.tag}
                   </span>
                   <span className="flex items-center gap-1.5">
                     <Calendar size={13} /> {article.date}
@@ -111,8 +112,8 @@ export default function NewsItem() {
                   <span className="text-slate-300">|</span>
                   <span>
                     {isManagedNews(article.id)
-                      ? "GeoCam Society Media"
-                      : "DEMO · Demonstration story"}
+                      ? (lang === "km" ? "ប្រព័ន្ធផ្សព្វផ្សាយសមាគម GeoCam" : "GeoCam Society Media")
+                      : (lang === "km" ? "គំរូសាកល្បង · អត្ថបទបង្ហាញគំរូ" : "DEMO · Demonstration story")}
                   </span>
                 </div>
 

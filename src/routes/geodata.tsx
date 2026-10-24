@@ -24,14 +24,15 @@ export const Route = createFileRoute("/geodata")({
   component: GeoData,
 });
 
-const layerInfo: { k: LayerKey; label: string }[] = [
-  { k: "geology", label: "Generalized geology (illustrative)" },
-  { k: "minerals", label: "Mineral occurrences (illustrative)" },
-  { k: "structures", label: "Structural lineaments (illustrative)" },
+const layerInfo: { k: LayerKey; label: string; labelKm: string }[] = [
+  { k: "geology", label: "Generalized geology (illustrative)", labelKm: "ភូគព្ភសាស្ត្រទូទៅ (គំរូបង្ហាញ)" },
+  { k: "minerals", label: "Mineral occurrences (illustrative)", labelKm: "ទីតាំងរ៉ែ (គំរូបង្ហាញ)" },
+  { k: "structures", label: "Structural lineaments (illustrative)", labelKm: "ខ្សែរចនាសម្ព័ន្ធភូគព្ភសាស្ត្រ (គំរូបង្ហាញ)" },
 ];
 
 function GeoData() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const km = lang === "km";
   const { admin } = useAdmin();
   const [datasets, setDatasets] = useState<MapDataset[]>([]);
   const [active, setActive] = useState<Record<LayerKey, boolean>>({
@@ -63,7 +64,7 @@ function GeoData() {
           href="/geopark"
           className="mb-5 inline-flex rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-muted"
         >
-          Explore 3D Geopark / ស្វែងយល់ភូគព្ភស្ថាន 3D →
+          {km ? "ស្វែងយល់ពីឧទ្យានភូគព្ភសាស្ត្រ 3D →" : "Explore 3D Geopark →"}
         </a>
         <DemoNote>
           The built-in geology, mineral and structure layers are illustrative.
@@ -86,15 +87,15 @@ function GeoData() {
             <LayerManager onLayers={setDatasets} />
             <fieldset className="card-surface p-5">
               <legend className="px-1 font-display text-lg font-semibold text-primary">
-                Base map / ផែនទីមូលដ្ឋាន
+                {km ? "ផែនទីមូលដ្ឋាន" : "Base map"}
               </legend>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {(
                   [
-                    ["dem", "DEM / Terrain"],
-                    ["topo", "Topographic"],
-                    ["hillshade", "Hillshade"],
-                    ["satellite", "Satellite"],
+                    ["dem", km ? "ទម្រង់ដី (DEM)" : "DEM / Terrain"],
+                    ["topo", km ? "ភូមិសាស្ត្រ" : "Topographic"],
+                    ["hillshade", km ? "ស្រមោលកម្ពស់ដី" : "Hillshade"],
+                    ["satellite", km ? "ផ្កាយរណប" : "Satellite"],
                   ] as const
                 ).map(([key, label]) => (
                   <button
@@ -109,9 +110,9 @@ function GeoData() {
                 ))}
               </div>
               <p className="mt-3 text-xs text-muted-foreground">
-                DEM / Terrain displays relief imagery, not downloadable
-                elevation values. Map tiles require internet access and are
-                subject to provider terms.
+                {km
+                  ? "ទម្រង់ដី (DEM) បង្ហាញរូបភាពសណ្ឋានដី មិនមែនជាតម្លៃកម្ពស់សម្រាប់ទាញយកទេ។ ក្រឡារូបភាពផែនទីត្រូវការអ៊ីនធឺណិត និងស្ថិតក្រោមលក្ខខណ្ឌរបស់អ្នកផ្ដល់សេវា។"
+                  : "DEM / Terrain displays relief imagery, not downloadable elevation values. Map tiles require internet access and are subject to provider terms."}
               </p>
             </fieldset>
             <fieldset className="card-surface p-5">
@@ -130,13 +131,13 @@ function GeoData() {
                       setActive({ ...active, [l.k]: e.target.checked })
                     }
                   />{" "}
-                  {l.label}
+                  {km ? l.labelKm : l.label}
                 </label>
               ))}
             </fieldset>
             <div className="card-surface p-5 text-sm">
               <p className="font-display text-lg font-semibold text-primary">
-                Coordinates
+                {km ? "កូអរដោនេ" : "Coordinates"}
               </p>
               {pt && utm ? (
                 <dl className="mt-2 space-y-1 font-mono text-xs">
@@ -156,7 +157,7 @@ function GeoData() {
                 </dl>
               ) : (
                 <p className="mt-2 text-muted-foreground">
-                  Click the map to read a coordinate.
+                  {km ? "ចុចលើផែនទីដើម្បីអានតម្លៃកូអរដោនេ។" : "Click the map to read a coordinate."}
                 </p>
               )}
             </div>
@@ -176,45 +177,49 @@ function GeoData() {
             </h2>
             <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted-foreground">
               <li>
-                Every dataset carries ISO 19115-style metadata: title, abstract,
-                lineage, CRS, scale, licence, contact, date.
+                {km
+                  ? "សំណុំទិន្នន័យនីមួយៗមានទិន្នន័យមេតាស្របតាមទម្រង់ ISO 19115៖ ចំណងជើង សេចក្តីសង្ខេប ប្រភព ប្រព័ន្ធកូអរដោនេ (CRS) មាត្រដ្ឋាន អាជ្ញាបណ្ណ ទំនាក់ទំនង និងកាលបរិច្ឆេទ។"
+                  : "Every dataset carries ISO 19115-style metadata: title, abstract, lineage, CRS, scale, licence, contact, date."}
               </li>
               <li>
-                Uploaded datasets are private drafts until an administrator
-                publishes them for public access.
+                {km
+                  ? "សំណុំទិន្នន័យដែលបានផ្ទុកឡើងគឺជាសេចក្តីព្រាងឯកជន រហូតដល់អ្នកគ្រប់គ្រងផ្សព្វផ្សាយជាសាធារណៈ។"
+                  : "Uploaded datasets are private drafts until an administrator publishes them for public access."}
               </li>
               <li>
-                KMZ/KML and GeoJSON uploads must use WGS84 longitude/latitude
-                (EPSG:4326). Downloads preserve the uploaded source file.
+                {km
+                  ? "ការផ្ទុកឡើងឯកសារ KMZ/KML និង GeoJSON ត្រូវប្រើប្រព័ន្ធកូអរដោនេ WGS84 (EPSG:4326)។ ការទាញយកនឹងរក្សាទុកឯកសារប្រភពដើមដែលបានផ្ទុកឡើង។"
+                  : "KMZ/KML and GeoJSON uploads must use WGS84 longitude/latitude (EPSG:4326). Downloads preserve the uploaded source file."}
               </li>
               <li>
-                GeoCam hosts only member-contributed or openly licensed data. No
-                confidential government datasets are hosted.
+                {km
+                  ? "GeoCam ផ្ទុកតែទិន្នន័យដែលសមាជិករួមចំណែក ឬមានអាជ្ញាបណ្ណបើកចំហប៉ុណ្ណោះ។ មិនមានការផ្ទុកទិន្នន័យសម្ងាត់របស់រាជរដ្ឋាភិបាលឡើយ។"
+                  : "GeoCam hosts only member-contributed or openly licensed data. No confidential government datasets are hosted."}
               </li>
               <li>
-                Users must cite the source and licence. Import currently
-                displays vector features; network links, raster overlays and 3D
-                models are not displayed.
+                {km
+                  ? "អ្នកប្រើប្រាស់ត្រូវបញ្ជាក់ប្រភព និងអាជ្ញាបណ្ណ។ ការនាំចូលបច្ចុប្បន្នបង្ហាញវត្ថុវ៉ិចទ័រ; តំណបណ្តាញ រូបភាពរ៉ាស្ទ័រ និងគំរូ 3D មិនត្រូវបានបង្ហាញទេ។"
+                  : "Users must cite the source and licence. Import currently displays vector features; network links, raster overlays and 3D models are not displayed."}
               </li>
             </ul>
           </div>
           <div className="card-surface p-7 text-sm">
             <h2 className="text-2xl font-semibold text-primary">
-              Sample metadata record
+              {km ? "កំណត់ត្រាទិន្នន័យមេតាគំរូ" : "Sample metadata record"}
             </h2>
             <dl className="mt-3 grid grid-cols-[120px_1fr] gap-y-2">
-              <dt className="font-semibold">Title</dt>
-              <dd>Illustrative generalized geology</dd>
-              <dt className="font-semibold">Status</dt>
-              <dd>Demo / illustrative</dd>
-              <dt className="font-semibold">Display CRS</dt>
+              <dt className="font-semibold">{km ? "ចំណងជើង" : "Title"}</dt>
+              <dd>{km ? "ភូគព្ភសាស្ត្រទូទៅគំរូ" : "Illustrative generalized geology"}</dd>
+              <dt className="font-semibold">{km ? "ស្ថានភាព" : "Status"}</dt>
+              <dd>{km ? "គំរូបង្ហាញសាកល្បង" : "Demo / illustrative"}</dd>
+              <dt className="font-semibold">{km ? "ប្រព័ន្ធកូអរដោនេបង្ហាញ" : "Display CRS"}</dt>
               <dd>EPSG:4326</dd>
-              <dt className="font-semibold">Export CRS</dt>
+              <dt className="font-semibold">{km ? "ប្រព័ន្ធកូអរដោនេនាំចេញ" : "Export CRS"}</dt>
               <dd>EPSG:32648</dd>
-              <dt className="font-semibold">Access</dt>
-              <dd>Public</dd>
-              <dt className="font-semibold">Licence</dt>
-              <dd>CC BY 4.0 (example)</dd>
+              <dt className="font-semibold">{km ? "សិទ្ធិចូលប្រើ" : "Access"}</dt>
+              <dd>{km ? "សាធារណៈ" : "Public"}</dd>
+              <dt className="font-semibold">{km ? "អាជ្ញាបណ្ណ" : "Licence"}</dt>
+              <dd>{km ? "CC BY 4.0 (គំរូ)" : "CC BY 4.0 (example)"}</dd>
             </dl>
           </div>
         </section>

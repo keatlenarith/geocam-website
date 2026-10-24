@@ -364,16 +364,16 @@ export default function EarthquakeMap({
           {/* Basemap Selector */}
           <label className="flex items-center gap-1.5 font-semibold text-slate-300 mr-1">
             <Layers size={14} className="text-primary" />
-            <span>Basemap:</span>
+            <span>{kh ? "ផែនទីគោល:" : "Basemap:"}</span>
             <select
               aria-label="Basemap"
               value={basemap}
               onChange={(e) => setBasemap(e.target.value as BasemapType)}
               className="rounded-lg bg-slate-800 px-2.5 py-1 text-xs text-white border border-slate-700 focus:outline-none"
             >
-              <option value="topo">Topographic Map</option>
-              <option value="satellite">Satellite Imagery</option>
-              <option value="terrain">Terrain Relief</option>
+              <option value="topo">{kh ? "ផែនទីភូមិសាស្ត្រ" : "Topographic Map"}</option>
+              <option value="satellite">{kh ? "រូបភាពផ្កាយរណប" : "Satellite Imagery"}</option>
+              <option value="terrain">{kh ? "ទម្រង់ដី" : "Terrain Relief"}</option>
             </select>
           </label>
 
@@ -401,7 +401,7 @@ export default function EarthquakeMap({
               }`}
               title="Zoom out to worldwide view"
             >
-              {kh ? "🌐 ទូទាំងពិភពលោក (Global)" : "🌐 Global / Worldwide"}
+              {kh ? "🌐 ទូទាំងពិភពលោក" : "🌐 Global / Worldwide"}
             </button>
           </div>
         </div>
@@ -419,24 +419,24 @@ export default function EarthquakeMap({
       {/* Map Legend (Magnitude & Marker Sizes) */}
       <div className="absolute bottom-10 left-3 z-10 rounded-xl border border-slate-800/90 bg-slate-950/85 p-3 text-[11px] text-white shadow-lg backdrop-blur-md max-w-[220px]">
         <strong className="block font-bold text-slate-300 mb-2 uppercase tracking-wider text-[10px]">
-          Magnitude Legend
+          {kh ? "កំណត់សម្គាល់ទំហំរំញ័រ" : "Magnitude Legend"}
         </strong>
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <span className="h-4 w-4 rounded-full bg-rose-600 border border-white flex items-center justify-center text-[8px] font-extrabold" />
-            <span>M 5.5+ Significant</span>
+            <span>{kh ? "M 5.5+ ខ្លាំង" : "M 5.5+ Significant"}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="h-3.5 w-3.5 rounded-full bg-amber-500 border border-white flex items-center justify-center text-[8px] font-extrabold" />
-            <span>M 4.5 – 5.4 Moderate</span>
+            <span>{kh ? "M 4.5 – 5.4 មធ្យម" : "M 4.5 – 5.4 Moderate"}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="h-3 w-3 rounded-full bg-blue-500 border border-white flex items-center justify-center text-[7px] font-extrabold" />
-            <span>M 3.0 – 4.4 Minor</span>
+            <span>{kh ? "M 3.0 – 4.4 ខ្សោយ" : "M 3.0 – 4.4 Minor"}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-blue-600 border border-white" />
-            <span>&lt; M 3.0 Micro</span>
+            <span>{kh ? "< M 3.0 តូចបំផុត" : "< M 3.0 Micro"}</span>
           </div>
         </div>
       </div>
@@ -447,10 +447,10 @@ export default function EarthquakeMap({
           <Navigation size={13} />
           {coords
             ? `LAT ${coords[1].toFixed(4)}° · LON ${coords[0].toFixed(4)}°`
-            : "Pan or search anywhere globally · Default: Cambodia & Region"}
+            : (kh ? "រំកិល ឬស្វែងរកទីតាំងទូទាំងពិភពលោក · លំនាំដើម៖ កម្ពុជា និងតំបន់" : "Pan or search anywhere globally · Default: Cambodia & Region")}
         </span>
         <span className="text-slate-400 text-[11px]">
-          Data: USGS Global Feed / TMD Feeds
+          {kh ? "ទិន្នន័យ៖ បណ្តាញទូទាំងពិភពលោក USGS / TMD" : "Data: USGS Global Feed / TMD Feeds"}
         </span>
       </div>
     </div>

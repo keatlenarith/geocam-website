@@ -8,6 +8,8 @@ export type Article = {
   titleKm?: string;
   date: string;
   excerpt: string;
+  excerptKm?: string;
+  contentKm?: string;
   status: "draft" | "published";
   tag: string;
   image?: string;
@@ -15,9 +17,12 @@ export type Article = {
 export type EventItem = {
   id: string;
   title: string;
+  titleKm?: string;
   date: string;
   place: string;
+  placeKm?: string;
   kind: string;
+  kindKm?: string;
   status: "draft" | "published";
 };
 export type Publication = {
@@ -66,6 +71,8 @@ export const news: Article[] = [
     date: "2026-09-28",
     excerpt:
       "Students mapped sandstone sequences and laterite profiles during a week-long training camp in western Cambodia.",
+    excerptKm:
+      "និស្សិតបានសិក្សាវាស់វែងផែនទីស្រទាប់ថ្មភក់ និងទម្រង់ដីឡាតេរីតក្នុងអំឡុងវគ្គបណ្តុះបណ្តាលទីវាលរយៈពេលមួយសប្តាហ៍នៅភាគខាងលិចប្រទេសកម្ពុជា។",
     status: "published",
     tag: "Education",
     image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80",
@@ -77,6 +84,8 @@ export const news: Article[] = [
     date: "2026-09-10",
     excerpt:
       "Members discussed real-time monitoring methods for riverbank collapse dynamics, slope stability, and community awareness.",
+    excerptKm:
+      "សមាជិកបានពិភាក្សាអំពីវិធីសាស្ត្រតាមដានពេលវេលាជាក់ស្តែងនៃការបាក់ច្រាំងទន្លេ ស្ថិរភាពជម្រាល និងការលើកកម្ពស់ការយល់ដឹងរបស់សហគមន៍។",
     status: "published",
     tag: "Geohazards",
     image: "https://images.unsplash.com/photo-1508873696983-2df5293cb32f?auto=format&fit=crop&w=800&q=80",
@@ -88,6 +97,8 @@ export const news: Article[] = [
     date: "2026-08-22",
     excerpt:
       "Submit research on Indochina tectonics, mineral exploration, environmental geology and remote sensing.",
+    excerptKm:
+      "សូមដាក់ស្នើសេចក្តីសង្ខេបស្រាវជ្រាវស្តីពីតិចតូនិកឥណ្ឌូចិន ការរុករករ៉ែ ភូគព្ភសាស្ត្របរិស្ថាន និងការយល់ដឹងពីចម្ងាយ (Remote Sensing)។",
     status: "published",
     tag: "Society",
     image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80",
@@ -99,6 +110,8 @@ export const news: Article[] = [
     date: "2026-10-05",
     excerpt:
       "Hydrogeological study assesses seasonal arsenic variations, floodplain aquifer protection, and community water testing initiatives.",
+    excerptKm:
+      "ការសិក្សាជលភូគព្ភសាស្ត្រវាយតម្លៃការប្រែប្រួលតាមរដូវនៃសារធាតុអាសេនិច ការការពារស្រទាប់ទឹកដីទំនាប និងគំនិតផ្តួចផ្តើមធ្វើតេស្តទឹកសហគមន៍។",
     status: "published",
     tag: "Geochemistry",
     image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=800&q=80",
@@ -110,6 +123,8 @@ export const news: Article[] = [
     date: "2026-10-18",
     excerpt:
       "Multispectral satellite imagery identifies hydrothermal alteration zones, bedrock structural lineaments, and prospective geological corridors.",
+    excerptKm:
+      "រូបភាពផ្កាយរណបពហុវិសាលគមកំណត់តំបន់បំរែបំរួលកម្ដៅក្នុងទឹក គន្លងរចនាសម្ព័ន្ធសិលាមូលដ្ឋាន និងច្រករបៀងភូគព្ភសាស្ត្រដែលមានសក្ដានុពល។",
     status: "published",
     tag: "Mining",
     image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80",
@@ -120,33 +135,45 @@ export const events: EventItem[] = [
   {
     id: "e1",
     title: "Annual Geoscience Forum 2027",
+    titleKm: "វេទិកាភូគព្ភវិទ្យាសាស្ត្រប្រចាំឆ្នាំ ២០២៧",
     date: "2027-02-18",
     place: "Phnom Penh (venue TBC)",
+    placeKm: "រាជធានីភ្នំពេញ (ទីតាំងនឹងជូនដំណឹងពេលក្រោយ)",
     kind: "Conference",
+    kindKm: "សន្និសីទ",
     status: "published",
   },
   {
     id: "e2",
     title: "Laterite & weathering profiles field trip",
+    titleKm: "ដំណើរទស្សនកិច្ចសិក្សាទីវាលលើទម្រង់ដីបែកកម្ទេច និងដីឡាតេរីត",
     date: "2026-11-21",
     place: "Kampong Thom Province",
+    placeKm: "ខេត្តកំពង់ធំ",
     kind: "Field trip",
+    kindKm: "ការងារទីវាល",
     status: "published",
   },
   {
     id: "e3",
     title: "Webinar: Intro to QGIS for geologists",
+    titleKm: "សិក្ខាសាលាអនឡាញ៖ សេចក្តីណែនាំអំពី QGIS សម្រាប់អ្នកភូគព្ភវិទ្យា",
     date: "2026-11-05",
     place: "Online",
+    placeKm: "លើបណ្តាញអនឡាញ",
     kind: "Webinar",
+    kindKm: "សិក្ខាសាលាអនឡាញ",
     status: "published",
   },
   {
     id: "e4",
     title: "Student poster evening",
+    titleKm: "រាត្រីពិព័រណ៍ផ្ទាំងរូបភាពនិស្សិត",
     date: "2026-12-12",
     place: "Phnom Penh",
+    placeKm: "រាជធានីភ្នំពេញ",
     kind: "Meetup",
+    kindKm: "ការជួបជុំ",
     status: "draft",
   },
 ];
