@@ -495,6 +495,20 @@ const LOCATION_RULES: TranslationEntry[] = [
   { pattern: /县/g, en: " County, ", km: "ស្រុក" },
   { pattern: /区/g, en: " District, ", km: "ខណ្ឌ" },
 
+  // --- Country name translation for Khmer UI ---
+  { pattern: /\bMyanmar\b/gi, en: "Myanmar", km: "ប្រទេសមីយ៉ាន់ម៉ា (Myanmar)" },
+  { pattern: /\bLaos\b/gi, en: "Laos", km: "ប្រទេសឡាវ (Laos)" },
+  { pattern: /\bThailand\b/gi, en: "Thailand", km: "ប្រទេសថៃ (Thailand)" },
+  { pattern: /\bCambodia\b/gi, en: "Cambodia", km: "ប្រទេសកម្ពុជា" },
+  { pattern: /\bVietnam\b/gi, en: "Vietnam", km: "ប្រទេសវៀតណាម" },
+  { pattern: /\bChina\b/gi, en: "China", km: "ប្រទេសចិន" },
+  { pattern: /\bIndonesia\b/gi, en: "Indonesia", km: "ប្រទេសឥណ្ឌូណេស៊ី" },
+  { pattern: /\bPhilippines\b/gi, en: "Philippines", km: "ប្រទេសហ្វីលីពីន" },
+  { pattern: /\bMalaysia\b/gi, en: "Malaysia", km: "ប្រទេសម៉ាឡេស៊ី" },
+  { pattern: /\bIndia\b/gi, en: "India", km: "ប្រទេសឥណ្ឌា" },
+  { pattern: /\bJapan\b/gi, en: "Japan", km: "ប្រទេសជប៉ុន" },
+  { pattern: /\bTaiwan\b/gi, en: "Taiwan", km: "តៃវ៉ាន់" },
+
 ];
 
 /**
