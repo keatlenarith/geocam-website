@@ -1,18 +1,295 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { put, get, list } from "@vercel/blob";
-import {
-  createEmptyStore,
-  recordEvent,
-  computeAnalyticsReport,
-} from "../src/features/analytics/analytics-core.ts";
-import type { AnalyticsStore, AnalyticsEvent } from "../src/features/analytics/types.ts";
+
+export interface AnalyticsEvent {
+  visitorId: string;
+  sessionId: string;
+  path: string;
+  referrer?: string;
+  timestamp?: number;
+}
+
+export interface DayAnalytics {
+  date: string; // YYYY-MM-DD
+  pageViews: number;
+  sessions: string[]; // unique session IDs
+  visitors: string[]; // unique visitor IDs
+  pages: Record<string, number>; // path -> view count
+  referrers?: Record<string, number>;
+}
+
+export interface AnalyticsStore {
+  version: number;
+  trackingStartDate: string; // ISO date string
+  daily: Record<string, DayAnalytics>;
+  allTimeVisitors: string[]; // all unique visitor IDs
+  lastUpdated: string;
+}
+
+export interface MetricSummary {
+  uniqueVisitors: number;
+  sessions: number;
+  pageViews: number;
+}
+
+export interface DailyTrendPoint {
+  date: string; // YYYY-MM-DD
+  formattedDate: string; // e.g. "Oct 24"
+  pageViews: number;
+  sessions: number;
+  visitors: number;
+}
+
+export interface PageViewRanking {
+  path: string;
+  views: number;
+  percentage: number;
+}
+
+export interface AnalyticsReport {
+  trackingStartDate: string;
+  today: MetricSummary;
+  last7Days: MetricSummary;
+  last30Days: MetricSummary;
+  allTime: MetricSummary;
+  dailyTrend: DailyTrendPoint[];
+  mostViewedPages: PageViewRanking[];
+  lastUpdated: string;
+}
+
+export function getIctDateString(d = new Date()): string {
+  try {
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Phnom_Penh",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    return formatter.format(d);
+  } catch {
+    return d.toISOString().slice(0, 10);
+  }
+}
+
+export function formatFriendlyDate(dateStr: string): string {
+  try {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    }).format(date);
+  } catch {
+    return dateStr;
+  }
+}
+
+export function createEmptyStore(startDate = new Date().toISOString()): AnalyticsStore {
+  return {
+    version: 1,
+    trackingStartDate: startDate,
+    daily: {},
+    allTimeVisitors: [],
+    lastUpdated: new Date().toISOString(),
+  };
+}
+
+export function sanitizePath(rawPath: string): string {
+  if (!rawPath) return "/";
+  let clean = rawPath.split("?")[0].split("#")[0].trim();
+  if (!clean.startsWith("/")) clean = "/" + clean;
+  clean = clean.replace(/\/+/g, "/");
+  if (clean.length > 1 && clean.endsWith("/")) {
+    clean = clean.slice(0, -1);
+  }
+  return clean.slice(0, 120);
+}
+
+export function recordEvent(
+  store: AnalyticsStore,
+  event: AnalyticsEvent,
+  now = new Date()
+): AnalyticsStore {
+  const cleanPath = sanitizePath(event.path);
+  const dateStr = getIctDateString(now);
+  const nowIso = now.toISOString();
+
+  const currentDaily: DayAnalytics = store.daily[dateStr] || {
+    date: dateStr,
+    pageViews: 0,
+    sessions: [],
+    visitors: [],
+    pages: {},
+    referrers: {},
+  };
+
+  const updatedPageViews = currentDaily.pageViews + 1;
+
+  const sessionsSet = new Set(currentDaily.sessions);
+  if (event.sessionId) {
+    sessionsSet.add(event.sessionId);
+  }
+
+  const visitorsSet = new Set(currentDaily.visitors);
+  if (event.visitorId) {
+    visitorsSet.add(event.visitorId);
+  }
+
+  const updatedPages = { ...currentDaily.pages };
+  updatedPages[cleanPath] = (updatedPages[cleanPath] || 0) + 1;
+
+  const updatedReferrers = { ...(currentDaily.referrers || {}) };
+  if (event.referrer) {
+    try {
+      const refUrl = new URL(event.referrer);
+      const host = refUrl.hostname;
+      if (host && !host.includes("localhost") && !host.includes("geocam")) {
+        updatedReferrers[host] = (updatedReferrers[host] || 0) + 1;
+      }
+    } catch {
+      // ignore malformed referrer
+    }
+  }
+
+  const allTimeSet = new Set(store.allTimeVisitors);
+  if (event.visitorId) {
+    allTimeSet.add(event.visitorId);
+  }
+
+  return {
+    ...store,
+    daily: {
+      ...store.daily,
+      [dateStr]: {
+        date: dateStr,
+        pageViews: updatedPageViews,
+        sessions: Array.from(sessionsSet),
+        visitors: Array.from(visitorsSet),
+        pages: updatedPages,
+        referrers: updatedReferrers,
+      },
+    },
+    allTimeVisitors: Array.from(allTimeSet),
+    lastUpdated: nowIso,
+  };
+}
+
+function aggregateDays(days: DayAnalytics[]): MetricSummary {
+  const visitorsSet = new Set<string>();
+  const sessionsSet = new Set<string>();
+  let pageViews = 0;
+
+  for (const day of days) {
+    pageViews += day.pageViews || 0;
+    for (const v of day.visitors || []) {
+      visitorsSet.add(v);
+    }
+    for (const s of day.sessions || []) {
+      sessionsSet.add(s);
+    }
+  }
+
+  return {
+    uniqueVisitors: visitorsSet.size,
+    sessions: sessionsSet.size,
+    pageViews,
+  };
+}
+
+function getDateRange(referenceDate: Date, numDays: number): string[] {
+  const dates: string[] = [];
+  const ref = new Date(referenceDate);
+  for (let i = numDays - 1; i >= 0; i--) {
+    const d = new Date(ref);
+    d.setDate(ref.getDate() - i);
+    dates.push(getIctDateString(d));
+  }
+  return dates;
+}
+
+export function computeAnalyticsReport(
+  store: AnalyticsStore,
+  referenceDate = new Date()
+): AnalyticsReport {
+  const todayStr = getIctDateString(referenceDate);
+  const todayDay = store.daily[todayStr] || {
+    date: todayStr,
+    pageViews: 0,
+    sessions: [],
+    visitors: [],
+    pages: {},
+  };
+
+  const todayMetrics: MetricSummary = {
+    uniqueVisitors: todayDay.visitors?.length || 0,
+    sessions: todayDay.sessions?.length || 0,
+    pageViews: todayDay.pageViews || 0,
+  };
+
+  const past7Dates = getDateRange(referenceDate, 7);
+  const past30Dates = getDateRange(referenceDate, 30);
+
+  const past7Days = past7Dates.map((d) => store.daily[d]).filter(Boolean) as DayAnalytics[];
+  const past30Days = past30Dates.map((d) => store.daily[d]).filter(Boolean) as DayAnalytics[];
+  const allDays = Object.values(store.daily);
+
+  const last7DaysMetrics = aggregateDays(past7Days);
+  const last30DaysMetrics = aggregateDays(past30Days);
+  const allTimeMetrics = aggregateDays(allDays);
+
+  if (store.allTimeVisitors?.length > allTimeMetrics.uniqueVisitors) {
+    allTimeMetrics.uniqueVisitors = store.allTimeVisitors.length;
+  }
+
+  const dailyTrend: DailyTrendPoint[] = past30Dates.map((dateStr) => {
+    const day = store.daily[dateStr];
+    return {
+      date: dateStr,
+      formattedDate: formatFriendlyDate(dateStr),
+      pageViews: day?.pageViews || 0,
+      sessions: day?.sessions?.length || 0,
+      visitors: day?.visitors?.length || 0,
+    };
+  });
+
+  const pageTotals: Record<string, number> = {};
+  let totalViews = 0;
+
+  for (const day of allDays) {
+    if (day.pages) {
+      for (const [p, count] of Object.entries(day.pages)) {
+        pageTotals[p] = (pageTotals[p] || 0) + count;
+        totalViews += count;
+      }
+    }
+  }
+
+  const mostViewedPages: PageViewRanking[] = Object.entries(pageTotals)
+    .sort((a, b) => b[1] - a[1])
+    .map(([path, views]) => ({
+      path,
+      views,
+      percentage: totalViews > 0 ? Math.round((views / totalViews) * 100) : 0,
+    }));
+
+  return {
+    trackingStartDate: store.trackingStartDate || new Date().toISOString(),
+    today: todayMetrics,
+    last7Days: last7DaysMetrics,
+    last30Days: last30DaysMetrics,
+    allTime: allTimeMetrics,
+    dailyTrend,
+    mostViewedPages,
+    lastUpdated: store.lastUpdated || new Date().toISOString(),
+  };
+}
 
 const BLOB_FILE_NAME = "analytics/v1_data.json";
 
-// In-memory cache for fast response and resilience
 let memoryStore: AnalyticsStore | null = null;
 let lastLoadTime = 0;
-const CACHE_TTL_MS = 60 * 1000; // 1 minute in-memory cache
+const CACHE_TTL_MS = 60 * 1000;
 
 async function loadStoreFromBlob(): Promise<AnalyticsStore> {
   const now = Date.now();
@@ -33,11 +310,10 @@ async function loadStoreFromBlob(): Promise<AnalyticsStore> {
       return memoryStore;
     }
   } catch (err) {
-    console.warn("Failed to load analytics from blob, using fallback:", err);
+    console.warn("Notice: could not load analytics blob, initializing fallback store:", err);
   }
 
   if (!memoryStore) {
-    // Tracking starts on Oct 24, 2026
     memoryStore = createEmptyStore(new Date().toISOString());
     lastLoadTime = now;
   }
@@ -62,7 +338,7 @@ async function persistStoreToBlob(store: AnalyticsStore): Promise<void> {
           addRandomSuffix: false,
         });
       } catch (err) {
-        console.error("Failed to persist analytics to blob:", err);
+        console.error("Notice: could not persist analytics to blob:", err);
       }
     }
     savePromise = null;
@@ -70,7 +346,6 @@ async function persistStoreToBlob(store: AnalyticsStore): Promise<void> {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS & Security headers
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -83,7 +358,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const store = await loadStoreFromBlob();
 
     if (req.method === "GET") {
-      // Disallow caching for live admin queries
       res.setHeader("Cache-Control", "no-store, max-age=0");
       const report = computeAnalyticsReport(store);
       return res.status(200).json(report);
@@ -97,12 +371,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: "Missing required fields: visitorId, sessionId, path" });
       }
 
-      // Skip tracking admin routes to maintain clean public data
       if (path.startsWith("/admin") || path.startsWith("/wp-admin")) {
         return res.status(200).json({ status: "skipped_admin" });
       }
 
-      // Skip well-known bots & scrapers
       const userAgent = req.headers["user-agent"] || "";
       if (/bot|crawl|spider|slurp|facebookexternalhit|bingpreview/i.test(userAgent)) {
         return res.status(200).json({ status: "skipped_bot" });
