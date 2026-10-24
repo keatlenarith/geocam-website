@@ -77,6 +77,118 @@ const backend: Record<string, string> = {
 for (const [key, value] of Object.entries(backend))
   lookup.set(key.toLowerCase(), value);
 
+const reverseLookup = new Map<string, string>();
+for (const [key, value] of Object.entries(catalog)) {
+  if (typeof value === "string" && value.trim()) {
+    reverseLookup.set(normalize(value), key);
+  }
+}
+for (const [key, value] of Object.entries(backend)) {
+  if (typeof value === "string" && value.trim()) {
+    reverseLookup.set(normalize(value), key);
+  }
+}
+
+const CUSTOM_TRANSLATIONS_KEY = "geocam_custom_translations";
+
+export function getCustomTranslations(): Record<string, string> {
+  try {
+    if (typeof window !== "undefined") {
+      const raw = localStorage.getItem(CUSTOM_TRANSLATIONS_KEY);
+      if (raw) return JSON.parse(raw);
+    }
+  } catch {}
+  return {};
+}
+
+export function saveCustomTranslation(english: string, khmer: string): void {
+  try {
+    if (typeof window !== "undefined") {
+      const current = getCustomTranslations();
+      const normEn = normalize(english);
+      const normKm = normalize(khmer);
+      current[normEn] = normKm;
+      localStorage.setItem(CUSTOM_TRANSLATIONS_KEY, JSON.stringify(current));
+      lookup.set(normEn.toLowerCase(), normKm);
+      reverseLookup.set(normKm, normEn);
+      window.dispatchEvent(new CustomEvent("geocam:translations-updated"));
+    }
+  } catch {}
+}
+
+export function deleteCustomTranslation(english: string): void {
+  try {
+    if (typeof window !== "undefined") {
+      const current = getCustomTranslations();
+      const normEn = normalize(english);
+      delete current[normEn];
+      localStorage.setItem(CUSTOM_TRANSLATIONS_KEY, JSON.stringify(current));
+      const baseVal = catalog[normEn] || backend[normEn];
+      if (baseVal) {
+        lookup.set(normEn.toLowerCase(), baseVal);
+        reverseLookup.set(normalize(baseVal), normEn);
+      } else {
+        lookup.delete(normEn.toLowerCase());
+      }
+      window.dispatchEvent(new CustomEvent("geocam:translations-updated"));
+    }
+  } catch {}
+}
+
+export function getAllTranslations(): Array<{ english: string; khmer: string; isCustom: boolean }> {
+  const custom = getCustomTranslations();
+  const map = new Map<string, { english: string; khmer: string; isCustom: boolean }>();
+
+  for (const [en, km] of Object.entries(catalog)) {
+    if (typeof km === "string" && km.trim()) {
+      map.set(normalize(en).toLowerCase(), { english: en, khmer: km, isCustom: false });
+    }
+  }
+  for (const [en, km] of Object.entries(backend)) {
+    if (typeof km === "string" && km.trim()) {
+      map.set(normalize(en).toLowerCase(), { english: en, khmer: km, isCustom: false });
+    }
+  }
+  for (const [en, km] of Object.entries(custom)) {
+    map.set(normalize(en).toLowerCase(), { english: en, khmer: km, isCustom: true });
+  }
+
+  return Array.from(map.values()).sort((a, b) => a.english.localeCompare(b.english));
+}
+
+export function translateKhmerToEnglish(value: string): string {
+  const text = normalize(value);
+  if (!text) return value;
+
+  const custom = getCustomTranslations();
+  for (const [en, km] of Object.entries(custom)) {
+    if (normalize(km) === text) return en;
+  }
+
+  const en = reverseLookup.get(text);
+  if (en) return value.replace(value.trim(), en);
+
+  let m: RegExpMatchArray | null;
+  if ((m = text.match(/^លទ្ធផល (\d+)$/))) return `${m[1]} results`;
+  if ((m = text.match(/^ស្រទាប់ (\d+)$/))) return `${m[1]} layers`;
+  if ((m = text.match(/^វត្ថុភូមិសាស្ត្រ (\d+) · (.+)$/))) return `${m[1]} features · ${m[2]}`;
+  if ((m = text.match(/^គ្រប់ប្រភេទ \((\d+)\)$/))) return `All categories (${m[1]})`;
+  if ((m = text.match(/^រកឃើញ (\d+) ទីតាំង$/))) return `${m[1]} localities found`;
+  if ((m = text.match(/^រូបថត (\d+)$/))) return `${m[1]} photos`;
+
+  return value;
+}
+
+if (typeof window !== "undefined") {
+  try {
+    const custom = getCustomTranslations();
+    for (const [en, km] of Object.entries(custom)) {
+      lookup.set(normalize(en).toLowerCase(), km);
+      reverseLookup.set(normalize(km), en);
+    }
+  } catch {}
+}
+
 function dynamic(text: string): string | undefined {
   let m: RegExpMatchArray | null;
   if ((m = text.match(/^(\d+) results?$/i))) return `លទ្ធផល ${m[1]}`;
@@ -148,10 +260,17 @@ if ((m = text.match(/^(\d+)\s+references\s*·\s*(\d+)\s+collected documents\s*·
   return undefined;
 }
 export function translateText(value: string): string {
-  // Also correct older Khmer society names retained in saved CMS text.
-  value = value.replace(/សមាគមភូគព្ភ(?:វិទ្យា(?!សាស្ត្រ)|សាស្ត្រ)/g, "សមាគម" + glossary.Geoscience);
   const text = normalize(value);
   if (!text) return value;
+
+  const custom = getCustomTranslations();
+  const customVal = custom[text] || custom[text.toLowerCase()];
+  if (customVal) {
+    return value.replace(value.trim(), customVal);
+  }
+
+  // Also correct older Khmer society names retained in saved CMS text.
+  value = value.replace(/សមាគមភូគព្ភ(?:វិទ្យា(?!សាស្ត្រ)|សាស្ត្រ)/g, "សមាគម" + glossary.Geoscience);
   const translated = lookup.get(text.toLowerCase()) || dynamic(text);
   return translated ? value.replace(value.trim(), translated) : value;
 }
@@ -221,7 +340,11 @@ export function useDocumentTranslation(lang: "en" | "km") {
         if (parent.tagName === "OPTION" && !parent.hasAttribute("value"))
           parent.setAttribute("value", record.source);
         const next =
-          lang === "km" ? translateText(record.source) : record.source;
+          lang === "km"
+            ? translateText(record.source)
+            : /[ក-៿]/.test(record.source)
+            ? translateKhmerToEnglish(record.source)
+            : record.source;
         record.rendered = next;
         textSources.set(text, record);
         if (text.data !== next) text.data = next;

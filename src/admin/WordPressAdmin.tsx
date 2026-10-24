@@ -36,6 +36,8 @@ import { editablePages, useCms } from "../visual-cms/VisualCms";
 import { supabase } from "../lib/supabase";
 import PostManager from "./PostManager";
 import Appearance from "./Appearance";
+import TranslationManager from "./TranslationManager";
+import { Languages } from "lucide-react";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 import LayerManager from "../features/geodata/LayerManager";
 import type { MapDataset } from "../features/geodata/import-geodata";
@@ -58,6 +60,7 @@ type AdminSection =
   | "members"
   | "media"
   | "appearance"
+  | "translations"
   | "settings";
 
 const publicationCategories = [
@@ -564,6 +567,14 @@ export default function WordPressAdmin() {
             >
               <Palette size={18} />
               {!collapsed && <span>Appearance</span>}
+            </li>
+
+            <li
+              className={`wp-menu-item ${section === "translations" ? "active" : ""}`}
+              onClick={() => handleNav("translations")}
+            >
+              <Languages size={18} />
+              {!collapsed && <span>Translations (EN ↔ KH)</span>}
             </li>
 
             <li
@@ -1492,6 +1503,8 @@ export default function WordPressAdmin() {
               <Appearance />
             </div>
           )}
+
+          {section === "translations" && <TranslationManager />}
 
           {/* ================================================================
               VIEW: SETTINGS

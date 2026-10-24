@@ -20,7 +20,7 @@ import React, {
 import { supabase } from "../lib/supabase";
 import { useAdmin } from "../admin/Auth";
 import { useI18n } from "../lib/i18n";
-import { translateText, sourceText } from "../lib/translation";
+import { translateText, translateKhmerToEnglish, sourceText } from "../lib/translation";
 import { stableKey, candidates } from "./dom-keys";
 import { ImageCropperModal } from "./ImageCropperModal";
 import {
@@ -1102,12 +1102,18 @@ export function VisualCmsLayer({ page }: { page: string }) {
           typeof entry.value === "string" &&
           entry.value.includes("/images/focus/") &&
           entry.value.endsWith(".svg");
-        const value =
+        let value =
           !isObsoleteSvg && entry?.kind === (image ? "image" : "text")
             ? !image && lang === "km" ? translateText(entry.value) : entry.value
             : !image && lang === "km"
               ? translateText(original)
               : original;
+
+        // Guarantee 100% English on English pages (never show raw Khmer glyphs in EN mode)
+        if (!image && lang === "en" && typeof value === "string" && /[\u1780-\u17FF]/.test(value)) {
+          const en = translateKhmerToEnglish(value);
+          value = en !== value ? en : original;
+        }
         if (el.hasAttribute("data-cms-background"))
           el.style.backgroundImage =
             entry?.kind === "image"
@@ -1914,11 +1920,19 @@ export function VisualCmsLayer({ page }: { page: string }) {
         const prefixedKey =
           prefix && !rawKey.startsWith("sub:") ? `${prefix}${rawKey}` : rawKey;
         const finalVal = value.trim() === "" ? "__removed__" : value;
-        setEntry(canonicalRoute + "::" + lang, prefixedKey, { kind: "text", value: finalVal });
-        setEntry(canonicalRoute + "::" + (lang === "en" ? "km" : "en"), prefixedKey, {
-          kind: "text",
-          value: finalVal === "__removed__" ? "__removed__" : (lang === "en" ? translateText(value) || value : value),
-        });
+        if (lang === "en") {
+          setEntry(canonicalRoute + "::en", prefixedKey, { kind: "text", value: finalVal });
+          setEntry(canonicalRoute + "::km", prefixedKey, {
+            kind: "text",
+            value: finalVal === "__removed__" ? "__removed__" : (translateText(value) || value),
+          });
+        } else {
+          setEntry(canonicalRoute + "::km", prefixedKey, { kind: "text", value: finalVal });
+          setEntry(canonicalRoute + "::en", prefixedKey, {
+            kind: "text",
+            value: finalVal === "__removed__" ? "__removed__" : (translateKhmerToEnglish(value) || value),
+          });
+        }
         if (cleanPath !== canonicalRoute) {
           setEntry(cleanPath + "::" + lang, rawKey, { kind: "text", value: finalVal });
         }
