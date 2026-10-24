@@ -33,6 +33,7 @@ import ArticleReader from "./admin/PublicPosts";
 import ResearchTopic from "./routes/research-topic";
 import PublicationView from "./routes/publication-view";
 import WordPressAdmin from "./admin/WordPressAdmin";
+import { initAnalyticsTracker } from "./features/analytics/tracker";
 const AdminDashboard = () => (
   <AdminGate>
     <WordPressAdmin />
@@ -71,6 +72,7 @@ const pages: Record<string, React.ComponentType<any>> = {
 function App() {
   const [url, setUrl] = useState(location.pathname + location.search);
   useEffect(() => {
+    initAnalyticsTracker();
     const cb = () => setUrl(location.pathname + location.search);
     addEventListener("popstate", cb);
     return () => removeEventListener("popstate", cb);

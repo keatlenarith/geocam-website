@@ -30,11 +30,13 @@ import {
   UploadCloud,
   Trash2,
   Filter,
+  BarChart3,
 } from "lucide-react";
 import { editablePages, useCms } from "../visual-cms/VisualCms";
 import { supabase } from "../lib/supabase";
 import PostManager from "./PostManager";
 import Appearance from "./Appearance";
+import AnalyticsDashboard from "./AnalyticsDashboard";
 import LayerManager from "../features/geodata/LayerManager";
 import type { MapDataset } from "../features/geodata/import-geodata";
 import { fetchPostDrafts, savePost, newPost, type Post } from "./posts";
@@ -47,6 +49,7 @@ import "./wp-admin.css";
 
 type AdminSection =
   | "dashboard"
+  | "analytics"
   | "posts"
   | "pages"
   | "geodata"
@@ -472,6 +475,14 @@ export default function WordPressAdmin() {
               {!collapsed && <span>Dashboard</span>}
             </li>
 
+            <li
+              className={`wp-menu-item ${section === "analytics" ? "active" : ""}`}
+              onClick={() => handleNav("analytics")}
+            >
+              <BarChart3 size={18} />
+              {!collapsed && <span>Visitor Analytics</span>}
+            </li>
+
             {!collapsed && <div className="wp-menu-heading">Content & CMS</div>}
 
             <li
@@ -754,6 +765,52 @@ export default function WordPressAdmin() {
                     </div>
                   </div>
 
+                  {/* AUDIENCE & VISITOR TELEMETRY WIDGET */}
+                  <div className="postbox" style={{ borderTop: "3px solid #38bdf8" }}>
+                    <div className="postbox-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <h2><BarChart3 size={18} style={{ color: "#38bdf8" }} /> Real Visitor Telemetry</h2>
+                      <button
+                        type="button"
+                        onClick={() => handleNav("analytics")}
+                        className="button"
+                        style={{ fontSize: "12px", padding: "2px 8px", height: "auto" }}
+                      >
+                        View Full Dashboard →
+                      </button>
+                    </div>
+                    <div className="postbox-inside" style={{ padding: "16px" }}>
+                      <p style={{ margin: "0 0 12px", fontSize: "13px", color: "var(--wp-text-muted)" }}>
+                        Real recorded telemetry for unique visitors, browsing sessions, and public page views.
+                      </p>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", textAlign: "center" }}>
+                        <div style={{ background: "rgba(56, 189, 248, 0.08)", padding: "10px", borderRadius: "6px", border: "1px solid rgba(56, 189, 248, 0.2)" }}>
+                          <span style={{ fontSize: "11px", color: "var(--wp-text-muted)", textTransform: "uppercase", fontWeight: 700 }}>
+                            7d Visitors
+                          </span>
+                          <div style={{ fontSize: "18px", fontWeight: 800, color: "#38bdf8", marginTop: "2px" }}>
+                            Monitored
+                          </div>
+                        </div>
+                        <div style={{ background: "rgba(52, 211, 153, 0.08)", padding: "10px", borderRadius: "6px", border: "1px solid rgba(52, 211, 153, 0.2)" }}>
+                          <span style={{ fontSize: "11px", color: "var(--wp-text-muted)", textTransform: "uppercase", fontWeight: 700 }}>
+                            7d Sessions
+                          </span>
+                          <div style={{ fontSize: "18px", fontWeight: 800, color: "#34d399", marginTop: "2px" }}>
+                            Monitored
+                          </div>
+                        </div>
+                        <div style={{ background: "rgba(129, 140, 248, 0.08)", padding: "10px", borderRadius: "6px", border: "1px solid rgba(129, 140, 248, 0.2)" }}>
+                          <span style={{ fontSize: "11px", color: "var(--wp-text-muted)", textTransform: "uppercase", fontWeight: 700 }}>
+                            Tracking
+                          </span>
+                          <div style={{ fontSize: "18px", fontWeight: 800, color: "#818cf8", marginTop: "2px" }}>
+                            Since Oct 24
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* SITE HEALTH */}
                   <div className="postbox">
                     <div className="postbox-header">
@@ -886,6 +943,11 @@ export default function WordPressAdmin() {
               </div>
             </>
           )}
+
+          {/* ================================================================
+              VIEW: VISITOR & AUDIENCE ANALYTICS
+              ================================================================ */}
+          {section === "analytics" && <AnalyticsDashboard />}
 
           {/* ================================================================
               VIEW: PAGES (ALL 14 WEBSITE PAGES FULLY EDITABLE)
