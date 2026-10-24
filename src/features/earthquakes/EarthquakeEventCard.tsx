@@ -106,9 +106,10 @@ export const EarthquakeEventCard: React.FC<EarthquakeEventCardProps> = ({
             )}
           </span>
 
-          {isNew && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 animate-pulse">
-              {kh ? "ថ្មី" : "New"}
+          {(isNew || (Date.now() - new Date(event.originTime).getTime() < 3 * 3600 * 1000)) && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-rose-50 text-rose-700 border border-rose-300 animate-pulse">
+              <span className="h-1.5 w-1.5 rounded-full bg-rose-600 animate-ping"></span>
+              {kh ? "ផ្សាយផ្ទាល់" : "LIVE"}
             </span>
           )}
 

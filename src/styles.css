@@ -547,3 +547,15 @@ table[style*="min-width"] {
     display: block !important;
   }
 }
+
+/* Live Seismic Pulse Waves (earthquakemap.live inspired) */
+@keyframes live-seismic-pulse {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  50% { opacity: 0.45; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+@keyframes live-seismic-pulse-delayed {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  50% { opacity: 0.45; }
+  100% { transform: scale(2.0); opacity: 0; }
+}

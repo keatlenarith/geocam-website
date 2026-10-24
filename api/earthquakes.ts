@@ -32,13 +32,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const windowParam = (req.query.window as string) || "7d";
+  const is6h = windowParam === "6h" || windowParam === "6hours";
+  const is24h = windowParam === "24h" || windowParam === "day";
+  const is7d = windowParam === "7d" || windowParam === "7days" || windowParam === "week";
+  const is30d = windowParam === "30d" || windowParam === "30days" || windowParam === "month";
+
   let usgsUrl =
     "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
-  if (windowParam === "24h" || windowParam === "day") {
+  if (is6h || is24h) {
     usgsUrl =
       "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
-  } else if (windowParam === "30d" || windowParam === "month") {
+  } else if (is30d) {
     usgsUrl =
       "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson";
   }
@@ -105,12 +110,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // Keep all regional earthquakes (any magnitude)
         // Keep all global earthquakes with magnitude >= 2.0 (or >= 1.5 for 24h, >= 2.5 for 30d)
-        const minGlobalMag =
-          windowParam === "24h" || windowParam === "day"
-            ? 1.5
-            : windowParam === "30d" || windowParam === "month"
-            ? 2.5
-            : 2.0;
+        // In 6h mode, filter by time within last 6 hours
+        const sixHoursAgo = Date.now() - 6 * 3600 * 1000;
+        if (is6h && f.properties.time < sixHoursAgo) continue;
+
+        const minGlobalMag = is6h ? 1.0 : is24h ? 1.5 : is30d ? 2.5 : 2.0;
         if (!isReg && (mag === null || mag < minGlobalMag)) continue;
 
         const originTime = new Date(f.properties.time).toISOString();

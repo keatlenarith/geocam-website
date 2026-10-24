@@ -12,6 +12,7 @@ import {
   type EarthquakeEvent,
 } from "@/features/earthquakes/earthquake-data";
 import { EarthquakeEventCard } from "@/features/earthquakes/EarthquakeEventCard";
+import { EarthquakeLiveStream } from "@/features/earthquakes/EarthquakeLiveStream";
 import { EarthquakeAnnouncements } from "@/features/earthquakes/EarthquakeAnnouncements";
 import {
   Activity,
@@ -332,20 +333,27 @@ export default function EarthquakeMonitoringPage() {
             </button>
           </div>
 
-          {/* Time Window Buttons */}
+          {/* Time Window Buttons: 6h, 24h, 7days, 30days */}
           <div className="flex rounded-xl border border-border p-0.5 bg-muted/60 text-xs font-bold">
-            {(["24h", "7d", "30d"] as const).map((win) => (
+            {(
+              [
+                { id: "6h", en: "6h", km: "៦ ម៉ោង" },
+                { id: "24h", en: "24h", km: "២៤ ម៉ោង" },
+                { id: "7d", en: "7 Days", km: "៧ ថ្ងៃ" },
+                { id: "30d", en: "30 Days", km: "៣០ ថ្ងៃ" },
+              ] as const
+            ).map((win) => (
               <button
-                key={win}
+                key={win.id}
                 type="button"
-                onClick={() => setTimeWindow(win)}
+                onClick={() => setTimeWindow(win.id)}
                 className={`rounded-lg px-3 py-1.5 transition cursor-pointer ${
-                  timeWindow === win
+                  timeWindow === win.id
                     ? "bg-primary text-white shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {win === "24h" ? (kh ? "២៤ ម៉ោង" : "24 Hours") : win === "7d" ? (kh ? "៧ ថ្ងៃ" : "7 Days") : kh ? "៣០ ថ្ងៃ" : "30 Days"}
+                {kh ? win.km : win.en}
               </button>
             ))}
           </div>
@@ -403,6 +411,21 @@ export default function EarthquakeMonitoringPage() {
             </button>
           )}
         </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* LIVE EVENT STREAM & RUNNING SEISMIC TICKER (earthquakemap.live format) */}
+      {/* ========================================================================= */}
+      <div className="mb-6">
+        <EarthquakeLiveStream
+          events={events}
+          selectedEventId={selectedEventId}
+          onSelectEvent={handleSelectEvent}
+          timeWindow={timeWindow}
+          onTimeWindowChange={setTimeWindow}
+          loading={loading}
+          onRefresh={refresh}
+        />
       </div>
 
       {/* ========================================================================= */}
@@ -564,6 +587,14 @@ export default function EarthquakeMonitoringPage() {
               {kh ? "៤. ស្ថាប័នផ្ដល់ទិន្នន័យផ្លូវការ" : "4. Official Agency Portals"}
             </h4>
             <div className="space-y-1.5 text-xs">
+              <a
+                href="https://earthquakemap.live/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 font-bold text-primary hover:underline block"
+              >
+                <ArrowUpRight size={13} /> {kh ? "Earthquake Map Live — ផែនទីតាមដានរញ្ជួយដីផ្ទាល់ (earthquakemap.live)" : "Earthquake Map Live — Track Earthquakes Today & Near Me (earthquakemap.live)"}
+              </a>
               <a
                 href="https://earthquake.usgs.gov/"
                 target="_blank"

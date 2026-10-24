@@ -87,9 +87,14 @@ function renderMarkerHtml(event: EarthquakeEvent, isSelected: boolean): string {
       ? event.magnitude.toFixed(1)
       : "?";
 
+  const isRecentLive =
+    Date.now() - new Date(event.originTime).getTime() < 3 * 3600 * 1000;
+
   if (isSelected) {
     return `
-      <div style="position: relative; width: ${size + 14}px; height: ${size + 14}px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+      <div style="position: relative; width: ${size + 16}px; height: ${size + 16}px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+        <div style="position: absolute; inset: -12px; border-radius: 50%; border: 2.5px solid ${bg}; animation: live-seismic-pulse 2s cubic-bezier(0, 0, 0.2, 1) infinite; pointer-events: none;"></div>
+        <div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid ${bg}; animation: live-seismic-pulse-delayed 2s cubic-bezier(0, 0, 0.2, 1) 0.65s infinite; pointer-events: none;"></div>
         <div style="position: absolute; inset: 0; border-radius: 50%; background: ${bg}; opacity: 0.35; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
         <div style="position: absolute; inset: 3px; border-radius: 50%; background: ${bg}; opacity: 0.3; box-shadow: 0 0 18px ${bg};"></div>
         <div style="position: relative; width: ${size}px; height: ${size}px; border-radius: 50%; background: ${bg}; border: 3px solid ${border}; box-shadow: 0 4px 14px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; font-family: system-ui, sans-serif; font-weight: 800; font-size: ${size >= 28 ? 12 : 10}px; color: #ffffff;">
@@ -99,9 +104,22 @@ function renderMarkerHtml(event: EarthquakeEvent, isSelected: boolean): string {
     `;
   }
 
+  if (isRecentLive) {
+    return `
+      <div style="position: relative; width: ${size + 12}px; height: ${size + 12}px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+        <div style="position: absolute; inset: -8px; border-radius: 50%; border: 2px solid ${bg}; animation: live-seismic-pulse 2.2s cubic-bezier(0, 0, 0.2, 1) infinite; pointer-events: none;"></div>
+        <div style="position: absolute; inset: -2px; border-radius: 50%; border: 1.5px solid ${bg}; animation: live-seismic-pulse-delayed 2.2s cubic-bezier(0, 0, 0.2, 1) 0.75s infinite; pointer-events: none;"></div>
+        <div style="position: absolute; inset: 0; border-radius: 50%; background: ${bg}; opacity: 0.25; animation: pulse 2.5s infinite;"></div>
+        <div style="position: relative; width: ${size}px; height: ${size}px; border-radius: 50%; background: ${bg}; border: 2.5px solid ${border}; box-shadow: 0 2px 8px rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; font-family: system-ui, sans-serif; font-weight: 800; font-size: ${size >= 28 ? 11 : 9}px; color: #ffffff;">
+          ${magText}
+        </div>
+      </div>
+    `;
+  }
+
   return `
     <div style="position: relative; width: ${size + 8}px; height: ${size + 8}px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-      <div style="position: absolute; inset: 0; border-radius: 50%; background: ${bg}; opacity: 0.25; animation: pulse 2.5s infinite;"></div>
+      <div style="position: absolute; inset: 0; border-radius: 50%; background: ${bg}; opacity: 0.2; animation: pulse 2.5s infinite;"></div>
       <div style="position: relative; width: ${size}px; height: ${size}px; border-radius: 50%; background: ${bg}; border: 2.5px solid ${border}; box-shadow: 0 2px 8px rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; font-family: system-ui, sans-serif; font-weight: 800; font-size: ${size >= 28 ? 11 : 9}px; color: #ffffff;">
         ${magText}
       </div>

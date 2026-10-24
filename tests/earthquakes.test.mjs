@@ -249,6 +249,10 @@ test('filterEarthquakes: filters by time window, magnitude threshold, and sort o
     }
   ];
 
+  // 6 hours window -> 0 events (e1 is 12h ago)
+  const win6h = filterEarthquakes(events, { hoursWindow: 6, minMagnitude: 0 });
+  assert.equal(win6h.length, 0);
+
   // 24 hours window -> only e1
   const win24h = filterEarthquakes(events, { hoursWindow: 24, minMagnitude: 0 });
   assert.equal(win24h.length, 1);

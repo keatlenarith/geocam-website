@@ -10,7 +10,7 @@ import {
   deduplicateEvents,
 } from "./earthquake-data";
 
-export type TimeWindowOption = "24h" | "7d" | "30d";
+export type TimeWindowOption = "6h" | "24h" | "7d" | "30d";
 export type SortOrderOption = "newest" | "largest";
 
 export interface UseEarthquakesOptions {
@@ -155,7 +155,7 @@ export function useEarthquakes(options: UseEarthquakesOptions = {}) {
     if (!fetchedSuccessfully) {
       try {
         let usgsUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
-        if (timeWindow === "24h") {
+        if (timeWindow === "6h" || timeWindow === "24h") {
           usgsUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
         } else if (timeWindow === "30d") {
           usgsUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson";
@@ -295,7 +295,7 @@ export function useEarthquakes(options: UseEarthquakesOptions = {}) {
   }, [autoRefreshIntervalMs, fetchEarthquakes]);
 
   // Calculate filtered events
-  const hoursWindow = timeWindow === "24h" ? 24 : timeWindow === "30d" ? 720 : 168;
+  const hoursWindow = timeWindow === "6h" ? 6 : timeWindow === "24h" ? 24 : timeWindow === "30d" ? 720 : 168;
 
   const filteredEvents = useMemo(() => {
     return filterEarthquakes(rawEvents, {
