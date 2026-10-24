@@ -5,6 +5,8 @@ import {
   pageChanges,
   canonicalDbRoute,
   sanitizeStoreForStorage,
+  acceptTranslation,
+  approveTranslation,
 } from "./linked-content";
 import { attachInlineText } from "./inline-text";
 import { createPortal } from "react-dom";
@@ -45,6 +47,8 @@ import {
   Maximize2,
   Minimize2,
 } from "lucide-react";
+export type TranslationStatus = "Draft" | "Needs Review" | "Approved";
+
 export type Entry = {
   kind: "text" | "image";
   value: string;
@@ -52,6 +56,10 @@ export type Entry = {
   height?: string;
   fit?: string;
   style?: string;
+  status?: TranslationStatus;
+  manuallyEdited?: boolean;
+  suggestedValue?: string;
+  sourceValue?: string;
 };
 export type Store = Record<string, Record<string, Entry>>;
 type CMS = {
@@ -64,6 +72,8 @@ type CMS = {
   editing: boolean;
   setEditing: (b: boolean) => void;
   setEntry: (page: string, key: string, entry: Entry) => void;
+  acceptFieldTranslation: (page: string, key: string) => void;
+  approveFieldTranslation: (page: string, key: string) => void;
   saveInline: (page: string, key: string, entry: Entry) => void;
   flushInline: () => Promise<boolean>;
   inlineStatus: string;
@@ -533,6 +543,40 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
     },
     [admin, ready, busy],
   );
+
+  const acceptFieldTranslation = useCallback(
+    (page: string, key: string) => {
+      if (!admin || !ready || busy) return;
+      const next = acceptTranslation(draftRef.current, page, key);
+      if (next === draftRef.current) return;
+      draftRef.current = next;
+      setDraft(next);
+      setDirty(true);
+      const base = page.replace(/::(en|km)$/, "");
+      const entry = next[base + "::km"]?.[key];
+      if (entry) {
+        saveInline(base + "::km", key, entry);
+      }
+    },
+    [admin, ready, busy],
+  );
+
+  const approveFieldTranslation = useCallback(
+    (page: string, key: string) => {
+      if (!admin || !ready || busy) return;
+      const next = approveTranslation(draftRef.current, page, key);
+      if (next === draftRef.current) return;
+      draftRef.current = next;
+      setDraft(next);
+      setDirty(true);
+      const base = page.replace(/::(en|km)$/, "");
+      const entry = next[base + "::km"]?.[key];
+      if (entry) {
+        saveInline(base + "::km", key, entry);
+      }
+    },
+    [admin, ready, busy],
+  );
   const write = async (publish: boolean) => {
     if (!admin || busy)
       throw Error("Administrator access is required.");
@@ -633,6 +677,8 @@ export function VisualCmsProvider({ children }: { children: React.ReactNode }) {
         editing: admin && ready && editing,
         setEditing,
         setEntry,
+        acceptFieldTranslation,
+        approveFieldTranslation,
         saveInline,
         flushInline,
         inlineStatus,
@@ -766,6 +812,8 @@ export function VisualCmsLayer({ page }: { page: string }) {
     busy,
     error,
     setEntry,
+    acceptFieldTranslation,
+    approveFieldTranslation,
     saveInline,
     flushInline,
     inlineStatus,
@@ -788,6 +836,17 @@ export function VisualCmsLayer({ page }: { page: string }) {
   const refresh = useRef(0);
   const [notice, setNotice] = useState("");
   const [showInsertModal, setShowInsertModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+
+  const kmSpace = canonicalRoute + "::km";
+  const enSpace = canonicalRoute + "::en";
+  const kmFields = active[kmSpace] || {};
+  const kmEntries = Object.entries(kmFields).filter(
+    ([k, e]) => e && e.kind === "text" && !k.startsWith("__")
+  );
+  const needsReviewList = kmEntries.filter(([_, e]) => e.status === "Needs Review");
+  const approvedList = kmEntries.filter(([_, e]) => e.status === "Approved");
+  const draftList = kmEntries.filter(([_, e]) => e.status === "Draft" || !e.status);
   const insertFileInputRef = useRef<HTMLInputElement>(null);
   const mainEl = typeof document !== "undefined" ? document.getElementById("main") : null;
 
@@ -1921,27 +1980,38 @@ export function VisualCmsLayer({ page }: { page: string }) {
           prefix && !rawKey.startsWith("sub:") ? `${prefix}${rawKey}` : rawKey;
         const finalVal = value.trim() === "" ? "__removed__" : value;
         if (lang === "en") {
-          setEntry(canonicalRoute + "::en", prefixedKey, { kind: "text", value: finalVal });
-          setEntry(canonicalRoute + "::km", prefixedKey, {
-            kind: "text",
-            value: finalVal === "__removed__" ? "__removed__" : (translateText(value) || value),
-          });
+          // English is the source language: update English, and updateLinkedField preserves manual Khmer with 'Needs Review'
+          const enEntry: Entry = { kind: "text", value: finalVal };
+          setEntry(canonicalRoute + "::en", prefixedKey, enEntry);
+          saveInline(canonicalRoute + "::en", prefixedKey, enEntry);
         } else {
-          setEntry(canonicalRoute + "::km", prefixedKey, { kind: "text", value: finalVal });
-          setEntry(canonicalRoute + "::en", prefixedKey, {
+          // Administrator edits Khmer independently without modifying English
+          const kmEntry: Entry = {
             kind: "text",
-            value: finalVal === "__removed__" ? "__removed__" : (translateKhmerToEnglish(value) || value),
-          });
+            value: finalVal,
+            status: "Approved",
+            manuallyEdited: true,
+          };
+          setEntry(canonicalRoute + "::km", prefixedKey, kmEntry);
+          saveInline(canonicalRoute + "::km", prefixedKey, kmEntry);
         }
         if (cleanPath !== canonicalRoute) {
-          setEntry(cleanPath + "::" + lang, rawKey, { kind: "text", value: finalVal });
+          setEntry(cleanPath + "::" + lang, rawKey, {
+            kind: "text",
+            value: finalVal,
+            ...(lang === "km" ? { status: "Approved", manuallyEdited: true } : {}),
+          });
         }
       },
       complete: (rawKey, value) => {
         const prefixedKey =
           prefix && !rawKey.startsWith("sub:") ? `${prefix}${rawKey}` : rawKey;
         const finalVal = value.trim() === "" ? "__removed__" : value;
-        saveInline(canonicalRoute + "::" + lang, prefixedKey, { kind: "text", value: finalVal });
+        saveInline(canonicalRoute + "::" + lang, prefixedKey, {
+          kind: "text",
+          value: finalVal,
+          ...(lang === "km" ? { status: "Approved", manuallyEdited: true } : {}),
+        });
       },
     });
   }, [canonicalRoute, cleanPath, prefix, normalizedPage, lang, editingPage, busy, setEntry, saveInline]);
@@ -2129,13 +2199,50 @@ export function VisualCmsLayer({ page }: { page: string }) {
               </button>
             </div>
 
-            {/* Target Location Badge Indicator */}
+            {/* Target Location Badge & Translation Status Indicator */}
             {targetLocation ? (
               <div className="flex items-center gap-1.5 bg-blue-900/60 text-blue-200 border border-blue-500/50 px-2.5 py-1 rounded-lg text-xs font-mono">
                 <span>📍 Target: &lt;{targetLocation.tagName}&gt;</span>
-                <span className="text-[10px] text-blue-300/80 max-w-[120px] truncate hidden md:inline">
-                  "{targetLocation.preview}"
-                </span>
+                {(() => {
+                  const kmE = active[kmSpace]?.[targetLocation.key];
+                  const st = kmE?.status || (kmE?.manuallyEdited ? "Approved" : "Draft");
+                  if (st === "Needs Review") {
+                    return (
+                      <div className="flex items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.5 rounded text-[10px]">
+                        <span className="font-bold animate-pulse">⚠️ Needs Review</span>
+                        {kmE?.suggestedValue && (
+                          <button
+                            type="button"
+                            onClick={() => acceptFieldTranslation(canonicalRoute, targetLocation.key)}
+                            className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-1.5 py-0.2 rounded transition"
+                            title={`Accept suggested: ${kmE.suggestedValue}`}
+                          >
+                            Accept Suggestion
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => approveFieldTranslation(canonicalRoute, targetLocation.key)}
+                          className="bg-slate-700 hover:bg-slate-600 text-slate-200 px-1.5 py-0.2 rounded transition"
+                        >
+                          Keep Current
+                        </button>
+                      </div>
+                    );
+                  }
+                  if (st === "Approved") {
+                    return (
+                      <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.5 rounded text-[10px] font-bold">
+                        ✓ Approved
+                      </span>
+                    );
+                  }
+                  return (
+                    <span className="bg-sky-500/20 text-sky-300 border border-sky-500/40 px-1.5 py-0.5 rounded text-[10px]">
+                      ✎ Draft
+                    </span>
+                  );
+                })()}
                 <button
                   type="button"
                   onClick={() => {
@@ -2155,6 +2262,36 @@ export function VisualCmsLayer({ page }: { page: string }) {
                 <span>💡 Click any spot on page to choose insertion target</span>
               </div>
             )}
+
+            {/* Translation Status Summary Pill */}
+            <div className="flex items-center gap-1.5 bg-slate-800/90 border border-slate-700 rounded-lg px-2.5 py-1 text-xs">
+              <span className="text-slate-400 font-medium">Translations:</span>
+              <span className="text-emerald-400 font-bold" title="Approved translations">
+                ✓ {approvedList.length}
+              </span>
+              {needsReviewList.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowReviewModal(true)}
+                  className="flex items-center gap-1 bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold px-2 py-0.5 rounded shadow-xs transition animate-pulse"
+                  title="Translations need review because English source was updated"
+                >
+                  ⚠️ {needsReviewList.length} Needs Review
+                </button>
+              )}
+              {draftList.length > 0 && (
+                <span className="text-sky-400 font-medium" title="Draft / auto-translations">
+                  ✎ {draftList.length}
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowReviewModal(true)}
+                className="ml-1 text-slate-300 hover:text-white underline text-[11px] font-medium"
+              >
+                Review Status
+              </button>
+            </div>
 
             {/* Insert Word Button */}
             <button
@@ -2642,6 +2779,176 @@ export function VisualCmsLayer({ page }: { page: string }) {
         }}
       />
     )}
+      {/* =========================================================================
+          TRANSLATION REVIEW MODAL (Draft, Needs Review, Approved)
+         ========================================================================= */}
+      {showReviewModal && (
+        <div className="fixed inset-0 z-[3200] flex items-center justify-center bg-black/70 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-3xl rounded-2xl bg-slate-900 text-slate-100 p-6 shadow-2xl border border-slate-700 max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+              <div>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <span>🌐 Translation Status & Review</span>
+                  <span className="text-xs bg-slate-800 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-mono">
+                    {canonicalRoute}
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  English content is the source language. Preserves manually corrected Khmer translations and requires review before replacing them.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowReviewModal(false)}
+                className="rounded-full p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Quick Actions Bar */}
+            <div className="flex items-center justify-between gap-2 py-3 border-b border-slate-800 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-1 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+                  ⚠️ Needs Review: {needsReviewList.length}
+                </span>
+                <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                  ✓ Approved: {approvedList.length}
+                </span>
+                <span className="px-2 py-1 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                  ✎ Draft: {draftList.length}
+                </span>
+              </div>
+
+              {needsReviewList.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      needsReviewList.forEach(([key]) => approveFieldTranslation(canonicalRoute, key));
+                      setNotice("All pending translations approved with current values.");
+                    }}
+                    className="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded font-medium transition"
+                  >
+                    ✓ Keep Current & Approve All
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      needsReviewList.forEach(([key]) => acceptFieldTranslation(canonicalRoute, key));
+                      setNotice("All suggested glossary translations accepted.");
+                    }}
+                    className="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded transition"
+                  >
+                    ✨ Accept All Suggestions
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Items List */}
+            <div className="flex-1 overflow-y-auto divide-y divide-slate-800 pr-1 mt-2">
+              {kmEntries.length === 0 ? (
+                <div className="py-12 text-center text-slate-400 text-sm">
+                  No text fields recorded for this page yet.
+                </div>
+              ) : (
+                kmEntries.map(([key, entry]) => {
+                  const enEntry = active[enSpace]?.[key];
+                  const status = entry.status || (entry.manuallyEdited ? "Approved" : "Draft");
+                  const isReview = status === "Needs Review";
+
+                  return (
+                    <div key={key} className={`py-3.5 px-3 rounded-lg my-1.5 ${isReview ? "bg-amber-950/20 border border-amber-500/30" : "bg-slate-800/40"}`}>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-mono text-slate-400">{key}</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            status === "Approved"
+                              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                              : status === "Needs Review"
+                              ? "bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse"
+                              : "bg-sky-500/20 text-sky-300 border border-sky-500/30"
+                          }`}>
+                            {status === "Needs Review" ? "⚠️ Needs Review" : status === "Approved" ? "✓ Approved" : "✎ Draft"}
+                          </span>
+                          {entry.manuallyEdited && (
+                            <span className="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">
+                              Manually edited
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          {isReview && entry.suggestedValue && (
+                            <button
+                              type="button"
+                              onClick={() => acceptFieldTranslation(canonicalRoute, key)}
+                              className="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-xs shadow-xs transition"
+                            >
+                              ✨ Accept Suggestion
+                            </button>
+                          )}
+                          {status !== "Approved" && (
+                            <button
+                              type="button"
+                              onClick={() => approveFieldTranslation(canonicalRoute, key)}
+                              className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-xs shadow-xs transition"
+                            >
+                              ✓ Approve
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs mt-1">
+                        <div className="bg-slate-900/80 p-2.5 rounded border border-slate-700/60">
+                          <span className="text-[10px] text-slate-400 block mb-1 font-semibold uppercase tracking-wider">
+                            English Source
+                          </span>
+                          <p className="text-slate-200 line-clamp-3">
+                            {entry.sourceValue || enEntry?.value || "(Empty)"}
+                          </p>
+                        </div>
+
+                        <div className="bg-slate-900/80 p-2.5 rounded border border-slate-700/60">
+                          <span className="text-[10px] text-emerald-400 block mb-1 font-semibold uppercase tracking-wider">
+                            Current Khmer Translation
+                          </span>
+                          <p className="text-slate-100 font-khmer line-clamp-3">
+                            {entry.value || "(Empty)"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {isReview && entry.suggestedValue && (
+                        <div className="mt-2 p-2 bg-amber-900/30 rounded border border-amber-600/40 text-xs">
+                          <span className="text-[10px] text-amber-300 block mb-0.5 font-bold uppercase tracking-wider">
+                            Suggested Translation (Technical Glossary)
+                          </span>
+                          <p className="text-amber-100 font-khmer">
+                            {entry.suggestedValue}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div className="pt-3 border-t border-slate-800 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowReviewModal(false)}
+                className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium"
+              >
+                Close Review
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
   </>
 );
 }
