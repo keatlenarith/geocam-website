@@ -151,7 +151,7 @@ export const defaultPageData: Record<
   },
   "/mining": {
     titleEn: "Mining Cadastre Portal",
-    titleKm: "មជ្ឈមណ្ឌលព័ត៌មានរ៉ែ",
+    titleKm: "ព័ត៌មានវិស័យរ៉ែ",
     category: "Tools & Portals",
     headlineEn: "Mining Licenses, Concessions & Minerals Cadastre",
     headlineKm: "អាជ្ញាបណ្ណរ៉ែ សម្បទាន និងព័ត៌មានរ៉ែកម្ពុជា",
