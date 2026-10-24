@@ -2,6 +2,7 @@ import { ChevronDown, ArrowUpRight } from "lucide-react";
 import { Link } from "@/lib/spa-router";
 import { useState, type ReactNode } from "react";
 import { useI18n, type TKey } from "@/lib/i18n";
+import { VisitorCounter } from "./VisitorCounter";
 
 const nav: { to: string; k: TKey }[] = [
   { to: "/about", k: "about" },
@@ -204,6 +205,9 @@ export function SiteFooter() {
           >
             keatlenarith@gmail.com
           </a>
+          <div className="mt-5">
+            <VisitorCounter />
+          </div>
         </div>
         <div className="space-y-2 text-sm">
           {nav.slice(0, 4).map((n) => (
