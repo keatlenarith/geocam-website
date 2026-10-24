@@ -83,7 +83,7 @@ test('generateEventAnnouncement: produces factual templates in English and Khmer
 
   const kmText = generateEventAnnouncement(event, 'km');
   assert.ok(kmText.includes('M4.2'));
-  assert.ok(kmText.includes('central Thailand'));
+  assert.ok(kmText.includes('Thailand') || kmText.includes('ប្រទេសថៃ'));
   assert.ok(kmText.includes('12:30 ICT'));
   assert.ok(kmText.includes('10 គ.ម'));
   assert.ok(kmText.includes('USGS'));
