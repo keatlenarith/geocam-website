@@ -86,7 +86,7 @@ function Research() {
           <div className="mb-6">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
               <Compass size={15} />
-              {lang === "km" ? "វិស័យសំខាន់ៗទាំង៥នៃភូគព្ភវិទ្យាសាស្ត្រ" : "5 Core Geoscience Disciplines"}
+              {lang === "km" ? "វិស័យសំខាន់ៗទាំង ៧ នៃភូគព្ភវិទ្យាសាស្ត្រ" : "7 Core Geoscience Disciplines"}
             </span>
             <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mt-1">
               {lang === "km"
@@ -95,12 +95,12 @@ function Research() {
             </h2>
             <p className="mt-2 text-base text-slate-600 max-w-3xl">
               {lang === "km"
-                ? "ពីការសិក្សារចនាសម្ព័ន្ធតិចតូនិកជម្រៅជ្រៅ រហូតដល់ជម្រកដែក គីមីទឹកក្រោមដី រូបភូគព្ភសាស្ត្រ និងការគ្រប់គ្រងមហន្តរាយធម្មជាតិ។ ចុចលើវិស័យនីមួយៗ ដើម្បីអានអត្ថបទលម្អិត។"
-                : "From deep tectonic terranes to metallic ore systems, groundwater chemistry, geophysical surveying, and geohazard resilience. Click each discipline to read the full research article."}
+                ? "ពីការសិក្សារចនាសម្ព័ន្ធតិចតូនិកជម្រៅជ្រៅ រហូតដល់ជម្រករ៉ែ គីមីភូគព្ភសាស្ត្រ រូបភូគព្ភសាស្ត្រ គ្រោះមហន្តរាយភូគព្ភសាស្ត្រ ជលភូគព្ភសាស្ត្របរិស្ថាន និងភូគព្ភសាស្ត្រសមុទ្រ។ ចុចលើវិស័យនីមួយៗ ដើម្បីអានអត្ថបទលម្អិត។"
+                : "From deep tectonic terranes to metallic ore systems, groundwater chemistry, geophysical surveying, geohazards, environmental hydrogeology, and marine geology. Click each discipline to read the full research article."}
             </p>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
             {researchAreas.map((r, i) => {
               const topicObj = FOCUS_TOPICS.find(
                 (f) => f.key.toLowerCase() === r.key.toLowerCase(),

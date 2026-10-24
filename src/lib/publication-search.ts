@@ -6,6 +6,8 @@ const researchTerms: Record<string, RegExp> = {
   Geochemistry: /geochem|arsenic|weathering|petrogenesis|isotop|zircon/i,
   Geophysics: /geophys|airborne|magnetic|paleomagn|palaeomagn|seismic|resistiv|gravity/i,
   Geohazards: /hazard|landslide|erosion|subsiden|collapse/i,
+  "Environmental Hydrogeology": /hydrogeol|groundwater|aquifer|water quality|arsenic|salin|hydrolog|drinking water/i,
+  "Marine Geology": /marine|offshore|gulf of thailand|shelf|phu quoc|kampot som basin|ocean|coastal|bathymetr/i,
 };
 
 export function matchesResearchArea(publication: SearchablePublication, area: string | null): boolean {

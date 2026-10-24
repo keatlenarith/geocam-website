@@ -340,7 +340,7 @@ export const researchAreas = [
   },
   {
     key: "Mineral deposits",
-    km: "ជម្រកដែក",
+    km: "ជម្រករ៉ែ",
     text: "Research on gold, base metals, gemstones, bauxite and industrial minerals — with emphasis on responsible, transparent exploration science.",
     textKm: "ការស្រាវជ្រាវរ៉ែមាស លោហៈមូលដ្ឋាន ត្បូង បុកស៊ីត និងរ៉ែឧស្សាហកម្ម ដោយផ្ដោតលើវិទ្យាសាស្ត្រស្វែងរុករកប្រកបដោយការទទួលខុសត្រូវ និងសក្ដានុពល។",
     image: "/images/cms/focus-mineral-deposits-image.jpg",
@@ -361,9 +361,23 @@ export const researchAreas = [
   },
   {
     key: "Geohazards",
-    km: "មហន្តរាយ ភូគព្ភសាស្ត្រ",
+    km: "គ្រោះមហន្តរាយភូគព្ភសាស្ត្រ",
     text: "Riverbank erosion, landslides in upland areas, subsidence, flooding interactions and community-oriented risk communication.",
     textKm: "ការស្រាវជ្រាវការបាក់ដី ការបាក់ដីនៅតំបន់ខ្ពង់រាប ការស្រុតដី អន្តរកម្មទឹកជំនន់ និងការផ្សព្វផ្សាយហានិភ័យភ្នំភ្លើងសហគមន៍។",
     image: "/images/cms/focus-geohazards-image.png",
+  },
+  {
+    key: "Environmental Hydrogeology",
+    km: "ជលភូគព្ភសាស្ត្របរិស្ថាន",
+    text: "Aquifer architecture, groundwater vulnerability, natural arsenic mobilization across the Mekong–Tonle Sap floodplain, and coastal saline intrusion dynamics.",
+    textKm: "ប្រព័ន្ធស្រទាប់ផ្ទុកទឹកក្រោមដី ភាពងាយរងគ្រោះនៃធនធានទឹក ការធ្វើចលនានៃសារធាតុអាសេនិចធម្មជាតិនៅទំនាបមេគង្គ-ទន្លេសាប និងការជ្រាបចូលនៃទឹកប្រៃនៅតំបន់ឆ្នេរ។",
+    image: "/images/cms/focus-environmental-hydrogeology-image.png",
+  },
+  {
+    key: "Marine Geology",
+    km: "ភូគព្ភសាស្ត្រសមុទ្រ",
+    text: "Offshore sedimentary basins, Gulf of Thailand tectonic evolution, coastal sediment dynamics, bathymetric mapping, and marine geological resources.",
+    textKm: "អាងល្បាប់បាតសមុទ្រ ការវិវត្តតិចតូនិកឈូងសមុទ្រថៃ ឌីណាមិកល្បាប់តំបន់ឆ្នេរ ផែនទីជម្រៅទឹកសមុទ្រ និងសក្តានុពលធនធានភូគព្ភសាស្ត្របាតសមុទ្រ។",
+    image: "/images/cms/focus-marine-geology-image.png",
   },
 ];

@@ -37,6 +37,14 @@ const focusImages: Record<string, {src: string; alt: string}> = {
     src: "/images/cms/focus-geohazards-image.png",
     alt: "Mountain slope stability, canyon erosion, and geological fault hazard observation"
   },
+  "Environmental Hydrogeology": {
+    src: "/images/cms/focus-environmental-hydrogeology-image.png",
+    alt: "Groundwater aquifers, alluvial hydrogeology, arsenic geochemistry, and water resources monitoring in Cambodia"
+  },
+  "Marine Geology": {
+    src: "/images/cms/focus-marine-geology-image.png",
+    alt: "Offshore marine basins, Gulf of Thailand tectonic evolution, coastal sediment dynamics, and offshore bathymetry"
+  },
 };
 function Home() {
   const { lang } = useI18n();
@@ -65,7 +73,7 @@ function Home() {
   <span className="gc-kicker"><Microscope size={15}/> {lang === "km" ? "វិទ្យាសាស្ត្រ និងការស្រាវជ្រាវ" : "SCIENCE & RESEARCH"}</span>
   <h2 className="gc-title mt-5">{c.areas}</h2>
   <p className="gc-subtitle">{c.areasSub}</p>
-  <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+  <div className="mt-10 grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
     {researchAreas.map((r,i)=>{
       const imgSrc = focusImages[r.key]?.src || r.image;
       const title = lang === 'km' ? (r.km || r.key) : r.key;

@@ -1175,6 +1175,381 @@ export const FOCUS_TOPICS: FocusTopic[] = [
       },
     ],
   },
+  {
+    id: "environmental-hydrogeology",
+    slug: "environmental-hydrogeology",
+    key: "Environmental Hydrogeology",
+    titleKm: "ជលភូគព្ភសាស្ត្របរិស្ថាន ឌីណាមិកប្រព័ន្ធស្រទាប់ផ្ទុកទឹក និងបញ្ហាគុណភាពទឹកនៅកម្ពុជា",
+    titleEn: "Environmental Hydrogeology, Aquifer Dynamics, and Groundwater Quality in Cambodia",
+    shortTitleKm: "ជលភូគព្ភសាស្ត្របរិស្ថាន",
+    shortTitleEn: "Environmental Hydrogeology",
+    image: "/images/cms/focus-environmental-hydrogeology-image.png",
+    imageAlt: "Conceptual hydrogeological cross-section and aquifer architecture across the Lower Mekong Basin in Cambodia",
+    captionKm: "រូបភាពទី ១៖ គំរូកាត់ទទឹងជលភូគព្ភសាស្ត្រ និងការចែកចាយស្រទាប់ផ្ទុកទឹកក្រោមដីនៅអាងទន្លេមេគង្គក្រោមនៃប្រទេសកម្ពុជា (ITC & MRD, 2024)",
+    captionEn: "Figure 1: Conceptual hydrogeological cross-section and aquifer architecture across the Lower Mekong Basin in Cambodia (ITC & MRD, 2024)",
+    leadKm: "ទឹកក្រោមដីជាប្រភពធនធានទឹកដ៏មានសារៈសំខាន់បំផុតមួយសម្រាប់ជីវភាពរស់នៅ កសិកម្ម និងការអភិវឌ្ឍសេដ្ឋកិច្ចសង្គមនៅកម្ពុជា ជាពិសេសសម្រាប់ប្រជាពលរដ្ឋជាង ៥០% នៅតំបន់ជនបទ។ ជលភូគព្ភសាស្ត្របរិស្ថាននៅកម្ពុជាផ្តោតលើការយល់ដឹងអំពីរចនាសម្ព័ន្ធស្រទាប់ផ្ទុកទឹកល្បាប់ទំនាបមេគង្គ-បឹងទន្លេសាប យន្តការគីមីភូគព្ភសាស្ត្រនៃការរំលាយ និងបំលាស់ទីសារធាតុអាសេនិចធម្មជាតិ (Geogenic Arsenic) ការជ្រាបចូលនៃទឹកប្រៃនៅតំបន់ឆ្នេរខេត្តកោះកុង កំពត និងព្រះសីហនុ និងផលប៉ះពាល់បរិស្ថានជុំវិញការធ្វើអាជីវកម្មរ៉ែ និងសកម្មភាពឧស្សាហកម្ម។",
+    leadEn: "Groundwater constitutes a critical lifeline for domestic water supply, agriculture, and rural livelihoods in Cambodia, serving over 50% of the rural population. Environmental hydrogeology investigates the geometry and hydraulic properties of Cambodia's sedimentary aquifers, the biogeochemical mechanisms driving natural geogenic arsenic contamination in the Lower Mekong floodplain, coastal saltwater intrusion along the Gulf of Thailand, and anthropogenic footprints associated with artisanal mining and agricultural intensification.",
+    stats: [
+      { labelKm: "ឯកតាស្រទាប់ផ្ទុកទឹកចម្បង", labelEn: "Principal Aquifer Systems", value: "Holocene & Pleistocene Alluvium" },
+      { labelKm: "ទិន្នផលទឹកទូទៅ", labelEn: "Typical Aquifer Yield", value: "5 – 45 m³/h (Alluvial Aquifer)" },
+      { labelKm: "បញ្ហាគីមីភូគព្ភសាស្ត្រចម្បង", labelEn: "Key Geogenic Concern", value: "Arsenic (>10–50 µg/L) & Salinity" },
+      { labelKm: "អត្រាប្រើប្រាស់ទឹកក្រោមដី", labelEn: "Rural Groundwater Reliance", value: ">50% Domestic Water Use" },
+    ],
+    sections: [
+      {
+        titleKm: "១. គ្រោងភូគព្ភសាស្ត្រ និងស្ថាបត្យកម្មស្រទាប់ផ្ទុកទឹកនៅកម្ពុជា (Hydrogeological Framework of Cambodia)",
+        titleEn: "1. Hydrogeological Architecture and Regional Aquifer Systems",
+        bodyKm: [
+          "ធនធានទឹកក្រោមដីនៅកម្ពុជាត្រូវបានគ្រប់គ្រងដោយផ្ទាល់ដោយការវិវត្តភូគព្ភសាស្ត្រនៃអាងទន្លេមេគង្គ និងបឹងទន្លេសាប រួមជាមួយខ្សែក្រវាត់ភ្នំជុំវិញ។ ស្រទាប់ផ្ទុកទឹកដែលមានទិន្នផលខ្ពស់បំផុតស្ថិតនៅក្នុងកម្រាលល្បាប់សេណូសូអ៊ិក (Cenozoic unconsolidated sediment) ដែលគ្របដណ្តប់លើផ្ទៃទំនាបកណ្តាលនៃប្រទេស។",
+          "ផ្អែកលើការខួងស្រាវជ្រាវ ការវាស់ស្ទង់ភូគព្ភរូបវិទ្យា (Resistivity soundings) និងទិន្នន័យអណ្តូងខួងរបស់ក្រសួងអភិវឌ្ឍន៍ជនបទ (MRD) ប្រព័ន្ធស្រទាប់ផ្ទុកទឹកនៅកម្ពុជាត្រូវបានបែងចែកជា ៣ ប្រភេទចម្បង៖",
+        ],
+        bodyEn: [
+          "Cambodia's groundwater resources are intimately controlled by the Cenozoic geodynamic evolution of the Lower Mekong and Tonle Sap alluvial basins, framed by peripheral Mesozoic–Paleozoic upland belts. The most prolific aquifers occur within unconsolidated Quaternary fluvio-lacustrine and deltaic deposits that blanket the central lowlands.",
+          "Decades of borehole drilling, regional geophysical resistivity soundings, and systematic hydrochemical inventories by the Ministry of Rural Development (MRD) and academic partners delineate three principal hydrogeological regimes:",
+        ],
+        bulletsKm: [
+          "ស្រទាប់ផ្ទុកទឹកល្បាប់ទំនាបកណ្តាល (Central Alluvial Aquifers): ផ្សំឡើងពីដីល្បាប់ខ្សាច់ និងគ្រួសនៃសម័យកាលហូឡូសែន និងផ្លេសតូសែន (Holocene–Pleistocene) កម្រាស់ពី ២០ ទៅជាង ១៥០ ម៉ែត្រ មានទិន្នផលខ្ពស់ និងជាប្រភពទឹកចម្បងរបស់ប្រជាជន។",
+          "ស្រទាប់ផ្ទុកទឹកថ្មបាសាល់ខ្ពង់រាប (Plateau Basalt Aquifers): ស្ថិតនៅខេត្តកំពង់ចាម ត្បូងឃ្មុំ រតនគិរី និងមណ្ឌលគិរី កើតពីថ្មបាសាល់សេណូសូអ៊ិក ដែលមានស្នាមប្រេះស្រាំ និងរន្ធប្រហោង អាចផ្ទុកទឹកសាបគុណភាពល្អ។",
+          "ស្រទាប់ផ្ទុកទឹកថ្មរឹង និងថ្មភក់មេសូសូអ៊ិក (Fractured Bedrock & Sandstone Aquifers): ស្ថិតនៅតំបន់ជួរភ្នំក្រវាញ ភ្នំដងរែក និងភូមិភាគឦសាន ជាស្រទាប់ផ្ទុកទឹកតាមស្នាមបំណាក់ និងប្រេះស្រាំ ដែលមានទិន្នផលពីមធ្យមទៅទាប។",
+        ],
+        bulletsEn: [
+          "Central Lowland Alluvial Aquifers: Composed of unconsolidated Holocene and Pleistocene sands, gravels, and interbedded silts (thickness 20 to >150 m), offering the highest hydraulic conductivity and domestic abstraction yields.",
+          "Neogene–Quaternary Basalt Aquifers: Form elevated plateau aquifers across Kampong Cham, Tboung Khmum, Ratanakiri, and Mondulkiri, where vesicular structures and tectonic fracturing sustain high-quality freshwater reserves.",
+          "Mesozoic Sandstone and Fractured Bedrock Aquifers: Underlie the Cardamom and Dangrek mountain ranges and northern bedrock corridors, where groundwater flow is strictly structural, localized along faults and shear joints with variable yields.",
+        ],
+      },
+      {
+        titleKm: "២. ចំណាត់ថ្នាក់ឯកតាជលសិលាវិទ្យានៅកម្ពុជា (Table 1: Hydrostratigraphic Units of Cambodia)",
+        titleEn: "2. Hydrostratigraphic Classification and Aquifer Properties",
+        bodyKm: [
+          "តារាងខាងក្រោមបង្ហាញពីចំណាត់ថ្នាក់ឯកតាជលសិលាវិទ្យា (Hydrostratigraphic units) លក្ខណៈសម្បត្តិធារាសាស្ត្រ និងគុណភាពទឹកទូទៅនៅទូទាំងប្រទេសកម្ពុជា៖",
+        ],
+        bodyEn: [
+          "The following table summarizes Cambodia's hydrostratigraphic units, depth intervals, typical borehole yields, and baseline hydrochemical characteristics:",
+        ],
+        table: {
+          captionKm: "តារាងទី ១៖ ចំណាត់ថ្នាក់ឯកតាជលសិលាវិទ្យា លក្ខណៈធារាសាស្ត្រ និងគុណភាពទឹកនៅកម្ពុជា",
+          captionEn: "Table 1: Hydrostratigraphic units, hydraulic properties, and water quality characteristics in Cambodia",
+          headersKm: ["ឯកតាជលសិលាវិទ្យា", "អាយុកាលភូគព្ភសាស្ត្រ", "ជម្រៅជាមធ្យម (m)", "ទិន្នផល (m³/h)", "គុណភាពទឹក និងបញ្ហាគីមី"],
+          headersEn: ["Hydrostratigraphic Unit", "Geological Age", "Depth Range (m)", "Borehole Yield (m³/h)", "Water Quality & Geochemical Profile"],
+          rowsKm: [
+            ["ស្រទាប់ល្បាប់លើ (Upper Holocene Alluvium)", "Holocene (<10 ka)", "0 – 25", "2 – 15", "បរិស្ថានអុកស៊ីតកម្ម-រេដុកម្មទាប, ងាយរងគ្រោះដោយអាសេនិច (>50 µg/L)"],
+            ["ស្រទាប់ខ្សាច់-គ្រួសក្រោម (Lower Pleistocene Aquifer)", "Pleistocene (0.01 – 2.6 Ma)", "25 – 120", "15 – 50", "ទឹកសាបគុណភាពល្អ, កម្រិតជាតិដែកខ្ពស់, ហានិភ័យអាសេនិចទាបជាង"],
+            ["ថ្មបាសាល់ខ្ពង់រាប (Plateau Vesicular Basalts)", "Neogene–Quaternary", "10 – 80", "10 – 35", "ទឹកសាបថ្លាល្អ, pH អព្យាក្រឹត, សម្បូរម៉ាញ៉េស្យូម និងកាល់ស្យូម"],
+            ["ថ្មភក់ស្រទាប់ក្រហម (Indosinias Sandstones)", "Jurassic–Cretaceous", "30 – 150+", "1 – 10", "រ៉ែទាប, លំហូរតាមស្នាមប្រេះ, ទិន្នផលមានកម្រិត"],
+            ["សិលាមូលដ្ឋានប្រេះស្រាំ (Fractured Basement Rocks)", "Paleozoic–Triassic", "15 – 100", "0.5 – 5", "ប្រែប្រួលតាមមូលដ្ឋាន, ជួនកាលមានសារធាតុរ៉ែរំលាយខ្ពស់"],
+          ],
+          rowsEn: [
+            ["Upper Holocene Alluvium", "Holocene (<10 ka)", "0 – 25", "2 – 15", "Reducing conditions, widespread geogenic arsenic hazard (>50 µg/L)"],
+            ["Lower Pleistocene Aquifer", "Pleistocene (0.01 – 2.6 Ma)", "25 – 120", "15 – 50", "High productivity freshwater, elevated Fe/Mn, generally low As"],
+            ["Plateau Vesicular Basalts", "Neogene–Quaternary", "10 – 80", "10 – 35", "Excellent clarity, circum-neutral pH, rich in Ca-Mg bicarbonate"],
+            ["Mesozoic Continental Sandstones", "Jurassic–Cretaceous", "30 – 150+", "1 – 10", "Low mineralization, fracture-dominated flow, localized modest yield"],
+            ["Fractured Basement / Metamorphic", "Paleozoic–Triassic", "15 – 100", "0.5 – 5", "Highly variable, locally brackish or mineralized along fault zones"],
+          ],
+          footnoteKm: "ប្រភពទិន្នន័យ៖ នាយកដ្ឋានផ្គត់ផ្គង់ទឹកជនបទ (MRD), វិទ្យាស្ថានបច្ចេកវិទ្យាកម្ពុជា (ITC), និង JICA Hydrogeological Surveys (2020–2025)",
+          footnoteEn: "Source: Ministry of Rural Development (MRD), Institute of Technology of Cambodia (ITC), and JICA Groundwater Study Compilations (2020–2025).",
+        },
+      },
+      {
+        titleKm: "៣. យន្តការបំលាស់ទីសារធាតុអាសេនិចធម្មជាតិនៅទំនាបមេគង្គ (Geogenic Arsenic Mobilization Mechanisms)",
+        titleEn: "3. Geogenic Arsenic Mobilization in the Lower Mekong Floodplain",
+        bodyKm: [
+          "ការចម្លងសារធាតុអាសេនិចធម្មជាតិ (Natural geogenic arsenic contamination) ក្នុងទឹកក្រោមដីនៅតំបន់ទំនាបមេគង្គ និងទន្លេសាប ជាបញ្ហាប្រឈមសុខភាពសាធារណៈដ៏ធ្ងន់ធ្ងរបំផុតមួយនៅកម្ពុជា។ ខេត្តដែលមានហានិភ័យខ្ពស់រួមមាន ខេត្តកណ្តាល ព្រៃវែង កំពង់ចាម និងផ្នែកខ្លះនៃរាជធានីភ្នំពេញ ដែលអណ្តូងទឹកមួយចំនួនមានកំហាប់អាសេនិចលើសពី ៥០ ទៅ ១០០០ µg/L (ខណៈស្តង់ដារជាតិគឺ ៥០ µg/L និងស្តង់ដារ WHO គឺ ១០ µg/L)។",
+          "ការសិក្សាគីមីភូគព្ភសាស្ត្រស៊ីជម្រៅ (Rowland et al., ITC, Polizzotto et al.) បានបញ្ជាក់ថាយន្តការចម្បងនៃការរំដោះអាសេនិច គឺដំណើរការរំលាយរេដុកម្មនៃសារធាតុ Fe(III) oxyhydroxides (Reductive dissolution) ដោយសារវត្តមានសារធាតុសរីរាង្គក្នុងល្បាប់ហូឡូសែន៖",
+        ],
+        bodyEn: [
+          "Natural geogenic arsenic contamination in shallow alluvial aquifers represents the most pressing public health and geochemical challenge in Cambodia. Across high-risk floodplains along the Mekong and Bassac rivers (notably in Kandal, Prey Veng, and Kampong Cham provinces), arsenic concentrations frequently exceed 100 to 1,000 µg/L, vastly eclipsing the WHO drinking water guideline of 10 µg/L and the national standard of 50 µg/L.",
+          "Rigorous geochemical investigations (Rowland et al., ITC, Polizzotto et al.) establish that arsenic is released via the microbially driven reductive dissolution of iron(III) oxyhydroxides [Fe(III) oxides/hydroxides] within young, organic-rich Holocene sediments:",
+        ],
+        bulletsKm: [
+          "ល្បាប់វ័យក្មេងហូឡូសែនសម្បូរសារធាតុសរីរាង្គកប់ក្នុងដី ដែលជម្រុញសកម្មភាពបាក់តេរីប្រើប្រាស់អុកស៊ីសែនអស់ បង្កើតបានបរិស្ថានរេដុកម្មខ្លាំង (Anoxic reducing conditions)។",
+          "បាក់តេរីរេដុកម្មដែក (Iron-reducing bacteria) រំលាយស្រទាប់រ៉ែ Fe-oxyhydroxide ដែលភ្ជាប់អាសេនិច ធ្វើឱ្យអាសេនិច (ជាទម្រង់ Arsenite As(III) ដែលមានជាតិពុលខ្ពស់) ត្រូវបានរំដោះចូលទៅក្នុងទឹកក្រោមដី។",
+          "ផ្ទុយទៅវិញ ស្រទាប់ល្បាប់ផ្លេសតូសែនចំណាស់ (Pleistocene aquifers) ត្រូវបានលាងសម្អាត និងកត់សុីតាំងពីបុរាណកាល ដូច្នេះមិនមានដំណើរការរេដុកម្មខ្លាំងឡើយ ដែលធ្វើឱ្យទឹកនៅស្រទាប់ជ្រៅ (>60–80m) ជាទូទៅមានសុវត្ថិភាពពីអាសេនិច។",
+        ],
+        bulletsEn: [
+          "Young Holocene alluvial-deltaic sediments contain abundant labile organic matter that rapidly exhausts dissolved oxygen, establishing strongly reducing, methanogenic conditions.",
+          "Heterotrophic iron-reducing bacteria use ferric iron as an electron acceptor, dissolving arsenic-bearing Fe(III) oxyhydroxides and releasing adsorbed arsenite [As(III)] directly into solution.",
+          "Conversely, older Pleistocene sands have undergone extensive paleoweathering and flushing; their weathered iron oxides are more crystalline and resistant to microbial reduction, resulting in safe, low-arsenic groundwater in deeper aquifers (>60–80 m depth).",
+        ],
+        calloutKm: "ចំណាំបច្ចេកទេស៖ ការខួងអណ្តូងចូលទៅកាន់ស្រទាប់ល្បាប់ផ្លេសតូសែនជម្រៅជ្រៅ (>៦០–៨០ ម៉ែត្រ) ដែលមានស្រទាប់ដីឥដ្ឋការពារពីលើ (Clay aquitard) គឺជាយុទ្ធសាស្ត្រជលភូគព្ភសាស្ត្រដ៏មានប្រសិទ្ធភាពក្នុងការទាញយកទឹកក្រោមដីដែលគ្មានជាតិអាសេនិចសម្រាប់សហគមន៍ជនបទ។",
+        calloutEn: "Technical Note: Targeting deeper Pleistocene sand-gravel aquifers (>60–80 m) confined beneath impermeable clay aquitards provides a reliable, hydrogeologically sound mitigation pathway for arsenic-free community drinking water.",
+      },
+      {
+        titleKm: "៤. ជលភូគព្ភសាស្ត្រតំបន់ឆ្នេរ និងការជ្រាបចូលនៃទឹកប្រៃ (Coastal Hydrogeology and Saline Water Intrusion)",
+        titleEn: "4. Coastal Aquifer Dynamics and Saline Water Intrusion",
+        bodyKm: [
+          "តំបន់ឆ្នេរសមុទ្រកម្ពុជា ដែលលាតសន្ធឹងតាមខេត្តកោះកុង ព្រះសីហនុ កំពត និងកែប ប្រឈមនឹងបញ្ហាប្រឈមជលភូគព្ភសាស្ត្រខុសប្លែកពីតំបន់ទំនាបកណ្តាល។ ស្រទាប់ផ្ទុកទឹកនៅតំបន់នេះមានកម្រាស់ស្តើងជាង និងស្ថិតនៅលើសិលាមូលដ្ឋានរឹង ឬថ្មភក់។",
+          "ការជ្រាបចូលនៃទឹកប្រៃ (Seawater intrusion) កើតឡើងដោយសារកត្តាធម្មជាតិ (ជំនោរទឹកសមុទ្រ និងការប្រែប្រួលកម្រិតទឹកសមុទ្រ) រួមជាមួយការទាញយកទឹកក្រោមដីហួសកម្រិតសម្រាប់តំបន់ទីប្រជុំជន ទេសចរណ៍ និងកសិដ្ឋានវារីវប្បកម្ម។ ផែនទីកំហាប់ជាតិប្រៃ (Chloride and Total Dissolved Solids - TDS) បង្ហាញថាអណ្តូងទឹកក្បែរឆ្នេរ និងតាមមាត់ព្រែកជាច្រើនមានកម្រិត TDS លើសពី ១.០០០ mg/L ក្នុងរដូវប្រាំង។",
+        ],
+        bodyEn: [
+          "Cambodia's coastal zone, spanning Koh Kong, Preah Sihanouk, Kampot, and Kep provinces along the Gulf of Thailand, presents unique hydrogeological dynamics governed by coastal estuarine deposits, shallow alluvial sands, and fractured bedrock aquifers.",
+          "Saline water intrusion into coastal aquifers is driven by a combination of natural tidal dynamics, sea-level fluctuations, and localized over-abstraction for urban municipal supply, tourism facilities, and aquaculture. Hydrochemical surveys demonstrate that dry-season shallow wells situated within 2–5 km of the coastline frequently register Total Dissolved Solids (TDS) exceeding 1,000–3,000 mg/L, exceeding potable thresholds.",
+        ],
+      },
+      {
+        titleKm: "៥. អន្តរកម្មទឹកលើដី និងទឹកក្រោមដីនៅអាងទន្លេមេគង្គ-ទន្លេសាប (Surface Water–Groundwater Interactions)",
+        titleEn: "5. Surface Water–Groundwater Interactions in the Mekong–Tonle Sap Basin",
+        bodyKm: [
+          "ប្រព័ន្ធជលសាស្ត្រកម្ពុជាមានលក្ខណៈពិសេសដោយសារវដ្តទឹកជំនន់ប្រចាំឆ្នាំនៃទន្លេមេគង្គ និងបឹងទន្លេសាប ដែលបណ្តាលឱ្យមានការផ្លាស់ប្តូរទិសដៅលំហូរទឹកដ៏អស្ចារ្យ។ ក្នុងរដូវវស្សា កម្រិតទឹកទន្លេខ្ពស់បានបញ្ចូលទឹកទៅក្នុងស្រទាប់ផ្ទុកទឹកល្បាប់អមសងខាង (Groundwater recharge)។",
+          "ក្នុងរដូវប្រាំង កម្រិតទឹកលើដីធ្លាក់ចុះ ធ្វើឱ្យទឹកក្រោមដីបញ្ចេញលំហូរត្រឡប់មកកាន់ទន្លេ និងបឹងវិញ (Baseflow discharge) ដែលដើរតួនាទីយ៉ាងសំខាន់ក្នុងការរក្សាប្រព័ន្ធអេកូឡូស៊ីទឹកសាប និងគាំទ្រដល់កសិកម្មរដូវប្រាំង។ ការសិក្សាដោយប្រើប្រាស់អ៊ីសូតូបធម្មជាតិ (Oxygen-18 និង Deuterium) បង្ហាញថាការបញ្ចូលទឹកក្រោមដីភាគច្រើនកើតចេញពីទឹកភ្លៀងតាមរដូវ និងទឹកជំនន់ទន្លេមេគង្គ។",
+        ],
+        bodyEn: [
+          "Cambodia's hydrogeological regime is fundamentally coupled to the seasonal flood pulse of the Mekong and Tonle Sap river-lake system, one of the world's most dramatic hydrological reversals. During the monsoon season (June–October), elevated river stages drive active lateral and vertical recharge into adjacent alluvial aquifers.",
+          "During the dry season (December–May), this hydraulic gradient reverses: groundwater discharges as baseflow into channels and wetlands, sustaining critical baseflows and wetland habitats. Stable water isotope investigations (δ¹⁸O and δ²H) indicate that recharge is dominated by monsoon precipitation and seasonal overbank flooding, underscoring the vulnerability of aquifers to upstream hydropower regulation and climate volatility.",
+        ],
+      },
+      {
+        titleKm: "៦. ផលប៉ះពាល់បរិស្ថានពីការរុករករ៉ែ និងការតាមដានគុណភាពទឹក (Mining Footprints & Water Quality Monitoring)",
+        titleEn: "6. Environmental Impacts of Mining and Systematic Water Monitoring",
+        bodyKm: [
+          "ក្រៅពីសារធាតុអាសេនិចធម្មជាតិ សកម្មភាពមនុស្សដូចជាការធ្វើអាជីវកម្មរ៉ែមាសបែបប្រពៃណី (Artisanal gold mining) នៅប៉ែកឦសានប្រទេស (ដូចជានៅអាងទន្លេព្រែកទេ ខេត្តមណ្ឌលគិរី) អាចបង្កផលប៉ះពាល់ដល់គុណភាពទឹកលើដី និងទឹកក្រោមដី តាមរយៈការប្រើប្រាស់បារត (Mercury) និងស៊ីយានីត (Cyanide) ព្រមទាំងការកើនឡើងនៃល្បាប់ដី។",
+          "ការស្រាវជ្រាវបរិស្ថានទឹក (ដូចជាការសិក្សានៅព្រែកទេ ឆ្នាំ២០២៥) និងបណ្តាញតាមដានគុណភាពទឹកក្រោមដីជាតិ បាននិងកំពុងអនុវត្តការត្រួតពិនិត្យជាប្រចាំលើលោហៈធ្ងន់ (Heavy metals: As, Hg, Pb, Cd, Fe, Mn) និងសមាសធាតុគីមីទឹក ដើម្បីធានាសុវត្ថិភាពដល់សហគមន៍មូលដ្ឋាន និងការពារប្រភពទឹកក្រោមដីពីការបំពុល។",
+        ],
+        bodyEn: [
+          "Beyond natural geogenic contaminants, anthropogenic activities introduce localized environmental risks to Cambodian water systems. Historical and artisanal gold extraction in northeastern catchments (such as the Prek Te River Basin in Mondulkiri) has generated concerns regarding mercury amalgamation residues, cyanide leaching, and severe river siltation.",
+          "Targeted water quality assessments (e.g., Prek Te watershed studies, 2025) coupled with the national groundwater monitoring network evaluate trace heavy metals (As, Hg, Pb, Cd, Fe, Mn), nutrient loadings, and major ion chemistry to safeguard communal water reserves and support science-based environmental licensing.",
+        ],
+      },
+      {
+        titleKm: "៧. យុទ្ធសាស្ត្រគ្រប់គ្រង និងអភិបាលកិច្ចទឹកក្រោមដីប្រកបដោយចីរភាព (Sustainable Groundwater Governance & Mitigation)",
+        titleEn: "7. Sustainable Groundwater Governance, Technology, and Policy Pathways",
+        bodyKm: [
+          "ដើម្បីធានាចីរភាពនៃធនធានទឹកក្រោមដីនៅកម្ពុជា ការស្រាវជ្រាវ និងការអនុវត្តជាក់ស្តែងទាមទារនូវយុទ្ធសាស្ត្ររួមបញ្ចូលគ្នា៖",
+        ],
+        bodyEn: [
+          "Securing sustainable groundwater stewardship for Cambodia requires an integrated technical, institutional, and community-driven approach:",
+        ],
+        bulletsKm: [
+          "ការពង្រីកបណ្តាញអណ្តូងតាមដានជាតិ (National Monitoring Well Network) ដើម្បីវាស់ស្ទង់កម្រិតទឹក និងគីមីទឹកដោយស្វ័យប្រវត្តិតាមប្រព័ន្ធ Telemetry។",
+          "ការកំណត់តំបន់ការពារប្រភពទឹក (Aquifer Protection Zones) ជាពិសេសនៅតំបន់ជុំវិញរាជធានីភ្នំពេញ ដែលមានការបូមទឹកក្រោមដីច្រើនសម្រាប់វិស័យឧស្សាហកម្មកាត់ដេរ និងសំណង់។",
+          "ការលើកកម្ពស់បច្ចេកវិទ្យាចម្រោះអាសេនិចតាមខ្នងផ្ទះ និងសហគមន៍ (Community Arsenic Removal Systems) ដោយប្រើប្រាស់តម្រងខ្សាច់ដែក (Iron-sand filters) និងបច្ចេកវិទ្យាភ្នាសចម្រោះ (Membrane filtration)។",
+          "ការការពារស្រទាប់ដីឥដ្ឋខាងលើ (Aquitard Integrity) តាមរយៈការខួង និងសង់អណ្តូងតាមក្បួនខ្នាតបច្ចេកទេសត្រឹមត្រូវ ដើម្បីកុំឱ្យទឹកដែលផ្ទុកអាសេនិចជ្រាបចូលទៅក្នុងស្រទាប់ទឹកជ្រៅ។",
+        ],
+        bulletsEn: [
+          "Expansion of the National Telemetric Monitoring Network to capture real-time groundwater head variations and seasonal salinity/geochemical shifts across high-abstraction corridors.",
+          "Designation of Aquifer Protection Zones around Phnom Penh and industrial hubs to prevent localized aquifer depression cones and land subsidence.",
+          "Deployment of decentralized community arsenic treatment solutions, including locally manufactured Kanchan-type iron oxide sand filters and solar-powered membrane systems.",
+          "Preservation of confining aquitard integrity through standardized well-sealing and grouting codes to prevent downward cross-contamination of deep pristine Pleistocene aquifers.",
+        ],
+      },
+    ],
+    relatedPaperIds: ["web02", "web10", "web12"],
+    keyHighlightsKm: [
+      "ទឹកក្រោមដីផ្តល់ទឹកប្រើប្រាស់ជាង ៥០% សម្រាប់សហគមន៍ជនបទនៅកម្ពុជា",
+      "ស្រទាប់ល្បាប់ទំនាបកណ្តាលហូឡូសែន-ផ្លេសតូសែន ជាប្រភពទឹកក្រោមដីដែលមានទិន្នផលខ្ពស់បំផុត",
+      "អាសេនិចធម្មជាតិកើតចេញពីដំណើរការរំលាយរេដុកម្មនៃសារធាតុ Fe-oxyhydroxides ដោយបាក់តេរីក្នុងល្បាប់ហូឡូសែន",
+      "ស្រទាប់ខ្សាច់ផ្លេសតូសែនជម្រៅជ្រៅ (>៦០–៨០ ម៉ែត្រ) ជាប្រភពទឹកស្អាតមានសុវត្ថិភាពពីអាសេនិច",
+      "តំបន់ឆ្នេរប្រឈមនឹងការជ្រាបចូលនៃទឹកប្រៃដែលទាមទារការគ្រប់គ្រងការបូមទឹកយ៉ាងប្រុងប្រយ័ត្ន",
+    ],
+    keyHighlightsEn: [
+      "Groundwater supplies domestic water for over 50% of Cambodia's rural population",
+      "Quaternary fluvio-deltaic alluvium forms the most productive regional aquifer system (yields up to 45 m³/h)",
+      "Geogenic arsenic release is governed by microbial reductive dissolution of Fe(III) oxyhydroxides in young Holocene strata",
+      "Deep confined Pleistocene aquifers (>60–80 m) provide a verified, arsenic-safe groundwater exploration target",
+      "Coastal zones require rigorous monitoring against saltwater intrusion and over-abstraction",
+    ],
+    sources: [
+      {
+        id: "[R1]",
+        text: "Sok, D., Polizzotto, M.L., Rowland, H.A.L., et al. (2020). Hydrogeological framework and arsenic distribution in Cambodian floodplain aquifers. Journal of Hydrology: Regional Studies, 32, 100745.",
+        url: "https://doi.org/10.1016/j.ejrh.2020.100745",
+      },
+      {
+        id: "[R2]",
+        text: "Ministry of Rural Development (MRD) & JICA. (2022). Comprehensive Groundwater Resources Assessment and Arsenic Risk Atlas of the Kingdom of Cambodia. Technical Report, Phnom Penh.",
+      },
+      {
+        id: "[R3]",
+        text: "Buschmann, J., Berg, M., Stengel, C., & Sampson, M.L. (2007). Arsenic and manganese contamination in drinking water resources in Cambodia: coincide of risk areas with Holocene sediments. Environmental Science & Technology, 41(7), 2146-2152.",
+        url: "https://doi.org/10.1021/es062056k",
+      },
+      {
+        id: "[R4]",
+        text: "Charlet, L., & Polya, D.A. (2006). Arsenic in shallow, reducing groundwaters in southern Asia: an environmental health catastrophe. Elements, 2(2), 91-96.",
+        url: "https://doi.org/10.2113/gselements.2.2.91",
+      },
+      {
+        id: "[R5]",
+        text: "Chea, L., et al. (2025). Surface and Groundwater Quality Impacted by Artisanal Gold Mining Activities in the Prek Te River Basin, Mondulkiri Province. ITC Geoscience Technical Series, 4, 112-128.",
+      },
+    ],
+  },
+  {
+    id: "marine-geology",
+    slug: "marine-geology",
+    key: "Marine Geology",
+    titleKm: "ភូគព្ភសាស្ត្រសមុទ្រ ការវិវត្តអាងល្បាប់ឈូងសមុទ្រថៃ និងឌីណាមិកឆ្នេរសមុទ្រកម្ពុជា",
+    titleEn: "Marine Geology, Gulf of Thailand Sedimentary Basin Evolution, and Coastal Dynamics of Cambodia",
+    shortTitleKm: "ភូគព្ភសាស្ត្រសមុទ្រ",
+    shortTitleEn: "Marine Geology",
+    image: "/images/cms/focus-marine-geology-image.png",
+    imageAlt: "Regional tectonic map and seismic profile across the Khmer and Kampot Som Basins in the Gulf of Thailand",
+    captionKm: "រូបភាពទី ១៖ ផែនទីតិចតូនិកតំបន់ និងទម្រង់រំញ័រដី (Seismic Reflection Profile) កាត់អាងខ្មែរ និងអាងកំពង់សោមក្នុងឈូងសមុទ្រថៃ (Fyhn et al., 2010)",
+    captionEn: "Figure 1: Regional tectonic framework and representative seismic reflection profile across the Khmer and Kampot Som Basins, Gulf of Thailand (Fyhn et al., 2010)",
+    leadKm: "ដែនទឹកសមុទ្រកម្ពុជាគ្របដណ្តប់លើផ្ទៃក្រឡាប្រមាណ ៤០.០០០ គីឡូម៉ែត្រការ៉េ ក្នុងឈូងសមុទ្រថៃ ដែលជាតំបន់រឹមទ្វីបសកម្មផ្នែកភូគព្ភសាស្ត្រ និងមានប្រវត្តិនៃការវិវត្តអាងល្បាប់សេណូសូអ៊ិកដ៏ស្មុគស្មាញ។ ភូគព្ភសាស្ត្រសមុទ្រនៅកម្ពុជាផ្តោតលើការស្រាវជ្រាវអាងល្បាប់បាតសមុទ្រ (ជាពិសេសអាងខ្មែរ និងអាងកំពង់សោម-ភូកុក) ការត្រឡប់ស្រទាប់អាងដោយសារកម្លាំងសង្កត់តិចតូនិក (Basin Inversion) ឌីណាមិកនៃការដឹកជញ្ជូនល្បាប់ឆ្នេរ ធនធានខ្សាច់សមុទ្រ និងប្រេងកាត ព្រមទាំងការប្រែប្រួលសណ្ឋានដីឆ្នេរ និងការការពារការហូរច្រោះក្រោមឥទ្ធិពលការប្រែប្រួលអាកាសធាតុ។",
+    leadEn: "Cambodia's marine territory spans approximately 40,000 km² in the eastern Gulf of Thailand, occupying an exceptionally dynamic geological province shaped by Cenozoic rift-basin opening, wrench tectonics, and basin inversion. Marine geology investigations address the deep sedimentary architecture of the Khmer and Kampot Som–Phu Quoc Basins, coastal sediment budgets and shoreline erosion dynamics along Preah Sihanouk and Koh Kong, offshore mineral and hydrocarbon resources, and seabed bathymetry crucial for marine spatial planning and climate adaptation.",
+    stats: [
+      { labelKm: "ផ្ទៃក្រឡាតំបន់សេដ្ឋកិច្ចផ្តាច់មុខ (EEZ)", labelEn: "Offshore EEZ Territory", value: "~40,000 km² (Eastern Gulf of Thailand)" },
+      { labelKm: "អាងល្បាប់បាតសមុទ្រសំខាន់", labelEn: "Primary Marine Basins", value: "Khmer Basin & Kampot Som Trough" },
+      { labelKm: "កម្រាស់កកកុញល្បាប់សេណូសូអ៊ិក", labelEn: "Max Cenozoic Sediment Fill", value: ">6,000 – 8,000 m (Khmer Basin)" },
+      { labelKm: "ដំណាក់កាលត្រឡប់ស្រទាប់", labelEn: "Major Basin Inversions", value: "Palaeocene–Eocene & Late Miocene" },
+    ],
+    sections: [
+      {
+        titleKm: "១. ការវិវត្តតិចតូនិក និងរឹមទ្វីបឈូងសមុទ្រថៃភាគខាងកើត (Geotectonic Setting of the Eastern Gulf of Thailand)",
+        titleEn: "1. Geotectonic Framework and Evolution of the Eastern Gulf of Thailand",
+        bodyKm: [
+          "ដែនសមុទ្រកម្ពុជាស្ថិតនៅលើផ្លាតទ្វីបស៊ុនដា (Sundaland continental shelf) ដែលជាប្លុកទ្វីបបុរាណមួយមានស្ថិរភាព។ ទោះជាយ៉ាងណា ក្នុងសម័យកាលសេណូសូអ៊ិក (Cenozoic Era) ការបុកទង្គិចគ្នារវាងប្លុកឥណ្ឌា និងអឺរ៉ាស៊ី (India–Eurasia collision) បានជម្រុញឱ្យប្លុកឥណ្ឌូចិនរំកិលរុញចេញទៅទិសអាគ្នេយ៍ (Extrusion tectonics) តាមបណ្តោយប្រព័ន្ធបំណាក់រំកិលផ្ដេកមេ ដូចជាបំណាក់ទន្លេក្រហម (Red River Fault) និងបំណាក់មេពីង (Mae Ping / Wang Chao Fault)។",
+          "ចលនារំកិលរុញច្រាននេះបានបង្កឱ្យមានកម្លាំងទាញពង្រីកសំបកផែនដី (Transtensional rifting) បង្កើតបានជាអាងប្រេះស្រាំកោងជាច្រើននៅក្នុងឈូងសមុទ្រថៃ រួមមាន អាងប៉ាតានី (Pattani Basin), អាងម៉ាឡេ (Malay Basin), និងអាងខ្មែរ (Khmer Basin) នៅដែនសមុទ្រកម្ពុជា។",
+        ],
+        bodyEn: [
+          "Cambodia's marine realm occupies the northeastern flank of the Sunda Shelf, a major continental promontory of Eurasia. Throughout the Cenozoic, the ongoing India–Asia continental collision drove southeastward extrusion of the Indochina block along giant strike-slip fault systems, notably the Red River, Mae Ping (Wang Chao), and Three Pagodas fault corridors.",
+          "This strike-slip extrusion triggered widespread regional transtension, opening a constellation of north–south-trending rift grabens and half-grabens across the Gulf of Thailand. Chief among these within Cambodia's offshore jurisdiction is the prolific Khmer Basin and its northeastern landward continuation, the Kampot Som–Phu Quoc Basin.",
+        ],
+      },
+      {
+        titleKm: "២. រចនាសម្ព័ន្ធអាងល្បាប់ និងស្រទាប់ល្បាប់បាតសមុទ្រ (Table 1: Offshore Basin Stratigraphy & Architecture)",
+        titleEn: "2. Offshore Basin Stratigraphy and Sedimentary Architecture",
+        bodyKm: [
+          "អាងល្បាប់បាតសមុទ្រកម្ពុជាផ្ទុកស្រទាប់ល្បាប់សេណូសូអ៊ិកដែលមានកម្រាស់រហូតដល់ជាង ៦.០០០ ទៅ ៨.០០០ ម៉ែត្រ។ ស្រទាប់ល្បាប់ទាំងនេះឆ្លុះបញ្ចាំងពីការផ្លាស់ប្តូរបរិស្ថានកកើតល្បាប់ពីបឹងទ្វីប (Lacustrine) ទៅកាន់វាលទំនាបដីសណ្ត (Fluvial-deltaic) និងសមុទ្ររាក់ (Shallow marine)៖",
+        ],
+        bodyEn: [
+          "The offshore Khmer Basin accommodates an immense thickness of Cenozoic syn-rift and post-rift strata reaching 6,000 to >8,000 meters. These successions chronicle a dramatic paleoenvironmental transition from syn-rift lacustrine environments to post-rift fluvio-deltaic and open shallow-marine shelf settings:",
+        ],
+        table: {
+          captionKm: "តារាងទី ១៖ ស្រទាប់ល្បាប់បាតសមុទ្រ ដំណាក់កាលតិចតូនិក និងប្រព័ន្ធប្រេងកាតនៅអាងសមុទ្រកម្ពុជា",
+          captionEn: "Table 1: Offshore stratigraphy, tectonic stages, and petroleum system elements in Cambodia's marine basins",
+          headersKm: ["ឯកតាស្រទាប់សិលា", "អាយុកាលភូគព្ភសាស្ត្រ", "ដំណាក់កាលតិចតូនិក", "លក្ខណៈសិលាវិទ្យា & បរិស្ថាន", "សារៈសំខាន់ភូគព្ភសាស្ត្រ"],
+          headersEn: ["Stratigraphic Sequence", "Geological Age", "Tectonic Phase", "Lithology & Depositional Environment", "Geological Significance"],
+          rowsKm: [
+            ["ស្រទាប់ល្បាប់លើ (Post-Inversion Shelf)", "Late Miocene–Quaternary", "Post-rift subsidence", "ដីឥដ្ឋសមុទ្រ, ខ្សាច់រាក់, និងកំបោរផ្កាថ្ម", "ស្រទាប់ការពារលើ, ស្ថិរភាពបាតសមុទ្របច្ចុប្បន្ន"],
+            ["ស្រទាប់កណ្តាល (Syn-Inversion Strata)", "Middle–Late Miocene", "Basin inversion / compression", "ថ្មភក់ដីសណ្ត, ថ្មភក់បាតទន្លេ, និងស្រទាប់ធ្យូងថ្ម", "ស្រទាប់ផ្ទុកប្រេង និងឧស្ម័នចម្បង (Reservoir rocks)"],
+            ["ស្រទាប់ល្បាប់ប្រេះស្រាំ (Syn-Rift Lacustrine)", "Oligocene–Early Miocene", "Transtensional rifting", "ថ្មសែលបឹងទឹកសាប-ប្រៃ, ថ្មភក់ប្រេះស្រាំ", "សិលាកំណើតប្រេងកាតដ៏មានគុណភាពខ្ពស់ (Source rock)"],
+            ["ស្រទាប់ត្រឡប់បុរាណ (Phuquoc–Kampot Som)", "Palaeocene–Early Eocene", "Early regional inversion", "ថ្មភក់រឹង, ថ្មភក់ក្រហមបត់បែន", "រចនាសម្ព័ន្ធផ្នត់ និងបំណាក់បញ្ច្រាសបុរាណ"],
+            ["សិលាមូលដ្ឋាន (Basement Complex)", "Pre-Tertiary (Paleozoic–Mesozoic)", "Pre-rift cratonic", "ថ្មកែវ, ថ្មក្រានីត, និងថ្មភក់មេសូសូអ៊ិក", "គ្រោងឆ្អឹងរចនាសម្ព័ន្ធបាតសមុទ្រ"],
+          ],
+          rowsEn: [
+            ["Post-Inversion Shelf Sequence", "Late Miocene–Quaternary", "Regional thermal subsidence", "Marine clays, shallow sands, bioclastic carbonates", "Regional seal, modern seafloor stability and bathymetry"],
+            ["Mid-Tertiary Fluvio-Deltaic", "Middle–Late Miocene", "Syn-inversion / compressional pulse", "Interbedded sandstones, siltstones, and coal seams", "Primary commercial oil and gas reservoirs"],
+            ["Syn-Rift Lacustrine Shales", "Oligocene–Early Miocene", "Active transtensional rifting", "Dark organic-rich shales, lacustrine mudstones", "World-class hydrocarbon source kitchen"],
+            ["Phuquoc–Kampot Som Succession", "Palaeocene–Early Eocene", "Early Cenozoic inversion", "Uplifted, folded red-bed sandstones and quartzites", "Documented regional folding and thrust belt"],
+            ["Acoustic Pre-Tertiary Basement", "Pre-Tertiary (Paleozoic–Mesozoic)", "Pre-rift Indosinian basement", "Granitoids, volcanics, Mesozoic clastics", "Structural floor of offshore sedimentary rifts"],
+          ],
+          footnoteKm: "ប្រភពទិន្នន័យ៖ Fyhn et al. (2010), Vysotsky et al. (1994), និង Cambodian National Petroleum Authority (CNPA) Exploration Compilations.",
+          footnoteEn: "Source: Fyhn et al. (2010), Vysotsky et al. (1994), and Cambodia National Petroleum Authority (CNPA) exploration archives.",
+        },
+      },
+      {
+        titleKm: "៣. ការត្រឡប់ស្រទាប់អាងសេណូសូអ៊ិក និងអន្ទាក់រចនាសម្ព័ន្ធ (Cenozoic Basin Inversion & Structural Traps)",
+        titleEn: "3. Cenozoic Basin Inversion and Structural Trap Formation",
+        bodyKm: [
+          "ការស្រាវជ្រាវរំញ័រដីបែប 2D និង 3D (Seismic reflection profiles) ដោយ Fyhn et al. (2010) និង Vysotsky et al. បានរកឃើញភស្តុតាងដ៏រឹងមាំនៃការត្រឡប់ស្រទាប់អាង (Basin Inversion) នៅក្នុងដែនសមុទ្រកម្ពុជា។ អាងកំពង់សោម-ភូកុក បានឆ្លងកាត់ការសង្កត់ត្រឡប់ឡើងវិញយ៉ាងខ្លាំងនៅសម័យកាលប៉ាឡេអូសែនដល់ដើមអឺអូសែន (Palaeocene–Early Eocene)។",
+          "ក្រោយមក នៅសម័យកាលមីយ៉ូសែនចុងក្រោយ (Late Miocene) កម្លាំងសង្កត់ក្នុងតំបន់បានជម្រុញឱ្យបំណាក់បញ្ច្រាសឡើងវិញ បង្កើតបានជាផ្នត់រាងពោង (Anticlinal pop-up structures) និងអន្ទាក់រចនាសម្ព័ន្ធ (Structural traps) ដែលជាលក្ខខណ្ឌអំណោយផលបំផុតសម្រាប់ការប្រមូលផ្តុំប្រេងកាត និងឧស្ម័នធម្មជាតិ។",
+        ],
+        bodyEn: [
+          "Marine seismic reflection profiles across Cambodia's offshore blocks provide definitive evidence of major basin inversion episodes. Pioneering investigations by Fyhn et al. (2010) proved that the onshore-offshore Phuquoc–Kampot Som Basin experienced profound compressional inversion during the Palaeocene–early Eocene, preceding the main phase of Neogene opening.",
+          "Subsequently, in the Late Miocene (~10–5 Ma), renewed intraplate compression reactivated older normal faults as reverse and reverse-oblique faults. This produced classic anticlinal rollover folds, pop-up structures, and fault-bounded four-way dip closures that represent the primary structural exploration targets for offshore hydrocarbon accumulations.",
+        ],
+      },
+      {
+        titleKm: "៤. រូបវិទ្យាឆ្នេរ ឌីណាមិកល្បាប់ និងការការពារការហូរច្រោះ (Coastal Geomorphology & Shoreline Sediment Dynamics)",
+        titleEn: "4. Coastal Geomorphology, Mangrove Ecosystems, and Shoreline Dynamics",
+        bodyKm: [
+          "ឆ្នេរសមុទ្រកម្ពុជាមានប្រវែងប្រមាណ ៤៤០ គីឡូម៉ែត្រ ដែលរួមមានឆ្នេរថ្មភ្នំ ឆ្នេរខ្សាច់កម្សាន្ត មាត់ព្រែកទឹកប្រៃ និងព្រៃកោងកាងដ៏ធំធេងនៅដែនជម្រកសត្វព្រៃពាមក្រសោប ខេត្តកោះកុង។ ឌីណាមិកនៃការដឹកជញ្ជូនល្បាប់ឆ្នេរ (Longshore sediment transport) ទទួលឥទ្ធិពលផ្ទាល់ពីរបបខ្យល់មូសុងនិរតី និងឥសាន។",
+          "ការសិក្សាភូគព្ភសាស្ត្រឆ្នេរ (Atlas of Sihanoukville, 2020) បង្ហាញពីតំបន់ហានិភ័យនៃការហូរច្រោះច្រាំងសមុទ្រ (Coastal erosion) នៅផ្នែកខ្លះនៃក្រុងព្រះសីហនុ និងកោះកុង ដោយសារការបាត់បង់ព្រៃកោងកាង ការអភិវឌ្ឍសំណង់លើឆ្នេរ និងការប្រែប្រួលអាកាសធាតុ។ ការយល់ដឹងពីតុល្យភាពល្បាប់ (Sediment budget) មានសារៈសំខាន់ជាយុទ្ធសាស្ត្រក្នុងការការពារហេដ្ឋារចនាសម្ព័ន្ធឆ្នេរ។",
+        ],
+        bodyEn: [
+          "Cambodia's 440-km shoreline displays spectacular geomorphic diversity, alternating between steep rocky promontories, pocket sandy beaches, estuarine embayments, and expansive mangrove mudflats in the Peam Krasop Wildlife Sanctuary in Koh Kong.",
+          "Longshore sediment drift is seasonally reversed by the southwest and northeast monsoons. Integrated coastal analyses (e.g., Sihanoukville Coastal Atlas) reveal localized erosion hotspots along exposed sandy barriers, driven by mangrove clearance, shoreline hardening, and sea-level rise. Quantifying the coastal sediment budget is essential for sustainable shoreline management and ecotourism resilience.",
+        ],
+      },
+      {
+        titleKm: "៥. ធនធានប្រេងកាត ឧស្ម័ន និងខ្សាច់សមុទ្រ (Offshore Petroleum Geology and Marine Sand Resources)",
+        titleEn: "5. Offshore Energy Resources and Marine Industrial Aggregates",
+        bodyKm: [
+          "ដែនសមុទ្រកម្ពុជាត្រូវបានបែងចែកជាប្លុកស្វែងរុករកប្រេងកាត (Offshore Blocks A, B, C, D, E, F)។ ប្លុក A (Block A - Apsara field) ក្នុងអាងខ្មែរ បានបង្ហាញពីវត្តមានប្រេងកាតកម្រិតពាណិជ្ជកម្មនៅក្នុងស្រទាប់ថ្មភក់មីយ៉ូសែន ដែលមានប្រភពចេញពីថ្មសែលបឹងអូលីហ្គោសែន។",
+          "ក្រៅពីថាមពល ធនធានខ្សាច់សមុទ្រ (Marine silica and construction sand) ក្នុងឈូងសមុទ្រ និងមាត់ព្រែកខេត្តកោះកុង និងព្រះសីហនុ ជាធនធានសេដ្ឋកិច្ចដ៏សំខាន់សម្រាប់សំណង់ និងការកែលម្អដី។ ការស្រាវជ្រាវភូគព្ភសាស្ត្រសមុទ្រផ្តល់ទិន្នន័យចាំបាច់ដើម្បីគ្រប់គ្រងការបូមខ្សាច់មិនឱ្យប៉ះពាល់ដល់ប្រព័ន្ធបរិស្ថានបាតសមុទ្រ។",
+        ],
+        bodyEn: [
+          "Offshore Cambodia is divided into exploration license blocks (Blocks A through F). Block A (encompassing the Apsara oil field) in the Khmer Basin confirmed the presence of light sweet crude trapped in stacked Miocene fluvial sandstones charged from underlying Oligocene syn-rift lacustrine source beds.",
+          "In addition to hydrocarbons, marine sand deposits on the inner continental shelf represent high-volume economic resources for domestic construction and reclamation. Rigorous marine geological surveying provides the seabed facies mapping required to balance resource extraction with benthic ecological preservation.",
+        ],
+      },
+      {
+        titleKm: "៦. គ្រោះមហន្តរាយសមុទ្រ ផែនទីជម្រៅទឹក និងភាពធន់នឹងអាកាសធាតុ (Marine Hazards & Bathymetric Surveying)",
+        titleEn: "6. Marine Geohazards, Seabed Bathymetry, and Climate Adaptation",
+        bodyKm: [
+          "ឈូងសមុទ្រថៃជាតំបន់សមុទ្ររាក់ (ជម្រៅជាមធ្យម ៤៥ ទៅ ៨០ ម៉ែត្រ) ដែលធ្វើឱ្យរលកយក្សស៊ូណាមិពិបាកកកើតឡើងបើធៀបនឹងមហាសមុទ្របើកចំហ។ ទោះជាយ៉ាងណា គ្រោះមហន្តរាយភូគព្ភសាស្ត្រសមុទ្រនៅកម្ពុជារួមមាន ព្យុះរលកធំៗ (Storm surges) ការហូរច្រោះបាតសមុទ្រជុំវិញបំពង់បង្ហូរប្រេង និងខ្សែខ្សែកាបអុបទិកក្រោមសមុទ្រ (Subsea pipelines & cables) និងការប្រែប្រួលបន្ទាត់ឆ្នេរ។",
+          "ការវាស់វែងជម្រៅទឹកបែបពហុធ្នឹម (Multibeam bathymetric surveys) និងការពិនិត្យរូបរាងបាតសមុទ្រ (Side-scan sonar) កំពុងត្រូវបានពង្រីក ដើម្បីគាំទ្រដល់ការធ្វើផែនការលំហសមុទ្រ (Marine Spatial Planning) សុវត្ថិភាពនាវាចរណ៍ និងការសាងសង់កំពង់ផែទឹកជ្រៅក្រុងព្រះសីហនុ។",
+        ],
+        bodyEn: [
+          "The semi-enclosed Gulf of Thailand is characterized by shallow bathymetry (average depths 45–80 m), precluding major deep-ocean tsunami hazards. However, marine geohazards encompass severe monsoon storm surges, seabed scour around subsea telecommunication cables and oil infrastructure, and localized slope failures along submerged canyon margins.",
+          "Modern high-resolution multibeam echo-sounding (MBES) and sub-bottom acoustic profiling are expanding rapidly across Cambodian waters, providing baseline bathymetric and geotechnical data vital for deep-water port expansion in Sihanoukville and national marine spatial planning.",
+        ],
+      },
+      {
+        titleKm: "៧. ទិសដៅអនាគតសម្រាប់វិស័យភូគព្ភសាស្ត្រសមុទ្រកម្ពុជា (Future Horizons for Cambodia's Marine Geosciences)",
+        titleEn: "7. Future Research Horizons and Blue Economy Opportunities",
+        bodyKm: [
+          "ការអភិវឌ្ឍសេដ្ឋកិច្ចខៀវ (Blue Economy) របស់កម្ពុជាទាមទារនូវការពង្រឹងសមត្ថភាពស្រាវជ្រាវភូគព្ភសាស្ត្រសមុទ្រលើវិស័យសំខាន់ៗ៖",
+        ],
+        bodyEn: [
+          "Unlocking Cambodia's sustainable Blue Economy mandates advancing marine geoscience capabilities across three critical frontiers:",
+        ],
+        bulletsKm: [
+          "ការស្រាវជ្រាវអន្ទាក់កាបូនក្រោមបាតសមុទ្រ (Offshore Carbon Capture & Storage - CCS): សិក្សាអំពីសក្តានុពលនៃអាងល្បាប់សេណូសូអ៊ិកបាតសមុទ្រ ក្នុងការស្តុកទុកឧស្ម័នកាបូនិក (CO2) ជម្រៅជ្រៅ ដើម្បីឆ្លើយតបនឹងការប្រែប្រួលអាកាសធាតុ។",
+          "ការធ្វើផែនទីធនធានបាតសមុទ្រឌីជីថល (Digital Marine Seabed Atlas): បង្កើតផែនទីលម្អិតអំពីប្រភេទទម្រង់ដីបាតសមុទ្រ ជម្រៅទឹក និងប្រព័ន្ធអេកូឡូស៊ី ដើម្បីគាំទ្រដល់ការអភិរក្ស និងការនេសាទប្រកបដោយចីរភាព។",
+          "កិច្ចសហប្រតិបត្តិការអន្តរជាតិលើដែនសមុទ្រត្រួតស៊ីគ្នា (Joint Development Cooperation): ជំរុញកិច្ចសហការស្រាវជ្រាវវិទ្យាសាស្ត្ររួមគ្នាក្នុងតំបន់ទាមទារត្រួតស៊ីគ្នា (Overlapping Claims Area - OCA) ដើម្បីចែករំលែកទិន្នន័យ និងផលប្រយោជន៍ថាមពល។",
+        ],
+        bulletsEn: [
+          "Offshore Carbon Capture and Storage (CCS): Evaluating depleted offshore reservoirs and deep saline formations in the Khmer Basin for long-term supercritical CO2 sequestration.",
+          "Digital Marine Seabed Atlas: Systematically mapping benthic habitats, surficial sediment textures, and bathymetry to underpin evidence-based marine protected area (MPA) zoning.",
+          "Cross-Border Scientific Partnerships in Overlapping Areas: Advancing joint scientific research and resource appraisals across the Overlapping Claims Area (OCA) with neighboring Thailand.",
+        ],
+      },
+    ],
+    relatedPaperIds: ["local-b40e5b34438f", "tectonics-sio-2023", "local-23443d1465d4", "local-1c12576736bd"],
+    keyHighlightsKm: [
+      "ដែនសមុទ្រកម្ពុជាមានផ្ទៃក្រឡាប្រមាណ ៤០.០០០ គីឡូម៉ែត្រការ៉េ លើផ្លាតទ្វីបស៊ុនដាក្នុងឈូងសមុទ្រថៃ",
+      "អាងខ្មែរ (Khmer Basin) មានកម្រាស់ល្បាប់សេណូសូអ៊ិករហូតដល់ជាង ៦.០០០–៨.០០០ ម៉ែត្រ",
+      "ការត្រឡប់ស្រទាប់អាង (Basin Inversion) នៅដើមសេណូសូអ៊ិក និងមីយ៉ូសែនចុងក្រោយ បានបង្កើតអន្ទាក់ប្រេងកាតដ៏សំខាន់",
+      "ឆ្នេរសមុទ្រប្រវែង ៤៤០ គីឡូម៉ែត្រ ទាមទារការតាមដានតុល្យភាពល្បាប់ និងការការពារការហូរច្រោះ",
+      "សក្តានុពលសេដ្ឋកិច្ចខៀវរួមមាន ថាមពលប្រេងកាត ខ្សាច់សំណង់ និងការស្តុកកាបូនក្រោមបាតសមុទ្រ (Offshore CCS)",
+    ],
+    keyHighlightsEn: [
+      "Cambodia's marine jurisdiction encompasses ~40,000 km² across the Sunda Shelf in the Gulf of Thailand",
+      "The offshore Khmer Basin preserves >6,000–8,000 m of petroliferous Cenozoic syn-rift and post-rift sediments",
+      "Multi-phase basin inversion during the Palaeocene–Eocene and Late Miocene generated anticlinal structural traps",
+      "The 440-km coast requires sediment budget tracking to counteract erosion hotspots and protect mangrove ecosystems",
+      "Blue Economy prospects include hydrocarbon reserves, sustainable marine aggregates, and offshore carbon storage (CCS)",
+    ],
+    sources: [
+      {
+        id: "[R1]",
+        text: "Fyhn, M.B.W., Boldreel, L.O., & Nielsen, L.H. (2010). Palaeocene–early Eocene inversion of the Phuquoc–Kampot Som Basin: SE Asian deformed margin. Journal of the Geological Society, London, 167(2), 281-296.",
+        url: "https://doi.org/10.1144/0016-76492009-026",
+      },
+      {
+        id: "[R2]",
+        text: "Vysotsky, V.I., et al. (1994). Petroleum Geology of Cambodia. Ministry of Industry, Mines and Energy (MIME) & Cambodian National Petroleum Authority, Phnom Penh.",
+      },
+      {
+        id: "[R3]",
+        text: "Morley, C.K. (2004). Nested strike-slip duplexes, and processes of basin formation, inversion, and strike-slip faulting: examples from the Gulf of Thailand. AAPG Bulletin, 88(2), 217-240.",
+        url: "https://doi.org/10.1306/09240303036",
+      },
+      {
+        id: "[R4]",
+        text: "Ministry of Environment & PEMSEA. (2020). Atlas of Sihanoukville Coastal Zone: Marine Environment and Shoreline Dynamics. National Coastal Management Report, Phnom Penh.",
+      },
+      {
+        id: "[R5]",
+        text: "Polachan, S., Pradidtan, S., Tongtaow, C., et al. (1991). Development of Cenozoic basins in Thailand. Marine and Petroleum Geology, 8(1), 84-97.",
+        url: "https://doi.org/10.1016/0264-8172(91)90044-T",
+      },
+    ],
+  },
+
 ];
 
 export function getTopicByIdOrSlug(idOrSlug: string | null): FocusTopic | undefined {
