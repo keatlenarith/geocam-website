@@ -23,7 +23,7 @@ export const dict = {
     en: "Earthquake Monitoring",
     km: "ការតាមដានការរញ្ជួយដី",
   },
-  mining: { en: "Mining", km: "ព័ត៌មានវិស័យរ៉ែ" },
+  mining: { en: "Mining Sector", km: "ព័ត៌មានវិស័យរ៉ែ" },
   environmentalMonitoring: {
     en: "Environmental Monitoring",
     km: "ការតាមដានបរិស្ថាន",

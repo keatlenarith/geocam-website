@@ -150,7 +150,7 @@ export const defaultPageData: Record<
       "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1000&q=85",
   },
   "/mining": {
-    titleEn: "Mining Cadastre Portal",
+    titleEn: "Mining Sector",
     titleKm: "ព័ត៌មានវិស័យរ៉ែ",
     category: "Tools & Portals",
     headlineEn: "Mining Licenses, Concessions & Minerals Cadastre",
