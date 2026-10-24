@@ -39,9 +39,21 @@ export function FacebookManager() {
   const [manualType, setManualType] = useState<"news" | "event" | "earthquake" | "post">("news");
 
   useEffect(() => {
-    setSettings(getFacebookSettings());
-    setTokenInput(getFacebookSettings().accessToken || "");
+    const current = getFacebookSettings();
+    if (current.pageId === "360240070266245" || !current.pageId) {
+      const fixed = saveFacebookSettings({ pageId: FACEBOOK_PAGE_ID, pageUrl: FACEBOOK_PAGE_URL });
+      setSettings(fixed);
+      setTokenInput(fixed.accessToken || "");
+    } else {
+      setSettings(current);
+      setTokenInput(current.accessToken || "");
+    }
   }, []);
+
+  const handleClearLog = () => {
+    const updated = saveFacebookSettings({ recentBroadcasts: [] });
+    setSettings(updated);
+  };
 
   const handleSaveToken = () => {
     const updated = saveFacebookSettings({ accessToken: tokenInput.trim() });
@@ -443,9 +455,20 @@ export function FacebookManager() {
             <History size={18} className="text-slate-600 dark:text-slate-300" />
             <h3 className="font-bold text-slate-900 dark:text-white">Recent Broadcast Activity Log</h3>
           </div>
-          <span className="text-xs text-slate-500">
-            {settings.recentBroadcasts?.length || 0} broadcast records
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-slate-500">
+              {settings.recentBroadcasts?.length || 0} broadcast records
+            </span>
+            {settings.recentBroadcasts && settings.recentBroadcasts.length > 0 && (
+              <button
+                type="button"
+                onClick={handleClearLog}
+                className="text-xs text-rose-600 hover:underline font-semibold"
+              >
+                Clear Log
+              </button>
+            )}
+          </div>
         </div>
 
         {(!settings.recentBroadcasts || settings.recentBroadcasts.length === 0) ? (

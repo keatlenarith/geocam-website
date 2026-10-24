@@ -26,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const {
-    pageId = process.env.FB_PAGE_ID || DEFAULT_PAGE_ID,
+    pageId: rawPageId,
     accessToken = process.env.FB_PAGE_ACCESS_TOKEN,
     message,
     link,
@@ -34,6 +34,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     type,
     title,
   } = req.body || {};
+
+  // Auto-correct: 360240070266245 is the Business Portfolio ID; the actual Page ID is 105049257586051 (GeoCam101)
+  let pageId = rawPageId || process.env.FB_PAGE_ID || DEFAULT_PAGE_ID;
+  if (pageId === "360240070266245" || !pageId) {
+    pageId = "105049257586051";
+  }
 
   if (!message && !title) {
     return res.status(400).json({

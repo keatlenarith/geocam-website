@@ -43,6 +43,16 @@ export function getFacebookSettings(): FacebookSettings {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return getDefaultFacebookSettings();
     const parsed = JSON.parse(raw);
+
+    // Auto-migrate old Business Portfolio ID to actual Page ID
+    if (parsed.pageId === "360240070266245" || !parsed.pageId) {
+      parsed.pageId = FACEBOOK_PAGE_ID;
+      parsed.pageUrl = FACEBOOK_PAGE_URL;
+      parsed.pageName = FACEBOOK_PAGE_NAME;
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...parsed, pageId: FACEBOOK_PAGE_ID, pageUrl: FACEBOOK_PAGE_URL }));
+      } catch {}
+    }
     return {
       ...getDefaultFacebookSettings(),
       ...parsed,
