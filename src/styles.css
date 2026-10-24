@@ -387,12 +387,16 @@ html[data-geocam-fonts="approved"] body [lang="km"] *:not(code):not(pre):not(svg
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 
-/* Image controls bar (Crop, Resize, Fit Mode, Drag, Remove) - Free / Uncapped expansion */
+/* Standard Image & Figure containment */
 .geocam-img-wrapper {
   position: relative;
-  display: inline-block;
-  max-width: none !important;
-  overflow: visible;
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  border-radius: 0.75rem !important;
+  background-color: #ffffff !important;
   height: auto !important;
 }
 .geocam-table-wrapper {
@@ -528,7 +532,88 @@ table[style*="min-width"] {
 }
 
 
-/* Responsive image sizing for Laptop & Desktop viewports */
+/* ==========================================================================
+   STANDARD POST & ARTICLE FIGURE SYSTEM (3-Image Standard)
+   Ensures all post figures on mobile and desktop have identical clean cards,
+   rounded borders, crisp aspect-ratio containment, and elegant captions.
+   ========================================================================== */
+article figure,
+.geocam-article-body figure,
+.geocam-figure,
+figure.geocam-figure {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 1.5rem auto !important;
+  border-radius: 1rem !important;
+  border: 1px solid #e2e8f0 !important;
+  background-color: rgba(248, 250, 252, 0.75) !important;
+  padding: 0.75rem !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  text-align: center !important;
+  overflow: hidden !important;
+}
+
+.geocam-img-box {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  border-radius: 0.75rem !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  box-sizing: border-box !important;
+}
+
+article figure img,
+.geocam-article-body figure img,
+.geocam-article-body img,
+.geocam-figure img,
+.geocam-img-box img,
+.geocam-img-wrapper img {
+  border-radius: 0.75rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  max-height: 60vh !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+
+article figure figcaption,
+.geocam-article-body figcaption,
+.geocam-figure figcaption {
+  font-size: 0.75rem !important;
+  color: #475569 !important;
+  text-align: center !important;
+  margin-top: 0.625rem !important;
+  font-style: italic !important;
+  padding: 0 0.5rem !important;
+  line-height: 1.5 !important;
+}
+
+@media (max-width: 768px) {
+  article figure,
+  .geocam-article-body figure,
+  .geocam-figure {
+    padding: 0.5rem !important;
+    margin: 1.25rem auto !important;
+  }
+  article figure img,
+  .geocam-article-body figure img,
+  .geocam-article-body img,
+  .geocam-figure img,
+  .geocam-img-box img,
+  .geocam-img-wrapper img {
+    max-height: 55vh !important;
+  }
+}
+
 @media (min-width: 1024px) {
   article figure,
   .geocam-article-body figure,
@@ -539,6 +624,8 @@ table[style*="min-width"] {
   }
   article figure img,
   .geocam-article-body img,
+  .geocam-figure img,
+  .geocam-img-box img,
   .geocam-img-wrapper img {
     max-height: 65vh !important;
     object-fit: contain !important;

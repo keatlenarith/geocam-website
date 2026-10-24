@@ -54,21 +54,21 @@ export default function PublicationView() {
             </p>
             {p.authors && <p className="mt-2 text-slate-800 font-medium">{p.authors}</p>}
 
-            {/* Document / Paper Figure Preview */}
+            {/* Document / Paper Figure Preview - 3-Image Standard */}
             {p.image && (
-              <figure className="my-6 overflow-hidden rounded-xl border border-slate-200 bg-slate-50/80 p-3 shadow-xs">
+              <figure className="geocam-figure my-6 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-2 sm:p-3 shadow-xs text-center">
                 <a
                   href={p.pdfUrl || p.image}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block group relative"
+                  className="geocam-img-box block group relative w-full overflow-hidden rounded-xl bg-white shadow-xs"
                 >
                   <img
                     src={p.image}
                     alt={p.title}
-                    className="max-h-[550px] w-full object-contain rounded-lg mx-auto bg-white transition group-hover:opacity-95 shadow-xs"
+                    className="w-full max-w-full h-auto max-h-[60vh] object-contain rounded-xl mx-auto block transition group-hover:opacity-95"
                   />
-                  <div className="mt-2 text-center text-xs text-slate-600 italic flex items-center justify-center gap-1.5">
+                  <div className="mt-2 text-center text-xs text-slate-600 italic flex items-center justify-center gap-1.5 pb-1">
                     <Eye size={13} className="text-emerald-600" />
                     <span>
                       {lang === "km"

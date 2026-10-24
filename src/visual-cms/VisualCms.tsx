@@ -947,11 +947,11 @@ export function VisualCmsLayer({ page }: { page: string }) {
         "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1000&q=80";
       // Uncapped image expansion (object-fit: contain, no arbitrary height cap, fully resizable)
       blockHtml = `
-        <figure class="my-6 overflow-visible rounded-2xl border border-slate-200 bg-slate-50/60 p-3 shadow-md text-center geocam-inserted-block geocam-draggable-block" draggable="true" data-block-id="${blockId}">
-          <div class="geocam-img-wrapper" style="max-width: none; display: inline-block;">
-            <img src="${src}" alt="Inserted geological photo" class="rounded-xl object-contain bg-slate-50 mx-auto geocam-editable" style="object-fit: contain; width: 100%; height: auto; max-width: none; max-height: none;" data-cms-key="inserted-img-${blockId}" data-fit-mode="contain" />
+        <figure class="geocam-figure my-6 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs text-center geocam-inserted-block geocam-draggable-block" draggable="true" data-block-id="${blockId}">
+          <div class="geocam-img-box w-full overflow-hidden rounded-xl bg-white shadow-xs flex items-center justify-center">
+            <img src="${src}" alt="Inserted geological photo" class="w-full max-w-full h-auto max-h-[480px] object-contain rounded-xl mx-auto block geocam-editable" data-cms-key="inserted-img-${blockId}" data-fit-mode="contain" />
           </div>
-          <figcaption class="text-xs text-slate-500 mt-2 text-center italic geocam-editable" data-cms-key="inserted-cap-${blockId}">Photo description and geological field notes</figcaption>
+          <figcaption class="mt-2.5 text-xs text-center text-slate-600 italic px-2 leading-relaxed geocam-editable" data-cms-key="inserted-cap-${blockId}">Photo description and geological field notes</figcaption>
         </figure>
       `;
     } else if (type === "table") {

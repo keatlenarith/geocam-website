@@ -81,7 +81,7 @@ export default function ResearchTopic() {
         </div>
 
         {/* Main Post Article */}
-        <article className="card-surface mx-auto max-w-5xl p-6 md:p-10 shadow-sm rounded-2xl border border-slate-200">
+        <article className="card-surface mx-auto max-w-5xl p-4 sm:p-6 md:p-10 shadow-sm rounded-2xl border border-slate-200 w-full overflow-hidden">
           {/* Header metadata */}
           <div className="border-b border-slate-200 pb-6 mb-8">
             <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -93,21 +93,21 @@ export default function ResearchTopic() {
                 {lang === "km" ? "សមាគមភូគព្ភវិទ្យាសាស្ត្រកម្ពុជា" : "Geosciences Society of Cambodia"}
               </span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight break-words">
               {lang === "km" ? focus.titleKm : focus.titleEn}
             </h1>
-            <p className="mt-4 text-lg md:text-xl text-slate-700 leading-relaxed font-medium">
+            <p className="mt-4 text-base sm:text-lg md:text-xl text-slate-700 leading-relaxed font-medium">
               {lang === "km" ? focus.leadKm : focus.leadEn}
             </p>
 
             {/* Quick stats grid */}
             <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
               {focus.stats.map((s, idx) => (
-                <div key={idx} className="rounded-xl border border-slate-100 bg-slate-50/80 p-3.5">
-                  <span className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <div key={idx} className="rounded-xl border border-slate-100 bg-slate-50/80 p-3 sm:p-3.5 min-w-0">
+                  <span className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">
                     {lang === "km" ? s.labelKm : s.labelEn}
                   </span>
-                  <strong className="mt-1 block text-sm md:text-base font-bold text-emerald-800">
+                  <strong className="mt-1 block text-sm md:text-base font-bold text-emerald-800 break-words">
                     {s.value}
                   </strong>
                 </div>
@@ -115,16 +115,17 @@ export default function ResearchTopic() {
             </div>
           </div>
 
-          {/* Featured Image */}
-          <figure className="mb-10 mx-auto max-w-3xl rounded-xl border border-slate-200 bg-slate-50 overflow-visible p-2">
-            <img
-              src={focus.image}
-              alt={focus.imageAlt}
-              className="w-full max-h-[60vh] object-contain bg-slate-50 mx-auto rounded-lg"
-              style={{ maxHeight: "60vh", height: "auto" }}
-              loading="lazy"
-            />
-            <figcaption className="p-3.5 text-xs text-center text-muted-foreground bg-slate-100/70 border-t border-slate-200 mt-2">
+          {/* Featured Image - 3-Image Standard */}
+          <figure className="geocam-figure mb-10 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-2 sm:p-3 shadow-xs text-center">
+            <div className="geocam-img-box w-full overflow-hidden rounded-xl bg-white shadow-xs flex items-center justify-center">
+              <img
+                src={focus.image}
+                alt={focus.imageAlt}
+                className="w-full max-w-full h-auto max-h-[60vh] object-contain mx-auto block"
+                loading="eager"
+              />
+            </div>
+            <figcaption className="mt-2.5 text-xs text-center text-slate-600 italic px-2 leading-relaxed">
               {lang === "km" ? focus.captionKm : focus.captionEn}
             </figcaption>
           </figure>
@@ -160,54 +161,42 @@ export default function ResearchTopic() {
                   ))}
                 </div>
 
-                {/* Optional Section Image */}
+                {/* Optional Section Image - 3-Image Standard */}
                 {section.image && (
-                  <figure
-                    className="my-6 mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs overflow-visible text-center"
-                    style={{ height: "auto" }}
-                  >
-                    <div
-                      className="geocam-img-wrapper"
-                      style={{ maxWidth: "none", display: "inline-block", width: "100%", height: "auto" }}
-                    >
+                  <figure className="geocam-figure my-6 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-2 sm:p-3 shadow-xs text-center">
+                    <div className="geocam-img-box w-full overflow-hidden rounded-xl bg-white shadow-xs flex items-center justify-center">
                       <img
                         src={section.image}
                         alt={lang === "km" ? section.imageCaptionKm || "" : section.imageCaptionEn || ""}
-                        className="w-full object-contain rounded-xl mx-auto bg-white shadow-xs"
-                        style={{ maxHeight: "none", height: "auto" }}
+                        className="w-full max-w-full h-auto max-h-[60vh] object-contain mx-auto block"
                         loading="lazy"
                       />
                     </div>
                     {(section.imageCaptionKm || section.imageCaptionEn) && (
-                      <figcaption className="mt-2.5 text-xs text-center text-slate-600 italic px-2">
+                      <figcaption className="mt-2.5 text-xs text-center text-slate-600 italic px-2 leading-relaxed">
                         {lang === "km" ? section.imageCaptionKm : section.imageCaptionEn}
                       </figcaption>
                     )}
                   </figure>
                 )}
 
-                {/* Optional Multiple Section Images */}
+                {/* Optional Multiple Section Images - 3-Image Standard */}
                 {section.images &&
                   section.images.map((imgItem, imgIdx) => (
                     <figure
                       key={imgIdx}
-                      className="my-6 mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs overflow-visible text-center"
-                      style={{ height: "auto" }}
+                      className="geocam-figure my-6 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-2 sm:p-3 shadow-xs text-center"
                     >
-                      <div
-                        className="geocam-img-wrapper"
-                        style={{ maxWidth: "none", display: "inline-block", width: "100%", height: "auto" }}
-                      >
+                      <div className="geocam-img-box w-full overflow-hidden rounded-xl bg-white shadow-xs flex items-center justify-center">
                         <img
                           src={imgItem.url}
                           alt={lang === "km" ? imgItem.captionKm || "" : imgItem.captionEn || ""}
-                          className="w-full object-contain rounded-xl mx-auto bg-white shadow-xs"
-                          style={{ maxHeight: "none", height: "auto" }}
+                          className="w-full max-w-full h-auto max-h-[60vh] object-contain mx-auto block"
                           loading="lazy"
                         />
                       </div>
                       {(imgItem.captionKm || imgItem.captionEn) && (
-                        <figcaption className="mt-2.5 text-xs text-center text-slate-600 italic px-2">
+                        <figcaption className="mt-2.5 text-xs text-center text-slate-600 italic px-2 leading-relaxed">
                           {lang === "km" ? imgItem.captionKm : imgItem.captionEn}
                         </figcaption>
                       )}
@@ -216,7 +205,7 @@ export default function ResearchTopic() {
 
                 {/* Optional Structured Table */}
                 {section.table && (
-                  <div className="my-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-xs">
+                  <div className="my-6 w-full max-w-full overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-xs">
                     {(section.table.captionKm || section.table.captionEn) && (
                       <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 font-semibold text-slate-800 text-sm">
                         {lang === "km" && section.table.captionKm ? section.table.captionKm : section.table.captionEn}
@@ -307,7 +296,7 @@ export default function ResearchTopic() {
               {related.map((p) => (
                 <div
                   key={p.id}
-                  className="group rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between"
+                  className="group rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between w-full min-w-0"
                 >
                   <div>
                     {/* Visual figure / paper thumbnail */}
@@ -354,7 +343,7 @@ export default function ResearchTopic() {
                           )}
                         </div>
                       )}
-                      <h4 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition leading-snug">
+                      <h4 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition leading-snug break-words [overflow-wrap:anywhere]">
                         <Link to={"/publications/view?id=" + p.id}>
                           {p.title}
                         </Link>

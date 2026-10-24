@@ -987,7 +987,7 @@ export default function PostManager() {
         : contentTextareaRef.current;
       const val = isKm ? contentKm : content;
       const setter = isKm ? setContentKm : setContent;
-      const figureHtml = `\n<figure class="my-6">\n  <img src="${compressed}" alt="${photoAltInput || "Geological photo"}" class="rounded-xl w-full max-h-[480px] object-contain bg-slate-50 shadow-md mx-auto" style="object-fit: contain; max-height: 480px; width: 100%;" data-fit-mode="contain" />\n  <figcaption class="text-xs text-slate-500 mt-2 text-center italic">${photoCaptionInput || "Photo caption"}</figcaption>\n</figure>\n`;
+      const figureHtml = `\n<figure class="geocam-figure my-6 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs text-center">\n  <div class="geocam-img-box w-full overflow-hidden rounded-xl bg-white shadow-xs flex items-center justify-center">\n    <img src="${compressed}" alt="${photoAltInput || "Geological photo"}" class="w-full max-w-full h-auto max-h-[480px] object-contain rounded-xl mx-auto block" />\n  </div>\n  <figcaption class="mt-2.5 text-xs text-center text-slate-600 italic px-2 leading-relaxed">${photoCaptionInput || "Photo caption"}</figcaption>\n</figure>\n`;
       insertHtmlAtCursor(textarea, figureHtml, "", "", val, setter);
       setActiveInserter(null);
       setPhotoUrlInput("");
@@ -1008,7 +1008,7 @@ export default function PostManager() {
       : contentTextareaRef.current;
     const val = isKm ? contentKm : content;
     const setter = isKm ? setContentKm : setContent;
-    const figureHtml = `\n<figure class="my-6">\n  <img src="${photoUrlInput.trim()}" alt="${photoAltInput.trim() || "Article image"}" class="rounded-xl w-full max-h-[480px] object-contain bg-slate-50 shadow-md mx-auto" style="object-fit: contain; max-height: 480px; width: 100%;" data-fit-mode="contain" />\n  <figcaption class="text-xs text-slate-500 mt-2 text-center italic">${photoCaptionInput.trim() || "Figure caption"}</figcaption>\n</figure>\n`;
+    const figureHtml = `\n<figure class="geocam-figure my-6 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs text-center">\n  <div class="geocam-img-box w-full overflow-hidden rounded-xl bg-white shadow-xs flex items-center justify-center">\n    <img src="${photoUrlInput.trim()}" alt="${photoAltInput.trim() || "Article image"}" class="w-full max-w-full h-auto max-h-[480px] object-contain rounded-xl mx-auto block" />\n  </div>\n  <figcaption class="mt-2.5 text-xs text-center text-slate-600 italic px-2 leading-relaxed">${photoCaptionInput.trim() || "Figure caption"}</figcaption>\n</figure>\n`;
     insertHtmlAtCursor(textarea, figureHtml, "", "", val, setter);
     setActiveInserter(null);
     setPhotoUrlInput("");
@@ -1024,7 +1024,7 @@ export default function PostManager() {
       : contentTextareaRef.current;
     const val = isKm ? contentKm : content;
     const setter = isKm ? setContentKm : setContent;
-    const figureHtml = `\n<figure class="my-6">\n  <img src="${preset.url}" alt="${preset.label}" class="rounded-xl w-full max-h-[480px] object-contain bg-slate-50 shadow-md mx-auto" style="object-fit: contain; max-height: 480px; width: 100%;" data-fit-mode="contain" />\n  <figcaption class="text-xs text-slate-500 mt-2 text-center italic">${preset.caption}</figcaption>\n</figure>\n`;
+    const figureHtml = `\n<figure class="geocam-figure my-6 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs text-center">\n  <div class="geocam-img-box w-full overflow-hidden rounded-xl bg-white shadow-xs flex items-center justify-center">\n    <img src="${preset.url}" alt="${preset.label}" class="w-full max-w-full h-auto max-h-[480px] object-contain rounded-xl mx-auto block" />\n  </div>\n  <figcaption class="mt-2.5 text-xs text-center text-slate-600 italic px-2 leading-relaxed">${preset.caption}</figcaption>\n</figure>\n`;
     insertHtmlAtCursor(textarea, figureHtml, "", "", val, setter);
     setActiveInserter(null);
   };
@@ -1257,7 +1257,7 @@ export default function PostManager() {
                     } else {
                       insertHtmlAtCursor(
                         textarea,
-                        `\n<figure class="my-6">\n  <img src="${cropped}" alt="Cropped figure" class="rounded-xl w-full max-h-[480px] object-contain bg-slate-50 shadow-md mx-auto" style="object-fit: contain; max-height: 480px; width: 100%;" data-fit-mode="contain" />\n</figure>\n`,
+                        `\n<figure class="geocam-figure my-6 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs text-center">\n  <div class="geocam-img-box w-full overflow-hidden rounded-xl bg-white shadow-xs flex items-center justify-center">\n    <img src="${cropped}" alt="Cropped figure" class="w-full max-w-full h-auto max-h-[480px] object-contain rounded-xl mx-auto block" />\n  </div>\n</figure>\n`,
                         "",
                         "",
                         val,
