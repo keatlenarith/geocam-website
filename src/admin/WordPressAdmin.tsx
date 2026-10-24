@@ -36,6 +36,8 @@ import { editablePages, useCms } from "../visual-cms/VisualCms";
 import { supabase } from "../lib/supabase";
 import PostManager from "./PostManager";
 import Appearance from "./Appearance";
+import { FacebookManager } from "./FacebookManager";
+import { Share2 } from "lucide-react";
 import TranslationManager from "./TranslationManager";
 import { Languages } from "lucide-react";
 import AnalyticsDashboard from "./AnalyticsDashboard";
@@ -61,7 +63,8 @@ type AdminSection =
   | "media"
   | "appearance"
   | "translations"
-  | "settings";
+  | "settings"
+  | "facebook";
 
 const publicationCategories = [
   "Tectonics",
@@ -575,6 +578,14 @@ export default function WordPressAdmin() {
             >
               <Languages size={18} />
               {!collapsed && <span>Translations (EN ↔ KH)</span>}
+            </li>
+
+            <li
+              className={`wp-menu-item ${section === "facebook" ? "active" : ""}`}
+              onClick={() => handleNav("facebook")}
+            >
+              <Share2 size={18} />
+              {!collapsed && <span>Facebook Publisher</span>}
             </li>
 
             <li
@@ -1509,6 +1520,8 @@ export default function WordPressAdmin() {
           {/* ================================================================
               VIEW: SETTINGS
               ================================================================ */}
+          {section === "facebook" && <FacebookManager />}
+
           {section === "settings" && (
             <div>
               <div className="wp-header">
