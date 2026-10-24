@@ -36,6 +36,7 @@ import { editablePages, useCms } from "../visual-cms/VisualCms";
 import { supabase } from "../lib/supabase";
 import PostManager from "./PostManager";
 import Appearance from "./Appearance";
+import { MemberManager } from "./MemberManager";
 import { FacebookManager } from "./FacebookManager";
 import { Share2 } from "lucide-react";
 import TranslationManager from "./TranslationManager";
@@ -1448,58 +1449,8 @@ export default function WordPressAdmin() {
               VIEW: MEMBERS
               ================================================================ */}
           {section === "members" && (
-            <div>
-              <div className="wp-header">
-                <h1>Membership Applications</h1>
-              </div>
-              <table className="wp-list-table">
-                <thead>
-                  <tr>
-                    <th>Applicant Name</th>
-                    <th>Email Address</th>
-                    <th>Category</th>
-                    <th>Submitted</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {applications.map((app) => (
-                    <tr key={app.id}>
-                      <td><strong>{app.name}</strong></td>
-                      <td>{app.email}</td>
-                      <td>{app.category}</td>
-                      <td>{app.submitted}</td>
-                      <td><span className={`status-badge ${app.status}`}>{app.status}</span></td>
-                      <td>
-                        {app.status === "pending" ? (
-                          <div style={{ display: "flex", gap: "8px" }}>
-                            <button
-                              className="button button-small button-primary"
-                              onClick={() =>
-                                setApplications(applications.map((a) => (a.id === app.id ? { ...a, status: "approved" } : a)))
-                              }
-                            >
-                              Approve
-                            </button>
-                            <button
-                              className="button button-small"
-                              style={{ color: "var(--wp-rose)" }}
-                              onClick={() =>
-                                setApplications(applications.map((a) => (a.id === app.id ? { ...a, status: "rejected" } : a)))
-                              }
-                            >
-                              Reject
-                            </button>
-                          </div>
-                        ) : (
-                          <span>Reviewed</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="p-4 sm:p-6 bg-background rounded-xl border border-border mt-2">
+              <MemberManager />
             </div>
           )}
 

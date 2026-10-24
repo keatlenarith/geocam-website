@@ -1,4 +1,4 @@
-import researchLibrary from "./research-library.json";
+import researchLibrary from "./research-library.json" with { type: "json" };
 // Publication records come from the collected research library.
 // Other news, members and events remain prototype/demo data.
 
@@ -44,13 +44,32 @@ export type Publication = {
   tags: string[];
   alternateFiles?: { label: string; url: string }[];
 };
+export type MemberLevel =
+  | "Student"
+  | "Professional"
+  | "Associate"
+  | "Honorary Fellow"
+  | "Corporate"
+  | "Executive";
+
+export type MemberStatus = "Active" | "Inactive" | "Pending" | "Expired";
+
 export type Member = {
   id: string;
   name: string;
+  nameKm?: string;
   affiliation: string;
+  affiliationKm?: string;
   field: string;
+  fieldKm?: string;
   showInDirectory: boolean;
   email: string;
+  level?: MemberLevel;
+  status?: MemberStatus;
+  joinedDate?: string;
+  expiryDate?: string;
+  phone?: string;
+  notes?: string;
 };
 export type Application = {
   id: string;
@@ -59,6 +78,7 @@ export type Application = {
   category: string;
   submitted: string;
   status: "pending" | "approved" | "rejected";
+  notes?: string;
 };
 
 export const topics = [...new Set(researchLibrary.map((p) => p.topic))].sort();
@@ -184,42 +204,100 @@ export const members: Member[] = [
   {
     id: "m1",
     name: "Dara Sok",
-    affiliation: "University (sample)",
-    field: "Structural geology",
+    nameKm: "សុខ ដារ៉ា",
+    affiliation: "Institute of Technology of Cambodia (ITC)",
+    affiliationKm: "វិទ្យាស្ថានបច្ចេកវិទ្យាកម្ពុជា",
+    field: "Structural Geology",
+    fieldKm: "ភូគព្ភវិទ្យាសម្ព័ន្ធ",
     showInDirectory: true,
     email: "dara@example.org",
+    level: "Professional",
+    status: "Active",
+    joinedDate: "2024-01-15",
   },
   {
     id: "m2",
     name: "Sophea Kim",
-    affiliation: "Consultancy (sample)",
-    field: "Economic geology",
+    nameKm: "គីម សុភា",
+    affiliation: "Ministry of Mines and Energy",
+    affiliationKm: "ក្រសួងរ៉ែ និងថាមពល",
+    field: "Economic Geology & Minerals",
+    fieldKm: "ភូគព្ភវិទ្យាសេដ្ឋកិច្ច និងរ៉ែ",
     showInDirectory: true,
     email: "sophea@example.org",
+    level: "Professional",
+    status: "Active",
+    joinedDate: "2024-03-20",
   },
   {
     id: "m3",
-    name: "Private member",
-    affiliation: "—",
-    field: "Hydrogeology",
-    showInDirectory: false,
-    email: "hidden@example.org",
+    name: "Dr. Bopha Seng",
+    nameKm: "បណ្ឌិត សេង បុប្ផា",
+    affiliation: "Royal University of Phnom Penh (RUPP)",
+    affiliationKm: "សាកលវិទ្យាល័យភូមិន្ទភ្នំពេញ",
+    field: "Hydrogeology & Groundwater",
+    fieldKm: "ជលភូគព្ភវិទ្យា និងទឹកក្រោមដី",
+    showInDirectory: true,
+    email: "bopha@example.org",
+    level: "Executive",
+    status: "Active",
+    joinedDate: "2023-08-10",
   },
   {
     id: "m4",
     name: "Vannak Ny",
-    affiliation: "Research institute (sample)",
-    field: "Geophysics",
+    nameKm: "នី វណ្ណៈ",
+    affiliation: "Geophysical Exploration Survey",
+    affiliationKm: "ការអង្កេតភូគព្ភរូបវិទ្យា",
+    field: "Geophysics & Seismology",
+    fieldKm: "ភូគព្ភរូបវិទ្យា និងរញ្ជួយដី",
     showInDirectory: true,
     email: "vannak@example.org",
+    level: "Associate",
+    status: "Active",
+    joinedDate: "2025-02-01",
   },
   {
     id: "m5",
     name: "Lina Chea",
-    affiliation: "NGO (sample)",
-    field: "Geohazards",
+    nameKm: "ជា លីណា",
+    affiliation: "ITC - Faculty of Geo-resources",
+    affiliationKm: "វិទ្យាស្ថានបច្ចេកវិទ្យាកម្ពុជា",
+    field: "Geohazards & Remote Sensing",
+    fieldKm: "គ្រោះភូគព្ភសាស្ត្រ និងទិន្នន័យពីចម្ងាយ",
     showInDirectory: true,
     email: "lina@example.org",
+    level: "Student",
+    status: "Active",
+    joinedDate: "2025-09-10",
+  },
+  {
+    id: "m6",
+    name: "Dr. Jean-Baptiste Delaporte",
+    nameKm: "លោក ហ្សង់-បាទីស ដឺឡាប៉ត",
+    affiliation: "International Geosciences Collaborative",
+    affiliationKm: "កិច្ចសហប្រតិបត្តិការភូគព្ភវិទ្យាអន្តរជាតិ",
+    field: "Sedimentology & Stratigraphy",
+    fieldKm: "ស្រទាប់សិលា និងល្បាប់វិទ្យា",
+    showInDirectory: true,
+    email: "delaporte@example.org",
+    level: "Honorary Fellow",
+    status: "Active",
+    joinedDate: "2023-01-05",
+  },
+  {
+    id: "m7",
+    name: "Angkor Geospatial Solutions Co., Ltd.",
+    nameKm: "ក្រុមហ៊ុន អង្គរ ភូមិសាស្ត្រ ឌីជីថល",
+    affiliation: "Corporate Partner",
+    affiliationKm: "ដៃគូសាជីវកម្ម",
+    field: "GIS & LiDAR Surveying",
+    fieldKm: "ការអង្កេត GIS និង LiDAR",
+    showInDirectory: true,
+    email: "contact@angkor-geo.example.com",
+    level: "Corporate",
+    status: "Active",
+    joinedDate: "2024-06-18",
   },
 ];
 
