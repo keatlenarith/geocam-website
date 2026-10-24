@@ -20,7 +20,8 @@
     "scope": "Southeast Asia & Cambodia",
     "origin": "Published Literature",
     "metadataVerified": true,
-    "sourceUrl": "https://doi.org/10.51835/bsed.2023.49.2.439"
+    "sourceUrl": "https://doi.org/10.51835/bsed.2023.49.2.439",
+    "image": "/images/cms/focus-tectonics-image.jpg"
   },
   {
     "id": "tectonics-tsuchiyama-2016",
@@ -43,7 +44,8 @@
     "scope": "Southeast Asia & Cambodia",
     "origin": "Published Literature",
     "metadataVerified": true,
-    "sourceUrl": "https://doi.org/10.1016/j.epsl.2015.11.045"
+    "sourceUrl": "https://doi.org/10.1016/j.epsl.2015.11.045",
+    "image": "/images/publications/local-a338bebe6468.png"
   },
   {
     "id": "tectonics-fyhn-2016",
@@ -66,7 +68,8 @@
     "scope": "Southeast Asia & Cambodia",
     "origin": "Published Literature",
     "metadataVerified": true,
-    "sourceUrl": "https://doi.org/10.1002/2016jb012847"
+    "sourceUrl": "https://doi.org/10.1002/2016jb012847",
+    "image": "/images/publications/local-213a3ea527c1.png"
   },
   {
     "id": "tectonics-waight-2021",
@@ -89,7 +92,8 @@
     "scope": "Southeast Asia & Cambodia",
     "origin": "Published Literature",
     "metadataVerified": true,
-    "sourceUrl": "https://doi.org/10.1016/j.jseaes.2021.104902"
+    "sourceUrl": "https://doi.org/10.1016/j.jseaes.2021.104902",
+    "image": "/images/publications/local-ff24c3346575.png"
   },
   {
     "id": "tectonics-metcalfe-2017",
@@ -112,7 +116,8 @@
     "scope": "Southeast Asia & Cambodia",
     "origin": "Published Literature",
     "metadataVerified": true,
-    "sourceUrl": "https://doi.org/10.7186/bgsm63201702"
+    "sourceUrl": "https://doi.org/10.7186/bgsm63201702",
+    "image": "/images/tectonics/image1.png"
   },
   {
     "id": "web01",
@@ -132,7 +137,8 @@
     "sourceUrl": "https://www.sciencedirect.com/science/article/pii/S2352409X2600310X",
     "doi": "10.1016/j.jasrep.2026.105875",
     "origin": "Internet research",
-    "metadataVerified": true
+    "metadataVerified": true,
+    "image": "/images/publications/local-9b9d1322a109.png"
   },
   {
     "id": "web02",
@@ -153,7 +159,8 @@
     "sourceUrl": "https://www.sciencedirect.com/science/article/pii/S2214581826004581",
     "doi": "10.1016/j.ejrh.2026.103560",
     "origin": "Internet research",
-    "metadataVerified": true
+    "metadataVerified": true,
+    "image": "/images/cms/focus-geochemistry-image.jpg"
   },
   {
     "id": "web03",
@@ -175,7 +182,8 @@
     "doi": "10.21203/rs.3.rs-10575404/v1",
     "origin": "Internet research",
     "metadataVerified": true,
-    "pdfUrl": "/research/documents/2026-laang-spean-100ka-preprint-0fac699d2a.pdf"
+    "pdfUrl": "/research/documents/2026-laang-spean-100ka-preprint-0fac699d2a.pdf",
+    "image": "/images/publications/web03.png"
   },
   {
     "id": "web04",
@@ -195,7 +203,8 @@
     "sourceUrl": "https://www.sciencedirect.com/science/article/pii/S2351989426001277",
     "doi": "10.1016/j.gecco.2026.e04178",
     "origin": "Internet research",
-    "metadataVerified": true
+    "metadataVerified": true,
+    "image": "/images/publications/web09.png"
   },
   {
     "id": "web05",
@@ -217,7 +226,8 @@
     "doi": "10.1002/gj.70352",
     "origin": "Internet research",
     "metadataVerified": true,
-    "pdfUrl": "/research/documents/geological-journal-2026-seang-geochemistry-and-geochronology-of-magmatic-rocks-in-sou-19348a16af.pdf"
+    "pdfUrl": "/research/documents/geological-journal-2026-seang-geochemistry-and-geochronology-of-magmatic-rocks-in-sou-19348a16af.pdf",
+    "image": "/images/publications/web05.png"
   },
   {
     "id": "web06",
@@ -239,7 +249,8 @@
     "doi": "10.3724/j.issn.1007-2802.20250066",
     "origin": "Internet research",
     "metadataVerified": true,
-    "pdfUrl": "/research/documents/geochronology-geochemical-characteristics-and-petrogenesis-of-the-aoral-granite-and-i-dc80766fcf.pdf"
+    "pdfUrl": "/research/documents/geochronology-geochemical-characteristics-and-petrogenesis-of-the-aoral-granite-and-i-dc80766fcf.pdf",
+    "image": "/images/publications/web06.png"
   },
   {
     "id": "web07",
@@ -260,7 +271,8 @@
     "doi": "10.3390/d18050249",
     "origin": "Internet research",
     "metadataVerified": true,
-    "pdfUrl": "/research/documents/turtle-remains-from-koh-moul-sw-cambodia-and-their-stratigraphical-implications-d9465e0c59.pdf"
+    "pdfUrl": "/research/documents/turtle-remains-from-koh-moul-sw-cambodia-and-their-stratigraphical-implications-d9465e0c59.pdf",
+    "image": "/images/publications/web07.png"
   },
   {
     "id": "web08",
@@ -280,7 +292,8 @@
     "sourceUrl": "https://kcdz.ijournals.cn/kcdz/ch/reader/view_abstract.aspx?file_no=kcdz-45-1-89&flag=1",
     "doi": "10.16111/j.0258-7106.2026.01.006",
     "origin": "Internet research",
-    "metadataVerified": true
+    "metadataVerified": true,
+    "image": "/images/publications/web05-figure1.png"
   },
   {
     "id": "web09",
@@ -307,7 +320,8 @@
         "label": "Khmer edition",
         "url": "/research/documents/2026-cambodian-cave-guidelines-khmer-8d4b6738ca.pdf"
       }
-    ]
+    ],
+    "image": "/images/publications/web09.png"
   },
   {
     "id": "web10",
@@ -328,7 +342,8 @@
     "sourceUrl": "https://www.sciencedirect.com/science/article/pii/S0048969725021527",
     "doi": "10.1016/j.scitotenv.2025.180512",
     "origin": "Internet research",
-    "metadataVerified": true
+    "metadataVerified": true,
+    "image": "/images/cms/focus-geochemistry-image.jpg"
   },
   {
     "id": "web12",
@@ -349,7 +364,8 @@
     "doi": "10.36922/AJWEP025060037",
     "origin": "Internet research",
     "metadataVerified": true,
-    "pdfUrl": "/research/documents/2025-prek-te-artisanal-mining-water-quality-458f78c9e4.pdf"
+    "pdfUrl": "/research/documents/2025-prek-te-artisanal-mining-water-quality-458f78c9e4.pdf",
+    "image": "/images/publications/web12.png"
   },
   {
     "id": "web11",
@@ -371,7 +387,8 @@
     "doi": "10.1007/s10963-025-09197-1",
     "origin": "Internet research",
     "metadataVerified": true,
-    "pdfUrl": "/research/documents/2025-last-glacial-maximum-tropics-laang-spean-ae4c88e6c6.pdf"
+    "pdfUrl": "/research/documents/2025-last-glacial-maximum-tropics-laang-spean-ae4c88e6c6.pdf",
+    "image": "/images/publications/web11.png"
   },
   {
     "id": "web13",
@@ -392,7 +409,8 @@
     "sourceUrl": "https://www.sciencedirect.com/science/article/abs/pii/S0883292724002841",
     "doi": "10.1016/j.apgeochem.2024.106179",
     "origin": "Internet research",
-    "metadataVerified": true
+    "metadataVerified": true,
+    "image": "/images/publications/web12.png"
   },
   {
     "id": "web14",
@@ -414,7 +432,8 @@
     "doi": "",
     "origin": "Internet research",
     "metadataVerified": true,
-    "pdfUrl": "/research/documents/2023-itc-geology-mineralization-proceedings-56f054325d.pdf"
+    "pdfUrl": "/research/documents/2023-itc-geology-mineralization-proceedings-56f054325d.pdf",
+    "image": "/images/publications/web14.png"
   },
   {
     "id": "local-62cc43b78ffa",
@@ -431,7 +450,8 @@
     "scope": "Supporting References",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/rupp-62cc43b78f.pdf"
+    "pdfUrl": "/research/documents/rupp-62cc43b78f.pdf",
+    "image": "/images/publications/local-62cc43b78ffa.png"
   },
   {
     "id": "local-d8ad564a0ea2",
@@ -448,7 +468,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-zircon-xenocrysts-from-cenozoic-alkaline-basalts-d8ad564a0e.pdf"
+    "pdfUrl": "/research/documents/paper-zircon-xenocrysts-from-cenozoic-alkaline-basalts-d8ad564a0e.pdf",
+    "image": "/images/publications/local-d8ad564a0ea2.png"
   },
   {
     "id": "local-bca22ca3decd",
@@ -465,7 +486,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/zircon-u-pb-chronology-on-plutonic-rocks-from-northern-cambodia-bca22ca3de.pdf"
+    "pdfUrl": "/research/documents/zircon-u-pb-chronology-on-plutonic-rocks-from-northern-cambodia-bca22ca3de.pdf",
+    "image": "/images/publications/local-bca22ca3decd.png"
   },
   {
     "id": "local-7d51b8053457",
@@ -482,7 +504,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-udchachon-et-al-2017-suture-in-cambodia-tectonic-implications-7d51b80534.pdf"
+    "pdfUrl": "/research/documents/paper-udchachon-et-al-2017-suture-in-cambodia-tectonic-implications-7d51b80534.pdf",
+    "image": "/images/publications/local-7d51b8053457.png"
   },
   {
     "id": "local-ff24c3346575",
@@ -499,7 +522,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-two-magmatic-events-within-the-southern-indochina-block-constrained-by-new-zirc-ff24c33465.pdf"
+    "pdfUrl": "/research/documents/paper-two-magmatic-events-within-the-southern-indochina-block-constrained-by-new-zirc-ff24c33465.pdf",
+    "image": "/images/publications/local-ff24c3346575.png"
   },
   {
     "id": "local-ecc9e413afdb",
@@ -516,7 +540,8 @@
     "scope": "Regional Context",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-tin-metallogenesis-associated-with-grani-ecc9e413af.pdf"
+    "pdfUrl": "/research/documents/paper-tin-metallogenesis-associated-with-grani-ecc9e413af.pdf",
+    "image": "/images/publications/local-ecc9e413afdb.png"
   },
   {
     "id": "local-5607ec1f1471",
@@ -533,7 +558,8 @@
     "scope": "Regional Context",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-the-khao-yai-fault-on-the-southern-margin-of-the-khorat-plateau-and-the-5607ec1f14.pdf"
+    "pdfUrl": "/research/documents/paper-the-khao-yai-fault-on-the-southern-margin-of-the-khorat-plateau-and-the-5607ec1f14.pdf",
+    "image": "/images/publications/local-5607ec1f1471.png"
   },
   {
     "id": "local-c1465040ef54",
@@ -550,7 +576,8 @@
     "scope": "Regional Context",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-tethysian-metallogenesis-of-the-major-metalliferou-c1465040ef.pdf"
+    "pdfUrl": "/research/documents/paper-tethysian-metallogenesis-of-the-major-metalliferou-c1465040ef.pdf",
+    "image": "/images/publications/local-c1465040ef54.png"
   },
   {
     "id": "local-23443d1465d4",
@@ -567,7 +594,8 @@
     "scope": "Regional Context",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-tectonic-evolution-and-regional-setting-of-the-cuu-long-basin-vietnam-23443d1465.pdf"
+    "pdfUrl": "/research/documents/paper-tectonic-evolution-and-regional-setting-of-the-cuu-long-basin-vietnam-23443d1465.pdf",
+    "image": "/images/publications/local-23443d1465d4.png"
   },
   {
     "id": "local-1e2550d30286",
@@ -584,7 +612,8 @@
     "scope": "Regional Context",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-tectonic-blocks-and-suture-zones-of-eastern-thailand-evidence-from-airbone-geop-1e2550d302.pdf"
+    "pdfUrl": "/research/documents/paper-tectonic-blocks-and-suture-zones-of-eastern-thailand-evidence-from-airbone-geop-1e2550d302.pdf",
+    "image": "/images/publications/local-1e2550d30286.png"
   },
   {
     "id": "local-9b9d1322a109",
@@ -601,7 +630,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-sedimentology-of-late-holocene-fluvial-levee-and-point-bar-9b9d1322a1.pdf"
+    "pdfUrl": "/research/documents/paper-sedimentology-of-late-holocene-fluvial-levee-and-point-bar-9b9d1322a1.pdf",
+    "image": "/images/publications/local-9b9d1322a109.png"
   },
   {
     "id": "local-8bebe58c338a",
@@ -618,7 +648,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-rubies-from-thai-cambodia-v3-8bebe58c33.pdf"
+    "pdfUrl": "/research/documents/paper-rubies-from-thai-cambodia-v3-8bebe58c33.pdf",
+    "image": "/images/publications/local-8bebe58c338a.png"
   },
   {
     "id": "local-28e926d3bd67",
@@ -635,7 +666,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-radiocarbon-dating-of-a-speleothem-record-of-paleoclimate-for-angkor-cambodia-28e926d3bd.pdf"
+    "pdfUrl": "/research/documents/paper-radiocarbon-dating-of-a-speleothem-record-of-paleoclimate-for-angkor-cambodia-28e926d3bd.pdf",
+    "image": "/images/publications/local-28e926d3bd67.png"
   },
   {
     "id": "local-0b8d77d428bb",
@@ -652,7 +684,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/quaternary-of-cambodia-structure-and-stratigraphy-0b8d77d428.pdf"
+    "pdfUrl": "/research/documents/quaternary-of-cambodia-structure-and-stratigraphy-0b8d77d428.pdf",
+    "image": "/images/publications/local-0b8d77d428bb.png"
   },
   {
     "id": "local-976d03519edf",
@@ -669,7 +702,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/papper-petroleum-geology-of-cambodia-vysotsky1994-976d03519e.pdf"
+    "pdfUrl": "/research/documents/papper-petroleum-geology-of-cambodia-vysotsky1994-976d03519e.pdf",
+    "image": "/images/publications/local-976d03519edf.png"
   },
   {
     "id": "local-75db153720ca",
@@ -686,7 +720,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-petrogenesis-and-tectonic-setting-of-late-paleozoic-to-late-mesozoic-igneous-75db153720.pdf"
+    "pdfUrl": "/research/documents/paper-petrogenesis-and-tectonic-setting-of-late-paleozoic-to-late-mesozoic-igneous-75db153720.pdf",
+    "image": "/images/publications/local-75db153720ca.png"
   },
   {
     "id": "local-1c12576736bd",
@@ -703,7 +738,8 @@
     "scope": "Regional Context",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-permian-triassic-back-arc-basin-development-in-response-to-1c12576736.pdf"
+    "pdfUrl": "/research/documents/paper-permian-triassic-back-arc-basin-development-in-response-to-1c12576736.pdf",
+    "image": "/images/publications/local-1c12576736bd.png"
   },
   {
     "id": "local-a338bebe6468",
@@ -720,7 +756,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-paleomagnetismoflatejurassictoearlycretaceousfromsouthwesterncambodia-a338bebe64.pdf"
+    "pdfUrl": "/research/documents/paper-paleomagnetismoflatejurassictoearlycretaceousfromsouthwesterncambodia-a338bebe64.pdf",
+    "image": "/images/publications/local-a338bebe6468.png"
   },
   {
     "id": "local-dd380b80d658",
@@ -737,7 +774,8 @@
     "scope": "Regional Context",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/palaeozoic-mesozoic-history-of-se-asia-dd380b80d6.pdf"
+    "pdfUrl": "/research/documents/palaeozoic-mesozoic-history-of-se-asia-dd380b80d6.pdf",
+    "image": "/images/publications/local-dd380b80d658.png"
   },
   {
     "id": "local-fc48e0cb2be7",
@@ -754,7 +792,8 @@
     "scope": "Regional Context",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-palaeozoic-and-mesozoic-tectonic-evoluti-fc48e0cb2b.pdf"
+    "pdfUrl": "/research/documents/paper-palaeozoic-and-mesozoic-tectonic-evoluti-fc48e0cb2b.pdf",
+    "image": "/images/publications/local-fc48e0cb2be7.png"
   },
   {
     "id": "local-b40e5b34438f",
@@ -771,7 +810,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-palaeocene-early-eocene-inversion-of-the-phuquoc-kampot-som-basin-se-asian-b40e5b3443.pdf"
+    "pdfUrl": "/research/documents/paper-palaeocene-early-eocene-inversion-of-the-phuquoc-kampot-som-basin-se-asian-b40e5b3443.pdf",
+    "image": "/images/publications/local-b40e5b34438f.png"
   },
   {
     "id": "local-998034775431",
@@ -788,7 +828,8 @@
     "scope": "Supporting document; publication status unverified",
     "origin": "Local library",
     "metadataVerified": false,
-    "fileUrl": "/research/documents/overview-of-geological-features-and-resource-potential-of-karst-in-cambodia-9980347754.docx"
+    "fileUrl": "/research/documents/overview-of-geological-features-and-resource-potential-of-karst-in-cambodia-9980347754.docx",
+    "image": "/images/publications/local-998034775431.png"
   },
   {
     "id": "local-3434e8da6ba2",
@@ -805,7 +846,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-origin-of-zircon-megacrysts-from-cenozoic-basalts-in-northeastern-3434e8da6b.pdf"
+    "pdfUrl": "/research/documents/paper-origin-of-zircon-megacrysts-from-cenozoic-basalts-in-northeastern-3434e8da6b.pdf",
+    "image": "/images/publications/local-3434e8da6ba2.png"
   },
   {
     "id": "local-55f12de512bc",
@@ -822,7 +864,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-magnetic-susceptibility-and-geochemistry-of-granitic-rocks-in-cambodia-55f12de512.pdf"
+    "pdfUrl": "/research/documents/paper-magnetic-susceptibility-and-geochemistry-of-granitic-rocks-in-cambodia-55f12de512.pdf",
+    "image": "/images/publications/local-55f12de512bc.png"
   },
   {
     "id": "local-d09a4ea41fc8",
@@ -839,7 +882,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-khmer-sandstone-quarries-of-kulen-mountain-and-koh-ker-a-petrographic-d09a4ea41f.pdf"
+    "pdfUrl": "/research/documents/paper-khmer-sandstone-quarries-of-kulen-mountain-and-koh-ker-a-petrographic-d09a4ea41f.pdf",
+    "image": "/images/publications/local-d09a4ea41fc8.png"
   },
   {
     "id": "local-a4597399792f",
@@ -856,7 +900,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/thesis-holocene-climate-change-in-the-asian-monsoon-at-ratanakiri-a459739979.pdf"
+    "pdfUrl": "/research/documents/thesis-holocene-climate-change-in-the-asian-monsoon-at-ratanakiri-a459739979.pdf",
+    "image": "/images/publications/local-a4597399792f.png"
   },
   {
     "id": "local-6ffdb41007c7",
@@ -873,7 +918,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/early-cretaceous-volcanic-arc-magmatism-in-the-dalat-kratie-fold-belt-of-eastern-camb-6ffdb41007.pdf"
+    "pdfUrl": "/research/documents/early-cretaceous-volcanic-arc-magmatism-in-the-dalat-kratie-fold-belt-of-eastern-camb-6ffdb41007.pdf",
+    "image": "/images/publications/local-6ffdb41007c7.png"
   },
   {
     "id": "local-bc91b3656242",
@@ -890,7 +936,8 @@
     "scope": "Regional Context",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/papper-cretaceous-palaeogene-se-asia-bc91b36562.pdf"
+    "pdfUrl": "/research/documents/papper-cretaceous-palaeogene-se-asia-bc91b36562.pdf",
+    "image": "/images/publications/local-bc91b3656242.png"
   },
   {
     "id": "local-213a3ea527c1",
@@ -907,7 +954,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-cenozoic-deformation-and-exhumation-of-the-kampot-fold-213a3ea527.pdf"
+    "pdfUrl": "/research/documents/paper-cenozoic-deformation-and-exhumation-of-the-kampot-fold-213a3ea527.pdf",
+    "image": "/images/publications/local-213a3ea527c1.png"
   },
   {
     "id": "local-01750a847849",
@@ -924,7 +972,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-current-situation-of-mining-industry-01750a8478.pdf"
+    "pdfUrl": "/research/documents/paper-current-situation-of-mining-industry-01750a8478.pdf",
+    "image": "/images/publications/local-01750a847849.png"
   },
   {
     "id": "local-0741d3cb3775",
@@ -941,7 +990,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/atlas-of-sihanoukville-for-printed-0741d3cb37.pdf"
+    "pdfUrl": "/research/documents/atlas-of-sihanoukville-for-printed-0741d3cb37.pdf",
+    "image": "/images/publications/local-0741d3cb3775.png"
   },
   {
     "id": "local-66f8249914c1",
@@ -958,7 +1008,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/atlas-of-mineral-resources-of-the-escap-66f8249914.pdf"
+    "pdfUrl": "/research/documents/atlas-of-mineral-resources-of-the-escap-66f8249914.pdf",
+    "image": "/images/publications/local-66f8249914c1.png"
   },
   {
     "id": "local-59a1797c08dd",
@@ -975,7 +1026,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/atlas-of-mineral-resources-of-cambodia-59a1797c08.pdf"
+    "pdfUrl": "/research/documents/atlas-of-mineral-resources-of-cambodia-59a1797c08.pdf",
+    "image": "/images/publications/local-59a1797c08dd.png"
   },
   {
     "id": "local-ad8dc5ffc7ab",
@@ -992,7 +1044,8 @@
     "scope": "Regional Context",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-asia-south-east-ad8dc5ffc7.pdf"
+    "pdfUrl": "/research/documents/paper-asia-south-east-ad8dc5ffc7.pdf",
+    "image": "/images/publications/local-ad8dc5ffc7ab.png"
   },
   {
     "id": "local-ec4bd9c562a3",
@@ -1009,7 +1062,8 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-a-preliminary-assessment-of-geological-co2-storage-in-cambodia-ec4bd9c562.pdf"
+    "pdfUrl": "/research/documents/paper-a-preliminary-assessment-of-geological-co2-storage-in-cambodia-ec4bd9c562.pdf",
+    "image": "/images/publications/local-ec4bd9c562a3.png"
   },
   {
     "id": "local-6ae5dc332090",
@@ -1026,6 +1080,7 @@
     "scope": "Cambodia Studies",
     "origin": "Local library",
     "metadataVerified": false,
-    "pdfUrl": "/research/documents/paper-a-possible-source-in-cambodia-for-australasian-tektites-6ae5dc3320.pdf"
+    "pdfUrl": "/research/documents/paper-a-possible-source-in-cambodia-for-australasian-tektites-6ae5dc3320.pdf",
+    "image": "/images/publications/local-6ae5dc332090.png"
   }
 ]

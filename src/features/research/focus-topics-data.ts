@@ -430,12 +430,12 @@ export const FOCUS_TOPICS: FocusTopic[] = [
     relatedPaperIds: [
       "web05",
       "web08",
-      "local-59a1797c08e5",
-      "local-66f8249914b4",
-      "local-c1465040ef30",
-      "local-8bebe58c33ec",
-      "local-d8ad564a0e4c",
-      "local-56f054325dd2",
+      "local-59a1797c08dd",
+      "local-66f8249914c1",
+      "local-c1465040ef54",
+      "local-8bebe58c338a",
+      "local-d8ad564a0ea2",
+      "web14",
     ],
     keyHighlightsKm: [
       "ខ្សែក្រវាត់រ៉ែមាស Okvau ប្រព័ន្ធ Intrusion-Related Gold",

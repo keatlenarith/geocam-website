@@ -15,6 +15,7 @@ import {
   Edit3,
   Layers,
   Compass,
+  Eye,
 } from "lucide-react";
 import { FOCUS_TOPICS } from "@/features/research/focus-topics-data";
 import { matchesResearchArea } from "@/lib/publication-search";
@@ -215,37 +216,73 @@ function Research() {
             {filteredPubs.slice(0, 18).map((p) => (
               <div
                 key={p.id}
-                className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition"
+                className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition"
               >
                 <div>
-                  <div className="flex flex-wrap items-center gap-2 mb-2 text-xs text-muted-foreground">
-                    <span className="rounded bg-slate-100 px-2 py-0.5 font-medium text-slate-800">
-                      {p.topic}
-                    </span>
-                    {p.year && (
-                      <span className="rounded bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-800">
-                        {p.year}
+                  {/* Visual figure / paper preview */}
+                  {p.image ? (
+                    <Link
+                      to={"/publications/view?id=" + p.id}
+                      className="block relative aspect-[16/10] w-full overflow-hidden bg-slate-100 border-b border-slate-100"
+                    >
+                      <img
+                        src={p.image}
+                        alt={p.title}
+                        className="h-full w-full object-cover object-top transition duration-300 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                        <span className="text-white text-xs font-semibold flex items-center gap-1.5 drop-shadow">
+                          <Eye size={13} />
+                          {lang === "km" ? "មើលរូបភាព / ឯកសារ" : "Preview Paper / Figure"}
+                        </span>
+                      </div>
+                      <span className="absolute top-2.5 left-2.5 rounded-md bg-slate-900/80 backdrop-blur-xs px-2 py-0.5 text-[11px] font-medium text-white shadow-xs">
+                        {p.topic}
                       </span>
+                      {p.year && (
+                        <span className="absolute top-2.5 right-2.5 rounded-md bg-emerald-700/85 backdrop-blur-xs px-2 py-0.5 text-[11px] font-bold text-white shadow-xs">
+                          {p.year}
+                        </span>
+                      )}
+                    </Link>
+                  ) : (
+                    <div className="h-2 bg-gradient-to-r from-emerald-600 to-teal-600" />
+                  )}
+
+                  <div className="p-5">
+                    {!p.image && (
+                      <div className="flex flex-wrap items-center gap-2 mb-2 text-xs text-muted-foreground">
+                        <span className="rounded bg-slate-100 px-2 py-0.5 font-medium text-slate-800">
+                          {p.topic}
+                        </span>
+                        {p.year && (
+                          <span className="rounded bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-800">
+                            {p.year}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition leading-snug line-clamp-2">
+                      <Link to={"/publications/view?id=" + p.id}>
+                        {p.title}
+                      </Link>
+                    </h3>
+                    {p.journal && (
+                      <p className="mt-1.5 text-xs text-slate-500 italic line-clamp-1 flex items-center gap-1.5">
+                        <BookOpen size={12} className="shrink-0 text-emerald-600" />
+                        <span>{p.journal}</span>
+                      </p>
+                    )}
+                    {p.abstract && (
+                      <p className="mt-2.5 text-xs text-slate-600 line-clamp-3 leading-relaxed">
+                        {p.abstract}
+                      </p>
                     )}
                   </div>
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition leading-snug line-clamp-2">
-                    <Link to={"/publications/view?id=" + p.id}>
-                      {p.title}
-                    </Link>
-                  </h3>
-                  {p.journal && (
-                    <p className="mt-1 text-xs text-slate-500 italic line-clamp-1">
-                      {p.journal}
-                    </p>
-                  )}
-                  {p.abstract && (
-                    <p className="mt-2.5 text-xs text-slate-600 line-clamp-3 leading-relaxed">
-                      {p.abstract}
-                    </p>
-                  )}
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
+                <div className="px-5 pb-5 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
                   <Link
                     to={"/publications/view?id=" + p.id}
                     className="inline-flex items-center gap-1 rounded bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition"

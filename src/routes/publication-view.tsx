@@ -3,7 +3,7 @@ import { Link } from "@/lib/spa-router";
 import { publications } from "@/lib/data";
 import { useI18n } from "@/lib/i18n";
 import { useAdmin } from "@/admin/Auth";
-import { Edit3, PlusCircle } from "lucide-react";
+import { Edit3, PlusCircle, Eye, BookOpen, Download, ExternalLink } from "lucide-react";
 export default function PublicationView() {
   const { lang } = useI18n();
   const { admin } = useAdmin();
@@ -52,7 +52,33 @@ export default function PublicationView() {
             <p className="mt-3 text-sm text-muted-foreground">
               {p.publicationType} · {p.scope}
             </p>
-            {p.authors && <p className="mt-2">{p.authors}</p>}
+            {p.authors && <p className="mt-2 text-slate-800 font-medium">{p.authors}</p>}
+
+            {/* Document / Paper Figure Preview */}
+            {p.image && (
+              <figure className="my-6 overflow-hidden rounded-xl border border-slate-200 bg-slate-50/80 p-3 shadow-xs">
+                <a
+                  href={p.pdfUrl || p.image}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block group relative"
+                >
+                  <img
+                    src={p.image}
+                    alt={p.title}
+                    className="max-h-[550px] w-full object-contain rounded-lg mx-auto bg-white transition group-hover:opacity-95 shadow-xs"
+                  />
+                  <div className="mt-2 text-center text-xs text-slate-600 italic flex items-center justify-center gap-1.5">
+                    <Eye size={13} className="text-emerald-600" />
+                    <span>
+                      {lang === "km"
+                        ? "រូបភាព/គម្របដកស្រង់ចេញពីឯកសារស្រាវជ្រាវ (ចុចដើម្បីពង្រីក ឬទាញយក PDF)"
+                        : "Figure / page preview from published paper (Click to view full size or open PDF)"}
+                    </span>
+                  </div>
+                </a>
+              </figure>
+            )}
             <p className="mt-4 leading-relaxed">{p.abstract}</p>
             {p.doi && (
               <p className="mt-3 text-sm">

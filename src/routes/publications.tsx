@@ -124,26 +124,44 @@ function Pubs() {
             <Link
               key={p.id}
               to={"/publications/view?id=" + encodeURIComponent(p.id)}
-              className="card-surface block [overflow-wrap:anywhere] p-6 transition hover:shadow-lg focus-visible:outline-2 focus-visible:outline-blue-600"
+              className="card-surface block [overflow-wrap:anywhere] p-5 sm:p-6 transition hover:shadow-lg focus-visible:outline-2 focus-visible:outline-blue-600 group"
             >
-              <p className="text-xs font-semibold text-accent">
-                {p.topic} · {p.year ?? "Year unverified"} · {p.journal}
-              </p>
-              <h2 className="mt-2 text-xl font-semibold">{p.title}</h2>
-              {p.authors && (
-                <p className="text-sm text-muted-foreground">{p.authors}</p>
-              )}
-              <p className="mt-2 text-xs text-muted-foreground">
-                {p.publicationType} · {p.scope}
-              </p>
-              <p className="mt-3 text-sm">{p.abstract}</p>
-              <p className="mt-4 font-semibold text-accent">
-                {p.pdfUrl
-                  ? (km ? "អាន PDF →" : "Read PDF →")
-                  : p.fileUrl
-                    ? (km ? "បើកឯកសារ →" : "Open document →")
-                    : (km ? "មើលប្រភពបោះពុម្ពផ្សាយ →" : "View publication source →")}
-              </p>
+              <div className="flex flex-col sm:flex-row gap-5">
+                {p.image && (
+                  <div className="shrink-0 w-full sm:w-44 md:w-52 aspect-[16/10] sm:aspect-[4/3] rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
+                    <img
+                      src={p.image}
+                      alt={p.title}
+                      className="w-full h-full object-cover object-top transition duration-300 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0 flex flex-col justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-accent">
+                      {p.topic} · {p.year ?? "Year unverified"} · {p.journal}
+                    </p>
+                    <h2 className="mt-1.5 text-lg sm:text-xl font-semibold group-hover:text-emerald-700 transition leading-snug">
+                      {p.title}
+                    </h2>
+                    {p.authors && (
+                      <p className="mt-1 text-sm text-muted-foreground line-clamp-1">{p.authors}</p>
+                    )}
+                    <p className="mt-1.5 text-xs text-muted-foreground">
+                      {p.publicationType} · {p.scope}
+                    </p>
+                    <p className="mt-2.5 text-sm line-clamp-2 sm:line-clamp-3 text-slate-600">{p.abstract}</p>
+                  </div>
+                  <p className="mt-3 text-xs sm:text-sm font-semibold text-accent flex items-center gap-1">
+                    {p.pdfUrl
+                      ? (km ? "អាន PDF →" : "Read PDF →")
+                      : p.fileUrl
+                        ? (km ? "បើកឯកសារ →" : "Open document →")
+                        : (km ? "មើលប្រភពបោះពុម្ពផ្សាយ →" : "View publication source →")}
+                  </p>
+                </div>
+              </div>
             </Link>
           ))}
           {!list.length && (

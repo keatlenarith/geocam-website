@@ -43,6 +43,8 @@ export type Publication = {
   metadataVerified: boolean;
   tags: string[];
   alternateFiles?: { label: string; url: string }[];
+  image?: string;
+  imageCaption?: string;
 };
 export type MemberLevel =
   | "Student"
