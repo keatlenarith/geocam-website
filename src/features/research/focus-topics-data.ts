@@ -4,6 +4,23 @@ export interface SectionImage {
   captionEn?: string;
 }
 
+export interface SectionTable {
+  captionKm?: string;
+  captionEn?: string;
+  headersKm: string[];
+  headersEn: string[];
+  rowsKm: string[][];
+  rowsEn: string[][];
+  footnoteKm?: string;
+  footnoteEn?: string;
+}
+
+export interface TopicSource {
+  id: string;
+  text: string;
+  url?: string;
+}
+
 export interface TopicSection {
   titleKm: string;
   titleEn: string;
@@ -13,6 +30,7 @@ export interface TopicSection {
   imageCaptionKm?: string;
   imageCaptionEn?: string;
   images?: SectionImage[];
+  table?: SectionTable;
   bulletsKm?: string[];
   bulletsEn?: string[];
   calloutKm?: string;
@@ -38,6 +56,7 @@ export interface FocusTopic {
   relatedPaperIds: string[];
   keyHighlightsKm: string[];
   keyHighlightsEn: string[];
+  sources?: TopicSource[];
 }
 
 export const FOCUS_TOPICS: FocusTopic[] = [
@@ -596,72 +615,278 @@ export const FOCUS_TOPICS: FocusTopic[] = [
     id: "geohazards",
     slug: "geohazards",
     key: "Geohazards",
-    titleKm: "មហន្តរាយភូគព្ភសាស្ត្រ និងការគ្រប់គ្រងហានិភ័យនៅកម្ពុជា",
-    titleEn: "Geohazards & Environmental Risk Assessment in Cambodia",
-    shortTitleKm: "មហន្តរាយ ភូគព្ភសាស្ត្រ",
-    shortTitleEn: "Geohazards",
-    image: "/images/cms/focus-geohazards-image.png",
-    imageAlt: "Geohazard mapping, landslides, fault lines and subsidence in Cambodia",
-    captionKm: "ផែនទីចែកចាយបន្ទាត់បំណាក់សិលា ហានិភ័យបាក់ដី និងការស្រុតដីនៅប្រទេសកម្ពុជា",
-    captionEn: "Spatial distribution of active faults, landslide susceptibility, and ground instability in Cambodia",
-    leadKm: "ទោះបីជាប្រទេសកម្ពុជាមានកម្រិតរញ្ជួយដីទាប បើធៀបនឹងប្រទេសក្បែរខាងក៏ដោយ ប៉ុន្តែមហន្តរាយភូគព្ភសាស្ត្រជាច្រើននៅតែកើតឡើងជាប្រចាំ រួមមានការបាក់ដីនៅតំបន់ភ្នំ ការបាក់ច្រាំងទន្លេមេគង្គ ការស្រុតដីដោយសារការបូមទឹកក្រោមដី និងការស្រុតរូងកាស្តក្នុងសិលាកំបោរ។",
-    leadEn: "While Cambodia enjoys relatively low direct seismicity compared to active plate boundaries, it faces significant geohazard challenges: monsoon-induced landslides in highland corridors, catastrophic riverbank collapse, urban land subsidence from aquifer over-pumping, and karst sinkholes.",
+    titleKm: "ទិដ្ឋភាពទូទៅនៃគម្រោង៖ បណ្តាញស្ថានីយរញ្ជួយដីថ្មីរបស់កម្ពុជា និងការតាមដានគ្រោះរញ្ជួយដីជាតិ",
+    titleEn: "Project Overview: Cambodia's New Seismometer Network & National Earthquake Monitoring",
+    shortTitleKm: "បណ្តាញរញ្ជួយដី & គ្រោះភូគព្ភសាស្ត្រ",
+    shortTitleEn: "Seismometer Network & Geohazards",
+    image: "/images/geohazards/figure-18-network-geometric-coverage.png",
+    imageAlt: "Geometric coverage and azimuthal gaps of Cambodia's five-station national seismic network",
+    captionKm: "រូបភាពទី ១៨៖ ផ្ទៃគ្របដណ្តប់ធរណីមាត្រ និងគម្លាតមុំ (Azimuthal gaps) នៃបណ្តាញស្ថានីយរញ្ជួយដីជាតិទាំងប្រាំលើក្រឡាចត្រង្គ ២៥ គីឡូម៉ែត្រទូទាំងប្រទេសកម្ពុជា។",
+    captionEn: "Figure 18. Geometric coverage and azimuthal gap distribution of the five-station national seismic network on a 25 km land grid across Cambodia.",
+    leadKm: "ប្រទេសកម្ពុជានឹងមានបណ្តាញស្ថានីយរញ្ជួយដីជាតិផ្ទាល់ខ្លួននាពេលឆាប់ៗខាងមុខនេះ។ ស្ថានីយទំនើបចំនួន ៥ នៅខេត្តកំពង់ស្ពឺ រតនគិរី ព្រះសីហនុ សៀមរាប និងរាជធានីភ្នំពេញ នឹងត្រូវរៀបចំឡើងក្រោមកិច្ចសហការស្រាវជ្រាវរួមគ្នាដែលគាំទ្រថវិកាដោយទីភ្នាក់ងាររញ្ជួយដីខេត្តក្វាងទុង (GEA) និងអគ្គនាយកដ្ឋានធនធានរ៉ែ (GDMR) នៃក្រសួងរ៉ែ និងថាមពល។ បណ្តាញនេះបំពាក់ដោយឧបករណ៍វាស់រំញ័រ Broadband និង Accelerometers ដើម្បីកត់ត្រាការរញ្ជួយដីក្នុងស្រុក និងក្នុងតំបន់ ផ្តល់ទិន្នន័យចលនាដីជាក់ស្តែង និងពង្រឹងការត្រៀមបង្ការគ្រោះមហន្តរាយ។",
+    leadEn: "Cambodia will soon establish its first dedicated national network of seismometer stations. Five modern stations in Kampong Speu, Ratanakiri, Preah Sihanouk, Siem Reap, and Phnom Penh are being installed through a joint research project funded by the Guangdong Earthquake Agency (GEA) in partnership with the General Department of Mineral Resources (GDMR). Once operational, the network will systematically record earthquakes across Cambodia and the wider Southeast Asian region, providing vital scientific data on seismic activity and ground motion.",
     stats: [
-      { labelKm: "ហានិភ័យប្រចាំឆ្នាំ", labelEn: "Frequent Hazard", value: "Riverbank Erosion" },
-      { labelKm: "តំបន់បាក់ដីខ្ពស់", labelEn: "Landslide Risk Zone", value: "Cardamom & Dangrek" },
-      { labelKm: "ហានិភ័យកាស្ត", labelEn: "Karst Vulnerability", value: "Kampot & Battambang" },
-      { labelKm: "កម្រិតរញ្ជួយដី", labelEn: "Seismic Regime", value: "Low-to-Moderate Intraplate" },
+      { labelKm: "ចំនួនស្ថានីយគ្រោងទុក", labelEn: "Network Stations", value: "5 National Sites" },
+      { labelKm: "ដៃគូសហការស្រាវជ្រាវ", labelEn: "Institutional Partners", value: "GDMR & GEA" },
+      { labelKm: "កម្រិតរញ្ជួយដីតំបន់", labelEn: "Seismic Regime", value: "Low-to-Moderate Intraplate" },
+      { labelKm: "កម្រិតហានិភ័យអតិបរមា", labelEn: "Max Baseline Hazard", value: "0.030 g PGA (Ratanakiri)" },
+    ],
+    keyHighlightsKm: [
+      "ស្ថានីយយុទ្ធសាស្ត្រចំនួន ៥៖ ខេត្តកំពង់ស្ពឺ រតនគិរី (ក្រុងបានលុង) ព្រះសីហនុ សៀមរាប និងរាជធានីភ្នំពេញ។",
+      "កិច្ចសហការស្រាវជ្រាវផ្លូវការរវាងអគ្គនាយកដ្ឋានធនធានរ៉ែ (GDMR) និងទីភ្នាក់ងាររញ្ជួយដីខេត្តក្វាងទុង (GEA)។",
+      "ទីតាំងនៅមន្ទីររ៉ែ និងថាមពលខេត្ត ដោយអគារស្ថានីយនៅកំពង់ស្ពឺ និងរតនគិរីត្រូវបានសាងសង់រួចរាល់។",
+      "លក្ខខណ្ឌភូគព្ភសាស្ត្រគ្រឹះ៖ ថ្មបាសាល់បានលុង និងថ្មខ្សាច់ក្រុងព្រះសីហនុផ្តល់គ្រឹះថ្មរឹងមាំ ខណៈកំពង់ស្ពឺ សៀមរាប និងភ្នំពេញស្ថិតលើល្បាប់ថ្មី។",
+      "កម្រិតរញ្ជួយដីទាបទៅមធ្យម៖ ប្រភពបន្ទាត់រញ្ជួយដីធំៗស្ថិតនៅចម្ងាយលើសពី ១,១០០ គ.ម; មានតែបានលុងប៉ុណ្ណោះដែលមានព្រឹត្តិការណ៍ M≥3 ក្នុងរង្វង់ ៣០០ គ.ម (៥៧ លើក, ធំបំផុត M 5.1 ក្នុងខែកក្កដា ឆ្នាំ២០២៤)។",
+      "គំរូគ្រោះថ្នាក់ GEM 2023.1 កំណត់តម្លៃ PGA ០.០៣០ g សម្រាប់រតនគិរី (រយៈពេល ៥០ ឆ្នាំ ឱកាសកើត ១០%); តម្លៃសូន្យនៅកន្លែងផ្សេងទៀតឆ្លុះបញ្ចាំងពីកម្រិតទិន្នន័យទូទៅ មិនមែនគ្មានហានិភ័យឡើយ។",
+      "ការតភ្ជាប់តេឡេមេទ្រី & អាស៊ាន៖ ឧបករណ៍ Digitizer ២៤-bit ពេលវេលា GNSS បញ្ជូនទិន្នន័យផ្ទាល់មក GDMR, GEA, PHIVOLCS និងបណ្តាញថៃ (CHBT, UBPT)។",
+    ],
+    keyHighlightsEn: [
+      "Five new national stations: Kampong Speu, Ratanakiri (Banlung), Preah Sihanouk, Siem Reap, and Phnom Penh.",
+      "Joint research agreement between Cambodia's GDMR (Department of Geology and Minerals) and China's Guangdong Earthquake Agency (GEA).",
+      "Hosted at Provincial Departments of Mines and Energy offices; station buildings in Kampong Speu and Ratanakiri are already in place.",
+      "Subsurface ground conditions: Ratanakiri basalt and Preah Sihanouk sandstone provide firm rock; Kampong Speu, Siem Reap, and Phnom Penh sit on alluvium.",
+      "Low-to-moderate seismicity: major active plate boundary faults lie >1,100 km away; only Banlung has recorded M≥3 events within 300 km (57 events; M 5.1 in July 2024).",
+      "Global Earthquake Model (GEM 2023.1) hazard: Ratanakiri PGA 0.030 g (10% exceedance in 50 years); non-zero hazard is confirmed across all five sites.",
+      "Telemetry & regional integration: broadband seismometers, accelerometers, 24-bit digitizers, GNSS timing, and links to GDMR, GEA, PHIVOLCS, and Thai stations.",
     ],
     sections: [
       {
-        titleKm: "១. ការបាក់ដី និងស្ថិរភាពជម្រាលភ្នំ (Highland Landslides & Slope Instability)",
-        titleEn: "1. Highland Landslides & Debris Flows",
+        titleKm: "១. ទិដ្ឋភាពទូទៅនៃគម្រោង និងការរៀបចំស្ថានីយ (Project Overview & Station Layout)",
+        titleEn: "1. Project Overview & Station Layout",
         bodyKm: [
-          "នៅតំបន់ជួរភ្នំក្រវាញ ភ្នំដងរែក និងខ្ពង់រាបខេត្តរតនគិរី ការធ្លាក់ភ្លៀងខ្លាំងក្នុងរដូវវស្សាអាចបង្កឱ្យមានការបាក់ដី (Landslides) និងលំហូរភក់ដីថ្ម (Debris flows)។",
-          "កត្តាសំខាន់ដែលបង្កឱ្យបាក់ដី រួមមានកម្រាស់ដីពុកផុយក្រាស់ ជម្រាលចោត ការកាប់បំផ្លាញគម្របព្រៃឈើ និងការសាងសង់ផ្លូវកាត់ជើងភ្នំដោយខ្វះប្រព័ន្ធទប់ជម្រាលត្រឹមត្រូវ។",
+          "ប្រទេសកម្ពុជានឹងមានបណ្តាញស្ថានីយរញ្ជួយដីជាតិផ្ទាល់ខ្លួននាពេលឆាប់ៗខាងមុខនេះ។ ស្ថានីយចំនួនប្រាំ រួមមាននៅខេត្តកំពង់ស្ពឺ រតនគិរី ព្រះសីហនុ សៀមរាប និងរាជធានីភ្នំពេញ នឹងត្រូវបានដំឡើងតាមរយៈគម្រោងស្រាវជ្រាវរួមគ្នាដែលឧបត្ថម្ភថវិកាដោយទីភ្នាក់ងាររញ្ជួយដីខេត្តក្វាងទុង (GEA)។ នៅពេលដំណើរការ ស្ថានីយទាំងនេះនឹងកត់ត្រាការរញ្ជួយដីនៅទូទាំងប្រទេសកម្ពុជា និងតំបន់ជុំវិញ ដែលផ្តល់ឱ្យប្រទេសជាតិនូវទិន្នន័យជាក់លាក់អំពីសកម្មភាពរញ្ជួយដី។",
+          "បណ្តាញនេះជាគម្រោងស្រាវជ្រាវរួមគ្នារវាងអគ្គនាយកដ្ឋានធនធានរ៉ែ (GDMR) និងទីភ្នាក់ងាររញ្ជួយដីខេត្តក្វាងទុង (GEA) ក្រោមកិច្ចព្រមព្រៀងរវាងស្ថាប័នទាំងពីរ។ ទីភ្នាក់ងារ GEA នឹងផ្តល់ថវិកាសម្រាប់គម្រោង ខណៈដែលនាយកដ្ឋានភូគព្ភវិទ្យានៃ GDMR ទទួលបន្ទុកសម្របសម្រួលជាមួយមន្ទីររ៉ែ និងថាមពលខេត្ត និងដៃគូដទៃទៀត ដើម្បីដំឡើង និងដំណើរការស្ថានីយ។",
+          "ស្ថានីយនីមួយៗនឹងត្រូវដាក់នៅមន្ទីររ៉ែ និងថាមពលខេត្ត ហើយអគារស្ថានីយនៅខេត្តកំពង់ស្ពឺ និងរតនគិរីត្រូវបានសាងសង់រួចរាល់ហើយ។ ដើម្បីរៀបចំបណ្តាញនេះ ក្រុមការងារបានសិក្សាកំណត់ត្រារញ្ជួយដីក្នុងតំបន់ ផែនទីភូគព្ភសាស្ត្រ និងប្លង់ទីតាំងទាំងប្រាំ។ តារាងទី ១ បង្ហាញពីទិដ្ឋភាពទូទៅនៃទីតាំងនីមួយៗ។",
         ],
         bodyEn: [
-          "In the Cardamom Mountains, Dangrek Escarpment, and volcanic hills of Ratanakiri, severe monsoon downpours trigger rotational landslides and high-velocity debris flows that impact roads and settlements.",
-          "Contributing factors include thick tropical saprolite weathering mantles, steep slope gradients, deforestation, and cut-slope destabilization along mountain transport routes.",
+          "Cambodia will soon have its own national network of seismometer stations. Five stations, in Kampong Speu, Ratanakiri, Preah Sihanouk, Siem Reap and Phnom Penh, will be set up in the near future through a joint research project funded by the Guangdong Earthquake Agency (GEA). Once running, they will record earthquakes across Cambodia and the wider region, giving the country better information about seismic activity.",
+          "The network is a joint research project between GDMR and GEA, under an Agreement between the two institutions. GEA will fund the project, while GDMR's Department of Geology and Minerals (DGM) will coordinate with the Provincial Departments of Mines and Energy and other partners to set up and run the stations.",
+          "Each station will be hosted at a Provincial Department of Mines and Energy office. To prepare for the network, the team studied regional earthquake records, geological maps and the layout of the five sites. Table 1 gives a quick overview of each location.",
+        ],
+        table: {
+          captionKm: "តារាងទី ១៖ ទិដ្ឋភាពទូទៅសង្ខេបនៃស្ថានីយរញ្ជួយដីទាំង ៥ របស់កម្ពុជា",
+          captionEn: "Table 1. The five stations at a glance",
+          headersKm: ["ទីតាំងស្ថានីយ", "ភូគព្ភសាស្ត្រគ្រឹះ", "រញ្ជួយដី USGS M≥3 (កាំ 300 / 500 គ.ម)", "GEM PGA (g)", "ឧបករណ៍វាស់ស្ទង់"],
+          headersEn: ["Site", "Mapped geology", "USGS M≥3 events within 300 km / 500 km", "GEM PGA (g)", "Instruments"],
+          rowsKm: [
+            ["កំពង់ស្ពឺ (Kampong Speu)", "ដីល្បាប់ថ្មី (Recent alluvium)", "0 / 15", "0.000*", "Broadband seismometer + accelerometer"],
+            ["រតនគិរី (Banlung)", "ថ្មបាសាល់ប្លីអូ-ក្វាទែណារី (Plio-Quaternary basalt)", "57 / 67", "0.030", "Broadband seismometer + accelerometer"],
+            ["ព្រះសីហនុ (Preah Sihanouk)", "ថ្មខ្សាច់ជូរ៉ាសិក-ក្រេតាសសឺស (Jurassic–Cretaceous sandstone)", "0 / 7", "0.000*", "Broadband seismometer + accelerometer"],
+            ["សៀមរាប (Siem Reap)", "ដីល្បាប់បឹង-ទន្លេថ្មី (Lacustrine-alluvial sediments)", "0 / 37", "0.000*", "Broadband seismometer + accelerometer"],
+            ["ភ្នំពេញ (Phnom Penh)", "ដីល្បាប់ថ្មី (Recent alluvium)", "0 / 15", "0.000*", "Accelerometer (urban strong-motion)"],
+          ],
+          rowsEn: [
+            ["Kampong Speu", "Recent alluvium", "0 / 15", "0.000*", "Broadband seismometer + accelerometer"],
+            ["Ratanakiri (Banlung)", "Plio-Quaternary basalt", "57 / 67", "0.030", "Broadband seismometer + accelerometer"],
+            ["Preah Sihanouk", "Jurassic–Cretaceous sandstone", "0 / 7", "0.000*", "Broadband seismometer + accelerometer"],
+            ["Siem Reap", "Recent (lacustrine-alluvial) sediments", "0 / 37", "0.000*", "Broadband seismometer + accelerometer"],
+            ["Phnom Penh", "Recent alluvium", "0 / 15", "0.000*", "Accelerometer (urban strong-motion)"],
+          ],
+          footnoteKm: "*តម្លៃសូន្យនៅក្នុងគំរូគ្រោះថ្នាក់មិនមានន័យថាគ្មានគ្រោះថ្នាក់នោះទេ ប៉ុន្តែឆ្លុះបញ្ចាំងពីទំហំកម្រិតក្រឡាទិន្នន័យធំនៃគំរូតំបន់។",
+          footnoteEn: "*A zero value in the hazard model does not mean zero hazard; it reflects the coarse resolution of the regional model.",
+        },
+      },
+      {
+        titleKm: "២. សកម្មភាពរញ្ជួយដី និងបរិបទតិចតូនិកក្នុងតំបន់ (Regional Seismicity & Tectonics)",
+        titleEn: "2. How active is the region?",
+        bodyKm: [
+          "ប្រទេសកម្ពុជាស្ថិតនៅក្នុងតំបន់ដែលស្ងប់ស្ងាត់គួរសមនៃតំបន់ស៊ុនដា/ឥណ្ឌូចិន។ ការរញ្ជួយដីធំៗភាគច្រើនកើតឡើងនៅជុំវិញគែមតំបន់៖ តាមបណ្តោយព្រំប្រទល់ប្លុក Sagaing ទៅទិសពាយព្យ និងតំបន់រអិលចូលគ្នានៅក្បែរកោះស៊ូម៉ាត្រា និងជ្វា។ បំណាក់សិលានៅខាងក្នុងតំបន់មានសកម្មភាពតិចតួចជាងឆ្ងាយ។ ការរញ្ជួយដីធំៗដែលត្រូវបានកត់ត្រាក្នុងប្រវត្តិសាស្ត្រតំបន់ (M 7.96 ក្នុងឆ្នាំ ១៩៤១, M 7.88 ក្នុងឆ្នាំ ១៩១២ និង M 7.70 ក្នុងឆ្នាំ ១៩៨៨) សុទ្ធតែកើតឡើងនៅចម្ងាយលើសពី ១,១០០ គីឡូម៉ែត្រពីទីតាំងស្ថានីយដែលបានគ្រោងទុក។",
+          "នៅតំបន់ជិតខាង កាតាឡុក USGS បានកត់ត្រាការរញ្ជួយដីកម្រិត ៣ ឬខ្ពស់ជាងនេះចន្លោះពី ៧ លើក (ព្រះសីហនុ) ដល់ ៦៧ លើក (រតនគិរី) ក្នុងរង្វង់ ៥០០ គីឡូម៉ែត្រពីទីតាំងនីមួយៗ។ ព្រឹត្តិការណ៍ធំបំផុតនៅក្បែរនោះមានកម្រិតពី M 5.0 ដល់ 5.6 រួមទាំងការរញ្ជួយដីកម្រិត M 5.1 ក្នុងខែកក្កដា ឆ្នាំ ២០២៤ ចម្ងាយប្រហែល ១៧៧ គីឡូម៉ែត្រពីក្រុងបានលុង។ កំណត់ត្រាឧបករណ៍នៅមានរយៈពេលខ្លី និងមិនទាន់ពេញលេញ ប្រភេទកម្រិតរញ្ជួយដីមានការប្រែប្រួល ហើយកំណត់ត្រានៃការរញ្ជួយដីដែលប្រជាពលរដ្ឋមានអារម្មណ៍ដឹងនៅកម្ពុជាមិនទាន់ត្រូវបានចងក្រងចប់សព្វគ្រប់នៅឡើយ។ បំណាក់សិលាដែលបានកំណត់លើផែនទីនៅក្បែរទីតាំងស្ថានីយមិនទាន់ដឹងពីកម្រិតសកម្មភាពច្បាស់លាស់នៅឡើយទេ (រូបភាពទី ១)។",
+        ],
+        bodyEn: [
+          "Cambodia sits in a relatively quiet part of the Sunda/Indochina region. Most large earthquakes happen around its edges: along the Sagaing plate boundary to the north-west and the subduction zones near Sumatra and Java. Faults inside the region are far less active. The biggest earthquakes on record for the wider region (M 7.96 in 1941, M 7.88 in 1912 and M 7.70 in 1988) all struck more than 1,100 km from the proposed sites.",
+          "Closer to home, the USGS catalogue lists between 7 (Preah Sihanouk) and 67 (Ratanakiri) earthquakes of magnitude 3 or greater within 500 km of each site. The largest events nearby range from M 5.0 to 5.6, including an M 5.1 earthquake in July 2024 about 177 km from Banlung. The instrumental record is short and incomplete, magnitude types vary, and Cambodia's own records of felt earthquakes have yet to be compiled, so these estimates remain uncertain. Faults mapped near the sites have unknown activity and are not assumed to be active (Figure 1).",
+        ],
+        image: "/images/geohazards/figure-01-regional-seismicity.png",
+        imageCaptionKm: "រូបភាពទី ១៖ ការរញ្ជួយដីកម្រិត ៣ ឬលើសពីនេះទូទាំងតំបន់ (USGS)។ សញ្ញាផ្កាយសម្គាល់ចំណុចតំណាងកណ្តាលទីក្រុង មិនមែនជាទីតាំងស្ថានីយចុងក្រោយឡើយ។ ប្រភេទកម្រិតរញ្ជួយដីមានលក្ខណៈចម្រុះ ហើយកំណត់ត្រាមិនទាន់ពេញលេញ។",
+        imageCaptionEn: "Figure 1. Earthquakes of magnitude 3 or more across the region (USGS). Stars mark city-centre stand-in points, not final station locations. Magnitude types are mixed and the record is incomplete.",
+      },
+      {
+        titleKm: "៣. ការវាយតម្លៃគ្រោះថ្នាក់រញ្ជួយដី (What is the seismic hazard?)",
+        titleEn: "3. What is the seismic hazard?",
+        bodyKm: [
+          "យោងតាមគំរូរញ្ជួយដីសកល (GEM 2023.1) ខេត្តរតនគិរីមានកម្រិតបង្កើនល្បឿនដីអតិបរមាលើថ្មគោល (Peak Ground Acceleration - PGA) ០.០៣០ g (០.២៩៨ ម៉ែត្រ/វិនាទី²) ដោយមានឱកាស ១០% ដែលអាចលើសពីនេះក្នុងរយៈពេល ៥០ ឆ្នាំ (ប្រហាក់ប្រហែលនឹងវដ្តត្រឡប់ ៤៧៥ ឆ្នាំ)។ គំរូនេះបង្ហាញតម្លៃសូន្យនៅទីតាំងបួនផ្សេងទៀត ប៉ុន្តែនេះឆ្លុះបញ្ចាំងពីកម្រិតទំហំក្រឡាទិន្នន័យធំនៃគំរូតំបន់ មិនមែនជាអវត្តមាននៃគ្រោះថ្នាក់នោះទេ។",
+          "តម្លៃទាំងនេះជាតម្លៃត្រួតពិនិត្យបឋម (screening values) មិនមែនជាតម្លៃសម្រាប់គណនាប្លង់សំណង់វិស្វកម្មឡើយ ហើយការកើនឡើងកម្លាំងរំញ័រដោយសារស្រទាប់ដីក្នុងតំបន់មិនទាន់ត្រូវបានវាយតម្លៃនៅឡើយទេ។ កម្រិតគ្រោះថ្នាក់ទាបមិនធ្វើឱ្យស្ថានីយទាំងនេះថយចុះតម្លៃនោះទេ៖ ស្ថានីយនៅតែអាចចាប់រលករញ្ជួយដីក្នុងតំបន់ និងពង្រឹងការគ្របដណ្តប់ទូទាំងប្រទេស (រូបភាពទី ២)។",
+        ],
+        bodyEn: [
+          "According to the Global Earthquake Model (GEM 2023.1), Ratanakiri has a reference-rock peak ground acceleration (PGA) of 0.030 g (0.298 m/s²), with a 10% chance of being exceeded in 50 years (roughly a 475-year return period). The model shows zero at the other four sites, but that reflects the coarse resolution of the regional model, not an absence of hazard.",
+          "These are screening values rather than design values, and local soil amplification has not yet been assessed. Low hazard doesn't make the stations any less valuable: they will still detect regional earthquakes and strengthen national coverage (Figure 2).",
+        ],
+        image: "/images/geohazards/figure-02-gem-pga.png",
+        imageCaptionKm: "រូបភាពទី ២៖ កម្រិត PGA លើថ្មគោល GEM (ឱកាស ១០% ក្នុងរយៈពេល ៥០ ឆ្នាំ) នៅចំណុចតំណាងទីក្រុងនីមួយៗ។ តម្លៃសូន្យមិនមែនមានន័យថាគ្មានគ្រោះថ្នាក់ឡើយ។ ប្រភព៖ GEM, CC BY-NC-SA 4.0។",
+        imageCaptionEn: "Figure 2. GEM reference-rock PGA (10% chance of exceedance in 50 years) at each city-centre stand-in point. Zero values do not indicate zero hazard. Source: GEM, CC BY-NC-SA 4.0.",
+      },
+      {
+        titleKm: "៤. លក្ខណៈស្ថានីយ៖ ខេត្តកំពង់ស្ពឺ (Kampong Speu Station)",
+        titleEn: "4. Meet the sites: Kampong Speu",
+        bodyKm: [
+          "ស្ថានីយខេត្តកំពង់ស្ពឺ (WGS84 / UTM Zone 48N: X = 448205, Y = 1267685; 11.4672° N, 104.5251° E) មានទីតាំងនៅមន្ទីររ៉ែ និងថាមពលខេត្ត លើដីល្បាប់ថ្មី (ដីល្បាយខ្សាច់ ដីឥដ្ឋ និងខ្សាច់នៃដីទួលទាប) នៅក្បែរជើងភ្នំក្រវាញ។",
+          "បំណាក់សិលាដែលនៅជិតបំផុតលើផែនទី (មិនទាន់ដឹងកម្រិតសកម្មភាព) ស្ថិតនៅចម្ងាយប្រហែល ១២.៥ គីឡូម៉ែត្រ ហើយមិនមានការរញ្ជួយដីកម្រិត ៣ ឬខ្ពស់ជាងនេះត្រូវបានកត់ត្រាក្នុងរង្វង់ ៣០០ គីឡូម៉ែត្រឡើយ (មាន ១៥ លើកក្នុងរង្វង់ ៥០០ គីឡូម៉ែត្រ)។ ស្ថានីយនេះនឹងត្រូវបំពាក់ដោយ broadband seismometer និង accelerometer (រូបភាពទី ៣–៥)។",
+        ],
+        bodyEn: [
+          "The Kampong Speu station (WGS84 / UTM Zone 48N: X = 448205, Y = 1267685; 11.4672° N, 104.5251° E) is located at the Provincial Department of Mines and Energy office, on recent alluvium (sandy loam, clay and sand of low terraces) near the Cardamom foothills.",
+          "The nearest mapped fault (activity unknown) is about 12.5 km away, and no earthquakes of magnitude 3 or greater have been recorded within 300 km (15 events within 500 km). The station will be equipped with a broadband seismometer and an accelerometer (Figures 3–5).",
+        ],
+        images: [
+          {
+            url: "/images/geohazards/figure-03-kampong-speu-geology.png",
+            captionKm: "រូបភាពទី ៣៖ ភូគព្ភសាស្ត្រខេត្តកំពង់ស្ពឺពីផែនទីភូគព្ភសាស្ត្រ (កាំ ៣០ គ.ម)។ បន្ទាត់ដាច់ៗពណ៌ខ្មៅបង្ហាញពីបំណាក់សិលា បន្ទាត់ពណ៌ប្រផេះបង្ហាញពីព្រំប្រទល់ខេត្ត និងសញ្ញាផ្កាយសម្គាល់ចំណុចតំណាងទីក្រុង។",
+            captionEn: "Figure 3. Kampong Speu geology from the supplied geological map. Black dashed lines show mapped faults (activity unknown), grey lines show provincial boundaries and the star marks the city-centre stand-in point.",
+          },
+          {
+            url: "/images/geohazards/figure-04-kampong-speu-seismicity.png",
+            captionKm: "រូបភាពទី ៤៖ កំពង់ស្ពឺ៖ ការរញ្ជួយដីកម្រិត ៣ ឬលើសពីនេះក្នុងរង្វង់ ៥០០ គីឡូម៉ែត្រពីចំណុចកណ្តាលក្រុង (USGS)។ រង្វង់ទទេមានន័យថាមិនមានព្រឹត្តិការណ៍ត្រូវបានកត់ត្រានៅទីនោះ មិនមែនគ្មានគ្រោះថ្នាក់ឡើយ។",
+            captionEn: "Figure 4. Kampong Speu: earthquakes of magnitude 3 or greater within 500 km of the city-centre point (USGS). Empty rings mean no events were recorded there, not that there is no hazard.",
+          },
+          {
+            url: "/images/geohazards/figure-05-kampong-speu-stats.png",
+            captionKm: "រូបភាពទី ៥៖ កំពង់ស្ពឺ៖ ក្រាហ្វិកកម្រិតរញ្ជួយដីតាមពេលវេលា ជម្រៅ ចំនួនសរុប និងទំនាក់ទំនងទំហំ-ប្រេកង់ (៥០០ គ.ម)។ និន្នាការមួយចំនួនឆ្លុះបញ្ចាំងពីការផ្លាស់ប្តូរនៃភាពពេញលេញនៃការកត់ត្រាតាមពេលវេលា។",
+            captionEn: "Figure 5. Kampong Speu: magnitude over time, depth, cumulative count and magnitude–frequency charts (500 km). Some apparent trends reflect changes in how completely earthquakes were recorded over time.",
+          },
         ],
       },
       {
-        titleKm: "២. ការហូរច្រោះ និងបាក់ច្រាំងទន្លេ (Riverbank Collapse & Fluvial Erosion)",
-        titleEn: "2. Riverbank Erosion along the Mekong & Tonle Sap",
+        titleKm: "៥. លក្ខណៈស្ថានីយ៖ ខេត្តរតនគិរី (Ratanakiri Station)",
+        titleEn: "5. Meet the sites: Ratanakiri",
         bodyKm: [
-          "ការបាក់ច្រាំងទន្លេតាមបណ្តោយទន្លេមេគង្គ ទន្លេបាសាក់ និងទន្លេសាប កើតឡើងជាញឹកញាប់ក្នុងរដូវទឹកសម្រក។",
-          "នៅពេលទឹកទន្លេស្រកចុះយ៉ាងគំហុក សម្ពាធទឹកក្នុងរន្ធញើសដីច្រាំងទន្លេ (Pore water pressure) នៅតែខ្ពស់ ធ្វើឱ្យច្រាំងបាត់បង់លំនឹង និងបាក់ស្រុតចូលក្នុងទឹក បង្កការខូចខាតដល់ផ្ទះសម្បែង និងហេដ្ឋារចនាសម្ព័ន្ធ។",
+          "ស្ថានីយខេត្តរតនគិរី (WGS84 / UTM Zone 48N: X = 715435, Y = 1519850; 13.7399° N, 106.9924° E) ស្ថិតនៅក្រុងបានលុង លើខ្ពង់រាបថ្មបាសាល់ប្លីអូ-ក្វាទែណារី ដែលជាគ្រឹះថ្មរឹងមាំបំផុតក្នុងចំណោមទីតាំងទាំងប្រាំ។ បំណាក់សិលាលើផែនទី (មិនទាន់ដឹងកម្រិតសកម្មភាព) ស្ថិតនៅចម្ងាយប្រហែល ២.៨ គីឡូម៉ែត្រ។",
+          "រតនគិរីជាទីតាំងតែមួយគត់ដែលមានការកត់ត្រាការរញ្ជួយដីកម្រិត ៣ ឬខ្ពស់ជាងនេះក្នុងរង្វង់ ៣០០ គីឡូម៉ែត្រ (៥៧ លើក; ធំបំផុត M 5.1 ក្នុងខែកក្កដា ឆ្នាំ ២០២៤ ចម្ងាយ ១៧៧ គ.ម) និងជាទីតាំងតែមួយគត់ដែលមានតម្លៃគ្រោះថ្នាក់ GEM មិនសូន្យ (០.០៣០ g) ដែលធ្វើឱ្យទីតាំងនេះក្លាយជាចំណុចគន្លឹះសម្រាប់ការតាមដាន។ ស្ថានីយនេះនឹងត្រូវបំពាក់ដោយ broadband seismometer និង accelerometer (រូបភាពទី ៦–៨)។",
         ],
         bodyEn: [
-          "Severe riverbank collapse along the Mekong, Bassac, and Tonle Sap rivers occurs annually during rapid water level recession following the monsoon flood peak.",
-          "High pore water pressures retained within permeable sand layers beneath fine-grained silt caps drive geotechnical slope failure and cantilever collapse, threatening riverine communities.",
+          "The Ratanakiri station (WGS84 / UTM Zone 48N: X = 715435, Y = 1519850; 13.7399° N, 106.9924° E) is in Banlung, on Plio-Quaternary plateau basalt, the firmest rock foundation of the five sites. A mapped fault (activity unknown) lies about 2.8 km away.",
+          "Ratanakiri is the only site with recorded earthquakes of magnitude 3 or greater within 300 km (57 events; largest M 5.1, July 2024, 177 km away) and the only site with a non-zero GEM hazard value (0.030 g), making it a key location for monitoring. The station will be equipped with a broadband seismometer and an accelerometer (Figures 6–8).",
         ],
-        calloutKm: "វិធានការការពារ៖ ការផ្សំរវាងការដាំស្មៅវ៉េទីវ័រ (Vetiver grass) និងការរៀបថ្មទប់ជើងច្រាំង (Riprap) ផ្តល់នូវដំណោះស្រាយប្រកបដោយចីរភាពក្នុងការទប់ស្កាត់ការបាក់ច្រាំង។",
-        calloutEn: "Mitigation priority: Integrating bioengineering (Vetiver grass stabilization) with rock riprap toe protection provides sustainable, low-cost riverbank protection.",
+        images: [
+          {
+            url: "/images/geohazards/figure-06-ratanakiri-geology.png",
+            captionKm: "រូបភាពទី ៦៖ ភូគព្ភសាស្ត្រខេត្តរតនគិរីពីផែនទីភូគព្ភសាស្ត្រ (កាំ ៣០ គ.ម)។ បន្ទាត់ដាច់ៗពណ៌ខ្មៅបង្ហាញពីបំណាក់សិលា បន្ទាត់ពណ៌ប្រផេះបង្ហាញពីព្រំប្រទល់ខេត្ត និងសញ្ញាផ្កាយសម្គាល់ចំណុចតំណាងទីក្រុង។",
+            captionEn: "Figure 6. Ratanakiri geology from the supplied geological map. Black dashed lines show mapped faults (activity unknown), grey lines show provincial boundaries and the star marks the city-centre stand-in point.",
+          },
+          {
+            url: "/images/geohazards/figure-07-ratanakiri-seismicity.png",
+            captionKm: "រូបភាពទី ៧៖ រតនគិរី៖ ការរញ្ជួយដីកម្រិត ៣ ឬលើសពីនេះក្នុងរង្វង់ ៥០០ គីឡូម៉ែត្រពីចំណុចកណ្តាលក្រុង (USGS)។",
+            captionEn: "Figure 7. Ratanakiri: earthquakes of magnitude 3 or greater within 500 km of the city-centre point (USGS). Empty rings mean no events were recorded there, not that there is no hazard.",
+          },
+          {
+            url: "/images/geohazards/figure-08-ratanakiri-stats.png",
+            captionKm: "រូបភាពទី ៨៖ រតនគិរី៖ ក្រាហ្វិកកម្រិតរញ្ជួយដីតាមពេលវេលា ជម្រៅ ចំនួនសរុប និងទំនាក់ទំនងទំហំ-ប្រេកង់ (៥០០ គ.ម)។",
+            captionEn: "Figure 8. Ratanakiri: magnitude over time, depth, cumulative count and magnitude–frequency charts (500 km). Some apparent trends reflect changes in how completely earthquakes were recorded over time.",
+          },
+        ],
       },
       {
-        titleKm: "៣. ការស្រុតដី និងហានិភ័យរូងភ្នំកាស្ត (Land Subsidence & Karst Sinkholes)",
-        titleEn: "3. Land Subsidence & Karst Cavity Collapse",
+        titleKm: "៦. លក្ខណៈស្ថានីយ៖ ខេត្តព្រះសីហនុ (Preah Sihanouk Coastal Station)",
+        titleEn: "6. Meet the sites: Preah Sihanouk",
         bodyKm: [
-          "ការបូមទឹកក្រោមដីច្រើនហួសប្រមាណនៅតំបន់ទីប្រជុំជន និងតំបន់កសិកម្ម អាចបណ្តាលឱ្យស្រទាប់ដីឥដ្ឋរួមតូច និងបង្កការស្រុតដីយឺតៗ (Land subsidence) ដែលបង្កើនហានិភ័យលិចទឹកជំនន់។",
-          "នៅខេត្តកំពត និងបាត់ដំបង ថ្មកំបោរសម័យពែមៀន (Permian limestone) មានរូង និងប្រហោងកាស្តក្រោមដីច្រើន។ ការប្រែប្រួលកម្ពស់ទឹកក្រោមដី ឬការផ្ទុកទម្ងន់សំណង់ពីលើ អាចបណ្តាលឱ្យដំបូលរូងបាក់ស្រុត បង្កើតជាក្រហូងដី (Sinkholes)។",
+          "ស្ថានីយខេត្តព្រះសីហនុនឹងមានទីតាំងនៅក្រុងព្រះសីហនុ លើថ្មខ្សាច់ជូរ៉ាសិក-ក្រេតាសសឺស (ទម្រង់ Sao Hua)។ ក្នុងនាមជាស្ថានីយតំបន់ឆ្នេរ វានឹងជួយតាមដានផ្នែកនិរតីនៃប្រទេស។",
+          "បំណាក់សិលាដែលនៅជិតបំផុតលើផែនទីស្ថិតនៅចម្ងាយប្រហែល ៣១.៧ គីឡូម៉ែត្រ ហើយការរញ្ជួយដីកម្រិត ៣ ឬខ្ពស់ជាងនេះចំនួន ៧ លើកត្រូវបានកត់ត្រាក្នុងរង្វង់ ៥០០ គីឡូម៉ែត្រ (ធំបំផុត M 5.0)។ ស្ថានីយនេះនឹងត្រូវបំពាក់ដោយ broadband seismometer និង accelerometer (រូបភាពទី ៩–១១)។",
         ],
         bodyEn: [
-          "Accelerated groundwater abstraction for urban and agricultural needs risks compacting soft alluvial clay layers, causing gradual land subsidence that exacerbates seasonal flooding.",
-          "In the karst landscapes of Kampot and Battambang, dissolution cavities within Permian limestones are susceptible to sudden sinkhole formation and roof collapse when hydrological equilibrium is perturbed.",
+          "The Preah Sihanouk station will be located in Sihanoukville, on Jurassic–Cretaceous sandstone (Sao Hua formation). As a coastal site, it will help monitor the south-west of the country.",
+          "The nearest mapped fault is about 31.7 km away, and seven earthquakes of magnitude 3 or greater have been recorded within 500 km (largest M 5.0). The station will be equipped with a broadband seismometer and an accelerometer (Figures 9–11).",
+        ],
+        images: [
+          {
+            url: "/images/geohazards/figure-09-preah-sihanouk-geology.png",
+            captionKm: "រូបភាពទី ៩៖ ភូគព្ភសាស្ត្រខេត្តព្រះសីហនុពីផែនទីភូគព្ភសាស្ត្រ (កាំ ៣០ គ.ម)។",
+            captionEn: "Figure 9. Preah Sihanouk geology from the supplied geological map. Black dashed lines show mapped faults (activity unknown), grey lines show provincial boundaries and the star marks the city-centre stand-in point.",
+          },
+          {
+            url: "/images/geohazards/figure-10-preah-sihanouk-seismicity.png",
+            captionKm: "រូបភាពទី ១០៖ ព្រះសីហនុ៖ ការរញ្ជួយដីកម្រិត ៣ ឬលើសពីនេះក្នុងរង្វង់ ៥០០ គីឡូម៉ែត្រពីចំណុចកណ្តាលក្រុង (USGS)។",
+            captionEn: "Figure 10. Preah Sihanouk: earthquakes of magnitude 3 or greater within 500 km of the city-centre point (USGS). Empty rings mean no events were recorded there, not that there is no hazard.",
+          },
+          {
+            url: "/images/geohazards/figure-11-preah-sihanouk-stats.png",
+            captionKm: "រូបភាពទី ១១៖ ព្រះសីហនុ៖ ក្រាហ្វិកកម្រិតរញ្ជួយដីតាមពេលវេលា ជម្រៅ ចំនួនសរុប និងទំនាក់ទំនងទំហំ-ប្រេកង់ (៥០០ គ.ម)។",
+            captionEn: "Figure 11. Preah Sihanouk: magnitude over time, depth, cumulative count and magnitude–frequency charts (500 km). Some apparent trends reflect changes in how completely earthquakes were recorded over time.",
+          },
         ],
       },
       {
-        titleKm: "៤. ការវាយតម្លៃគ្រោះថ្នាក់រញ្ជួយដី (Intraplate Seismic Hazard Assessment)",
-        titleEn: "4. Intraplate Seismic Hazard & Fault Monitoring",
+        titleKm: "៧. លក្ខណៈស្ថានីយ៖ ខេត្តសៀមរាប (Siem Reap Station)",
+        titleEn: "7. Meet the sites: Siem Reap",
         bodyKm: [
-          "ទោះបីកម្ពុជាមិនស្ថិតនៅលើបន្ទាត់រញ្ជួយដីសកម្មខ្លាំងដូចឥណ្ឌូណេស៊ី ឬហ្វីលីពីន ប៉ុន្តែការរំញ័រដីពីការរញ្ជួយដីនៅប្រទេសជិតខាង (ដូចជាយូណាន ប្រទេសចិន ឬមីយ៉ាន់ម៉ា) អាចបញ្ជូនរលកមកប៉ះពាល់ដល់អគារខ្ពស់ៗនៅរាជធានីភ្នំពេញ។",
-          "លើសពីនេះ បំណាក់សិលាក្នុងប្រទេសមួយចំនួននៅតែរក្សាបាននូវចលនាតិចតួច ដែលទាមទារឱ្យមានការសិក្សាពីស្តង់ដារវិស្វកម្មសំណង់ធន់នឹងរញ្ជួយដី។",
+          "ស្ថានីយខេត្តសៀមរាបនឹងស្ថិតនៅលើដីល្បាប់បឹង-ទន្លេថ្មីនៃវាលទំនាបបឹងទន្លេសាប។ បំណាក់សិលាដែលនៅជិតបំផុតលើផែនទីស្ថិតនៅចម្ងាយប្រហែល ៥២ គីឡូម៉ែត្រ ហើយការរញ្ជួយដីកម្រិត ៣ ឬខ្ពស់ជាងនេះចំនួន ៣៧ លើកត្រូវបានកត់ត្រាក្នុងរង្វង់ ៥០០ គីឡូម៉ែត្រ (ធំបំផុត M 5.6 ក្នុងឆ្នាំ ១៩២៥ ចម្ងាយ ៣៦១ គ.ម)។",
+          "ស្ថានីយនេះនឹងត្រូវបំពាក់ដោយ broadband seismometer និង accelerometer (រូបភាពទី ១២–១៤)។",
         ],
         bodyEn: [
-          "While low in baseline seismicity, tall buildings in Phnom Penh have felt long-period resonance from major subduction earthquakes in Sumatra and strike-slip events in Myanmar and Yunnan.",
-          "Paleoseismic studies on intraplate faults near the Thai-Cambodia border inform updated building code provisions and disaster risk preparedness across Cambodia.",
+          "The Siem Reap station will sit on recent lacustrine-alluvial sediments of the Tonle Sap plain. The nearest mapped fault is about 52 km away, and 37 earthquakes of magnitude 3 or greater have been recorded within 500 km (largest M 5.6 in 1925, 361 km away).",
+          "The station will be equipped with a broadband seismometer and an accelerometer (Figures 12–14).",
         ],
+        images: [
+          {
+            url: "/images/geohazards/figure-12-siem-reap-geology.png",
+            captionKm: "រូបភាពទី ១២៖ ភូគព្ភសាស្ត្រខេត្តសៀមរាបពីផែនទីភូគព្ភសាស្ត្រ (កាំ ៣០ គ.ម)។",
+            captionEn: "Figure 12. Siem Reap geology from the supplied geological map. Black dashed lines show mapped faults (activity unknown), grey lines show provincial boundaries and the star marks the city-centre stand-in point.",
+          },
+          {
+            url: "/images/geohazards/figure-13-siem-reap-seismicity.png",
+            captionKm: "រូបភាពទី ១៣៖ សៀមរាប៖ ការរញ្ជួយដីកម្រិត ៣ ឬលើសពីនេះក្នុងរង្វង់ ៥០០ គីឡូម៉ែត្រពីចំណុចកណ្តាលក្រុង (USGS)។",
+            captionEn: "Figure 13. Siem Reap: earthquakes of magnitude 3 or greater within 500 km of the city-centre point (USGS). Empty rings mean no events were recorded there, not that there is no hazard.",
+          },
+          {
+            url: "/images/geohazards/figure-14-siem-reap-stats.png",
+            captionKm: "រូបភាពទី ១៤៖ សៀមរាប៖ ក្រាហ្វិកកម្រិតរញ្ជួយដីតាមពេលវេលា ជម្រៅ ចំនួនសរុប និងទំនាក់ទំនងទំហំ-ប្រេកង់ (៥០០ គ.ម)។",
+            captionEn: "Figure 14. Siem Reap: magnitude over time, depth, cumulative count and magnitude–frequency charts (500 km). Some apparent trends reflect changes in how completely earthquakes were recorded over time.",
+          },
+        ],
+      },
+      {
+        titleKm: "៨. លក្ខណៈស្ថានីយ៖ រាជធានីភ្នំពេញ (Phnom Penh Urban Strong-Motion)",
+        titleEn: "8. Meet the sites: Phnom Penh",
+        bodyKm: [
+          "ស្ថានីយរាជធានីភ្នំពេញនឹងមានទីតាំងនៅរាជធានី លើដីខ្សាច់ល្បាប់ ដីល្បាយខ្សាច់ និងដីឥដ្ឋ។ ដោយសារជាតំបន់ប្រមូលផ្តុំប្រជាជន និងអគារខ្ពស់ៗ ស្ថានីយភ្នំពេញនឹងផ្តោតលើការតាមដានចលនាដីខ្លាំងក្នុងទីក្រុង (urban strong-motion monitoring) ដោយប្រើ accelerometer ដើម្បីកត់ត្រាកម្រិតរំញ័រដីក្នុងទីក្រុងនៅពេលមានការរញ្ជួយដី (រូបភាពទី ១៥–១៧)។",
+        ],
+        bodyEn: [
+          "The Phnom Penh station will be located in the capital, on alluvial sand, sandy loam and clay. With its dense population and buildings, Phnom Penh will focus on urban strong-motion monitoring with an accelerometer, recording how the ground shakes in the city during earthquakes (Figures 15–17).",
+        ],
+        images: [
+          {
+            url: "/images/geohazards/figure-15-phnom-penh-geology.png",
+            captionKm: "រូបភាពទី ១៥៖ ភូគព្ភសាស្ត្ររាជធានីភ្នំពេញពីផែនទីភូគព្ភសាស្ត្រ (កាំ ៣០ គ.ម)។",
+            captionEn: "Figure 15. Phnom Penh geology from the supplied geological map. Black dashed lines show mapped faults (activity unknown), grey lines show provincial boundaries and the star marks the city-centre stand-in point.",
+          },
+          {
+            url: "/images/geohazards/figure-16-phnom-penh-seismicity.png",
+            captionKm: "រូបភាពទី ១៦៖ ភ្នំពេញ៖ ការរញ្ជួយដីកម្រិត ៣ ឬលើសពីនេះក្នុងរង្វង់ ៥០០ គីឡូម៉ែត្រពីចំណុចកណ្តាលក្រុង (USGS)។",
+            captionEn: "Figure 16. Phnom Penh: earthquakes of magnitude 3 or greater within 500 km of the city-centre point (USGS). Empty rings mean no events were recorded there, not that there is no hazard.",
+          },
+          {
+            url: "/images/geohazards/figure-17-phnom-penh-stats.png",
+            captionKm: "រូបភាពទី ១៧៖ ភ្នំពេញ៖ ក្រាហ្វិកកម្រិតរញ្ជួយដីតាមពេលវេលា ជម្រៅ ចំនួនសរុប និងទំនាក់ទំនងទំហំ-ប្រេកង់ (៥០០ គ.ម)។",
+            captionEn: "Figure 17. Phnom Penh: magnitude over time, depth, cumulative count and magnitude–frequency charts (500 km). Some apparent trends reflect changes in how completely earthquakes were recorded over time.",
+          },
+        ],
+      },
+      {
+        titleKm: "៩. បណ្តាញថ្នាក់ជាតិ និងផ្ទៃគ្របដណ្តប់ (A national network)",
+        titleEn: "9. A national network & geometric coverage",
+        bodyKm: [
+          "ស្ថានីយទាំងប្រាំនឹងមានចន្លោះគម្លាតពី ៤៤ គីឡូម៉ែត្រ (កំពង់ស្ពឺ–ភ្នំពេញ) ដល់ ៥១១ គីឡូម៉ែត្រ (រតនគិរី–ព្រះសីហនុ) ដោយបង្កើតបានជាបណ្តាញរញ្ជួយដីជាតិដំបូងសម្រាប់កម្ពុជា។ ស្ថានីយបន្ថែមអាចនឹងត្រូវបង្កើតឡើងបន្ថែមទៀតនៅពេលអនាគត ជាពិសេសនៅតំបន់ព្រំដែនភាគពាយព្យ និរតី និងឦសាន (រូបភាពទី ១៨)។",
+          "បណ្តាញនេះក៏នឹងជួយបំពេញបន្ថែមដល់ស្ថានីយជិតខាងក្នុងប្រទេសថៃផងដែរ (CHBT នៅច័ន្ទបុរី និង UBPT នៅឧប៊ុនរាជធានី) ដែលស្ថិតនៅចម្ងាយ ១៧៧–៣០៨ គីឡូម៉ែត្រពីទីតាំងស្ថានីយ។",
+        ],
+        bodyEn: [
+          "The five stations will be spaced between 44 km (Kampong Speu–Phnom Penh) and 511 km (Ratanakiri–Preah Sihanouk) apart, forming a national seismic network for Cambodia. More stations may be added in the future, especially in the north-west, south-west and north-east border areas (Figure 18).",
+          "The network will also complement nearby stations in Thailand (CHBT at Chanthaburi and UBPT at Ubon Ratchathani), 177–308 km from the sites.",
+        ],
+        image: "/images/geohazards/figure-18-network-geometric-coverage.png",
+        imageCaptionKm: "រូបភាពទី ១៨៖ ផ្ទៃគ្របដណ្តប់នៃបណ្តាញស្ថានីយទាំងប្រាំលើក្រឡាចត្រង្គដី ២៥ គីឡូម៉ែត្រ (គម្លាតមុំ azimuthal gaps ធរណីមាត្រ)។",
+        imageCaptionEn: "Figure 18. Coverage of the five-station network on a 25 km land grid (geometric azimuthal gaps).",
+      },
+      {
+        titleKm: "១០. ទិសដៅទៅមុខ និងសារៈសំខាន់គន្លឹះ (Looking ahead & The bottom line)",
+        titleEn: "10. Looking ahead & The bottom line",
+        bodyKm: [
+          "ស្ថានីយរញ្ជួយដីទាំងប្រាំរបស់កម្ពុជានឹងត្រូវដាក់ឱ្យដំណើរការនាពេលឆាប់ៗខាងមុខ។ ស្ថានីយទាំងនេះនឹងត្រូវបំពាក់ដោយ broadband seismometers និង accelerometers ឧបករណ៍បំលែងឌីជីថល ២៤-bit (24-bit digitizers) ជាមួយប្រព័ន្ធពេលវេលា GNSS និងបណ្តាញបញ្ជូនទិន្នន័យ (telemetry link) មកកាន់នាយកដ្ឋានភូគព្ភវិទ្យានៃ GDMR។",
+          "ទិន្នន័យរញ្ជួយដីនឹងត្រូវចែករំលែកតាមពេលវេលាជាក់ស្តែង (real time) ជាមួយ GEA ក្រោមកិច្ចព្រមព្រៀងគម្រោង និងជាមួយដៃគូនានា ដូចជាវិទ្យាស្ថានភ្នំភ្លើងវិទ្យា និងរញ្ជួយដីវិទ្យាហ្វីលីពីន (PHIVOLCS) ព្រមទាំងស្ថាប័នជាតិ និងអាស៊ានដទៃទៀត។ មន្ត្រីជំនាញមូលដ្ឋាននឹងត្រូវបានបណ្តុះបណ្តាលដើម្បីដំណើរការ និងថែទាំបណ្តាញនេះ។",
+        ],
+        bodyEn: [
+          "Cambodia's five seismometer stations will be up and running in the near future. The stations will be equipped with broadband seismometers and accelerometers, 24-bit digitizers with GNSS timing and a telemetry link to DGM of GDMR.",
+          "Earthquake data will be shared in real time with GEA under the project Agreement, and with partners such as the Philippine Institute of Volcanology and Seismology (PHIVOLCS) and other national and ASEAN institutions. Local staff will be trained to operate and maintain the network.",
+        ],
+        calloutKm: "សេចក្តីសន្និដ្ឋានសំខាន់៖ កម្ពុជានឹងមានស្ថានីយរញ្ជួយដីចំនួនប្រាំ គឺនៅកំពង់ស្ពឺ រតនគិរី ព្រះសីហនុ សៀមរាប និងភ្នំពេញ។ ស្ថានីយទាំងនេះរួមគ្នានឹងបង្កើតបានជាបណ្តាញរញ្ជួយដីថ្នាក់ជាតិ ដែលជួយលើកកម្ពស់ការតាមដានការរញ្ជួយដី គាំទ្រការស្រាវជ្រាវ និងពង្រឹងកិច្ចសហប្រតិបត្តិការក្នុងតំបន់សម្រាប់ឆ្នាំខាងមុខ។",
+        calloutEn: "The bottom line: Cambodia will soon have five seismometer stations, in Kampong Speu, Ratanakiri, Preah Sihanouk, Siem Reap and Phnom Penh. Together they will form a national seismic network that improves earthquake monitoring, supports research and strengthens regional cooperation in the years ahead.",
       },
     ],
     relatedPaperIds: [
@@ -671,17 +896,69 @@ export const FOCUS_TOPICS: FocusTopic[] = [
       "local-998034775438",
       "local-ae4c88e6c6e7",
     ],
-    keyHighlightsKm: [
-      "ការបាក់ដី និងស្ថិរភាពជម្រាលភ្នំក្រវាញ និងដងរែកក្នុងរដូវវស្សា",
-      "យន្តការបាក់ច្រាំងទន្លេមេគង្គ និងទន្លេសាបក្នុងរដូវទឹកសម្រក",
-      "ហានិភ័យស្រុតដីដោយសារការបូមទឹកក្រោមដីលើសកម្រិត",
-      "ការដួលរលំប្រហោងកាស្ត និងការសិក្សាហានិភ័យរញ្ជួយដី",
-    ],
-    keyHighlightsEn: [
-      "Monsoon landslide and debris flow susceptibility in Cardamom and Dangrek ranges",
-      "Rapid drawdown pore-pressure mechanics in Mekong riverbank collapse",
-      "Alluvial compaction and land subsidence from groundwater over-extraction",
-      "Karst sinkhole hazards and regional intraplate seismic risk assessment",
+    sources: [
+      {
+        id: "[R1]",
+        text: "GDMR / user-supplied geological GIS collection. Geological_map_750k – Edited/Geological_map_750k.shp; Geological_map_750k/Geology_750K.shp; geo_Cam_ASEAN/GeoMap500K_Cambodia_ASEAN.shp; Cambodia_Lithology_Polygons_Altered_Litho_OKV_OCH_region.shp; Faults.shp; Structures.shp; Karst1.shp. Local directory: D:/1-GIS Data/Dept_Geology/Geological_map. Read 14 October 2026.",
+      },
+      {
+        id: "[R2]",
+        text: "CNGD / user-supplied administrative and OSM-derived GIS collection. khm_admbnda_adm1_gov.shp; khm_admbnda_adm2_gov.shp; gis_osm_roads_free_1.shp; gis_osm_railways_free_1.shp; gis_osm_water_a_free_1.shp. Local directory: D:/1-GIS Data/CNGD. Read 14 October 2026.",
+      },
+      {
+        id: "[R3]",
+        text: "U.S. Geological Survey. Earthquake Catalog (ComCat), FDSN Event Web Service. Retrieved 14 October 2026.",
+        url: "https://earthquake.usgs.gov/fdsnws/event/1/",
+      },
+      {
+        id: "[R4]",
+        text: "International Seismological Centre. ISC Bulletin FDSN Event Web Service and ISC-GEM Global Instrumental Earthquake Catalogue. Retrieved 14 October 2026. DOI: 10.31905/D808B825.",
+        url: "https://www.isc.ac.uk/fdsnws/event/1/",
+      },
+      {
+        id: "[R5]",
+        text: "European-Mediterranean Seismological Centre. SeismicPortal FDSN Event Web Service. Retrieved 14 October 2026.",
+        url: "https://www.seismicportal.eu/fdsnws/event/1/",
+      },
+      {
+        id: "[R6]",
+        text: "EarthScope (IRIS service endpoint). FDSN Station Web Service. Retrieved 14 October 2026.",
+        url: "https://service.iris.edu/fdsnws/station/1/",
+      },
+      {
+        id: "[R7]",
+        text: "GEM Hazard Team. PSHA input model documentation for Continental Southeast Asia (SEA), model v2018.2.0. Describes source models of Chan et al. (2017) and Ornthammarath et al. (2020). Accessed 14 October 2026.",
+        url: "https://hazard.openquake.org/gem/models/SEA/",
+      },
+      {
+        id: "[R8]",
+        text: "Global Earthquake Model Foundation. Global Seismic Hazard Map numeric open dataset, 2023. DOI: 10.5281/zenodo.8409647. Johnson, K. et al. (2026). Global Earthquake Model (GEM) Seismic Hazard Map, version 2026.1.",
+        url: "https://doi.org/10.5281/zenodo.8409646",
+      },
+      {
+        id: "[R9]",
+        text: "U.S. Geological Survey. Vs30 Models and Data (ArcGIS slope-proxy service). Retrieved 14 October 2026.",
+        url: "https://www.usgs.gov/programs/earthquake-hazards/science/vs30-models-and-data",
+      },
+      {
+        id: "[R10]",
+        text: "Peterson, J.R. (1993). Observations and modeling of seismic background noise. U.S. Geological Survey Open-File Report 93-322, 94 pp.",
+        url: "https://doi.org/10.3133/ofr93322",
+      },
+      {
+        id: "[R11]",
+        text: "Thailand Meteorological Department. Regional earthquake portal (CHBT & UBPT seismic station network). Accessed 14 October 2026.",
+        url: "https://earthquake.tmd.go.th/inside.html",
+      },
+      {
+        id: "[R12]",
+        text: "Provincial Department of Mines and Energy station premises coordinates table. GDMR/DGM project survey records, coordinate system EPSG:32648 (WGS 84 / UTM zone 48N). Surveyed October 2026.",
+      },
+      {
+        id: "[R13]",
+        text: "National Institute of Standards and Technology. Guide for the Use of the International System of Units (SI), Special Publication 811: standard acceleration of free fall (conventional g = 9.80665 m/s²).",
+        url: "https://physics.nist.gov/Pubs/SP811/appenB.html",
+      },
     ],
   },
 ];

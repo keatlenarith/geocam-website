@@ -213,6 +213,46 @@ export default function ResearchTopic() {
                     </figure>
                   ))}
 
+                {/* Optional Structured Table */}
+                {section.table && (
+                  <div className="my-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-xs">
+                    {(section.table.captionKm || section.table.captionEn) && (
+                      <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 font-semibold text-slate-800 text-sm">
+                        {lang === "km" && section.table.captionKm ? section.table.captionKm : section.table.captionEn}
+                      </div>
+                    )}
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-slate-100/80 text-slate-900 border-b border-slate-200 text-xs uppercase font-semibold">
+                        <tr>
+                          {(lang === "km" && section.table.headersKm ? section.table.headersKm : section.table.headersEn).map(
+                            (h, hIdx) => (
+                              <th key={hIdx} className="px-4 py-3">{h}</th>
+                            )
+                          )}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {(lang === "km" && section.table.rowsKm ? section.table.rowsKm : section.table.rowsEn).map(
+                          (row, rIdx) => (
+                            <tr key={rIdx} className="hover:bg-slate-50/80 transition">
+                              {row.map((cell, cIdx) => (
+                                <td key={cIdx} className="px-4 py-3 text-slate-700 font-medium">
+                                  {cell}
+                                </td>
+                              ))}
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
+                    {(section.table.footnoteKm || section.table.footnoteEn) && (
+                      <div className="p-3 text-xs text-slate-500 bg-slate-50/60 border-t border-slate-200 italic">
+                        {lang === "km" && section.table.footnoteKm ? section.table.footnoteKm : section.table.footnoteEn}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Optional Bullets */}
                 {((lang === "km" ? section.bulletsKm : section.bulletsEn) || []).length > 0 && (
                   <ul className="mt-4 space-y-2 list-disc list-inside pl-2 text-slate-700 text-sm md:text-base">
@@ -337,6 +377,51 @@ export default function ResearchTopic() {
               )}
             </div>
           </div>
+          {/* Dedicated Sources & Scientific References */}
+          {focus.sources && focus.sources.length > 0 && (
+            <div className="mt-12 pt-8 border-t-2 border-slate-200">
+              <div className="mb-4">
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
+                  <FileText size={14} />
+                  {lang === "km" ? "ឯកសារយោង និងប្រភពទិន្នន័យ" : "Sources & Scientific Provenance"}
+                </span>
+                <h3 className="text-2xl font-bold text-slate-900 mt-1">
+                  {lang === "km" ? "ប្រភពឯកសារយោងវិទ្យាសាស្ត្រ (Sources)" : "Scientific Sources & Literature Cited"}
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {lang === "km"
+                    ? "បញ្ជីឯកសារយោង ទិន្នន័យ FDSN និងកាតាឡុកភូគព្ភសាស្ត្រដែលត្រូវបានដកស្រង់ក្នុងរបាយការណ៍នេះ"
+                    : "Official catalogues, FDSN earthquake services, geological GIS layers, and PSHA models referenced in this assessment."}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 divide-y divide-slate-200/70">
+                {focus.sources.map((src) => (
+                  <div key={src.id} className="py-3 first:pt-1 last:pb-1 flex items-start gap-3">
+                    <span className="font-mono font-bold text-emerald-800 text-xs bg-emerald-100/80 px-2 py-0.5 rounded shrink-0">
+                      {src.id}
+                    </span>
+                    <div className="text-xs md:text-sm text-slate-700 leading-relaxed">
+                      <span>{src.text}</span>
+                      {src.url && (
+                        <div className="mt-1">
+                          <a
+                            href={src.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-800 hover:underline font-medium break-all"
+                          >
+                            <span>{src.url}</span>
+                            <ExternalLink size={12} className="shrink-0" />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </article>
 
         {/* Explore Other Key Disciplines Navigation */}
