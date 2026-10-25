@@ -77,7 +77,7 @@ export function LiveTickerRibbon() {
       titleKm: "ចំណាត់ថ្នាក់ថ្មនៅកម្ពុជា៖ ថ្មម៉ាក់ម៉ា ថ្មកម្ទេចកំណ និងថ្មប្រែរូប",
       metricEn: "New Guide",
       metricKm: "មគ្គុទ្ទេសក៍ថ្មី",
-      url: "/basic-knowledge",
+      url: "/basic-knowledge?id=bk-rocks",
     });
 
     list.push({
@@ -90,7 +90,7 @@ export function LiveTickerRibbon() {
       titleKm: "សេចក្តីផ្តើមអំពីប្រវត្តិភូគព្ភសាស្ត្រ និងសណ្ឋានសិលានៅកម្ពុជា",
       metricEn: "Featured",
       metricKm: "ពិសេស",
-      url: "/basic-knowledge",
+      url: "/basic-knowledge?id=bk-history",
     });
 
     list.push({
@@ -103,7 +103,7 @@ export function LiveTickerRibbon() {
       titleKm: "មូលដ្ឋានគ្រឹះវារីភូគព្ភសាស្ត្រ៖ ដំណើរការនៃស្រទាប់ផ្ទុកទឹកនៅអាងទន្លេមេគង្គក្រោម",
       metricEn: "Trending",
       metricKm: "ពេញនិយម",
-      url: "/basic-knowledge",
+      url: "/basic-knowledge?id=bk-hydro",
     });
 
     // 3. New Events & Conferences

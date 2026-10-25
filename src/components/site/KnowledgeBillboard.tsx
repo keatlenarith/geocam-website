@@ -109,7 +109,10 @@ export function KnowledgeBillboard() {
               >
                 <div>
                   {/* Photo with Tag */}
-                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-800 mb-4">
+                  <Link
+                    to={`/basic-knowledge?id=${post.id}`}
+                    className="relative block aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-800 mb-4 cursor-pointer"
+                  >
                     <img
                       src={post.image}
                       alt={title}
@@ -123,7 +126,7 @@ export function KnowledgeBillboard() {
                     <span className="absolute bottom-2.5 left-2.5 rounded-full bg-blue-600/80 px-2.5 py-0.5 text-[11px] font-semibold text-white backdrop-blur-md">
                       {cat}
                     </span>
-                  </div>
+                  </Link>
 
                   {/* Header Details */}
                   <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">
@@ -132,7 +135,7 @@ export function KnowledgeBillboard() {
                   </div>
 
                   <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-cyan-300 transition leading-snug">
-                    <Link to="/basic-knowledge">{title}</Link>
+                    <Link to={`/basic-knowledge?id=${post.id}`}>{title}</Link>
                   </h3>
 
                   <p className="mt-2 text-xs text-slate-300/85 line-clamp-3 leading-relaxed">
@@ -142,7 +145,7 @@ export function KnowledgeBillboard() {
 
                 <div className="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between">
                   <Link
-                    to="/basic-knowledge"
+                    to={`/basic-knowledge?id=${post.id}`}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-400 group-hover:text-cyan-300"
                   >
                     <span>{lang === "km" ? "អានមគ្គុទ្ទេសក៍នេះ" : "Read Full Guide"}</span>

@@ -109,9 +109,24 @@ test("Live Ticker & Knowledge Billboard: Rendered on home page with earthquakes,
   const billboardCode = fs.readFileSync(path.join(root, "src/components/site/KnowledgeBillboard.tsx"), "utf8");
   assert.match(billboardCode, /FEATURED BASIC KNOWLEDGE/);
   assert.match(billboardCode, /ចំណេះដឹងមូលដ្ឋានពិសេស/);
-  assert.match(billboardCode, /\/basic-knowledge/);
+  assert.match(billboardCode, /\/basic-knowledge\?id=\$\{post\.id\}/);
+
+  // Exact post destination verification
+  assert.match(tickerCode, /\/basic-knowledge\?id=bk-rocks/);
+  assert.match(tickerCode, /\/basic-knowledge\?id=bk-history/);
+  assert.match(tickerCode, /\/basic-knowledge\?id=bk-hydro/);
 
   const css = fs.readFileSync(path.join(root, "src/styles.css"), "utf8");
   assert.match(css, /gc-ticker-track/);
   assert.match(css, /gc-ticker-scroll/);
+});
+
+test("Exact Post Reading in Basic Knowledge: 3-column layout, TOC, and related posts", () => {
+  const basicKnowledgeCode = fs.readFileSync(path.join(root, "src/routes/basic-knowledge.tsx"), "utf8");
+  assert.match(basicKnowledgeCode, /getKnowledgeArticleByIdOrSlug/);
+  assert.match(basicKnowledgeCode, /grid-cols-1 lg:grid-cols-\[220px_minmax\(0,1fr\)\] xl:grid-cols-\[240px_minmax\(0,1fr\)_280px\]/);
+  assert.match(basicKnowledgeCode, /Table of contents/);
+  assert.match(basicKnowledgeCode, /Back to Basic Knowledge/);
+  assert.match(basicKnowledgeCode, /Related Posts/);
+  assert.match(basicKnowledgeCode, /\/basic-knowledge\?id=\$\{article\.id\}/);
 });

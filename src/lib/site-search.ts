@@ -1,6 +1,7 @@
 import { FOCUS_TOPICS } from "../features/research/focus-topics-data.ts";
 import { publications, events } from "./data.ts";
 import { CAMBODIA_GEOSITES } from "../features/geopark/geosites-data.ts";
+import { BASIC_KNOWLEDGE_ARTICLES } from "./basic-knowledge-data.ts";
 import lexiconData from "./lexicon-terms.json" with { type: "json" };
 
 export type SearchCategory =
@@ -398,6 +399,23 @@ export function buildSearchIndex(): SearchResultItem[] {
       url: "/events",
       tags: ["event", "symposium", "conference", "workshop"],
       meta: ev.date || "",
+    });
+  }
+
+  // 8. Basic Knowledge Articles (Direct link to exact post!)
+  for (const bk of BASIC_KNOWLEDGE_ARTICLES) {
+    items.push({
+      id: "bk-" + bk.id,
+      category: "research",
+      categoryLabelEn: "Basic Knowledge",
+      categoryLabelKm: "ចំណេះដឹងមូលដ្ឋាន",
+      titleEn: bk.titleEn,
+      titleKm: bk.titleKm,
+      descriptionEn: bk.excerptEn,
+      descriptionKm: bk.excerptKm,
+      url: "/basic-knowledge?id=" + bk.id,
+      tags: ["basic knowledge", "guide", bk.category.toLowerCase(), "education", "geology"],
+      meta: bk.category + " · " + bk.readTime,
     });
   }
 

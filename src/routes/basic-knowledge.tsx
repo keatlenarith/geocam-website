@@ -1,12 +1,12 @@
-import { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Container, PageHeader } from "@/components/site/Chrome";
 import { Link } from "@/lib/spa-router";
 import { useI18n } from "@/lib/i18n";
 import { useAdmin } from "@/admin/Auth";
 import {
   BookOpen,
-  Compass,
   ArrowRight,
+  ArrowLeft,
   Search,
   Sparkles,
   Layers,
@@ -15,102 +15,19 @@ import {
   Edit,
   PlusCircle,
   FileText,
+  CheckCircle2,
+  Share2,
+  Compass,
+  Bookmark,
+  ExternalLink,
 } from "lucide-react";
-
-interface KnowledgeArticle {
-  id: string;
-  category: string;
-  categoryKm: string;
-  titleEn: string;
-  titleKm: string;
-  excerptEn: string;
-  excerptKm: string;
-  readTime: string;
-  image: string;
-  slug: string;
-  date: string;
-}
-
-const sampleArticles: KnowledgeArticle[] = [
-  {
-    id: "bk-1",
-    category: "General Geology",
-    categoryKm: "ភូគព្ភសាស្ត្រទូទៅ",
-    titleEn: "Introduction to Cambodia's Geological History & Rock Formations",
-    titleKm: "សេចក្តីផ្តើមអំពីប្រវត្តិភូគព្ភសាស្ត្រ និងសណ្ឋានសិលានៅកម្ពុជា",
-    excerptEn: "Explore the ancient basement of Indochina, Paleozoic marine sedimentation, Mesozoic continental sandstone plateaus, and Cenozoic basalt volcanism.",
-    excerptKm: "ស្វែងយល់អំពីខឿនបុរាណឥណ្ឌូចិន កំណកកករសមុទ្រយុគបុរាណសត្វ ខ្ពង់រាបថ្មភក់ដីគោកយុគកណ្តាលសត្វ និងបន្ទុះភ្នំភ្លើងបាសាល់យុគថ្មី។",
-    readTime: "8 min read",
-    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80",
-    slug: "geological-history-cambodia",
-    date: "2026-10-20",
-  },
-  {
-    id: "bk-2",
-    category: "Rocks & Minerals",
-    categoryKm: "ថ្ម និងខនិជ",
-    titleEn: "Classification of Rocks in Cambodia: Igneous, Sedimentary & Metamorphic",
-    titleKm: "ចំណាត់ថ្នាក់ថ្មនៅកម្ពុជា៖ ថ្មម៉ាក់ម៉ា ថ្មកម្ទេចកំណ និងថ្មប្រែរូប",
-    excerptEn: "A foundational guide to identifying granite intrusions, sandstone plateaus, limestone karst, and schist belts across Cambodia's provinces.",
-    excerptKm: "មគ្គុទ្ទេសក៍មូលដ្ឋានសម្រាប់កំណត់អត្តសញ្ញាណថ្មក្រានីត ខ្ពង់រាបថ្មភក់ កាស្ត៍ថ្មកំបោរ និងខ្សែក្រវាត់ថ្មសៀសនៅទូទាំងខេត្តនានាក្នុងប្រទេសកម្ពុជា។",
-    readTime: "6 min read",
-    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80",
-    slug: "classification-rocks-cambodia",
-    date: "2026-10-18",
-  },
-  {
-    id: "bk-3",
-    category: "Groundwater",
-    categoryKm: "ទឹកក្រោមដី",
-    titleEn: "Hydrogeology Basics: How Aquifers Function in the Lower Mekong Basin",
-    titleKm: "មូលដ្ឋានគ្រឹះវារីភូគព្ភសាស្ត្រ៖ ដំណើរការនៃស្រទាប់ផ្ទុកទឹកនៅអាងទន្លេមេគង្គក្រោម",
-    excerptEn: "Understand unconfined alluvial aquifers, recharge dynamics, seasonal water-table fluctuations, and natural groundwater filtration.",
-    excerptKm: "ស្វែងយល់អំពីស្រទាប់ផ្ទុកទឹកល្បាប់ជ្រាយ ថាមវន្តនៃការជ្រាបបំពេញទឹកឡើងវិញ ការប្រែប្រួលកម្រិតទឹកតាមរដូវ និងការច្រោះទឹកក្រោមដីតាមធម្មជាតិ។",
-    readTime: "7 min read",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
-    slug: "hydrogeology-basics-aquifers",
-    date: "2026-10-15",
-  },
-  {
-    id: "bk-4",
-    category: "Mining & Resources",
-    categoryKm: "ធនធានរ៉ែ",
-    titleEn: "Understanding Mineral Exploration: From Outcrop Sampling to Resource Estimation",
-    titleKm: "ស្វែងយល់ពីការរុករករ៉ែ៖ ចាប់ពីការយកសំណាកថ្ម ដល់ការប៉ាន់ប្រមាណបរិមាណធនធាន",
-    excerptEn: "How geologists discover mineral deposits: geochemical stream sediment sampling, trenching, geophysical anomaly mapping, and core drilling.",
-    excerptKm: "របៀបដែលអ្នកភូគព្ភវិទូស្វែងរកជម្រករ៉ែ៖ ការយកសំណាកល្បាប់ស្ទឹង ការជីកលេណដ្ឋាន ការគូសផែនទីភាពមិនប្រក្រតីនៃរូបវិទ្យា និងការខួងស្រង់ស្នូលថ្ម។",
-    readTime: "10 min read",
-    image: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80",
-    slug: "mineral-exploration-basics",
-    date: "2026-10-12",
-  },
-  {
-    id: "bk-5",
-    category: "Structural Geology",
-    categoryKm: "ភូគព្ភសាស្ត្ររចនាសម្ព័ន្ធ",
-    titleEn: "Faults, Folds, and Joints: Geological Structures Explained with Cambodian Outcrops",
-    titleKm: "បំណាក់ ផ្នត់ និងប្រេះស្រាំ៖ ការពន្យល់អំពីរចនាសម្ព័ន្ធភូគព្ភសាស្ត្រជាមួយផ្ទាំងថ្មនៅកម្ពុជា",
-    excerptEn: "Visual guide to strike-slip faults, anticlines, synclines, and tectonic deformation observed in the Kampot Fold Belt and Cardamom ranges.",
-    excerptKm: "មគ្គុទ្ទេសក៍រូបភាពអំពីបំណាក់រអិលផ្តេក ផ្នត់ប៉ោង ផ្នត់ផត និងបម្រែបម្រួលរចនាសម្ព័ន្ធតិចតូនិចនៅខ្សែក្រវាត់ផ្នត់កំពត និងជួរភ្នំក្រវាញ។",
-    readTime: "9 min read",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
-    slug: "faults-folds-joints-basics",
-    date: "2026-10-08",
-  },
-  {
-    id: "bk-6",
-    category: "General Geology",
-    categoryKm: "ភូគព្ភសាស្ត្រទូទៅ",
-    titleEn: "Volcanism in Cambodia: Ratanakiri Lava Plateaus and Quaternary Basalt",
-    titleKm: "បន្ទុះភ្នំភ្លើងនៅកម្ពុជា៖ ខ្ពង់រាបកម្អែរតនគិរី និងថ្មបាសាល់សម័យទីបួន",
-    excerptEn: "Discover the fiery past of northeastern Cambodia, volcanic crater lakes such as Boeng Yeak Laom, and gemstone-bearing gem-gravel layers.",
-    excerptKm: "ស្វែងយល់ពីប្រវត្តិភ្នំភ្លើងនៅភាគឦសានប្រទេសកម្ពុជា បឹងមាត់ភ្នំភ្លើងដូចជាបឹងយក្សឡោម និងស្រទាប់ក្រួសកំណកត្បូង។",
-    readTime: "7 min read",
-    image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80",
-    slug: "volcanism-cambodia-basalt",
-    date: "2026-10-05",
-  },
-];
+import {
+  BASIC_KNOWLEDGE_ARTICLES,
+  getKnowledgeArticleByIdOrSlug,
+  type KnowledgeArticle,
+} from "@/lib/basic-knowledge-data";
+import { supabase } from "@/lib/supabase";
+import { postBody, postText, safeCover, type Post } from "@/admin/posts";
 
 const categoryTabs = [
   { id: "all", en: "All Topics", km: "ប្រធានបទទាំងអស់" },
@@ -124,11 +41,152 @@ const categoryTabs = [
 export default function BasicKnowledge() {
   const { lang } = useI18n();
   const { admin } = useAdmin();
+
+  // Check URL query parameters for exact article id or slug
+  const [currentUrl, setCurrentUrl] = useState(
+    () => location.pathname + location.search
+  );
+
+  useEffect(() => {
+    const onPop = () => setCurrentUrl(location.pathname + location.search);
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  const searchParams = useMemo(
+    () => new URLSearchParams(location.search),
+    [currentUrl]
+  );
+  const articleId =
+    searchParams.get("id") ||
+    searchParams.get("slug") ||
+    searchParams.get("post") ||
+    searchParams.get("article");
+
+  // Dynamic user-published posts from Supabase
+  const [supabasePost, setSupabasePost] = useState<Post | null>(null);
+  const [loadingSupabase, setLoadingSupabase] = useState(false);
+  const [publicPosts, setPublicPosts] = useState<Post[]>([]);
+
+  // Load public posts that belong to Basic Knowledge or Geoscience categories
+  useEffect(() => {
+    let alive = true;
+    Promise.resolve(
+      supabase
+        .from("geocam_post_public")
+        .select("data")
+        .order("updated_at", { ascending: false })
+    )
+      .then(({ data }) => {
+        if (!alive || !data) return;
+        const posts = (data ?? []).map((row) => row.data as Post);
+        setPublicPosts(posts);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // If articleId is provided, check if it's a curated article or Supabase post
+  const curatedArticle = useMemo(() => {
+    if (!articleId) return undefined;
+    return getKnowledgeArticleByIdOrSlug(articleId);
+  }, [articleId]);
+
+  useEffect(() => {
+    if (!articleId || curatedArticle) {
+      setSupabasePost(null);
+      return;
+    }
+    let alive = true;
+    setLoadingSupabase(true);
+    Promise.resolve(
+      supabase
+        .from("geocam_post_public")
+        .select("data")
+        .eq("id", articleId)
+        .maybeSingle()
+    )
+      .then(({ data }) => {
+        if (!alive) return;
+        if (data?.data) {
+          setSupabasePost(data.data as Post);
+        } else {
+          setSupabasePost(null);
+        }
+      })
+      .catch(() => {
+        if (alive) setSupabasePost(null);
+      })
+      .finally(() => {
+        if (alive) setLoadingSupabase(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [articleId, curatedArticle]);
+
+  // Catalog State
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Combined catalog list (curated articles + published Supabase posts)
+  const combinedArticles = useMemo(() => {
+    // Convert relevant Supabase posts into knowledge article format
+    const extraArticles: KnowledgeArticle[] = publicPosts
+      .filter((p) => {
+        const cat = (p.category || "").toLowerCase();
+        return (
+          cat.includes("basic") ||
+          cat.includes("knowledge") ||
+          cat.includes("geology") ||
+          cat.includes("rock") ||
+          cat.includes("mineral") ||
+          cat.includes("groundwater") ||
+          cat.includes("hydrogeology") ||
+          cat.includes("tectonic")
+        );
+      })
+      .map((p) => ({
+        id: p.id,
+        slug: p.id,
+        category: p.category || "General Geology",
+        categoryKm: p.category || "ភូគព្ភសាស្ត្រទូទៅ",
+        titleEn: p.titleEn || "Untitled Knowledge Post",
+        titleKm: p.titleKm || p.titleEn || "អត្ថបទចំណេះដឹង",
+        excerptEn: p.summaryEn || "",
+        excerptKm: p.summaryKm || p.summaryEn || "",
+        readTime: "5 min read",
+        image: safeCover(p.cover) || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80",
+        date: p.createdAt ? p.createdAt.slice(0, 10) : "2026-10-25",
+        authorEn: "GeoCam Contributor",
+        authorKm: "អ្នកចូលរួមចំណែក GeoCam",
+        tagEn: "Community Post",
+        tagKm: "អត្ថបទសហគមន៍",
+        sections: [
+          {
+            id: "content",
+            headingEn: "Article Content",
+            headingKm: "ខ្លឹមសារអត្ថបទ",
+            contentEn: p.bodyEn || p.summaryEn || "",
+            contentKm: p.bodyKm || p.summaryKm || p.bodyEn || "",
+          },
+        ],
+        takeawaysEn: [],
+        takeawaysKm: [],
+        relatedIds: ["bk-rocks", "bk-history"],
+      }));
+
+    // Avoid duplicates
+    const existingIds = new Set(BASIC_KNOWLEDGE_ARTICLES.map((a) => a.id));
+    const filteredExtra = extraArticles.filter((a) => !existingIds.has(a.id));
+
+    return [...BASIC_KNOWLEDGE_ARTICLES, ...filteredExtra];
+  }, [publicPosts]);
+
   const filteredArticles = useMemo(() => {
-    return sampleArticles.filter((article) => {
+    return combinedArticles.filter((article) => {
       const matchCat =
         selectedCategory === "all" || article.category === selectedCategory;
       const matchQuery =
@@ -146,8 +204,461 @@ export default function BasicKnowledge() {
           .includes(searchQuery.toLowerCase().trim());
       return matchCat && matchQuery;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [combinedArticles, selectedCategory, searchQuery]);
 
+  // ==========================================
+  // VIEW 1: EXACT POST VIEW (When ?id= is given)
+  // ==========================================
+  if (articleId) {
+    if (loadingSupabase) {
+      return (
+        <Container>
+          <div className="flex min-h-[50vh] flex-col items-center justify-center p-12 text-slate-500">
+            <div className="h-8 w-8 animate-spin rounded-full border-3 border-blue-600 border-t-transparent mb-4" />
+            <p className="text-sm font-medium">
+              {lang === "km" ? "កំពុងផ្ទុកអត្ថបទចំណេះដឹង…" : "Loading knowledge guide…"}
+            </p>
+          </div>
+        </Container>
+      );
+    }
+
+    // Render Curated Article
+    if (curatedArticle) {
+      const title = lang === "km" ? curatedArticle.titleKm : curatedArticle.titleEn;
+      const excerpt = lang === "km" ? curatedArticle.excerptKm : curatedArticle.excerptEn;
+      const cat = lang === "km" ? curatedArticle.categoryKm : curatedArticle.category;
+      const author = lang === "km" ? curatedArticle.authorKm : curatedArticle.authorEn;
+      const tag = lang === "km" ? curatedArticle.tagKm : curatedArticle.tagEn;
+
+      // Related articles for right sidebar
+      const relatedArticles = curatedArticle.relatedIds
+        .map((id) => getKnowledgeArticleByIdOrSlug(id))
+        .filter((a): a is KnowledgeArticle => Boolean(a));
+
+      return (
+        <>
+          <PageHeader
+            eyebrow={lang === "km" ? "ចំណេះដឹងមូលដ្ឋានភូគព្ភសាស្ត្រ" : "Geoscience Basic Knowledge"}
+            title={title}
+          />
+
+          <Container>
+            {/* Top Navigation & Actions Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-200/80">
+              <Link
+                to="/basic-knowledge"
+                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-semibold text-sm transition group"
+              >
+                <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+                <span>{lang === "km" ? "ត្រឡប់ទៅបញ្ជីចំណេះដឹងមូលដ្ឋាន" : "Back to Basic Knowledge"}</span>
+              </Link>
+
+              <div className="flex items-center gap-2.5">
+                {admin && (
+                  <Link
+                    to={`/admin?tab=posts&edit=${encodeURIComponent(curatedArticle.id)}`}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-slate-700 transition"
+                  >
+                    <Edit size={13} />
+                    <span>{lang === "km" ? "កែសម្រួលអត្ថបទ" : "Edit Post"}</span>
+                  </Link>
+                )}
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 border border-blue-200">
+                  <Bookmark size={12} />
+                  <span>{tag}</span>
+                </span>
+              </div>
+            </div>
+
+            {/* 3-Column Reading Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)_280px] gap-8 items-start mb-16">
+              
+              {/* LEFT COLUMN: Frameless Table of Contents */}
+              <aside className="hidden lg:block sticky top-24 space-y-4 text-sm pr-2">
+                <div className="pb-2 border-b border-slate-200/60">
+                  <span className="font-bold text-xs uppercase tracking-wider text-slate-500">
+                    {lang === "km" ? "មាតិកា៖" : "Content:"}
+                  </span>
+                </div>
+                <nav className="space-y-1.5" aria-label="Table of contents">
+                  <a
+                    href="#sec-intro"
+                    className="block text-slate-700 hover:text-blue-600 hover:underline py-1 font-medium transition"
+                  >
+                    1. {lang === "km" ? "សេចក្តីផ្តើម" : "Introduction"}
+                  </a>
+                  {curatedArticle.sections.map((sec, idx) => (
+                    <a
+                      key={sec.id}
+                      href={`#${sec.id}`}
+                      className="block text-slate-700 hover:text-blue-600 hover:underline py-1 font-medium transition line-clamp-2"
+                    >
+                      {idx + 2}. {lang === "km" ? sec.headingKm : sec.headingEn}
+                    </a>
+                  ))}
+                  {curatedArticle.takeawaysEn.length > 0 && (
+                    <a
+                      href="#sec-takeaways"
+                      className="block text-slate-700 hover:text-blue-600 hover:underline py-1 font-medium transition"
+                    >
+                      {curatedArticle.sections.length + 2}. {lang === "km" ? "ចំណុចសំខាន់ៗ" : "Key Takeaways"}
+                    </a>
+                  )}
+                </nav>
+              </aside>
+
+              {/* CENTER COLUMN: Full Article Canvas */}
+              <article className="min-w-0 space-y-8">
+                {/* Meta Header */}
+                <div id="sec-intro" className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                    <span className="rounded-full bg-blue-100 px-2.5 py-0.5 font-bold text-blue-700">
+                      {cat}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock size={13} /> {curatedArticle.readTime}
+                    </span>
+                    <span>·</span>
+                    <span className="flex items-center gap-1">
+                      <Calendar size={13} /> {curatedArticle.date}
+                    </span>
+                    <span>·</span>
+                    <span>{author}</span>
+                  </div>
+
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                    {title}
+                  </h1>
+
+                  {/* Excerpt Lead Box */}
+                  <div className="rounded-2xl border-l-4 border-blue-600 bg-blue-50/70 p-5 text-slate-800 text-sm sm:text-base leading-relaxed">
+                    <p className="font-medium">{excerpt}</p>
+                  </div>
+                </div>
+
+                {/* Hero Cover Image */}
+                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-md">
+                  <img
+                    src={curatedArticle.image}
+                    alt={title}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent" />
+                </div>
+
+                {/* Narrative Sections */}
+                <div className="space-y-8 text-slate-800 text-sm sm:text-base leading-relaxed">
+                  {curatedArticle.sections.map((sec) => {
+                    const heading = lang === "km" ? sec.headingKm : sec.headingEn;
+                    const content = lang === "km" ? sec.contentKm : sec.contentEn;
+                    const bullets = lang === "km" ? sec.bulletsKm : sec.bulletsEn;
+                    const callout = lang === "km" ? sec.calloutKm : sec.calloutEn;
+
+                    return (
+                      <section key={sec.id} id={sec.id} className="space-y-4 pt-2">
+                        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight border-b border-slate-100 pb-2">
+                          {heading}
+                        </h2>
+
+                        <p className="text-slate-700 leading-relaxed">{content}</p>
+
+                        {bullets && bullets.length > 0 && (
+                          <ul className="space-y-2 pl-5 list-disc text-slate-700">
+                            {bullets.map((b, i) => (
+                              <li key={i}>{b}</li>
+                            ))}
+                          </ul>
+                        )}
+
+                        {callout && (
+                          <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-4 text-xs sm:text-sm text-amber-900">
+                            <span className="font-bold block mb-1">
+                              {lang === "km" ? "💡 ចំណាំសំខាន់៖" : "💡 Field Insight:"}
+                            </span>
+                            {callout}
+                          </div>
+                        )}
+                      </section>
+                    );
+                  })}
+                </div>
+
+                {/* Key Takeaways */}
+                {curatedArticle.takeawaysEn.length > 0 && (
+                  <section
+                    id="sec-takeaways"
+                    className="rounded-2xl border border-slate-200 bg-slate-50/80 p-6 space-y-4"
+                  >
+                    <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                      <CheckCircle2 size={20} className="text-emerald-600" />
+                      <span>{lang === "km" ? "ចំណុចសំខាន់ៗដែលត្រូវចងចាំ" : "Key Takeaways"}</span>
+                    </h3>
+
+                    <ul className="space-y-2.5">
+                      {(lang === "km" ? curatedArticle.takeawaysKm : curatedArticle.takeawaysEn).map(
+                        (item, i) => (
+                          <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700">
+                            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                            <span>{item}</span>
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </section>
+                )}
+
+                {/* Bottom Navigation */}
+                <div className="pt-8 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
+                  <Link
+                    to="/basic-knowledge"
+                    className="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-200 transition"
+                  >
+                    <ArrowLeft size={14} />
+                    <span>{lang === "km" ? "ត្រឡប់ទៅបញ្ជីចំណេះដឹងទាំងអស់" : "Back to All Knowledge Guides"}</span>
+                  </Link>
+
+                  <span className="text-xs text-slate-400">
+                    GeoCam Cambodia Geoscience Knowledge Base
+                  </span>
+                </div>
+              </article>
+
+              {/* RIGHT COLUMN: Sticky Related Posts Panel */}
+              <aside className="sticky top-24 space-y-5">
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+                  <div className="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100">
+                    <BookOpen size={16} className="text-blue-600" />
+                    <h4 className="font-bold text-sm text-slate-900">
+                      {lang === "km" ? "អត្ថបទដែលទាក់ទង" : "Related Posts"}
+                    </h4>
+                  </div>
+
+                  <div className="space-y-4">
+                    {relatedArticles.map((rel) => {
+                      const relTitle = lang === "km" ? rel.titleKm : rel.titleEn;
+                      return (
+                        <Link
+                          key={rel.id}
+                          to={`/basic-knowledge?id=${rel.id}`}
+                          className="group block space-y-2 rounded-xl p-2 transition hover:bg-slate-50"
+                        >
+                          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-slate-100">
+                            <img
+                              src={rel.image}
+                              alt={relTitle}
+                              className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                            />
+                            <span className="absolute bottom-1.5 left-1.5 rounded-sm bg-slate-950/80 px-1.5 py-0.5 text-[9px] font-semibold text-white">
+                              {lang === "km" ? rel.categoryKm : rel.category}
+                            </span>
+                          </div>
+
+                          <h5 className="text-xs font-bold text-slate-800 group-hover:text-blue-600 transition line-clamp-2 leading-snug">
+                            {relTitle}
+                          </h5>
+
+                          <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                            <Clock size={10} /> {rel.readTime}
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              </aside>
+
+            </div>
+          </Container>
+        </>
+      );
+    }
+
+    // Render Supabase User-Published Post
+    if (supabasePost) {
+      const title = postText(supabasePost.titleEn, supabasePost.titleKm, lang);
+      const summary = postText(supabasePost.summaryEn, supabasePost.summaryKm, lang);
+      const bodyHtml = postBody(supabasePost.bodyEn, supabasePost.bodyKm, lang);
+
+      return (
+        <>
+          <PageHeader
+            eyebrow={lang === "km" ? "ចំណេះដឹងមូលដ្ឋានភូគព្ភសាស្ត្រ" : "Geoscience Basic Knowledge"}
+            title={title}
+          />
+
+          <Container>
+            {/* Top Navigation & Actions Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-200/80">
+              <Link
+                to="/basic-knowledge"
+                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-semibold text-sm transition group"
+              >
+                <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+                <span>{lang === "km" ? "ត្រឡប់ទៅបញ្ជីចំណេះដឹងមូលដ្ឋាន" : "Back to Basic Knowledge"}</span>
+              </Link>
+
+              {admin && (
+                <Link
+                  to={`/admin?tab=posts&edit=${encodeURIComponent(supabasePost.id)}`}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-slate-700 transition"
+                >
+                  <Edit size={13} />
+                  <span>{lang === "km" ? "កែសម្រួលអត្ថបទ" : "Edit Post"}</span>
+                </Link>
+              )}
+            </div>
+
+            {/* 3-Column Reading Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)_280px] gap-8 items-start mb-16">
+              
+              {/* LEFT COLUMN: Table of Contents */}
+              <aside className="hidden lg:block sticky top-24 space-y-4 text-sm pr-2">
+                <div className="pb-2 border-b border-slate-200/60">
+                  <span className="font-bold text-xs uppercase tracking-wider text-slate-500">
+                    {lang === "km" ? "មាតិកា៖" : "Content:"}
+                  </span>
+                </div>
+                <nav className="space-y-1.5" aria-label="Table of contents">
+                  <a
+                    href="#post-top"
+                    className="block text-slate-700 hover:text-blue-600 hover:underline py-1 font-medium transition"
+                  >
+                    1. {lang === "km" ? "សេចក្តីផ្តើម" : "Introduction"}
+                  </a>
+                  <a
+                    href="#post-body"
+                    className="block text-slate-700 hover:text-blue-600 hover:underline py-1 font-medium transition"
+                  >
+                    2. {lang === "km" ? "ខ្លឹមសារអត្ថបទ" : "Full Content"}
+                  </a>
+                </nav>
+              </aside>
+
+              {/* CENTER COLUMN: Full Article Canvas */}
+              <article className="min-w-0 space-y-8">
+                <div id="post-top" className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                    <span className="rounded-full bg-blue-100 px-2.5 py-0.5 font-bold text-blue-700">
+                      {supabasePost.category || "Basic Knowledge"}
+                    </span>
+                    <span>·</span>
+                    <span className="flex items-center gap-1">
+                      <Calendar size={13} />{" "}
+                      {new Date(supabasePost.createdAt).toLocaleDateString(
+                        lang === "km" ? "km-KH" : "en-GB"
+                      )}
+                    </span>
+                  </div>
+
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                    {title}
+                  </h1>
+
+                  {summary && (
+                    <div className="rounded-2xl border-l-4 border-blue-600 bg-blue-50/70 p-5 text-slate-800 text-sm sm:text-base leading-relaxed">
+                      <p className="font-medium">{summary}</p>
+                    </div>
+                  )}
+                </div>
+
+                {supabasePost.cover && (
+                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-md">
+                    <img
+                      src={safeCover(supabasePost.cover)}
+                      alt={title}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                )}
+
+                <div
+                  id="post-body"
+                  className="prose prose-slate max-w-none text-slate-800 leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: bodyHtml }}
+                />
+
+                <div className="pt-8 border-t border-slate-200">
+                  <Link
+                    to="/basic-knowledge"
+                    className="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-200 transition"
+                  >
+                    <ArrowLeft size={14} />
+                    <span>{lang === "km" ? "ត្រឡប់ទៅបញ្ជីចំណេះដឹងទាំងអស់" : "Back to All Knowledge Guides"}</span>
+                  </Link>
+                </div>
+              </article>
+
+              {/* RIGHT COLUMN: Other Guides */}
+              <aside className="sticky top-24 space-y-5">
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+                  <div className="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100">
+                    <BookOpen size={16} className="text-blue-600" />
+                    <h4 className="font-bold text-sm text-slate-900">
+                      {lang === "km" ? "អត្ថបទដែលទាក់ទង" : "Related Posts"}
+                    </h4>
+                  </div>
+
+                  <div className="space-y-4">
+                    {BASIC_KNOWLEDGE_ARTICLES.slice(0, 3).map((rel) => {
+                      const relTitle = lang === "km" ? rel.titleKm : rel.titleEn;
+                      return (
+                        <Link
+                          key={rel.id}
+                          to={`/basic-knowledge?id=${rel.id}`}
+                          className="group block space-y-2 rounded-xl p-2 transition hover:bg-slate-50"
+                        >
+                          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-slate-100">
+                            <img
+                              src={rel.image}
+                              alt={relTitle}
+                              className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                            />
+                          </div>
+                          <h5 className="text-xs font-bold text-slate-800 group-hover:text-blue-600 transition line-clamp-2 leading-snug">
+                            {relTitle}
+                          </h5>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              </aside>
+
+            </div>
+          </Container>
+        </>
+      );
+    }
+
+    // Article Not Found
+    return (
+      <Container>
+        <div className="rounded-2xl border border-dashed border-slate-200 p-16 text-center my-12">
+          <BookOpen size={48} className="mx-auto text-slate-300 mb-4" />
+          <h2 className="text-xl font-bold text-slate-800 mb-2">
+            {lang === "km" ? "រកមិនឃើញអត្ថបទដែលអ្នកចង់អាន" : "Knowledge Guide Not Found"}
+          </h2>
+          <p className="text-sm text-slate-500 max-w-md mx-auto mb-6">
+            {lang === "km"
+              ? "អត្ថបទនេះប្រហែលជាត្រូវបានផ្លាស់ប្តូរទីតាំង ឬមិនទាន់ត្រូវបានផ្សព្វផ្សាយនៅឡើយទេ។"
+              : "The requested article could not be located. It may have been relocated or unpublished."}
+          </p>
+          <Link
+            to="/basic-knowledge"
+            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition"
+          >
+            <ArrowLeft size={14} />
+            <span>{lang === "km" ? "ត្រឡប់ទៅបញ្ជីចំណេះដឹងមូលដ្ឋាន" : "Back to Basic Knowledge Directory"}</span>
+          </Link>
+        </div>
+      </Container>
+    );
+  }
+
+  // ==========================================
+  // VIEW 2: CATALOG DIRECTORY (When no ?id=)
+  // ==========================================
   return (
     <>
       <PageHeader
@@ -226,6 +737,7 @@ export default function BasicKnowledge() {
             const title = lang === "km" ? article.titleKm : article.titleEn;
             const excerpt = lang === "km" ? article.excerptKm : article.excerptEn;
             const cat = lang === "km" ? article.categoryKm : article.category;
+            const articleUrl = `/basic-knowledge?id=${article.id}`;
 
             return (
               <article
@@ -235,7 +747,7 @@ export default function BasicKnowledge() {
                 <div>
                   {/* Thumbnail */}
                   <Link
-                    to={`/research/topic?id=Tectonics`}
+                    to={articleUrl}
                     className="relative block aspect-[16/10] w-full overflow-hidden bg-slate-100"
                   >
                     <img
@@ -262,7 +774,7 @@ export default function BasicKnowledge() {
                     </div>
 
                     <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition leading-snug">
-                      <Link to={`/research/topic?id=Tectonics`}>{title}</Link>
+                      <Link to={articleUrl}>{title}</Link>
                     </h3>
 
                     <p className="mt-2 text-xs text-slate-600 line-clamp-3 leading-relaxed">
@@ -274,7 +786,7 @@ export default function BasicKnowledge() {
                 {/* Footer Action */}
                 <div className="border-t border-slate-100 p-5 pt-3">
                   <Link
-                    to={`/research/topic?id=Tectonics`}
+                    to={articleUrl}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 group-hover:text-blue-700"
                   >
                     <span>{lang === "km" ? "អានអត្ថបទលម្អិត" : "Read full article"}</span>
@@ -294,7 +806,9 @@ export default function BasicKnowledge() {
               {lang === "km" ? "រកមិនឃើញអត្ថបទដែលត្រូវគ្នា" : "No articles found"}
             </h4>
             <p className="mt-1 text-xs text-slate-500">
-              {lang === "km" ? "សូមសាកល្បងជ្រើសរើសប្រភេទផ្សេង ឬស្វែងរកពាក្យផ្សេង" : "Try selecting a different category or clearing search query."}
+              {lang === "km"
+                ? "សូមសាកល្បងជ្រើសរើសប្រភេទផ្សេង ឬស្វែងរកពាក្យផ្សេង"
+                : "Try selecting a different category or clearing search query."}
             </p>
           </div>
         )}

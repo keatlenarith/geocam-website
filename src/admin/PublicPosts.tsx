@@ -147,10 +147,18 @@ export default function PublicPostReader() {
     }
   }, [post, lang]);
 
+  const isBasicKnowledge =
+    post?.category?.toLowerCase().includes("basic") ||
+    post?.category?.toLowerCase().includes("knowledge");
+  const backUrl = isBasicKnowledge ? "/basic-knowledge" : "/news";
+  const backLabel = isBasicKnowledge
+    ? (lang === "km" ? "ត្រឡប់ទៅចំណេះដឹងមូលដ្ឋាន" : "Back to Basic Knowledge")
+    : (lang === "km" ? "ត្រឡប់ទៅព័ត៌មាន" : "Back to news");
+
   return (
     <section className="mx-auto max-w-[1400px] px-4 sm:px-6 py-10">
-      <Link to="/news" className="text-accent text-sm font-semibold hover:underline inline-flex items-center gap-1 mb-6">
-        ← {lang === "km" ? "ត្រឡប់ទៅព័ត៌មាន (Back to news)" : "Back to news"}
+      <Link to={backUrl} className="text-accent text-sm font-semibold hover:underline inline-flex items-center gap-1 mb-6">
+        ← {backLabel}
       </Link>
 
       {loading ? (
