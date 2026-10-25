@@ -29,7 +29,10 @@ test("FOCUS_TOPICS contains full models for Environmental Hydrogeology and Marin
   const hydro = getTopicByIdOrSlug("Environmental Hydrogeology");
   assert.ok(hydro, "Environmental Hydrogeology topic found");
   assert.equal(hydro.id, "environmental-hydrogeology");
-  assert.equal(hydro.shortTitleKm, "ជលភូគព្ភសាស្ត្របរិស្ថាន");
+  assert.ok(
+    hydro.shortTitleKm === "បរិស្ថានវារីភូគព្ភសាស្ត្រ" || hydro.shortTitleKm === "ជលភូគព្ភសាស្ត្របរិស្ថាន",
+    "shortTitleKm matches Environmental Hydrogeology in Khmer"
+  );
   assert.ok(hydro.sections.length >= 7, "Environmental Hydrogeology has rich sections");
   assert.ok(hydro.sections.some((s) => s.table !== undefined), "Has hydrostratigraphy table");
   assert.ok(hydro.stats.length >= 4, "Has telemetry stats");

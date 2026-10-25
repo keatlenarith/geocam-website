@@ -1358,204 +1358,850 @@ export const FOCUS_TOPICS: FocusTopic[] = [
     ],
   },
   {
-    id: "environmental-hydrogeology",
-    slug: "environmental-hydrogeology",
-    key: "Environmental Hydrogeology",
-    titleKm: "ជលភូគព្ភសាស្ត្របរិស្ថាន ឌីណាមិកប្រព័ន្ធស្រទាប់ផ្ទុកទឹក និងបញ្ហាគុណភាពទឹកនៅកម្ពុជា",
-    titleEn: "Environmental Hydrogeology, Aquifer Dynamics, and Groundwater Quality in Cambodia",
-    shortTitleKm: "ជលភូគព្ភសាស្ត្របរិស្ថាន",
-    shortTitleEn: "Environmental Hydrogeology",
-    image: "/images/cms/focus-environmental-hydrogeology-image.png",
-    imageAlt: "Conceptual hydrogeological cross-section and aquifer architecture across the Lower Mekong Basin in Cambodia",
-    captionKm: "រូបភាពទី ១៖ គំរូកាត់ទទឹងជលភូគព្ភសាស្ត្រ និងការចែកចាយស្រទាប់ផ្ទុកទឹកក្រោមដីនៅអាងទន្លេមេគង្គក្រោមនៃប្រទេសកម្ពុជា (ITC & MRD, 2024)",
-    captionEn: "Figure 1: Conceptual hydrogeological cross-section and aquifer architecture across the Lower Mekong Basin in Cambodia (ITC & MRD, 2024)",
-    leadKm: "ទឹកក្រោមដីជាប្រភពធនធានទឹកដ៏មានសារៈសំខាន់បំផុតមួយសម្រាប់ជីវភាពរស់នៅ កសិកម្ម និងការអភិវឌ្ឍសេដ្ឋកិច្ចសង្គមនៅកម្ពុជា ជាពិសេសសម្រាប់ប្រជាពលរដ្ឋជាង ៥០% នៅតំបន់ជនបទ។ ជលភូគព្ភសាស្ត្របរិស្ថាននៅកម្ពុជាផ្តោតលើការយល់ដឹងអំពីរចនាសម្ព័ន្ធស្រទាប់ផ្ទុកទឹកល្បាប់ទំនាបមេគង្គ-បឹងទន្លេសាប យន្តការគីមីភូគព្ភសាស្ត្រនៃការរំលាយ និងបំលាស់ទីសារធាតុអាសេនិចធម្មជាតិ (Geogenic Arsenic) ការជ្រាបចូលនៃទឹកប្រៃនៅតំបន់ឆ្នេរខេត្តកោះកុង កំពត និងព្រះសីហនុ និងផលប៉ះពាល់បរិស្ថានជុំវិញការធ្វើអាជីវកម្មរ៉ែ និងសកម្មភាពឧស្សាហកម្ម។",
-    leadEn: "Groundwater constitutes a critical lifeline for domestic water supply, agriculture, and rural livelihoods in Cambodia, serving over 50% of the rural population. Environmental hydrogeology investigates the geometry and hydraulic properties of Cambodia's sedimentary aquifers, the biogeochemical mechanisms driving natural geogenic arsenic contamination in the Lower Mekong floodplain, coastal saltwater intrusion along the Gulf of Thailand, and anthropogenic footprints associated with artisanal mining and agricultural intensification.",
-    stats: [
-      { labelKm: "ឯកតាស្រទាប់ផ្ទុកទឹកចម្បង", labelEn: "Principal Aquifer Systems", value: "Holocene & Pleistocene Alluvium" },
-      { labelKm: "ទិន្នផលទឹកទូទៅ", labelEn: "Typical Aquifer Yield", value: "5 – 45 m³/h (Alluvial Aquifer)" },
-      { labelKm: "បញ្ហាគីមីភូគព្ភសាស្ត្រចម្បង", labelEn: "Key Geogenic Concern", value: "Arsenic (>10–50 µg/L) & Salinity" },
-      { labelKm: "អត្រាប្រើប្រាស់ទឹកក្រោមដី", labelEn: "Rural Groundwater Reliance", value: ">50% Domestic Water Use" },
-    ],
-    sections: [
-      {
-        titleKm: "១. គ្រោងភូគព្ភសាស្ត្រ និងស្ថាបត្យកម្មស្រទាប់ផ្ទុកទឹកនៅកម្ពុជា (Hydrogeological Framework of Cambodia)",
-        titleEn: "1. Hydrogeological Architecture and Regional Aquifer Systems",
-        bodyKm: [
-          "ធនធានទឹកក្រោមដីនៅកម្ពុជាត្រូវបានគ្រប់គ្រងដោយផ្ទាល់ដោយការវិវត្តភូគព្ភសាស្ត្រនៃអាងទន្លេមេគង្គ និងបឹងទន្លេសាប រួមជាមួយខ្សែក្រវាត់ភ្នំជុំវិញ។ ស្រទាប់ផ្ទុកទឹកដែលមានទិន្នផលខ្ពស់បំផុតស្ថិតនៅក្នុងកម្រាលល្បាប់សេណូសូអ៊ិក (Cenozoic unconsolidated sediment) ដែលគ្របដណ្តប់លើផ្ទៃទំនាបកណ្តាលនៃប្រទេស។",
-          "ផ្អែកលើការខួងស្រាវជ្រាវ ការវាស់ស្ទង់ភូគព្ភរូបវិទ្យា (Resistivity soundings) និងទិន្នន័យអណ្តូងខួងរបស់ក្រសួងអភិវឌ្ឍន៍ជនបទ (MRD) ប្រព័ន្ធស្រទាប់ផ្ទុកទឹកនៅកម្ពុជាត្រូវបានបែងចែកជា ៣ ប្រភេទចម្បង៖",
+  "id": "environmental-hydrogeology",
+  "slug": "environmental-hydrogeology",
+  "key": "Environmental Hydrogeology",
+  "titleKm": "បរិស្ថានវារីភូគព្ភសាស្ត្រ និងការស្ទង់ធនធានទឹកក្រោមដីនៅកម្ពុជា",
+  "titleEn": "Environmental Hydrogeology, Groundwater Resources, and Aquifer Surveys in Cambodia",
+  "shortTitleKm": "បរិស្ថានវារីភូគព្ភសាស្ត្រ",
+  "shortTitleEn": "Environmental Hydrogeology",
+  "image": "/images/hydrogeology/gwtypes.jpg",
+  "imageAlt": "Map of groundwater types in Cambodia (1:500,000 scale draft, General Department of Mineral Resources, GDMR)",
+  "captionKm": "រូបភាពទី ៣៖ ផែនទីប្រភេទទឹកក្រោមដីនៅកម្ពុជា មាត្រដ្ឋាន ១:៥០០.០០០ (អគ្គនាយកដ្ឋានធនធានរ៉ែ GDMR)",
+  "captionEn": "Figure 3: Map of groundwater types in Cambodia at 1:500,000 scale (General Department of Mineral Resources, GDMR 1997)",
+  "leadKm": "ទឹកក្រោមដីជាប្រភពធនធានទឹកដ៏មានសារៈសំខាន់បំផុតមួយសម្រាប់ជីវភាពរស់នៅ ការផ្គត់ផ្គង់ទឹកស្អាតជនបទ និងកសិកម្មនៅកម្ពុជា។ ការសិក្សាស្រាវជ្រាវបរិស្ថានវារីភូគព្ភសាស្ត្រ (Environmental Hydrogeology) ផ្អែកលើរបាយការណ៍ស្ទង់ស្រាវជ្រាវរបស់អគ្គនាយកដ្ឋានធនធានរ៉ែ (GDMR) នៃក្រសួងរ៉ែ និងថាមពល សហការជាមួយស្ថាប័នភូគព្ភសាស្ត្រចិន (CGS) វិទ្យាស្ថានភូគព្ភសាស្ត្រកូរ៉េ (KIGAM) និងអង្គការ CCOP ផ្តល់នូវទិដ្ឋភាពទូទៅនៃចំណាត់ថ្នាក់អាងទឹកក្រោមដី ស្ថានភាពអណ្តូង ៣១.៥០៩ កន្លែង បញ្ហាគីមីទឹក (អាសេនិច ដែក ម៉ង់ហ្គាណែស និងការជ្រាបទឹកប្រៃ) ស្ថានីយតាមដានទឹកក្រោមដីឆ្លងព្រំដែនជម្រៅ ១០៦ ម៉ែត្រ និងប្រភពទឹកក្តៅធម្មជាតិទេទឹកពុះ។",
+  "leadEn": "Groundwater forms an essential foundation for domestic water supply, rural health, and agricultural livelihood in Cambodia. This comprehensive environmental hydrogeological synthesis draws directly from technical surveys and field investigations conducted by the General Department of Mineral Resources (GDMR), Ministry of Mines and Energy, in collaboration with the China Geological Survey (CGS), Korea Institute of Geoscience and Mineral Resources (KIGAM), and CCOP. It integrates national groundwater classification, 31,509 regional well developments, geogenic arsenic and salinity challenges, 101 field hydrochemical measurements, transboundary monitoring boreholes, and geothermal hot springs.",
+  "stats": [
+    {
+      "labelKm": "ផ្ទៃដីសរុបប្រទេស",
+      "labelEn": "Total National Area",
+      "value": "181,035 km²"
+    },
+    {
+      "labelKm": "អណ្តូងអភិវឌ្ឍន៍ ១៩៨៣–២០០១",
+      "labelEn": "Wells Built (1983–2001)",
+      "value": "31,509 Wells"
+    },
+    {
+      "labelKm": "ចំណាត់ថ្នាក់អាងទឹកក្រោមដី",
+      "labelEn": "Aquifer Classes",
+      "value": "4 Distinct Regimes"
+    },
+    {
+      "labelKm": "អណ្តូងតាមដានឆ្លងព្រំដែន",
+      "labelEn": "Transboundary Well Depth",
+      "value": "106 m (Baro & CTD)"
+    }
+  ],
+  "sections": [
+    {
+      "titleKm": "១. ស្ថានភាពទូទៅ និងលក្ខណៈភូមិសាស្ត្រ-អាកាសធាតុ (National Setting)",
+      "titleEn": "1. National Setting, Geography, and Climate",
+      "bodyKm": [
+        "ប្រទេសកម្ពុជាមានផ្ទៃដីសរុប ១៨១.០៣៥ គីឡូម៉ែត្រការ៉េ ស្ថិតក្នុងតំបន់អាកាសធាតុត្រូពិចមូសុង ដែលមានរដូវប្រាំង (ខែវិច្ឆិកា ដល់ខែមេសា សីតុណ្ហភាពឡើងដល់ ៣៨ °C ក្នុងខែមេសា) និងរដូវវស្សា (ខែឧសភា ដល់ខែតុលា) ជាមួយកម្រិតទឹកភ្លៀងធ្លាក់ជាមធ្យមពី ១.០០០ ដល់ ១.៥០០ មីល្លីម៉ែត្រក្នុងមួយឆ្នាំ។",
+        "ទិដ្ឋភាពភូគព្ភសាស្ត្រ និងសណ្ឋានដីនៃប្រទេសកម្ពុជាត្រូវបានកំណត់ដោយស្នូលទំនាបកណ្តាលដែលគ្របដណ្តប់ដោយកម្រាលល្បាប់ក្វាតែណែរ (Quaternary sediments) ខណៈដែលតំបន់ជុំវិញភាគឦសាន និងនិរតីជាសិលាស្រទាប់មេសូសូអ៊ិក (Mesozoic sediments) និងខ្សែក្រវាត់ជួរភ្នំ។ ប្រព័ន្ធទន្លេមេគង្គ និងបឹងទន្លេសាបដើរតួនាទីជាប្រភពទឹកលើដីដ៏ធំ ដែលមានអន្តរកម្មយ៉ាងជិតស្និទ្ធជាមួយប្រព័ន្ធទឹកក្រោមដី។ ទឹកក្រោមដីត្រូវបានប្រើយ៉ាងទូលំទូលាយសម្រាប់ជីវភាពប្រចាំថ្ងៃ និងការស្រោចស្រពកសិកម្មខ្នាតតូច។"
+      ],
+      "bodyEn": [
+        "Cambodia covers an area of 181,035 km² under a tropical monsoon climate with distinct wet and dry seasons. The dry season runs from November to April (with peak temperatures reaching 38 °C around April), and the rainy season spans May to October, with an annual average precipitation of 1,000–1,500 mm.",
+        "The geological and topographic backbone comprises a central lowland plain mantled by Quaternary fluvio-lacustrine sediments, framed by Mesozoic sedimentary belts and mountain ranges in the southwest (Cardamom and Elephant ranges) and north (Dangrek range). The country is drained by two dominant river systems—the Mekong and the Tonle Sap lake basin. Groundwater is extensively extracted for domestic drinking supply and increasingly harnessed for decentralized smallholder irrigation."
+      ],
+      "table": {
+        "captionKm": "តារាងទី ១៖ ប៉ារ៉ាម៉ែត្រភូមិសាស្ត្រ និងអាកាសធាតុនៃប្រទេសកម្ពុជា (GDMR / MME)",
+        "captionEn": "Table 1: National geographic, climatic, and hydrogeological parameters (GDMR / MME)",
+        "headersKm": [
+          "សូចនាករ",
+          "តម្លៃ / ការពិពណ៌នា"
         ],
-        bodyEn: [
-          "Cambodia's groundwater resources are intimately controlled by the Cenozoic geodynamic evolution of the Lower Mekong and Tonle Sap alluvial basins, framed by peripheral Mesozoic–Paleozoic upland belts. The most prolific aquifers occur within unconsolidated Quaternary fluvio-lacustrine and deltaic deposits that blanket the central lowlands.",
-          "Decades of borehole drilling, regional geophysical resistivity soundings, and systematic hydrochemical inventories by the Ministry of Rural Development (MRD) and academic partners delineate three principal hydrogeological regimes:",
+        "headersEn": [
+          "Parameter",
+          "Value / Description"
         ],
-        bulletsKm: [
-          "ស្រទាប់ផ្ទុកទឹកល្បាប់ទំនាបកណ្តាល (Central Alluvial Aquifers): ផ្សំឡើងពីដីល្បាប់ខ្សាច់ និងគ្រួសនៃសម័យកាលហូឡូសែន និងផ្លេសតូសែន (Holocene–Pleistocene) កម្រាស់ពី ២០ ទៅជាង ១៥០ ម៉ែត្រ មានទិន្នផលខ្ពស់ និងជាប្រភពទឹកចម្បងរបស់ប្រជាជន។",
-          "ស្រទាប់ផ្ទុកទឹកថ្មបាសាល់ខ្ពង់រាប (Plateau Basalt Aquifers): ស្ថិតនៅខេត្តកំពង់ចាម ត្បូងឃ្មុំ រតនគិរី និងមណ្ឌលគិរី កើតពីថ្មបាសាល់សេណូសូអ៊ិក ដែលមានស្នាមប្រេះស្រាំ និងរន្ធប្រហោង អាចផ្ទុកទឹកសាបគុណភាពល្អ។",
-          "ស្រទាប់ផ្ទុកទឹកថ្មរឹង និងថ្មភក់មេសូសូអ៊ិក (Fractured Bedrock & Sandstone Aquifers): ស្ថិតនៅតំបន់ជួរភ្នំក្រវាញ ភ្នំដងរែក និងភូមិភាគឦសាន ជាស្រទាប់ផ្ទុកទឹកតាមស្នាមបំណាក់ និងប្រេះស្រាំ ដែលមានទិន្នផលពីមធ្យមទៅទាប។",
+        "rowsKm": [
+          [
+            "ផ្ទៃដីសរុប (Total Area)",
+            "១៨១.០៣៥ គីឡូម៉ែត្រការ៉េ (km²)"
+          ],
+          [
+            "អាកាសធាតុ (Climate)",
+            "ត្រូពិចមូសុង (រដូវប្រាំង និងរដូវវស្សា); សីតុណ្ហភាព ២១ – ៣៥ °C"
+          ],
+          [
+            "រដូវកាល (Seasons)",
+            "រដូវប្រាំង៖ វិច្ឆិកា–មេសា (ដល់ ៣៨ °C); រដូវវស្សា៖ ឧសភា–តុលា"
+          ],
+          [
+            "កម្រិតទឹកភ្លៀងប្រចាំឆ្នាំ (Rainfall)",
+            "ជាមធ្យម ១.០០០ – ១.៥០០ មីល្លីម៉ែត្រ (mm/year)"
+          ],
+          [
+            "ចំនួនប្រជាជន (Population)",
+            "ជាង ១៥ លាននាក់ (ការប៉ាន់ស្មាន ២០១៤); >១៧ លាននាក់បច្ចុប្បន្ន"
+          ],
+          [
+            "រាជធានី (Capital)",
+            "រាជធានីភ្នំពេញ (Phnom Penh)"
+          ],
+          [
+            "ប្រព័ន្ធទន្លេចម្បង (Major Rivers)",
+            "ទន្លេមេគង្គ ទន្លេសាប ទន្លេបាសាក់ និងបឹងទន្លេសាប"
+          ]
         ],
-        bulletsEn: [
-          "Central Lowland Alluvial Aquifers: Composed of unconsolidated Holocene and Pleistocene sands, gravels, and interbedded silts (thickness 20 to >150 m), offering the highest hydraulic conductivity and domestic abstraction yields.",
-          "Neogene–Quaternary Basalt Aquifers: Form elevated plateau aquifers across Kampong Cham, Tboung Khmum, Ratanakiri, and Mondulkiri, where vesicular structures and tectonic fracturing sustain high-quality freshwater reserves.",
-          "Mesozoic Sandstone and Fractured Bedrock Aquifers: Underlie the Cardamom and Dangrek mountain ranges and northern bedrock corridors, where groundwater flow is strictly structural, localized along faults and shear joints with variable yields.",
+        "rowsEn": [
+          [
+            "Total Area",
+            "181,035 km²"
+          ],
+          [
+            "Climate",
+            "Tropical monsoon, wet and dry cycles; ambient temp 21–35 °C"
+          ],
+          [
+            "Seasons",
+            "Dry season: Nov–Apr (up to 38 °C in April); Wet season: May–Oct"
+          ],
+          [
+            "Annual Rainfall",
+            "Average 1,000–1,500 mm per year"
+          ],
+          [
+            "Population",
+            "Over 15 million (2014 baseline estimate; >17M current)"
+          ],
+          [
+            "National Capital",
+            "Phnom Penh"
+          ],
+          [
+            "Principal River Systems",
+            "Mekong, Tonle Sap, Bassac, and the Tonle Sap Great Lake"
+          ]
         ],
+        "footnoteKm": "ប្រភព៖ នាយកដ្ឋានភូគព្ភសាស្ត្រ នៃអគ្គនាយកដ្ឋានធនធានរ៉ែ (GDMR), ក្រសួងរ៉ែ និងថាមពល",
+        "footnoteEn": "Source: Department of Geology, General Department of Mineral Resources (GDMR), Ministry of Mines and Energy."
       },
-      {
-        titleKm: "២. ចំណាត់ថ្នាក់ឯកតាជលសិលាវិទ្យានៅកម្ពុជា (Table 1: Hydrostratigraphic Units of Cambodia)",
-        titleEn: "2. Hydrostratigraphic Classification and Aquifer Properties",
-        bodyKm: [
-          "តារាងខាងក្រោមបង្ហាញពីចំណាត់ថ្នាក់ឯកតាជលសិលាវិទ្យា (Hydrostratigraphic units) លក្ខណៈសម្បត្តិធារាសាស្ត្រ និងគុណភាពទឹកទូទៅនៅទូទាំងប្រទេសកម្ពុជា៖",
-        ],
-        bodyEn: [
-          "The following table summarizes Cambodia's hydrostratigraphic units, depth intervals, typical borehole yields, and baseline hydrochemical characteristics:",
-        ],
-        table: {
-          captionKm: "តារាងទី ១៖ ចំណាត់ថ្នាក់ឯកតាជលសិលាវិទ្យា លក្ខណៈធារាសាស្ត្រ និងគុណភាពទឹកនៅកម្ពុជា",
-          captionEn: "Table 1: Hydrostratigraphic units, hydraulic properties, and water quality characteristics in Cambodia",
-          headersKm: ["ឯកតាជលសិលាវិទ្យា", "អាយុកាលភូគព្ភសាស្ត្រ", "ជម្រៅជាមធ្យម (m)", "ទិន្នផល (m³/h)", "គុណភាពទឹក និងបញ្ហាគីមី"],
-          headersEn: ["Hydrostratigraphic Unit", "Geological Age", "Depth Range (m)", "Borehole Yield (m³/h)", "Water Quality & Geochemical Profile"],
-          rowsKm: [
-            ["ស្រទាប់ល្បាប់លើ (Upper Holocene Alluvium)", "Holocene (<10 ka)", "0 – 25", "2 – 15", "បរិស្ថានអុកស៊ីតកម្ម-រេដុកម្មទាប, ងាយរងគ្រោះដោយអាសេនិច (>50 µg/L)"],
-            ["ស្រទាប់ខ្សាច់-គ្រួសក្រោម (Lower Pleistocene Aquifer)", "Pleistocene (0.01 – 2.6 Ma)", "25 – 120", "15 – 50", "ទឹកសាបគុណភាពល្អ, កម្រិតជាតិដែកខ្ពស់, ហានិភ័យអាសេនិចទាបជាង"],
-            ["ថ្មបាសាល់ខ្ពង់រាប (Plateau Vesicular Basalts)", "Neogene–Quaternary", "10 – 80", "10 – 35", "ទឹកសាបថ្លាល្អ, pH អព្យាក្រឹត, សម្បូរម៉ាញ៉េស្យូម និងកាល់ស្យូម"],
-            ["ថ្មភក់ស្រទាប់ក្រហម (Indosinias Sandstones)", "Jurassic–Cretaceous", "30 – 150+", "1 – 10", "រ៉ែទាប, លំហូរតាមស្នាមប្រេះ, ទិន្នផលមានកម្រិត"],
-            ["សិលាមូលដ្ឋានប្រេះស្រាំ (Fractured Basement Rocks)", "Paleozoic–Triassic", "15 – 100", "0.5 – 5", "ប្រែប្រួលតាមមូលដ្ឋាន, ជួនកាលមានសារធាតុរ៉ែរំលាយខ្ពស់"],
-          ],
-          rowsEn: [
-            ["Upper Holocene Alluvium", "Holocene (<10 ka)", "0 – 25", "2 – 15", "Reducing conditions, widespread geogenic arsenic hazard (>50 µg/L)"],
-            ["Lower Pleistocene Aquifer", "Pleistocene (0.01 – 2.6 Ma)", "25 – 120", "15 – 50", "High productivity freshwater, elevated Fe/Mn, generally low As"],
-            ["Plateau Vesicular Basalts", "Neogene–Quaternary", "10 – 80", "10 – 35", "Excellent clarity, circum-neutral pH, rich in Ca-Mg bicarbonate"],
-            ["Mesozoic Continental Sandstones", "Jurassic–Cretaceous", "30 – 150+", "1 – 10", "Low mineralization, fracture-dominated flow, localized modest yield"],
-            ["Fractured Basement / Metamorphic", "Paleozoic–Triassic", "15 – 100", "0.5 – 5", "Highly variable, locally brackish or mineralized along fault zones"],
-          ],
-          footnoteKm: "ប្រភពទិន្នន័យ៖ នាយកដ្ឋានផ្គត់ផ្គង់ទឹកជនបទ (MRD), វិទ្យាស្ថានបច្ចេកវិទ្យាកម្ពុជា (ITC), និង JICA Hydrogeological Surveys (2020–2025)",
-          footnoteEn: "Source: Ministry of Rural Development (MRD), Institute of Technology of Cambodia (ITC), and JICA Groundwater Study Compilations (2020–2025).",
+      "images": [
+        {
+          "url": "/images/hydrogeology/geology.jpg",
+          "captionKm": "រូបភាពទី ១៖ ផែនទីភូគព្ភសាស្ត្រកម្ពុជា បង្ហាញកម្រាលល្បាប់ក្វាតែណែរនៅតំបន់កណ្តាល និងសិលាមេសូសូអ៊ិកនៅភាគឦសាន និងនិរតី (GDMR)",
+          "captionEn": "Figure 1: Geology of Cambodia: Quaternary cover in the central core, Mesozoic sediments in the northeast and southwest (Source: GDMR)"
         },
+        {
+          "url": "/images/hydrogeology/topo.jpg",
+          "captionKm": "រូបភាពទី ២៖ សណ្ឋានដីប្រទេសកម្ពុជា ទំនាបកណ្តាល ខ្ពង់រាបភាគខាងកើត និងជួរភ្នំភាគខាងលិច និងខាងជើង (GDMR)",
+          "captionEn": "Figure 2: Topography of Cambodia: central plain, eastern basaltic plateaus, and western/northern mountain ranges (Source: GDMR)"
+        }
+      ]
+    },
+    {
+      "titleKm": "២. ចំណាត់ថ្នាក់ប្រភេទទឹកក្រោមដី និងតំបន់ជលភូគព្ភសាស្ត្រ (Groundwater Types and Zones)",
+      "titleEn": "2. Groundwater Types and Regional Hydrogeological Zones",
+      "bodyKm": [
+        "ផ្អែកលើផែនទីប្រភេទទឹកក្រោមដីនៃប្រទេសកម្ពុជា (មាត្រដ្ឋាន ១:៥០០.០០០ ព្រាងដោយ GDMR) ប្រព័ន្ធផ្ទុកទឹកក្រោមដីត្រូវបានបែងចែកជា ៤ ថ្នាក់ធំៗ និងបែងចែកភូមិសាស្ត្រជាតំបន់ I (I₁, I₂) និងតំបន់ II (II₁, II₂) តាមខ្សែបន្ទាត់ព្រំដែនពណ៌ក្រហម៖",
+        "១. អាងទឹករន្ធក្នុងល្បាប់ក្វាតែណែរ (Porous aquifer in Quaternary sediments - ពណ៌លឿង)៖ ជាអាងទឹកក្រោមដីដែលមានទំហំធំ និងទូលំទូលាយបំផុត គ្របដណ្តប់លើទំនាបកណ្តាល វាលទំនាបបឹងទន្លេសាប ជ្រលងទន្លេមេគង្គ និងវាលទំនាបឆ្នេរសមុទ្រ។ ជាប្រភពទឹកចម្បងសម្រាប់ការបូមប្រើប្រាស់។",
+        "២. អាងទឹកក្នុងថ្មប្រេះ មេសូ-សេណូសូអ៊ីក (Fractured aquifer in Meso-Cenozoic rocks - ពណ៌ខៀវ)៖ លេចឡើងជាផ្ទាំងតូចៗ ជាពិសេសនៅភាគខាងកើតជុំវិញខេត្តក្រចេះ មណ្ឌលគិរី និងក្បែរព្រំដែនភាគខាងលិច។",
+        "៣. អាងទឹកក្នុងថ្មប្រេះ ប៉ាឡេអូ-មេសូសូអ៊ីក (Fractured aquifer in Paleo-Mesozoic rocks - ពណ៌ស្វាយ)៖ លេចឡើងរាយប៉ាយនៅខេត្តកំពង់ឆ្នាំង កំពង់ស្ពឺ និងកំពត។",
+        "៤. ថ្មគ្រីស្តាល់ដែលមានសក្តានុពលទឹកទាប (Crystalline rocks, low potential - ពណ៌ផ្កាឈូក)៖ ប្រមូលផ្តុំនៅភាគឦសាន (រតនគិរី មណ្ឌលគិរី) និងតំបន់ខ្ពង់រាបភាគខាងលិច និងខាងត្បូង។",
+        "តំបន់ I គ្របដណ្តប់ផ្នែកកណ្តាល និងឦសាន (I₁ នៅពាយព្យ និង I₂ ក្បែរក្រចេះ) ខណៈតំបន់ II គ្របដណ្តប់ភាគនិរតី (II₁ នៅភាគខាងលិច និង II₂ តាមបណ្តោយឆ្នេរកោះកុង)។"
+      ],
+      "bodyEn": [
+        "The draft hydrogeological map of Cambodia (1:500,000 scale, compiled by GDMR) classifies the national subsurface into four primary groundwater aquifer types and delineates regional zones I (I₁, I₂) and II (II₁, II₂) separated by regional hydrostructural boundaries:",
+        "1. Porous Aquifers in Quaternary Sediments (yellow): By far the most prolific and extensive aquifer system, blanketing the central floodplains, the Tonle Sap lowlands, the Mekong corridor, and coastal littoral belts.",
+        "2. Fractured Aquifers in Meso-Cenozoic Formations (blue): Occurs as localized blocks, prominently in eastern Cambodia around Kratie and Mondulkiri and along segments of the western Thai border.",
+        "3. Fractured Aquifers in Paleo-Mesozoic Rocks (purple): Distributed in structural patches across Kampong Chhnang, Kampong Speu, and Kampot provinces.",
+        "4. Crystalline Basement Rocks with Low Groundwater Potential (pink): Dominated by igneous plutons and metamorphic suites in Ratanakiri, Mondulkiri, and rugged uplands of the Cardamom massif.",
+        "Regional Zone I encompasses the central and northeastern lowlands (subzone I₁ in the northwest and I₂ near Kratie), while Zone II covers the southwest (subzone II₁ in the western foothills and II₂ along the Koh Kong marine coastline)."
+      ],
+      "image": "/images/hydrogeology/gwtypes.jpg",
+      "imageCaptionKm": "រូបភាពទី ៣៖ ផែនទីប្រភេទទឹកក្រោមដីនៃប្រទេសកម្ពុជា មាត្រដ្ឋាន ១:៥០០.០០០ បង្ហាញប្រភេទអាងទឹក ៤ ថ្នាក់ និងតំបន់ I និង II (GDMR, ១៩៩៧)",
+      "imageCaptionEn": "Figure 3: Map of groundwater types in Cambodia (1:500,000 scale draft), displaying the four aquifer classes and zones I and II (Source: GDMR, 1997)"
+    },
+    {
+      "titleKm": "៣. ស្ថានភាពអណ្តូង និងការអភិវឌ្ឍទឹកក្រោមដី ១៩៨៣–២០០១ (Well Development)",
+      "titleEn": "3. Groundwater Well Development and Regional Utilization (1983–2001)",
+      "bodyKm": [
+        "ផ្អែកលើទិន្នន័យរបស់ក្រសួងផែនការ (Ministry of Planning, 2003) ដែលត្រូវបានបង្ហាញនៅក្នុងរបាយការណ៍របស់ GDMR ក្នុងចន្លោះឆ្នាំ ១៩៨៣ ដល់ ២០០១ មានអណ្តូងទឹកក្រោមដីសរុបចំនួន ៣១.៥០៩ កន្លែង ត្រូវបានអភិវឌ្ឍនៅទូទាំងប្រទេស។ ក្នុងនោះ អណ្តូងដែលសាងសង់ដោយអង្គការ UNICEF សហការជាមួយក្រសួងអភិវឌ្ឍន៍ជនបទ (MRD) មានចំនួន ១៣.២៤៤ កន្លែង និងអណ្តូងសាងសង់ដោយអង្គការក្រៅរដ្ឋាភិបាល (NGOs) មានចំនួន ១៨.២៦៥ កន្លែង។",
+        "ខេត្តដែលមានចំនួនអណ្តូងច្រើនជាងគេបង្អស់រួមមាន៖ ខេត្តស្វាយរៀង (៦.១០៥ អណ្តូង) ព្រៃវែង (៦.០៤០ អណ្តូង) និងកំពត (៣.១១៣ អណ្តូង)។ ខេត្តទាំង ៨ ដែលបានរាយនាមក្នុងតារាងខាងក្រោមតំណាងឱ្យប្រមាណ ៧៨% នៃអណ្តូងសរុបទូទាំងប្រទេស។"
+      ],
+      "bodyEn": [
+        "According to national inventories published by the Ministry of Planning (2003) and evaluated by GDMR, a total of 31,509 regional groundwater wells were developed across Cambodia between 1983 and 2001. UNICEF in partnership with the Ministry of Rural Development (MRD) constructed 13,244 wells, while non-governmental organizations (NGOs) installed 18,265 wells.",
+        "The highest densities of well installation were recorded in Svay Rieng (6,105 wells), Prey Veng (6,040 wells), and Kampot (3,113 wells). The eight principal provinces enumerated below accounted for approximately 78% of the national well development total."
+      ],
+      "table": {
+        "captionKm": "តារាងទី ២៖ ស្ថានភាពអណ្តូងទឹកក្រោមដីតាមខេត្ត ដែលបានអភិវឌ្ឍពីឆ្នាំ ១៩៨៣ ដល់ ២០០១ (ក្រសួងផែនការ ២០០៣ / GDMR)",
+        "captionEn": "Table 2: Status of regional groundwater wells developed from 1983 to 2001 by province (Ministry of Planning 2003 / GDMR)",
+        "headersKm": [
+          "ខេត្ត",
+          "UNICEF / MRD",
+          "អង្គការក្រៅរដ្ឋាភិបាល (NGOs)",
+          "ចំនួនអណ្តូងសរុប"
+        ],
+        "headersEn": [
+          "Province",
+          "UNICEF / MRD",
+          "NGOs",
+          "Total Wells"
+        ],
+        "rowsKm": [
+          [
+            "ស្វាយរៀង (Svay Rieng)",
+            "៥០៦",
+            "៥.៥៩៩",
+            "៦.១០៥"
+          ],
+          [
+            "ព្រៃវែង (Prey Veng)",
+            "១.៤១៨",
+            "៤.៦២២",
+            "៦.០៤០"
+          ],
+          [
+            "កំពត (Kampot)",
+            "២.៨៦៩",
+            "២៤៤",
+            "៣.១១៣"
+          ],
+          [
+            "កំពង់ចាម (Kampong Cham)",
+            "១.១២៧",
+            "១.២១៣",
+            "២.៣៤០"
+          ],
+          [
+            "តាកែវ (Takeo)",
+            "១.២៥៦",
+            "៨៨១",
+            "២.១៣៧"
+          ],
+          [
+            "កណ្តាល (Kandal)",
+            "១.០១៤",
+            "៨៣១",
+            "១.៨៤៥"
+          ],
+          [
+            "សៀមរាប (Siem Reap)",
+            "៦២១",
+            "៩៧៩",
+            "១.៦០០"
+          ],
+          [
+            "កំពង់ស្ពឺ (Kampong Speu)",
+            "៧០៧",
+            "៧៥៩",
+            "១.៤៦៦"
+          ],
+          [
+            "ខេត្តផ្សេងៗទៀត (Other Provinces)",
+            "៣.៧២៦",
+            "៣.១៣៧",
+            "៦.៨៦៣"
+          ],
+          [
+            "សរុបទូទាំងប្រទេស (Total)",
+            "១៣.២៤៤",
+            "១៨.២៦៥",
+            "៣១.៥០៩"
+          ]
+        ],
+        "rowsEn": [
+          [
+            "Svay Rieng",
+            "506",
+            "5,599",
+            "6,105"
+          ],
+          [
+            "Prey Veng",
+            "1,418",
+            "4,622",
+            "6,040"
+          ],
+          [
+            "Kampot",
+            "2,869",
+            "244",
+            "3,113"
+          ],
+          [
+            "Kampong Cham",
+            "1,127",
+            "1,213",
+            "2,340"
+          ],
+          [
+            "Takeo",
+            "1,256",
+            "881",
+            "2,137"
+          ],
+          [
+            "Kandal",
+            "1,014",
+            "831",
+            "1,845"
+          ],
+          [
+            "Siem Reap",
+            "621",
+            "979",
+            "1,600"
+          ],
+          [
+            "Kampong Speu",
+            "707",
+            "759",
+            "1,466"
+          ],
+          [
+            "Other Provinces",
+            "3,726",
+            "3,137",
+            "6,863"
+          ],
+          [
+            "National Total",
+            "13,244",
+            "18,265",
+            "31,509"
+          ]
+        ],
+        "footnoteKm": "ប្រភព៖ ក្រសួងផែនការ (២០០៣) និងអគ្គនាយកដ្ឋានធនធានរ៉ែ (GDMR)។ អណ្តូងភាគច្រើនជាប្រភេទអណ្តូងស្នប់ដៃ និងអណ្តូងលូជីក។",
+        "footnoteEn": "Source: Ministry of Planning (2003) as compiled in the GDMR presentation. Wells represent community hand pumps and shallow boreholes."
       },
-      {
-        titleKm: "៣. យន្តការបំលាស់ទីសារធាតុអាសេនិចធម្មជាតិនៅទំនាបមេគង្គ (Geogenic Arsenic Mobilization Mechanisms)",
-        titleEn: "3. Geogenic Arsenic Mobilization in the Lower Mekong Floodplain",
-        bodyKm: [
-          "ការចម្លងសារធាតុអាសេនិចធម្មជាតិ (Natural geogenic arsenic contamination) ក្នុងទឹកក្រោមដីនៅតំបន់ទំនាបមេគង្គ និងទន្លេសាប ជាបញ្ហាប្រឈមសុខភាពសាធារណៈដ៏ធ្ងន់ធ្ងរបំផុតមួយនៅកម្ពុជា។ ខេត្តដែលមានហានិភ័យខ្ពស់រួមមាន ខេត្តកណ្តាល ព្រៃវែង កំពង់ចាម និងផ្នែកខ្លះនៃរាជធានីភ្នំពេញ ដែលអណ្តូងទឹកមួយចំនួនមានកំហាប់អាសេនិចលើសពី ៥០ ទៅ ១០០០ µg/L (ខណៈស្តង់ដារជាតិគឺ ៥០ µg/L និងស្តង់ដារ WHO គឺ ១០ µg/L)។",
-          "ការសិក្សាគីមីភូគព្ភសាស្ត្រស៊ីជម្រៅ (Rowland et al., ITC, Polizzotto et al.) បានបញ្ជាក់ថាយន្តការចម្បងនៃការរំដោះអាសេនិច គឺដំណើរការរំលាយរេដុកម្មនៃសារធាតុ Fe(III) oxyhydroxides (Reductive dissolution) ដោយសារវត្តមានសារធាតុសរីរាង្គក្នុងល្បាប់ហូឡូសែន៖",
+      "image": "/images/hydrogeology/welltable.jpg",
+      "imageCaptionKm": "រូបភាពទី ៤៖ តារាងទី ១ នៃបទបង្ហាញ GDMR បង្ហាញទិន្នន័យអណ្តូងទឹកក្រោមដីតាមខេត្តពីឆ្នាំ ១៩៨៣ ដល់ ២០០១ (ប្រភព៖ ក្រសួងផែនការ ២០០៣)",
+      "imageCaptionEn": "Figure 4: Table 1 from the GDMR presentation: status of regional groundwater wells developed from 1983 to 2001 (Source: Ministry of Planning, 2003)"
+    },
+    {
+      "titleKm": "៤. បញ្ហាបរិស្ថាន គុណភាពទឹក និងហានិភ័យគ្រោះធម្មជាតិ (Environmental Issues & Geohazards)",
+      "titleEn": "4. Environmental Issues, Water Quality, and Natural Hazards",
+      "bodyKm": [
+        "របាយការណ៍របស់ GDMR បានកំណត់បញ្ហាបរិស្ថាន និងភូគព្ភសាស្ត្រគ្រោះថ្នាក់សំខាន់ៗចំនួន ៥ ដែលប៉ះពាល់ដល់ធនធានទឹក និងការរស់នៅរបស់ប្រជាជន៖",
+        "១. ការបាក់ច្រាំងទន្លេ (River bank erosion and collapse)៖ ឧទាហរណ៍ជាក់ស្តែងត្រូវបានកត់ត្រានៅខេត្តកែប តាមដងទន្លេសាប (ច្រាំងទន្លេប្រវែង ៥០ ម៉ែត្របានបាក់ស្រុតចូលក្នុងទឹក) និងច្រាំងទន្លេមេគង្គក្នុងខេត្តត្បូងឃ្មុំ ដែលបណ្តាលឱ្យផ្ទះសម្បែង និងហេដ្ឋារចនាសម្ព័ន្ធធ្លាក់ចូលទឹក។",
+        "២. គ្រោះរាំងស្ងួត (Drought)៖ ក្នុងឆ្នាំ ២០០៩ ខេត្តជាង ១៣ ក្នុងចំណោម ២៤ រងគ្រោះរាំងស្ងួតធ្ងន់ធ្ងរ។ ក្នុងឆ្នាំ ២០១២ គ្រោះរាំងស្ងួតបានវាយប្រហារខេត្តចំនួន ១១ ប៉ះពាល់ស្រែចំនួន ១៤.១៩០ ហិកតា និងធ្វើឱ្យខូចខាតដំណាំសរុប ៥៧.៩៦៥ ហិកតា។",
+        "៣. គុណភាពទឹកក្រោមដី (Groundwater Quality Issues)៖ វត្តមានសារធាតុអាសេនិក (As) ជាតិដែក (Fe) និងម៉ង់ហ្គាណែស (Mn) កម្រិតខ្ពស់តាមបណ្តោយអាងទន្លេមេគង្គ និងបាសាក់។ ជាមួយគ្នានេះ ការជ្រាបចូលនៃទឹកប្រៃ (Saltwater intrusion) កើតឡើងយ៉ាងធ្ងន់ធ្ងរនៅអាងទឹកឆ្នេរសមុទ្រភាគនិរតី និងហានិភ័យនៃការបំពុលពីកាកសំណល់ឧស្សាហកម្មដែលមិនទាន់បានកែច្នៃ។",
+        "៤. ការទាញយកហួសកម្រិត (Over-exploitation)៖ ទោះបីជាបច្ចុប្បន្នទឹកក្រោមដីត្រូវបានប្រើជាចម្បងសម្រាប់សហគមន៍ជនបទក៏ដោយ ប៉ុន្តែការប្រើប្រាស់សម្រាប់ឧស្សាហកម្ម និងកសិកម្មខ្នាតធំកំពុងកើនឡើងយ៉ាងឆាប់រហ័ស។ នៅតំបន់ប្រវត្តិសាស្ត្រសៀមរាប-អង្គរ រាជរដ្ឋាភិបាលបានដាក់ចេញនូវវិធានការត្រួតពិនិត្យយ៉ាងតឹងរ៉ឹងលើការបូមទឹកក្រោមដី ដើម្បីការពារការស្រុតដី និងការពារប្រាសាទបុរាណ។"
+      ],
+      "bodyEn": [
+        "The GDMR assessment highlights five principal environmental and geohazard challenges directly intersecting with groundwater and riverine infrastructure:",
+        "1. River Bank Collapse and Erosion: Severe bank failures are documented in Kep, along the Tonle Sap River (where a 50-meter riverbank section collapsed completely), and along the Mekong in Tboung Khmum Province, causing structural damage and loss of riverfront houses.",
+        "2. Drought Hazards: In 2009, more than 13 out of 24 provinces experienced severe drought. In 2012, prolonged dry spells impacted 11 provinces, damaging 14,190 hectares of paddy fields and ruining 57,965 hectares of crops nationwide.",
+        "3. Groundwater Quality Degradation: Elevated geogenic concentrations of arsenic (As), iron (Fe), and manganese (Mn) occur in Holocene alluvial aquifers of the Lower Mekong delta. In southwest coastal plains, natural saltwater intrusion contaminates shallow wells. Rapidly expanding industrial corridors also introduce emerging risks from untreated effluents.",
+        "4. Risk of Aquifer Over-Exploitation: Rising groundwater abstraction for urban industries and commercial farming poses drawdown risks. In Siem Reap, the government enacted strict groundwater extraction moratoriums to prevent aquifer depressurization and safeguard the structural stability of the Angkor World Heritage monuments."
+      ],
+      "images": [
+        {
+          "url": "/images/hydrogeology/erosion1.jpg",
+          "captionKm": "រូបភាពទី ៥៖ គ្រោះបាក់ច្រាំងទន្លេ បណ្តាលឱ្យផ្ទះសម្បែងធ្លាក់ចូលទៅក្នុងទឹក (ប្រភព៖ បទបង្ហាញ GDMR)",
+          "captionEn": "Figure 5: River bank collapse: residential house falling into the river channel (Source: GDMR)"
+        },
+        {
+          "url": "/images/hydrogeology/erosion2.jpg",
+          "captionKm": "រូបភាពទី ៦៖ ការសឹកច្រោះ និងបាក់ច្រាំងទន្លេតាមដងទន្លេមេគង្គ ក្នុងខេត្តត្បូងឃ្មុំ (ប្រភព៖ បទបង្ហាញ GDMR)",
+          "captionEn": "Figure 6: River bank erosion along the Mekong River in Tboung Khmum Province (Source: GDMR)"
+        },
+        {
+          "url": "/images/hydrogeology/flood.jpg",
+          "captionKm": "រូបភាពទី ៧៖ គ្រោះទឹកជំនន់ ផ្លូវក្នុងភូមិត្រូវលិចលង់ និងខូចខាតខឿនដី (ប្រភព៖ បទបង្ហាញ GDMR)",
+          "captionEn": "Figure 7: Flooding: submerged village roadway and damaged embankment (Source: GDMR)"
+        },
+        {
+          "url": "/images/hydrogeology/drought.jpg",
+          "captionKm": "រូបភាពទី ៨៖ គ្រោះរាំងស្ងួត បាតទន្លេស្ងួតហួតហែង និងប្រេះបែកក្រហែង (ប្រភព៖ បទបង្ហាញ GDMR)",
+          "captionEn": "Figure 8: Drought: desiccated, severely cracked riverbed (Source: GDMR)"
+        },
+        {
+          "url": "/images/hydrogeology/asfemn.jpg",
+          "captionKm": "រូបភាពទី ៩៖ ការបែងចែកកំហាប់សារធាតុអាសេនិក (As) ម៉ង់ហ្គាណែស (Mn) និងដែក (Fe) ក្នុងស្រទាប់ផ្ទុកទឹកដីសណ្តទន្លេមេគង្គក្រោម (GDMR)",
+          "captionEn": "Figure 9: Distribution of arsenic (As), manganese (Mn), and iron (Fe) in aquifers of the Lower Mekong delta (Source: GDMR)"
+        }
+      ]
+    },
+    {
+      "titleKm": "៥. ប្រភពទឹកក្តៅធម្មជាតិទេទឹកពុះ ខេត្តកំពង់ស្ពឺ (Geothermal Hot Spring: Te Tuek Pus)",
+      "titleEn": "5. Natural Geothermal Hot Spring: Te Tuek Pus (Kampong Speu)",
+      "bodyKm": [
+        "ប្រភពទឹកក្តៅធម្មជាតិ ទេទឹកពុះ (Te Tuek Pus hot spring) ស្ថិតនៅក្នុងភូមិភ្នំតេ ឃុំអមលាំង ស្រុកថ្ពង ប្រហែល ៦០ គីឡូម៉ែត្រខាងលិចទីរួមខេត្តកំពង់ស្ពឺ។ ប្រភពទឹកក្តៅនេះស្ថិតនៅលើចំណុចប្រសព្វនៃខ្សែបន្ទាត់កំហុសសកម្ម (Active fault zone) ក្នុងតំបន់ជើងភ្នំក្រវាញ។",
+        "លទ្ធផលនៃការវាស់ស្ទង់ប៉ារ៉ាម៉ែត្រគីមីរូបសាស្ត្រនៅនឹងកន្លែងដោយ GDMR រួមមាន៖ សីតុណ្ហភាពទឹកប្រមាណ ៥៣ °C, pH ៩,៤៤ (អាល់កាឡាំងខ្ពស់), Eh -៦៨ mV, កម្រិតអុកស៊ីសែនរលាយ (DO) ៥,៧៤ mg/L និងចរន្តអគ្គិសនី ៤៧១,៦ µS/cm។ ទឹកក្តៅនេះមានសារធាតុរ៉ែរំលាយ និងស្ពាន់ធ័រ ដែលមានសក្តានុពលខ្ពស់សម្រាប់ទេសចរណ៍សុខភាព និងការស្រាវជ្រាវថាមពលកម្តៅក្នុងផែនដី។"
+      ],
+      "bodyEn": [
+        "Te Tuek Pus hot spring is located in Phnom Te village, about 60 km west of Kampong Speu provincial town. The hydrothermal emergence is situated along an inferred regional active fault conduit within the Cardamom foothills.",
+        "In-situ field monitoring by GDMR geologists recorded the following physicochemical characteristics: emergence temperature of approximately 53 °C, an alkaline pH of 9.44, oxidation-reduction potential (Eh) of -68 mV, dissolved oxygen (DO) of 5.74 mg/L, and electrical conductivity of 471.6 µS/cm. The spring demonstrates active deep circulation along tectonic fractures, holding notable value for geothermal research and balneological ecotourism."
+      ],
+      "images": [
+        {
+          "url": "/images/hydrogeology/hs1.jpg",
+          "captionKm": "រូបភាពទី ១០៖ ទិដ្ឋភាពប្រភពទឹកក្តៅធម្មជាតិទេទឹកពុះ ក្នុងខេត្តកំពង់ស្ពឺ (ប្រភព៖ បទបង្ហាញ GDMR)",
+          "captionEn": "Figure 10: Te Tuek Pus natural geothermal hot spring emergence, Kampong Speu Province (Source: GDMR)"
+        },
+        {
+          "url": "/images/hydrogeology/hs2.jpg",
+          "captionKm": "រូបភាពទី ១១៖ ថ្លុកទឹកក្តៅធម្មជាតិទេទឹកពុះ សីតុណ្ហភាពប្រហែល ៥៣ °C និង pH ៩,៤៤ (ប្រភព៖ បទបង្ហាញ GDMR)",
+          "captionEn": "Figure 11: Thermal pools at Te Tuek Pus hot spring, temperature ~53 °C and pH 9.44 (Source: GDMR)"
+        }
+      ]
+    },
+    {
+      "titleKm": "៦. ស្ថាប័នរដ្ឋាភិបាល និងក្របខណ្ឌគ្រប់គ្រងធនធានទឹក (Government Agencies and Legal Framework)",
+      "titleEn": "6. Institutional Mandates and Governance of Water Resources in Cambodia",
+      "bodyKm": [
+        "ការគ្រប់គ្រងធនធានទឹក និងការស្រាវជ្រាវអ៊ីដ្រូភូគព្ភសាស្ត្រនៅកម្ពុជាត្រូវបានបែងចែកភារកិច្ច និងការទទួលខុសត្រូវរវាងក្រសួង-ស្ថាប័នរដ្ឋាភិបាលសំខាន់ៗចំនួន ៧៖"
+      ],
+      "bodyEn": [
+        "Governance, hydrogeological investigation, and regulatory stewardship of water resources in Cambodia are shared among seven primary government ministries and specialized public authorities:"
+      ],
+      "table": {
+        "captionKm": "តារាងទី ៣៖ ស្ថាប័នរដ្ឋាភិបាល និងតួនាទីក្នុងការគ្រប់គ្រងវិស័យទឹកនៅកម្ពុជា (GDMR / MME)",
+        "captionEn": "Table 3: Government ministries and their institutional mandates in Cambodia's water sector (GDMR / MME)",
+        "headersKm": [
+          "ក្រសួង / ស្ថាប័ន",
+          "តួនាទី និងភារកិច្ចក្នុងវិស័យទឹក"
         ],
-        bodyEn: [
-          "Natural geogenic arsenic contamination in shallow alluvial aquifers represents the most pressing public health and geochemical challenge in Cambodia. Across high-risk floodplains along the Mekong and Bassac rivers (notably in Kandal, Prey Veng, and Kampong Cham provinces), arsenic concentrations frequently exceed 100 to 1,000 µg/L, vastly eclipsing the WHO drinking water guideline of 10 µg/L and the national standard of 50 µg/L.",
-          "Rigorous geochemical investigations (Rowland et al., ITC, Polizzotto et al.) establish that arsenic is released via the microbially driven reductive dissolution of iron(III) oxyhydroxides [Fe(III) oxides/hydroxides] within young, organic-rich Holocene sediments:",
+        "headersEn": [
+          "Government Agency",
+          "Institutional Mandate in Water Resources"
         ],
-        bulletsKm: [
-          "ល្បាប់វ័យក្មេងហូឡូសែនសម្បូរសារធាតុសរីរាង្គកប់ក្នុងដី ដែលជម្រុញសកម្មភាពបាក់តេរីប្រើប្រាស់អុកស៊ីសែនអស់ បង្កើតបានបរិស្ថានរេដុកម្មខ្លាំង (Anoxic reducing conditions)។",
-          "បាក់តេរីរេដុកម្មដែក (Iron-reducing bacteria) រំលាយស្រទាប់រ៉ែ Fe-oxyhydroxide ដែលភ្ជាប់អាសេនិច ធ្វើឱ្យអាសេនិច (ជាទម្រង់ Arsenite As(III) ដែលមានជាតិពុលខ្ពស់) ត្រូវបានរំដោះចូលទៅក្នុងទឹកក្រោមដី។",
-          "ផ្ទុយទៅវិញ ស្រទាប់ល្បាប់ផ្លេសតូសែនចំណាស់ (Pleistocene aquifers) ត្រូវបានលាងសម្អាត និងកត់សុីតាំងពីបុរាណកាល ដូច្នេះមិនមានដំណើរការរេដុកម្មខ្លាំងឡើយ ដែលធ្វើឱ្យទឹកនៅស្រទាប់ជ្រៅ (>60–80m) ជាទូទៅមានសុវត្ថិភាពពីអាសេនិច។",
+        "rowsKm": [
+          [
+            "ក្រសួងរ៉ែ និងថាមពល (MME / GDMR)",
+            "ការសិក្សាស្រាវជ្រាវអ៊ីដ្រូភូគព្ភសាស្ត្រ ការធ្វើផែនទីទឹកក្រោមដី និងគ្រប់គ្រងធនធានរ៉ែទឹក"
+          ],
+          [
+            "ក្រសួងធនធានទឹក និងឧតុនិយម (MOWRAM)",
+            "ការគ្រប់គ្រងទូទៅនៃធនធានទឹក អាងទន្លេ ជលសាស្ត្រ និងការងារឧតុនិយម"
+          ],
+          [
+            "ក្រសួងអភិវឌ្ឍន៍ជនបទ (MRD)",
+            "ការផ្គត់ផ្គង់ទឹកស្អាត និងអនាម័យជនបទ ការខួង និងសាងសង់អណ្តូងសហគមន៍"
+          ],
+          [
+            "ក្រសួងកសិកម្ម រុក្ខាប្រមាញ់ និងនេសាទ (MAFF)",
+            "ការគ្រប់គ្រងទឹកសម្រាប់ការស្រោចស្រពកសិកម្ម និងវារីវប្បកម្ម"
+          ],
+          [
+            "ក្រសួងបរិស្ថាន (MOE)",
+            "ការគ្រប់គ្រងការបំពុលទឹក ការកំណត់ស្តង់ដារគុណភាពទឹក និងការវាយតម្លៃហេតុប៉ះពាល់បរិស្ថាន (EIA)"
+          ],
+          [
+            "ក្រសួងឧស្សាហកម្ម និងសិប្បកម្ម (MIH / MISTI)",
+            "ការផ្គត់ផ្គង់ទឹកស្អាតទីក្រុង និងទីប្រជុំជន (រដ្ឋាករទឹកស្វយ័តភ្នំពេញ PPWSA និងសៀមរាប SRWSA)"
+          ],
+          [
+            "អាជ្ញាធរជាតិអប្សរា (APSARA Authority)",
+            "ការការពារ និងគ្រប់គ្រងប្រព័ន្ធធារាសាស្ត្របុរាណ និងទឹកក្រោមដីតំបន់រមណីយដ្ឋានអង្គរ"
+          ]
         ],
-        bulletsEn: [
-          "Young Holocene alluvial-deltaic sediments contain abundant labile organic matter that rapidly exhausts dissolved oxygen, establishing strongly reducing, methanogenic conditions.",
-          "Heterotrophic iron-reducing bacteria use ferric iron as an electron acceptor, dissolving arsenic-bearing Fe(III) oxyhydroxides and releasing adsorbed arsenite [As(III)] directly into solution.",
-          "Conversely, older Pleistocene sands have undergone extensive paleoweathering and flushing; their weathered iron oxides are more crystalline and resistant to microbial reduction, resulting in safe, low-arsenic groundwater in deeper aquifers (>60–80 m depth).",
+        "rowsEn": [
+          [
+            "Ministry of Mines and Energy (MME / GDMR)",
+            "Hydrogeological studies, groundwater mapping, and mineral water administration"
+          ],
+          [
+            "Ministry of Water Resources & Meteorology (MOWRAM)",
+            "Overall management of water resources, river basins, hydrology, and meteorology"
+          ],
+          [
+            "Ministry of Rural Development (MRD)",
+            "Rural potable water supply, sanitation, and community borehole installation"
+          ],
+          [
+            "Ministry of Agriculture, Forestry & Fisheries (MAFF)",
+            "Agricultural irrigation, water use for cropping, and aquaculture"
+          ],
+          [
+            "Ministry of Environment (MOE)",
+            "Water pollution prevention, ambient/effluent standards, and environmental impact assessment"
+          ],
+          [
+            "Ministry of Industry & Handicraft (MIH / MISTI)",
+            "Urban piped water supply (Phnom Penh PPWSA and Siem Reap SRWSA water authorities)"
+          ],
+          [
+            "APSARA National Authority",
+            "Protection and hydrological management of ancient hydraulic systems in Angkor park"
+          ]
         ],
-        calloutKm: "ចំណាំបច្ចេកទេស៖ ការខួងអណ្តូងចូលទៅកាន់ស្រទាប់ល្បាប់ផ្លេសតូសែនជម្រៅជ្រៅ (>៦០–៨០ ម៉ែត្រ) ដែលមានស្រទាប់ដីឥដ្ឋការពារពីលើ (Clay aquitard) គឺជាយុទ្ធសាស្ត្រជលភូគព្ភសាស្ត្រដ៏មានប្រសិទ្ធភាពក្នុងការទាញយកទឹកក្រោមដីដែលគ្មានជាតិអាសេនិចសម្រាប់សហគមន៍ជនបទ។",
-        calloutEn: "Technical Note: Targeting deeper Pleistocene sand-gravel aquifers (>60–80 m) confined beneath impermeable clay aquitards provides a reliable, hydrogeologically sound mitigation pathway for arsenic-free community drinking water.",
-      },
-      {
-        titleKm: "៤. ជលភូគព្ភសាស្ត្រតំបន់ឆ្នេរ និងការជ្រាបចូលនៃទឹកប្រៃ (Coastal Hydrogeology and Saline Water Intrusion)",
-        titleEn: "4. Coastal Aquifer Dynamics and Saline Water Intrusion",
-        bodyKm: [
-          "តំបន់ឆ្នេរសមុទ្រកម្ពុជា ដែលលាតសន្ធឹងតាមខេត្តកោះកុង ព្រះសីហនុ កំពត និងកែប ប្រឈមនឹងបញ្ហាប្រឈមជលភូគព្ភសាស្ត្រខុសប្លែកពីតំបន់ទំនាបកណ្តាល។ ស្រទាប់ផ្ទុកទឹកនៅតំបន់នេះមានកម្រាស់ស្តើងជាង និងស្ថិតនៅលើសិលាមូលដ្ឋានរឹង ឬថ្មភក់។",
-          "ការជ្រាបចូលនៃទឹកប្រៃ (Seawater intrusion) កើតឡើងដោយសារកត្តាធម្មជាតិ (ជំនោរទឹកសមុទ្រ និងការប្រែប្រួលកម្រិតទឹកសមុទ្រ) រួមជាមួយការទាញយកទឹកក្រោមដីហួសកម្រិតសម្រាប់តំបន់ទីប្រជុំជន ទេសចរណ៍ និងកសិដ្ឋានវារីវប្បកម្ម។ ផែនទីកំហាប់ជាតិប្រៃ (Chloride and Total Dissolved Solids - TDS) បង្ហាញថាអណ្តូងទឹកក្បែរឆ្នេរ និងតាមមាត់ព្រែកជាច្រើនមានកម្រិត TDS លើសពី ១.០០០ mg/L ក្នុងរដូវប្រាំង។",
+        "footnoteKm": "ប្រភព៖ ច្បាប់ស្តីពីការគ្រប់គ្រងធនធានទឹក (២០០៧) និងបទបង្ហាញរបស់ GDMR",
+        "footnoteEn": "Source: Law on Water Resources Management (2007) and GDMR institutional review."
+      }
+    },
+    {
+      "titleKm": "៧. គម្រោងស្ទង់អ៊ីដ្រូភូគព្ភសាស្ត្រ និងបរិស្ថានភូគព្ភសាស្ត្រ CGS–GDMR ២០១៧–២០២០",
+      "titleEn": "7. The Bilateral CGS–GDMR Hydrogeological and Environmental Geology Survey (2017–2020)",
+      "bodyKm": [
+        "កិច្ចព្រមព្រៀងសហប្រតិបត្តិការរវាងស្ថាប័នភូគព្ភសាស្ត្រចិន (China Geological Survey - CGS) នៃក្រសួងដីធ្លី និងធនធាននៃសាធារណរដ្ឋប្រជាមានិតចិន និងអគ្គនាយកដ្ឋានធនធានរ៉ែ (GDMR) នៃក្រសួងរ៉ែ និងថាមពលកម្ពុជា ត្រូវបានចុះហត្ថលេខានៅថ្ងៃទី ២៩ ខែមិថុនា ឆ្នាំ ២០១៧។ គម្រោងនេះមានគោលបំណងរៀបចំផែនទីអ៊ីដ្រូភូគព្ភសាស្ត្រ និងបរិស្ថានភូគព្ភសាស្ត្រមាត្រដ្ឋាន ១:៥០០.០០០ ក្នុងដំណាក់កាលឆ្នាំ ២០១៧–២០២០៖",
+        "• ឆ្នាំ ២០១៧៖ ការរៀបចំផែនការការងារ ការប្រមូលឯកសារ និងការបណ្តុះបណ្តាលបច្ចេកទេស។",
+        "• ឆ្នាំ ២០១៨–២០១៩៖ ការចុះអង្កេតវាស់ស្ទង់ផ្ទាល់នៅវាល ការយកសំណាកទឹក និងការវិភាគគីមី។",
+        "• ឆ្នាំ ២០២០៖ ដំណើរការទិន្នន័យ ការវិភាគមន្ទីរពិសោធន៍ និងការចងក្រងរបាយការណ៍បច្ចេកទេសចុងក្រោយ។",
+        "នីតិវិធីនៃការចុះវាស់ស្ទង់នៅវាល (Field Protocol) រួមមាន៖",
+        "១. លក្ខខណ្ឌទឹក (Water Condition)៖ វាស់កម្រិត pH សីតុណ្ហភាពទឹក សីតុណ្ហភាពខ្យល់ ចរន្តអគ្គិសនី (Conductivity) និងកម្រិតអុកស៊ីសែនរលាយ (Dissolved Oxygen - DO)។",
+        "២. លក្ខខណ្ឌអណ្តូង (Well Condition)៖ វាស់ជម្រៅអណ្តូង កម្រិតកម្ពស់ទឹកក្រោមដី ជម្រៅនៃការយកសំណាក និងទិន្នន័យនៃការប្រើប្រាស់ទឹក។",
+        "៣. ការយកសំណាក (Sampling)៖ ប្រមូលសំណាកទឹកចំនួន ២ លីត្រនៅគ្រប់ទីតាំងសម្រាប់ការវិភាគគីមីពេញលេញនៅមន្ទីរពិសោធន៍ រួមជាមួយការកត់ត្រាសណ្ឋានសិលា និងកូអរដោនេ GPS។ ផែនទីបង្ហាញទីតាំងប្រមូលសំណាកមានជាង ២០០ ទីតាំង ដោយបែងចែកជាសំណាកទឹកលើដី (សញ្ញាត្រីកោណ) និងសំណាកទឹកអណ្តូង (សញ្ញារង្វង់មូល)។"
+      ],
+      "bodyEn": [
+        "A formal bilateral cooperation agreement between the China Geological Survey (CGS) of the Ministry of Land and Resources, China, and the General Department of Mineral Resources (GDMR), Cambodia, was signed on 29 June 2017. The project established a multi-year framework to construct 1:500,000 scale hydrogeological and environmental geology maps from 2017 to 2020:",
+        "• 2017: Programme formulation, technical training, and baseline data collation.",
+        "• 2018–2019: Intensive field survey campaigns, in-situ probe measurements, and geochemical water sampling.",
+        "• 2020: Laboratory data verification, GIS spatial integration, and final synthesis reporting.",
+        "The rigorous field execution protocol encompassed:",
+        "1. In-situ Water Quality Testing: Measurement of pH, water temperature, ambient air temperature, specific electrical conductance, oxidation-reduction potential (Eh), and dissolved oxygen (DO).",
+        "2. Well Architecture Characterization: Borehole depth, resting piezometric water table, sampling pump depth, and historical abstraction usage.",
+        "3. Water Sampling and Preservation: Collection of 2-liter pristine water samples per station for complete laboratory cation/anion analysis, accompanied by detailed lithological logging and WGS84 GPS positioning. Over 200 field stations were surveyed, distinguishing surface water sites (triangles) from borehole groundwater sites (circles)."
+      ],
+      "images": [
+        {
+          "url": "/images/hydrogeology/form.jpg",
+          "captionKm": "រូបភាពទី ១២៖ ទម្រង់កត់ត្រាទិន្នន័យវាលនៃគម្រោងស្ទង់អ៊ីដ្រូភូគព្ភសាស្ត្រ CGS–GDMR (ប្រភព៖ GDMR)",
+          "captionEn": "Figure 12: Standardized field hydrogeological recording form of the CGS–GDMR survey (Source: GDMR)"
+        },
+        {
+          "url": "/images/hydrogeology/field1.jpg",
+          "captionKm": "រូបភាពទី ១៣៖ សកម្មភាពក្រុមការងារបច្ចេកទេសចុះយកសំណាកទឹក និងវាស់ស្ទង់ប៉ារ៉ាម៉ែត្រនៅវាល (ប្រភព៖ GDMR)",
+          "captionEn": "Figure 13: Field hydrogeologists conducting in-situ physicochemical testing and water sampling (Source: GDMR)"
+        },
+        {
+          "url": "/images/hydrogeology/samples.jpg",
+          "captionKm": "រូបភាពទី ១៤៖ ផែនទីបង្ហាញទីតាំងយកសំណាកជាង ២០០ កន្លែងនៃគម្រោង (ត្រីកោណ៖ ទឹកលើដី; រង្វង់មូល៖ ទឹកអណ្តូងក្រោមដី) (GDMR)",
+          "captionEn": "Figure 14: Survey sample station map showing over 200 locations (triangles: surface water; circles: borehole groundwater) (Source: GDMR)"
+        }
+      ]
+    },
+    {
+      "titleKm": "៨. លទ្ធផលទិន្នន័យវាស់នៅវាល ១០១ ទីតាំង ក្នុងឆ្នាំ ២០១៨ (Field Data from 101 Survey Sites)",
+      "titleEn": "8. Field Hydrochemical Dataset from 101 Sample Sites (April–May 2018)",
+      "bodyKm": [
+        "សៀវភៅការងារទិន្នន័យវាល (សន្លឹក 'GroupA') កត់ត្រាលទ្ធផលវាស់ស្ទង់ជាក់ស្តែងនៅ ១០១ ទីតាំង ចន្លោះពីថ្ងៃទី ២៩ មេសា ដល់ពាក់កណ្តាលខែឧសភា ឆ្នាំ ២០១៨ ក្នុងខេត្តភាគនិរតី និងខាងត្បូង៖ កំពង់ឆ្នាំង (២០ ទីតាំង), កោះកុង (១៩ ទីតាំង), ពោធិ៍សាត់ (១៦ ទីតាំង), កំពត (១៣ ទីតាំង), តាកែវ (១៣ ទីតាំង), កំពង់ស្ពឺ (១២ ទីតាំង), ព្រះសីហនុ (៦ ទីតាំង) និងកែប (១ ទីតាំង)។",
+        "តាមប្រភេទប្រភពទឹក៖ អណ្តូងជីក (Dug wells) ២៩, អណ្តូងបូមម៉ាស៊ីន (Pumping wells) ២១, អណ្តូងស្នប់ដៃ (Hand-pump wells) ១៨, ចំណុចពិនិត្យសិលា (Lithology points) ១១, ស្ទឹង-ព្រែក (Streams) ៦, អាងស្តុកទឹក (Reservoirs) ៥, ប្រភពទឹកផុស (Springs) ៣ និងមិនបានកត់ត្រា ៧។",
+        "ការវិភាគទិន្នន័យបង្ហាញថា៖",
+        "• ចរន្តអគ្គិសនីខ្ពស់ (High Conductivity)៖ មាន ២៦ ទីតាំងដែលចរន្តអគ្គិសនីលើសពី ១.០០០ µS/cm និង ៨ ទីតាំងលើសពី ៣.០០០ µS/cm។ ទីតាំងខ្ពស់បំផុតគឺ A080 នៅព្រំដែនកម្ពុជា-វៀតណាមក្នុងខេត្តកំពត (១៣.៧០០ µS/cm), A090 នៅស្រុកបន្ទាយមាស ខេត្តកំពត (១១.៦២១ µS/cm), A049 នៅគិរីសាគរ ខេត្តកោះកុង (១០.៩២០ µS/cm) និង A097 នៅព្រៃម្លប់ ខេត្តតាកែវ (៨.០១០ µS/cm)។ លទ្ធផលនេះឆ្លុះបញ្ចាំងយ៉ាងច្បាស់ពីបញ្ហាការជ្រាបទឹកប្រៃនៅតំបន់ឆ្នេរ និងភាគខាងត្បូង។",
+        "• ទឹកមានជាតិអាស៊ីត (Acidic Water)៖ មាន ៩ ទីតាំងដែលមានកម្រិត pH ទាបជាង ៥,៥។ ទីតាំងទាបបំផុតគឺ pH ៣,៩ នៅស្រែអំបិល (កោះកុង), ៤,៩ នៅព្រៃនប់ (ព្រះសីហនុ) និង ៤,៩៥ នៅគិរីសាគរ (កោះកុង) ដែលសុទ្ធសឹងជាអណ្តូងជីករាក់។"
+      ],
+      "bodyEn": [
+        "The survey dataset (workbook sheet 'GroupA') records in-situ hydrochemical measurements at 101 stations sampled between 29 April and mid-May 2018 across southwestern and southern provinces: Kampong Chhnang (20), Koh Kong (19), Pursat (16), Kampot (13), Takeo (13), Kampong Speu (12), Preah Sihanouk (6), and Kep (1).",
+        "Station classifications comprise 29 dug wells, 21 motorized pumping wells, 18 village hand pumps, 11 lithological exposure points, 6 natural streams, 5 surface reservoirs, 3 springs, and 7 unclassified locations.",
+        "Key hydrochemical findings include:",
+        "• Elevated Electrical Conductivity: 26 monitoring stations exceeded 1,000 µS/cm and 8 stations surpassed 3,000 µS/cm. The highest values occurred at station A080 near the Cambodia–Vietnam border in Kampot (13,700 µS/cm), A090 in Banteay Meas, Kampot (11,621 µS/cm), A049 in Kirisakor, Koh Kong (10,920 µS/cm), and A097 in Prey Mlob, Takeo (8,010 µS/cm), directly corroborating severe coastal and estuarine seawater intrusion.",
+        "• Acidic Shallow Groundwater: Nine stations registered pH below 5.5, with extreme acidic values recorded at Srae Ambel in Koh Kong (pH 3.9), Prey Nob in Preah Sihanouk (pH 4.9), and Kirisakor in Koh Kong (pH 4.95), typical of shallow coastal peat and acid sulfate soils."
+      ],
+      "table": {
+        "captionKm": "តារាងទី ៤៖ សង្ខេបស្ថិតិនៃប៉ារ៉ាម៉ែត្រគីមីទឹកវាលពី ១០១ ទីតាំងស្ទង់ស្រាវជ្រាវ (GDMR, ២០១៨)",
+        "captionEn": "Table 4: Statistical summary of field hydrochemical parameters from 101 survey sites (GDMR, 2018)",
+        "headersKm": [
+          "ប៉ារ៉ាម៉ែត្រគីមីរូបសាស្ត្រ",
+          "ចំនួនទីតាំងមានទិន្នន័យ",
+          "តម្លៃអប្បបរមា (Min)",
+          "តម្លៃមធ្យមភាគ (Median)",
+          "តម្លៃអតិបរមា (Max)"
         ],
-        bodyEn: [
-          "Cambodia's coastal zone, spanning Koh Kong, Preah Sihanouk, Kampot, and Kep provinces along the Gulf of Thailand, presents unique hydrogeological dynamics governed by coastal estuarine deposits, shallow alluvial sands, and fractured bedrock aquifers.",
-          "Saline water intrusion into coastal aquifers is driven by a combination of natural tidal dynamics, sea-level fluctuations, and localized over-abstraction for urban municipal supply, tourism facilities, and aquaculture. Hydrochemical surveys demonstrate that dry-season shallow wells situated within 2–5 km of the coastline frequently register Total Dissolved Solids (TDS) exceeding 1,000–3,000 mg/L, exceeding potable thresholds.",
+        "headersEn": [
+          "Physicochemical Parameter",
+          "Sites with Data",
+          "Minimum",
+          "Median",
+          "Maximum"
         ],
-      },
-      {
-        titleKm: "៥. អន្តរកម្មទឹកលើដី និងទឹកក្រោមដីនៅអាងទន្លេមេគង្គ-ទន្លេសាប (Surface Water–Groundwater Interactions)",
-        titleEn: "5. Surface Water–Groundwater Interactions in the Mekong–Tonle Sap Basin",
-        bodyKm: [
-          "ប្រព័ន្ធជលសាស្ត្រកម្ពុជាមានលក្ខណៈពិសេសដោយសារវដ្តទឹកជំនន់ប្រចាំឆ្នាំនៃទន្លេមេគង្គ និងបឹងទន្លេសាប ដែលបណ្តាលឱ្យមានការផ្លាស់ប្តូរទិសដៅលំហូរទឹកដ៏អស្ចារ្យ។ ក្នុងរដូវវស្សា កម្រិតទឹកទន្លេខ្ពស់បានបញ្ចូលទឹកទៅក្នុងស្រទាប់ផ្ទុកទឹកល្បាប់អមសងខាង (Groundwater recharge)។",
-          "ក្នុងរដូវប្រាំង កម្រិតទឹកលើដីធ្លាក់ចុះ ធ្វើឱ្យទឹកក្រោមដីបញ្ចេញលំហូរត្រឡប់មកកាន់ទន្លេ និងបឹងវិញ (Baseflow discharge) ដែលដើរតួនាទីយ៉ាងសំខាន់ក្នុងការរក្សាប្រព័ន្ធអេកូឡូស៊ីទឹកសាប និងគាំទ្រដល់កសិកម្មរដូវប្រាំង។ ការសិក្សាដោយប្រើប្រាស់អ៊ីសូតូបធម្មជាតិ (Oxygen-18 និង Deuterium) បង្ហាញថាការបញ្ចូលទឹកក្រោមដីភាគច្រើនកើតចេញពីទឹកភ្លៀងតាមរដូវ និងទឹកជំនន់ទន្លេមេគង្គ។",
+        "rowsKm": [
+          [
+            "សីតុណ្ហភាពទឹក (°C)",
+            "៨២",
+            "២៥,០ °C",
+            "២៩,៩៥ °C",
+            "៣៦,៤ °C"
+          ],
+          [
+            "កម្រិត pH",
+            "៨៣",
+            "៣,៩",
+            "៦,៧",
+            "៩,៣"
+          ],
+          [
+            "សក្តានុពលរេដុកម្ម Eh (mV)",
+            "៨៣",
+            "-១៤២,៣ mV",
+            "+២៣,៥ mV",
+            "+១៨៤,៩ mV"
+          ],
+          [
+            "អុកស៊ីសែនរលាយ DO (mg/L)",
+            "៨១",
+            "១,៥ mg/L",
+            "៣,៩៧ mg/L",
+            "៣៤,០ mg/L*"
+          ],
+          [
+            "ចរន្តអគ្គិសនី Conductivity (µS/cm)",
+            "៨៣",
+            "១៣,១ µS/cm",
+            "៥៤១ µS/cm",
+            "១៣.៧០០ µS/cm"
+          ],
+          [
+            "ជម្រៅអណ្តូង (Well Depth, m)",
+            "៦២",
+            "២ ម៉ែត្រ",
+            "៧ ម៉ែត្រ",
+            "៧០ ម៉ែត្រ"
+          ]
         ],
-        bodyEn: [
-          "Cambodia's hydrogeological regime is fundamentally coupled to the seasonal flood pulse of the Mekong and Tonle Sap river-lake system, one of the world's most dramatic hydrological reversals. During the monsoon season (June–October), elevated river stages drive active lateral and vertical recharge into adjacent alluvial aquifers.",
-          "During the dry season (December–May), this hydraulic gradient reverses: groundwater discharges as baseflow into channels and wetlands, sustaining critical baseflows and wetland habitats. Stable water isotope investigations (δ¹⁸O and δ²H) indicate that recharge is dominated by monsoon precipitation and seasonal overbank flooding, underscoring the vulnerability of aquifers to upstream hydropower regulation and climate volatility.",
+        "rowsEn": [
+          [
+            "Water Temperature (°C)",
+            "82",
+            "25.0 °C",
+            "29.95 °C",
+            "36.4 °C"
+          ],
+          [
+            "pH Value",
+            "83",
+            "3.9",
+            "6.7",
+            "9.3"
+          ],
+          [
+            "Redox Potential Eh (mV)",
+            "83",
+            "-142.3 mV",
+            "+23.5 mV",
+            "+184.9 mV"
+          ],
+          [
+            "Dissolved Oxygen DO (mg/L)",
+            "81",
+            "1.5 mg/L",
+            "3.97 mg/L",
+            "34.0 mg/L*"
+          ],
+          [
+            "Conductivity (µS/cm)",
+            "83",
+            "13.1 µS/cm",
+            "541 µS/cm",
+            "13,700 µS/cm"
+          ],
+          [
+            "Well Depth (m)",
+            "62",
+            "2 m",
+            "7 m",
+            "70 m"
+          ]
         ],
-      },
-      {
-        titleKm: "៦. ផលប៉ះពាល់បរិស្ថានពីការរុករករ៉ែ និងការតាមដានគុណភាពទឹក (Mining Footprints & Water Quality Monitoring)",
-        titleEn: "6. Environmental Impacts of Mining and Systematic Water Monitoring",
-        bodyKm: [
-          "ក្រៅពីសារធាតុអាសេនិចធម្មជាតិ សកម្មភាពមនុស្សដូចជាការធ្វើអាជីវកម្មរ៉ែមាសបែបប្រពៃណី (Artisanal gold mining) នៅប៉ែកឦសានប្រទេស (ដូចជានៅអាងទន្លេព្រែកទេ ខេត្តមណ្ឌលគិរី) អាចបង្កផលប៉ះពាល់ដល់គុណភាពទឹកលើដី និងទឹកក្រោមដី តាមរយៈការប្រើប្រាស់បារត (Mercury) និងស៊ីយានីត (Cyanide) ព្រមទាំងការកើនឡើងនៃល្បាប់ដី។",
-          "ការស្រាវជ្រាវបរិស្ថានទឹក (ដូចជាការសិក្សានៅព្រែកទេ ឆ្នាំ២០២៥) និងបណ្តាញតាមដានគុណភាពទឹកក្រោមដីជាតិ បាននិងកំពុងអនុវត្តការត្រួតពិនិត្យជាប្រចាំលើលោហៈធ្ងន់ (Heavy metals: As, Hg, Pb, Cd, Fe, Mn) និងសមាសធាតុគីមីទឹក ដើម្បីធានាសុវត្ថិភាពដល់សហគមន៍មូលដ្ឋាន និងការពារប្រភពទឹកក្រោមដីពីការបំពុល។",
+        "footnoteKm": "កំណត់សម្គាល់៖ តម្លៃ DO 34.0 mg/L (*) ទំនងជាកំហុសនៃការបញ្ចូលលេខក្នុងសៀវភៅការងារដើម។",
+        "footnoteEn": "Note: The DO outlier of 34.0 mg/L (*) represents an apparent field data-entry artifact in the original sheet."
+      }
+    },
+    {
+      "titleKm": "៩. អណ្តូងតាមដានទឹកក្រោមដីឆ្លងព្រំដែន GDMR–KIGAM–CCOP (Transboundary Monitoring Wells)",
+      "titleEn": "9. Deep Transboundary Groundwater Monitoring Wells (Lower Mekong Delta)",
+      "bodyKm": [
+        "គម្រោងអណ្តូងតាមដានទឹកក្រោមដីឆ្លងព្រំដែនជាកិច្ចសហប្រតិបត្តិការរវាង GDMR វិទ្យាស្ថានភូគព្ភសាស្ត្រ និងធនធានរ៉ែកូរ៉េ (KIGAM) និងអង្គការ CCOP ស្ថិតនៅភាគខាងត្បូងរាជធានីភ្នំពេញ លើអាងទឹកក្រោមដីឆ្លងព្រំដែននៃដីសណ្តទន្លេមេគង្គក្រោម រវាងកម្ពុជា និងវៀតណាម។",
+        "អណ្តូងតាមដាននេះត្រូវបានខួងដល់ជម្រៅ ១០៦ ម៉ែត្រ ដោយបានបំពាក់ឧបករណ៍វាស់ស្ទង់ស្វ័យប្រវត្តិចំនួន ២ ប្រភេទ៖",
+        "១. ឧបករណ៍ Baro Diver៖ សម្រាប់វាស់ស្ទង់សម្ពាធបរិយាកាស និងសីតុណ្ហភាពខ្យល់។",
+        "២. ឧបករណ៍ CTD Diver៖ សម្រាប់វាស់ស្ទង់ចរន្តអគ្គិសនី (Conductivity) សីតុណ្ហភាពទឹក និងសម្ពាធជម្រៅទឹកក្រោមដី។",
+        "ទិន្នន័យកត់ត្រាចន្លោះពីខែវិច្ឆិកា ឆ្នាំ ២០១៧ ដល់ខែធ្នូ ឆ្នាំ ២០១៨ បង្ហាញថា កម្រិតទឹកក្រោមដីប្រែប្រួលយ៉ាងស្អិតរមួតជាមួយកម្ពស់ទឹកទន្លេមេគង្គ ដោយកម្រិតទឹកទាំងពីរឡើងខ្ពស់បំផុតក្នុងខែសីហា-កញ្ញា (រដូវទឹកឡើង) និងស្រកចុះទាបបំផុតក្នុងខែឧសភា (ចុងរដូវប្រាំង)។ សីតុណ្ហភាពទឹកក្នុងអណ្តូងមានស្ថិរភាពចន្លោះពី ២៩ ដល់ ៣០ °C។"
+      ],
+      "bodyEn": [
+        "The Transboundary Groundwater Monitoring Project represents a trilateral partnership between GDMR, the Korea Institute of Geoscience and Mineral Resources (KIGAM), and the Coordinating Committee for Geoscience Programmes in East and Southeast Asia (CCOP). The stations are situated in the transboundary aquifer of the Lower Mekong Delta between Cambodia and Vietnam, south of Phnom Penh.",
+        "The specialized observation boreholes were drilled to a depth of 106 meters and equipped with two submerged digital loggers:",
+        "1. Baro Diver: Records barometric atmospheric pressure and air temperature for barometric compensation.",
+        "2. CTD Diver: Continuously logs electrical conductivity, groundwater temperature, and hydrostatic head.",
+        "Continuous monitoring records from November 2017 to December 2018 reveal that groundwater heads fluctuate in dynamic synchrony with the Mekong River hydrograph. Both water tables peak synchronously in August–September during the monsoon flood crest and decline to their annual nadir in May. Groundwater temperature remains remarkably stable at 29–30 °C."
+      ],
+      "images": [
+        {
+          "url": "/images/hydrogeology/well_loc.jpg",
+          "captionKm": "រូបភាពទី ១៥៖ ទីតាំងអណ្តូងតាមដានទឹកក្រោមដីឆ្លងព្រំដែនភាគខាងត្បូងភ្នំពេញ ក្បែរទន្លេមេគង្គ និងព្រំដែនវៀតណាម (GDMR)",
+          "captionEn": "Figure 15: Geographic location of transboundary monitoring boreholes south of Phnom Penh near the Mekong River and Vietnam border (Source: GDMR)"
+        },
+        {
+          "url": "/images/hydrogeology/level.jpg",
+          "captionKm": "រូបភាពទី ១៦៖ បម្រែបម្រួលកម្ពស់ទឹកក្រោមដី និងកម្ពស់ទឹកទន្លេតាមខែ (វិច្ឆិកា ២០១៧ ដល់ ធ្នូ ២០១៨) កើនឡើងខ្ពស់បំផុតក្នុងខែសីហា-កញ្ញា (GDMR)",
+          "captionEn": "Figure 16: Time-series hydrograph of groundwater level and Mekong river stage (Nov 2017 to Dec 2018), both peaking around August–September (Source: GDMR)"
+        },
+        {
+          "url": "/images/hydrogeology/cond.jpg",
+          "captionKm": "រូបភាពទី ១៧៖ សីតុណ្ហភាពទឹកក្រោមដី (ប្រហែល ២៩–៣០ °C) និងចរន្តអគ្គិសនីជាក់លាក់ប្រចាំខែ (GDMR)",
+          "captionEn": "Figure 17: Monthly groundwater temperature (~29–30 °C) and specific electrical conductivity trends across the record (Source: GDMR)"
+        }
+      ]
+    },
+    {
+      "titleKm": "១០. បរិបទតំបន់៖ ទឹកក្រោមដីថ្មកាស្ត៍នៅអាស៊ីអាគ្នេយ៍ (Regional Karst Water in Southeast Asia)",
+      "titleEn": "10. Regional Context: Karst Aquifers and Hydrogeology in Southeast Asia",
+      "bodyKm": [
+        "ការស្រាវជ្រាវរបស់ Jiang et al. (2020, Hydrogeology Journal) ក្រោមការគាំទ្ររបស់មជ្ឈមណ្ឌលស្រាវជ្រាវអន្តរជាតិស្តីពីថ្មកាស្ត៍ (IRCK/UNESCO) និង CGS បានចងក្រងទិន្នន័យជលភូគព្ភសាស្ត្រថ្មកាស្ត៍នៅទូទាំងអាស៊ីអាគ្នេយ៍ ដោយបានបែងចែកតំបន់កាស្ត៍ជា ៤ ប្រភេទធំៗ៖ ថ្មកាស្ត៍លើខ្ពង់រាប (Plateau karst), ថ្មកាស្ត៍ក្នុងភ្នំ (Mountain karst), ថ្មកាស្ត៍ក្នុងវាលរាប (Plain karst) និងថ្មកាស្ត៍លើកោះ (Island karst)។",
+        "លក្ខណៈពិសេសនៃទឹកក្រោមដីក្នុងថ្មកាស្ត៍គឺលំហូរលឿនតាមប្រព័ន្ធរូងក្រោមដី (Conduit flow) ដែលធ្វើឱ្យងាយរងគ្រោះដោយគ្រោះរាំងស្ងួត ទឹកជំនន់ភ្លាមៗ និងការបំពុល។ សម្រាប់ប្រទេសកម្ពុជា តំបន់ថ្មកំបោរកាស្ត៍សម័យភឺមៀន (Permian limestone) នៅខេត្តកំពត (ភ្នំឈ្ងោក ភ្នំកំពង់ត្រាច) ខេត្តបាត់ដំបង និងបន្ទាយមានជ័យ តំណាងឱ្យប្រព័ន្ធផ្ទុកទឹកថ្មកាស្ត៍ដ៏សំខាន់សម្រាប់ការផ្គត់ផ្គង់ទឹក និងប្រព័ន្ធអេកូឡូស៊ីល្អាងភ្នំ។"
+      ],
+      "bodyEn": [
+        "A regional synthesis by Jiang et al. (2020, Hydrogeology Journal), supported by the International Research Center on Karst (IRCK/UNESCO) and CGS, evaluates carbonate aquifer environments across Southeast Asia, establishing four morpho-hydrogeological categories: plateau karst, mountain karst, plain/lowland karst, and island/coastal karst.",
+        "Karst water systems are characterized by rapid subterranean conduit transport, conferring acute sensitivity to drought, flash flooding, and point-source pollution. In Cambodia, isolated Permian marine limestone towers and karst massifs in Kampot, Battambang, and Banteay Meanchey host critical karst springs, subterranean streams, and unique subterranean habitats."
+      ],
+      "image": "/images/hydrogeology/karst.jpg",
+      "imageCaptionKm": "រូបភាពទី ១៨៖ ផែនទីចែកចាយតំបន់ថ្មកាស្ត៍នៅអាស៊ីអាគ្នេយ៍ បង្ហាញទីតាំងល្អាងភ្នំ ប្រភពទឹកផុស និងសិលាកាបូណាត (Jiang et al., ២០២០)",
+      "imageCaptionEn": "Figure 18: Karst area of Southeast Asia displaying surveyed karst sites, major caves, giant springs, and carbonate distribution (Source: Jiang et al., 2020)"
+    },
+    {
+      "titleKm": "១១. គម្រោងអាទិភាព និងទិសដៅស្រាវជ្រាវនាពេលអនាគត (Future Projects)",
+      "titleEn": "11. Strategic Priorities and Future Hydrogeological Initiatives",
+      "bodyKm": [
+        "ផ្អែកលើការវាយតម្លៃរបស់ GDMR គម្រោងអាទិភាពសម្រាប់វិស័យវារីភូគព្ភសាស្ត្រនៅកម្ពុជារួមមាន៖",
+        "១. ការធ្វើផែនទីទឹកក្រោមដីលម្អិត (Groundwater Mapping)៖ ពង្រីកការធ្វើផែនទីមាត្រដ្ឋាន ១:១០០.០០០ និង ១:៥០.០០០ នៅតំបន់ដែលមានតម្រូវការទឹកខ្ពស់។",
+        "២. ការគ្រប់គ្រងការជ្រាបទឹកប្រៃតំបន់ឆ្នេរ (Saltwater Intrusion Management)៖ សិក្សាស៊ីជម្រៅលើឌីណាមិកនៃការជ្រាបទឹកប្រៃនៅកោះកុង ព្រះសីហនុ និងកំពត និងរៀបចំគម្រោងបញ្ចូលទឹកសិប្បនិម្មិត (Managed Aquifer Recharge - MAR)។",
+        "៣. ការកសាងគំរូគណិតវិទ្យាទឹកក្រោមដី (3D Numerical Groundwater Modeling)៖ អភិវឌ្ឍគំរូទឹកក្រោមដីតាមដងទន្លេមេគង្គ និងបឹងទន្លេសាប ដើម្បីវាយតម្លៃផលប៉ះពាល់នៃការប្រែប្រួលអាកាសធាតុ និងការអភិវឌ្ឍវារីអគ្គិសនីនៅផ្នែកខាងលើ។"
+      ],
+      "bodyEn": [
+        "GDMR and international scientific partners delineate three core technical priorities for future hydrogeological initiatives:",
+        "1. High-Resolution Groundwater Mapping: Scaling regional surveys to 1:100,000 and 1:50,000 across high-abstraction agricultural and industrial growth corridors.",
+        "2. Coastal Saltwater Intrusion Mitigation: Systematic monitoring of coastal interface movement in Koh Kong, Preah Sihanouk, and Kampot, paired with Managed Aquifer Recharge (MAR) feasibility trials.",
+        "3. Basin-Wide 3D Numerical Flow Modeling: Formulating coupled surface water–groundwater numerical models along the Mekong–Tonle Sap corridor to simulate aquifer resilience under climate change and upstream dam regulation."
+      ]
+    },
+    {
+      "titleKm": "១២. តារាងសង្ខេបប្រធានបទ និងលទ្ធផលគន្លឹះ (Synthesis Summary Table)",
+      "titleEn": "12. Executive Summary Synthesis Table",
+      "bodyKm": [
+        "តារាងខាងក្រោមបង្ហាញនូវសេចក្តីសង្ខេបប្រធានបទ និងលទ្ធផលគន្លឹះសំខាន់ៗនៃវិស័យវារីភូគព្ភសាស្ត្រនៅកម្ពុជា៖"
+      ],
+      "bodyEn": [
+        "The following synthesis table encapsulates the key thematic pillars and field findings of Cambodian hydrogeology:"
+      ],
+      "table": {
+        "captionKm": "តារាងទី ៥៖ សង្ខេបប្រធានបទ និងលទ្ធផលសំខាន់ៗនៃធនធានទឹកក្រោមដីកម្ពុជា (GDMR / MME)",
+        "captionEn": "Table 5: Executive synthesis of hydrogeological themes, findings, and strategic outlook (GDMR / MME)",
+        "headersKm": [
+          "ប្រធានបទ (Theme)",
+          "លទ្ធផល និងចំណុចគន្លឹះសំខាន់ៗ (Main Points)"
         ],
-        bodyEn: [
-          "Beyond natural geogenic contaminants, anthropogenic activities introduce localized environmental risks to Cambodian water systems. Historical and artisanal gold extraction in northeastern catchments (such as the Prek Te River Basin in Mondulkiri) has generated concerns regarding mercury amalgamation residues, cyanide leaching, and severe river siltation.",
-          "Targeted water quality assessments (e.g., Prek Te watershed studies, 2025) coupled with the national groundwater monitoring network evaluate trace heavy metals (As, Hg, Pb, Cd, Fe, Mn), nutrient loadings, and major ion chemistry to safeguard communal water reserves and support science-based environmental licensing.",
+        "headersEn": [
+          "Thematic Domain",
+          "Core Synthesis Findings & Implications"
         ],
-      },
-      {
-        titleKm: "៧. យុទ្ធសាស្ត្រគ្រប់គ្រង និងអភិបាលកិច្ចទឹកក្រោមដីប្រកបដោយចីរភាព (Sustainable Groundwater Governance & Mitigation)",
-        titleEn: "7. Sustainable Groundwater Governance, Technology, and Policy Pathways",
-        bodyKm: [
-          "ដើម្បីធានាចីរភាពនៃធនធានទឹកក្រោមដីនៅកម្ពុជា ការស្រាវជ្រាវ និងការអនុវត្តជាក់ស្តែងទាមទារនូវយុទ្ធសាស្ត្ររួមបញ្ចូលគ្នា៖",
+        "rowsKm": [
+          [
+            "ស្ថានភាពទូទៅ (National Setting)",
+            "ផ្ទៃដី ១៨១.០៣៥ គ.ម²; អាកាសធាតុត្រូពិចមូសុង; កម្រាលល្បាប់ក្វាតែណែរនៅតំបន់កណ្តាល; ទឹកក្រោមដីបម្រើការប្រើប្រាស់ក្នុងផ្ទះ និងកសិកម្ម"
+          ],
+          [
+            "ប្រភេទទឹកក្រោមដី (Aquifer Types)",
+            "៤ ថ្នាក់ធំៗ; អាងទឹករន្ធក្នុងល្បាប់ក្វាតែណែរមានទំហំធំ និងទិន្នផលខ្ពស់ជាងគេ; ថ្មគ្រីស្តាល់មានសក្តានុពលទឹកទាប"
+          ],
+          [
+            "អណ្តូងទឹក (Well Development)",
+            "អណ្តូង ៣១.៥០៩ ត្រូវបានអភិវឌ្ឍពីឆ្នាំ ១៩៨៣–២០០១; ខេត្តស្វាយរៀង ព្រៃវែង និងកំពត នាំមុខគេ"
+          ],
+          [
+            "បញ្ហាបរិស្ថាន (Environmental Issues)",
+            "ការបាក់ច្រាំងទន្លេ ទឹកជំនន់ គ្រោះរាំងស្ងួត; អាសេនិក និងជាតិដែកតាមដងទន្លេ; ការជ្រាបទឹកប្រៃនៅតំបន់ឆ្នេរនិរតី"
+          ],
+          [
+            "ការស្ទង់ស្រាវជ្រាវ (Survey Program)",
+            "គម្រោង CGS–GDMR មាត្រដ្ឋាន ១:៥០០.០០០ ឆ្នាំ ២០១៧–២០២០; ទិន្នន័យវាស់ជាក់ស្តែង ១០១ ទីតាំងនៅឆ្នាំ ២០១៨"
+          ],
+          [
+            "ការតាមដាន (Monitoring Network)",
+            "អណ្តូងតាមដានឆ្លងព្រំដែនជម្រៅ ១០៦ ម៉ែត្រ ជាមួយឧបករណ៍ Baro និង CTD Divers នៅដីសណ្តទន្លេមេគង្គក្រោម"
+          ],
+          [
+            "ទិសដៅបន្ត (Strategic Next Steps)",
+            "ការធ្វើផែនទីទឹកក្រោមដីលម្អិត ការទប់ស្កាត់ការជ្រាបទឹកប្រៃ និងការកសាងគំរូគណិតវិទ្យាទឹកតាមដងទន្លេមេគង្គ"
+          ]
         ],
-        bodyEn: [
-          "Securing sustainable groundwater stewardship for Cambodia requires an integrated technical, institutional, and community-driven approach:",
+        "rowsEn": [
+          [
+            "National Setting",
+            "181,035 km²; tropical monsoon; central Quaternary alluvial core; extensive domestic and irrigation abstraction"
+          ],
+          [
+            "Aquifer Classification",
+            "Four classes; unconsolidated Quaternary porous aquifers most extensive; crystalline basement shows low yield"
+          ],
+          [
+            "Well Development",
+            "31,509 wells constructed 1983–2001; Svay Rieng, Prey Veng, and Kampot lead regional counts"
+          ],
+          [
+            "Environmental Challenges",
+            "Riverbank collapse, flooding, drought; geogenic arsenic and iron; coastal saltwater intrusion"
+          ],
+          [
+            "National Survey",
+            "CGS–GDMR 1:500,000 project (2017–2020); 101 field stations with complete physicochemical logs"
+          ],
+          [
+            "Monitoring Infrastructure",
+            "106 m deep transboundary monitoring boreholes equipped with Baro and CTD divers in Lower Mekong Delta"
+          ],
+          [
+            "Future Roadmap",
+            "High-resolution hydrogeological mapping, coastal intrusion protection, and 3D numerical Mekong flow modeling"
+          ]
         ],
-        bulletsKm: [
-          "ការពង្រីកបណ្តាញអណ្តូងតាមដានជាតិ (National Monitoring Well Network) ដើម្បីវាស់ស្ទង់កម្រិតទឹក និងគីមីទឹកដោយស្វ័យប្រវត្តិតាមប្រព័ន្ធ Telemetry។",
-          "ការកំណត់តំបន់ការពារប្រភពទឹក (Aquifer Protection Zones) ជាពិសេសនៅតំបន់ជុំវិញរាជធានីភ្នំពេញ ដែលមានការបូមទឹកក្រោមដីច្រើនសម្រាប់វិស័យឧស្សាហកម្មកាត់ដេរ និងសំណង់។",
-          "ការលើកកម្ពស់បច្ចេកវិទ្យាចម្រោះអាសេនិចតាមខ្នងផ្ទះ និងសហគមន៍ (Community Arsenic Removal Systems) ដោយប្រើប្រាស់តម្រងខ្សាច់ដែក (Iron-sand filters) និងបច្ចេកវិទ្យាភ្នាសចម្រោះ (Membrane filtration)។",
-          "ការការពារស្រទាប់ដីឥដ្ឋខាងលើ (Aquitard Integrity) តាមរយៈការខួង និងសង់អណ្តូងតាមក្បួនខ្នាតបច្ចេកទេសត្រឹមត្រូវ ដើម្បីកុំឱ្យទឹកដែលផ្ទុកអាសេនិចជ្រាបចូលទៅក្នុងស្រទាប់ទឹកជ្រៅ។",
-        ],
-        bulletsEn: [
-          "Expansion of the National Telemetric Monitoring Network to capture real-time groundwater head variations and seasonal salinity/geochemical shifts across high-abstraction corridors.",
-          "Designation of Aquifer Protection Zones around Phnom Penh and industrial hubs to prevent localized aquifer depression cones and land subsidence.",
-          "Deployment of decentralized community arsenic treatment solutions, including locally manufactured Kanchan-type iron oxide sand filters and solar-powered membrane systems.",
-          "Preservation of confining aquitard integrity through standardized well-sealing and grouting codes to prevent downward cross-contamination of deep pristine Pleistocene aquifers.",
-        ],
-      },
-    ],
-    relatedPaperIds: ["web02", "web10", "web12"],
-    keyHighlightsKm: [
-      "ទឹកក្រោមដីផ្តល់ទឹកប្រើប្រាស់ជាង ៥០% សម្រាប់សហគមន៍ជនបទនៅកម្ពុជា",
-      "ស្រទាប់ល្បាប់ទំនាបកណ្តាលហូឡូសែន-ផ្លេសតូសែន ជាប្រភពទឹកក្រោមដីដែលមានទិន្នផលខ្ពស់បំផុត",
-      "អាសេនិចធម្មជាតិកើតចេញពីដំណើរការរំលាយរេដុកម្មនៃសារធាតុ Fe-oxyhydroxides ដោយបាក់តេរីក្នុងល្បាប់ហូឡូសែន",
-      "ស្រទាប់ខ្សាច់ផ្លេសតូសែនជម្រៅជ្រៅ (>៦០–៨០ ម៉ែត្រ) ជាប្រភពទឹកស្អាតមានសុវត្ថិភាពពីអាសេនិច",
-      "តំបន់ឆ្នេរប្រឈមនឹងការជ្រាបចូលនៃទឹកប្រៃដែលទាមទារការគ្រប់គ្រងការបូមទឹកយ៉ាងប្រុងប្រយ័ត្ន",
-    ],
-    keyHighlightsEn: [
-      "Groundwater supplies domestic water for over 50% of Cambodia's rural population",
-      "Quaternary fluvio-deltaic alluvium forms the most productive regional aquifer system (yields up to 45 m³/h)",
-      "Geogenic arsenic release is governed by microbial reductive dissolution of Fe(III) oxyhydroxides in young Holocene strata",
-      "Deep confined Pleistocene aquifers (>60–80 m) provide a verified, arsenic-safe groundwater exploration target",
-      "Coastal zones require rigorous monitoring against saltwater intrusion and over-abstraction",
-    ],
-    sources: [
-      {
-        id: "[R1]",
-        text: "Sok, D., Polizzotto, M.L., Rowland, H.A.L., et al. (2020). Hydrogeological framework and arsenic distribution in Cambodian floodplain aquifers. Journal of Hydrology: Regional Studies, 32, 100745.",
-        url: "https://doi.org/10.1016/j.ejrh.2020.100745",
-      },
-      {
-        id: "[R2]",
-        text: "Ministry of Rural Development (MRD) & JICA. (2022). Comprehensive Groundwater Resources Assessment and Arsenic Risk Atlas of the Kingdom of Cambodia. Technical Report, Phnom Penh.",
-      },
-      {
-        id: "[R3]",
-        text: "Buschmann, J., Berg, M., Stengel, C., & Sampson, M.L. (2007). Arsenic and manganese contamination in drinking water resources in Cambodia: coincide of risk areas with Holocene sediments. Environmental Science & Technology, 41(7), 2146-2152.",
-        url: "https://doi.org/10.1021/es062056k",
-      },
-      {
-        id: "[R4]",
-        text: "Charlet, L., & Polya, D.A. (2006). Arsenic in shallow, reducing groundwaters in southern Asia: an environmental health catastrophe. Elements, 2(2), 91-96.",
-        url: "https://doi.org/10.2113/gselements.2.2.91",
-      },
-      {
-        id: "[R5]",
-        text: "Chea, L., et al. (2025). Surface and Groundwater Quality Impacted by Artisanal Gold Mining Activities in the Prek Te River Basin, Mondulkiri Province. ITC Geoscience Technical Series, 4, 112-128.",
-      },
-    ],
-  },
+        "footnoteKm": "ប្រភពចងក្រង៖ អគ្គនាយកដ្ឋានធនធានរ៉ែ (GDMR), ក្រសួងរ៉ែ និងថាមពល",
+        "footnoteEn": "Source: General Department of Mineral Resources (GDMR), Ministry of Mines and Energy."
+      }
+    },
+    {
+      "titleKm": "១៣. កំណត់សម្គាល់បច្ចេកទេស និងប្រភពឯកសារយោង (Notes and Citations)",
+      "titleEn": "13. Technical Notes, Data Provenance, and References",
+      "bodyKm": [
+        "ឯកសារយោង និងកំណត់សម្គាល់បច្ចេកទេសសម្រាប់ការស្រាវជ្រាវនេះ៖",
+        "• ប្រភពទិន្នន័យដើម៖ បទបង្ហាញរបស់ GDMR 'Overview of Study on Hydrogeological Survey and Water Resources Utilization in Cambodia' ដោយលោក ហេង សម្បូរ (នាយកដ្ឋានភូគព្ភសាស្ត្រ), សៀវភៅការងារទិន្នន័យវាលឆ្នាំ ២០១៨ (Field Survey Workbook Sheet 'GroupA'), របាយការណ៍ក្រសួងផែនការ (២០០៣), និងអត្ថបទស្រាវជ្រាវ Jiang et al. (2020) ក្នុងទិនានុប្បវត្តិ Hydrogeology Journal។",
+        "• ស្ថានភាពផែនទីព្រាង៖ ផែនទីប្រភេទទឹកក្រោមដីមាត្រដ្ឋាន ១:៥០០.០០០ គឺជាឯកសារព្រាងសម្រាប់ការសិក្សា និងជាឯកសារយោងបច្ចេកទេស។",
+        "• ឯកតាខ្នាត៖ ខ្នាតចរន្តអគ្គិសនីក្នុងសៀវភៅទិន្នន័យដើមត្រូវបានកត់ត្រាជា µS/cm (មីក្រូស៊ីមិនក្នុងមួយសង់ទីម៉ែត្រ)។"
+      ],
+      "bodyEn": [
+        "Technical documentation and data provenance notes:",
+        "• Primary Sources: GDMR overview presentation 'Overview of Study on Hydrogeological Survey and Water Resources Utilization in Cambodia' by Heng Sambo (Department of Geology); field survey workbook dataset (April–May 2018); Ministry of Planning (2003); and Jiang et al. (2020), 'The karst water environment in Southeast Asia: characteristics, challenges, and approaches', Hydrogeology Journal.",
+        "• Status of Cartographic Products: The 1:500,000 groundwater types map constitutes an official draft compiled for research and technical reference.",
+        "• Measurement Units: Conductivity measurements in field sheets correspond to µS/cm, representing standard electrical conductance at 25 °C."
+      ]
+    }
+  ],
+  "relatedPaperIds": [
+    "web02",
+    "web10",
+    "web12"
+  ],
+  "keyHighlightsKm": [
+    "ប្រទេសកម្ពុជាមានផ្ទៃដី ១៨១.០៣៥ គ.ម² ដោយមានអណ្តូងទឹកក្រោមដីចំនួន ៣១.៥០៩ ត្រូវបានអភិវឌ្ឍពីឆ្នាំ ១៩៨៣ ដល់ ២០០១",
+    "ផែនទីប្រភេទទឹកក្រោមដី ១:៥០០.០០០ របស់ GDMR បែងចែកអាងទឹកជា ៤ ថ្នាក់ និងតំបន់ជលភូគព្ភសាស្ត្រ I និង II",
+    "គម្រោង CGS–GDMR បានចុះវាស់ស្ទង់ជាក់ស្តែងនៅ ១០១ ទីតាំង ដោយបានរកឃើញចរន្តអគ្គិសនីខ្ពស់រហូតដល់ ១៣.៧០០ µS/cm នៅតំបន់ឆ្នេរ",
+    "អណ្តូងតាមដានទឹកក្រោមដីឆ្លងព្រំដែនជម្រៅ ១០៦ ម៉ែត្រ នៅដីសណ្តទន្លេមេគង្គក្រោម បានកត់ត្រាការប្រែប្រួលកម្ពស់ទឹកស្របគ្នាជាមួយទន្លេមេគង្គ",
+    "ប្រភពទឹកក្តៅធម្មជាតិទេទឹកពុះ ខេត្តកំពង់ស្ពឺ មានសីតុណ្ហភាព ៥៣ °C និង pH ៩,៤៤ ស្ថិតនៅលើតំបន់ខ្សែបន្ទាត់កំហុសសកម្ម"
+  ],
+  "keyHighlightsEn": [
+    "Cambodia covers 181,035 km² with 31,509 regional groundwater wells developed between 1983 and 2001 (Svay Rieng, Prey Veng, and Kampot lead)",
+    "The 1:500,000 GDMR groundwater map classifies the subsurface into 4 aquifer regimes and regional zones I and II",
+    "The CGS–GDMR field campaign surveyed 101 stations in 2018, identifying extreme coastal conductivity up to 13,700 µS/cm due to saltwater intrusion",
+    "106 m deep transboundary monitoring boreholes south of Phnom Penh track dynamic coupling between groundwater heads and the Mekong flood crest",
+    "Te Tuek Pus natural geothermal hot spring in Kampong Speu emerges along an active structural fault with a temperature of 53 °C and pH 9.44"
+  ],
+  "sources": [
+    {
+      "id": "[S1]",
+      "text": "Heng, S. (Geological Department, GDMR, Ministry of Mines and Energy). Overview of Study on Hydrogeological Survey and Water Resources Utilization in Cambodia."
+    },
+    {
+      "id": "[S2]",
+      "text": "China Geological Survey (CGS) & General Department of Mineral Resources (GDMR) (2017–2020). Cooperative Hydrogeological and Environmental Geology Mapping Project (1:500,000 scale)."
+    },
+    {
+      "id": "[S3]",
+      "text": "Ministry of Planning, Royal Government of Cambodia (2003). Status of Regional Groundwater Wells Developed from 1983 to 2001."
+    },
+    {
+      "id": "[S4]",
+      "text": "Jiang, G., Guo, F., Polifka, S., et al. (2020). The karst water environment in Southeast Asia: characteristics, challenges, and approaches. Hydrogeology Journal, 28, 1179–1195. DOI: 10.1007/s10040-020-02213-4.",
+      "url": "https://doi.org/10.1007/s10040-020-02213-4"
+    },
+    {
+      "id": "[S5]",
+      "text": "Korea Institute of Geoscience and Mineral Resources (KIGAM), CCOP & GDMR. Transboundary Aquifer Monitoring System in the Lower Mekong River Basin."
+    }
+  ]
+},
   {
     id: "marine-geology",
     slug: "marine-geology",
