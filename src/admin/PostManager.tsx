@@ -41,6 +41,20 @@ import {
   Layers,
   BookOpen,
   Crop,
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp,
+  Camera,
+  ListOrdered,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Unlink,
+  Grid,
+  Strikethrough,
+  Minus,
+  RotateCcw,
+  RotateCw,
 } from "lucide-react";
 import { translateText } from "../lib/translation";
 import { ImageCropperModal } from "../visual-cms/ImageCropperModal";
@@ -105,6 +119,8 @@ const CATEGORIES = [
   "Geochemistry",
   "Tectonics",
   "Mining",
+  "Marine Geology",
+  "Environmental Hydrogeology",
   "Fieldwork",
   "Core Pages",
   "Science & Maps",
@@ -500,6 +516,28 @@ export default function PostManager() {
   const coverFileInputRef = useRef<HTMLInputElement>(null);
   const bodyFileInputRef = useRef<HTMLInputElement>(null);
 
+  // WordPress Classic Editor States
+  const [editorMode, setEditorMode] = useState<"visual" | "text">("visual");
+  const [activeLang, setActiveLang] = useState<"en" | "km">("en");
+  const [kitchenSink, setKitchenSink] = useState(true);
+  const [customSlug, setCustomSlug] = useState("");
+  const [isEditingSlug, setIsEditingSlug] = useState(false);
+  const [postFormat, setPostFormat] = useState<
+    "standard" | "aside" | "image" | "video" | "quote" | "link" | "gallery"
+  >("standard");
+  const [categoryTab, setCategoryTab] = useState<"all" | "most-used">("all");
+  const [newCategoryInput, setNewCategoryInput] = useState("");
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
+  const [isEditingStatus, setIsEditingStatus] = useState(false);
+  const [isEditingVisibility, setIsEditingVisibility] = useState(false);
+  const [isEditingDate, setIsEditingDate] = useState(false);
+  const [visibility, setVisibility] = useState<"public" | "private">("public");
+  const [showExcerptBox, setShowExcerptBox] = useState(true);
+  const [saveTimestamp, setSaveTimestamp] = useState("");
+
+  const contentVisualRef = useRef<HTMLDivElement>(null);
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [baseline, setBaseline] = useState("");
@@ -563,9 +601,27 @@ export default function PostManager() {
             openEdit(newsToUnifiedItem(match));
           } else {
             // Check if it's a focus topic or page
-            const topicMatch = FOCUS_TOPICS.find((t) => t.id === editId || t.slug === editId || `topic-${t.slug}` === editId);
+            const topicMatch = FOCUS_TOPICS.find(
+              (t) =>
+                t.id === editId ||
+                t.slug === editId ||
+                `topic-${t.slug}` === editId,
+            );
             if (topicMatch) {
               openEdit(topicToUnifiedItem(topicMatch));
+            } else {
+              const pageEntry = Object.entries(defaultPageData).find(([route]) => {
+                const pid = `page-${route.replace(/[\/\-_]/g, "_") || "home"}`;
+                return (
+                  pid === editId ||
+                  route === editId ||
+                  route === `/${editId}` ||
+                  `page-${route}` === editId
+                );
+              });
+              if (pageEntry) {
+                openEdit(pageToUnifiedItem(pageEntry[0], pageEntry[1]));
+              }
             }
           }
         } else if (isNewParam === "1" || isNewParam === "true") {
@@ -682,6 +738,23 @@ export default function PostManager() {
     setContent(item.content);
     setContentKm(item.contentKm);
     setStatus(item.status);
+    setActiveLang("en");
+    setEditorMode("visual");
+    setCustomSlug(
+      item.route
+        ? item.route.replace(/^\/(news|research|pages)\//, "").replace(/^\//, "")
+        : "",
+    );
+    setIsEditingSlug(false);
+    setIsEditingStatus(false);
+    setIsEditingVisibility(false);
+    setIsEditingDate(false);
+    setSaveTimestamp(
+      new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    );
+    if (contentVisualRef.current) {
+      contentVisualRef.current.innerHTML = item.content || "<p><br></p>";
+    }
     setViewModeEn("code");
     setViewModeKm("code");
     setActiveInserter(null);
@@ -702,6 +775,45 @@ export default function PostManager() {
     setError("");
     setMessage("");
   };
+
+  useEffect(() => {
+    if (editorMode === "visual" && contentVisualRef.current) {
+      const val = activeLang === "en" ? content : contentKm;
+      if (contentVisualRef.current.innerHTML !== val) {
+        contentVisualRef.current.innerHTML = val || "<p><br></p>";
+      }
+    }
+  }, [editorMode, activeLang, editingItem, isNew]);
+
+  useEffect(() => {
+    const handleOpenNewPost = () => openNew();
+    const handleOpenEditPageId = (e: Event) => {
+      const pageId = (e as CustomEvent<string>).detail;
+      const found = unifiedItems.find((item) => item.id === pageId);
+      if (found) {
+        openEdit(found);
+      } else {
+        const pageEntry = Object.entries(defaultPageData).find(([route]) => {
+          const pid = `page-${route.replace(/[\/\-_]/g, "_") || "home"}`;
+          return (
+            pid === pageId ||
+            route === pageId ||
+            route === `/${pageId}` ||
+            `page-${route}` === pageId
+          );
+        });
+        if (pageEntry) {
+          openEdit(pageToUnifiedItem(pageEntry[0], pageEntry[1]));
+        }
+      }
+    };
+    window.addEventListener("geocam:open-new-post", handleOpenNewPost);
+    window.addEventListener("geocam:open-edit-page-id", handleOpenEditPageId);
+    return () => {
+      window.removeEventListener("geocam:open-new-post", handleOpenNewPost);
+      window.removeEventListener("geocam:open-edit-page-id", handleOpenEditPageId);
+    };
+  }, [unifiedItems]);
 
   const openNew = () =>
     guard(() =>
@@ -850,6 +962,9 @@ export default function PostManager() {
         } catch {}
       }
 
+      setSaveTimestamp(
+        new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      );
       setMessage(
         publishNow
           ? "Post published."
@@ -1318,6 +1433,907 @@ export default function PostManager() {
     );
   };
 
+  const autoSlug = title
+    ? title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")
+    : "new-post";
+
+  const getWordCount = (html: string) => {
+    if (!html) return 0;
+    const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    if (!text) return 0;
+    return text.split(/\s+/).length;
+  };
+
+  const handleVisualInput = () => {
+    if (!contentVisualRef.current) return;
+    const val = contentVisualRef.current.innerHTML;
+    if (activeLang === "en") {
+      setContent(val);
+    } else {
+      setContentKm(val);
+    }
+  };
+
+  const handleSwitchLang = (lang: "en" | "km") => {
+    setActiveLang(lang);
+    if (editorMode === "visual" && contentVisualRef.current) {
+      contentVisualRef.current.innerHTML =
+        (lang === "en" ? content : contentKm) || "<p><br></p>";
+    }
+  };
+
+  const handleSwitchEditorMode = (mode: "visual" | "text") => {
+    if (mode === "visual" && editorMode === "text" && contentVisualRef.current) {
+      contentVisualRef.current.innerHTML =
+        (activeLang === "en" ? content : contentKm) || "<p><br></p>";
+    }
+    setEditorMode(mode);
+  };
+
+  const handleCropInArticle = () => {
+    const currentVal = activeLang === "en" ? content : contentKm;
+    const match = currentVal.match(/<img[^>]+src="([^">]+)"/);
+    const initialUrl = match ? match[1] : image || PHOTO_PRESETS[0].url;
+    const url = window.prompt("Enter or confirm image URL to crop:", initialUrl);
+    if (url) {
+      setCropperModal({
+        imageUrl: url,
+        onApply: (cropped) => {
+          if (match && currentVal.includes(match[1])) {
+            const nextVal = currentVal.replace(match[1], cropped);
+            if (activeLang === "en") setContent(nextVal);
+            else setContentKm(nextVal);
+            if (editorMode === "visual" && contentVisualRef.current) {
+              contentVisualRef.current.innerHTML = nextVal;
+            }
+          } else {
+            handleToolbarAction("insertImage", cropped);
+          }
+        },
+      });
+    }
+  };
+
+  const handleToolbarAction = (action: string, arg?: string) => {
+    if (editorMode === "visual") {
+      contentVisualRef.current?.focus();
+      switch (action) {
+        case "bold":
+          document.execCommand("bold");
+          break;
+        case "italic":
+          document.execCommand("italic");
+          break;
+        case "bulletList":
+          document.execCommand("insertUnorderedList");
+          break;
+        case "orderedList":
+          document.execCommand("insertOrderedList");
+          break;
+        case "blockquote":
+          document.execCommand("formatBlock", false, "<blockquote>");
+          break;
+        case "alignLeft":
+          document.execCommand("justifyLeft");
+          break;
+        case "alignCenter":
+          document.execCommand("justifyCenter");
+          break;
+        case "alignRight":
+          document.execCommand("justifyRight");
+          break;
+        case "link": {
+          const url = window.prompt("Enter link URL:", "https://");
+          if (url) document.execCommand("createLink", false, url);
+          break;
+        }
+        case "unlink":
+          document.execCommand("unlink");
+          break;
+        case "readMore":
+        case "horizontalRule":
+          document.execCommand("insertHorizontalRule");
+          break;
+        case "strikeThrough":
+          document.execCommand("strikeThrough");
+          break;
+        case "foreColor":
+          if (arg) document.execCommand("foreColor", false, arg);
+          break;
+        case "removeFormat":
+          document.execCommand("removeFormat");
+          break;
+        case "insertText":
+          if (arg) document.execCommand("insertText", false, arg);
+          break;
+        case "insertImage":
+          if (arg) document.execCommand("insertImage", false, arg);
+          break;
+        case "outdent":
+          document.execCommand("outdent");
+          break;
+        case "indent":
+          document.execCommand("indent");
+          break;
+        case "undo":
+          document.execCommand("undo");
+          break;
+        case "redo":
+          document.execCommand("redo");
+          break;
+        default:
+          break;
+      }
+      handleVisualInput();
+    } else {
+      // Text mode
+      const isKm = activeLang === "km";
+      const textarea = isKm
+        ? contentKmTextareaRef.current
+        : contentTextareaRef.current;
+      const val = isKm ? contentKm : content;
+      const setter = isKm ? setContentKm : setContent;
+      switch (action) {
+        case "bold":
+          insertHtmlAtCursor(textarea, "<strong>", "</strong>", "bold text", val, setter);
+          break;
+        case "italic":
+          insertHtmlAtCursor(textarea, "<em>", "</em>", "italic text", val, setter);
+          break;
+        case "bulletList":
+          insertHtmlAtCursor(textarea, "\n<ul>\n  <li>", "</li>\n  <li>Second item</li>\n</ul>\n", "First item", val, setter);
+          break;
+        case "orderedList":
+          insertHtmlAtCursor(textarea, "\n<ol>\n  <li>", "</li>\n  <li>Second item</li>\n</ol>\n", "First item", val, setter);
+          break;
+        case "blockquote":
+          insertHtmlAtCursor(textarea, '\n<blockquote class="border-l-4 border-[#2271b1] bg-[#f6f7f7] p-4 rounded-r-lg my-4 italic text-[#32373c]">\n  ', "\n</blockquote>\n", "Quote here...", val, setter);
+          break;
+        case "alignLeft":
+          insertHtmlAtCursor(textarea, '<div style="text-align: left;">', "</div>", "Left aligned text", val, setter);
+          break;
+        case "alignCenter":
+          insertHtmlAtCursor(textarea, '<div style="text-align: center;">', "</div>", "Center aligned text", val, setter);
+          break;
+        case "alignRight":
+          insertHtmlAtCursor(textarea, '<div style="text-align: right;">', "</div>", "Right aligned text", val, setter);
+          break;
+        case "link": {
+          const url = window.prompt("Enter link URL:", "https://");
+          if (url) insertHtmlAtCursor(textarea, `<a href="${url}" class="text-[#2271b1] underline">`, "</a>", "link text", val, setter);
+          break;
+        }
+        case "readMore":
+          insertHtmlAtCursor(textarea, "\n<!--more-->\n", "", "", val, setter);
+          break;
+        case "horizontalRule":
+          insertHtmlAtCursor(textarea, "\n<hr />\n", "", "", val, setter);
+          break;
+        case "strikeThrough":
+          insertHtmlAtCursor(textarea, "<del>", "</del>", "strikethrough text", val, setter);
+          break;
+        case "foreColor":
+          if (arg) insertHtmlAtCursor(textarea, `<span style="color: ${arg};">`, "</span>", "colored text", val, setter);
+          break;
+        case "insertText":
+          if (arg) insertHtmlAtCursor(textarea, arg, "", "", val, setter);
+          break;
+        case "insertImage":
+          if (arg) insertHtmlAtCursor(textarea, `<img src="${arg}" alt="" />`, "", "", val, setter);
+          break;
+        default:
+          break;
+      }
+    }
+  };
+
+  const handleFormatSelect = (tag: string) => {
+    if (editorMode === "visual") {
+      contentVisualRef.current?.focus();
+      document.execCommand("formatBlock", false, `<${tag}>`);
+      handleVisualInput();
+    } else {
+      const isKm = activeLang === "km";
+      const textarea = isKm
+        ? contentKmTextareaRef.current
+        : contentTextareaRef.current;
+      const val = isKm ? contentKm : content;
+      const setter = isKm ? setContentKm : setContent;
+      insertHtmlAtCursor(textarea, `<${tag}>`, `</${tag}>`, "Heading text", val, setter);
+    }
+  };
+
+  const renderClassicToolbar = () => {
+    return (
+      <div className="border-b border-[#dcdcde] bg-[#f6f7f7] p-1.5 space-y-1">
+        {/* Row 1 */}
+        <div className="flex flex-wrap items-center gap-0.5 text-[#50575e]">
+          {/* Format Select */}
+          <select
+            aria-label="Block format"
+            onChange={(e) => handleFormatSelect(e.target.value)}
+            className="h-[26px] rounded-xs border border-[#ccd0d4] bg-white px-2 text-xs text-[#2c3338] shadow-xs focus:border-[#2271b1] focus:outline-none mr-1"
+            defaultValue="p"
+          >
+            <option value="p">Paragraph</option>
+            <option value="h1">Heading 1</option>
+            <option value="h2">Heading 2</option>
+            <option value="h3">Heading 3</option>
+            <option value="h4">Heading 4</option>
+            <option value="h5">Heading 5</option>
+            <option value="h6">Heading 6</option>
+            <option value="pre">Preformatted</option>
+          </select>
+
+          <span className="text-[#dcdcde] mx-0.5">|</span>
+
+          {/* Bold */}
+          <button
+            type="button"
+            title="Bold (Ctrl+B)"
+            onClick={() => handleToolbarAction("bold")}
+            className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-xs font-bold text-[#32373c] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+          >
+            <strong>B</strong>
+          </button>
+
+          {/* Italic */}
+          <button
+            type="button"
+            title="Italic (Ctrl+I)"
+            onClick={() => handleToolbarAction("italic")}
+            className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-xs italic font-serif text-[#32373c] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+          >
+            <em>I</em>
+          </button>
+
+          {/* Bulleted list */}
+          <button
+            type="button"
+            title="Bulleted list"
+            onClick={() => handleToolbarAction("bulletList")}
+            className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+          >
+            <List size={14} />
+          </button>
+
+          {/* Numbered list */}
+          <button
+            type="button"
+            title="Numbered list"
+            onClick={() => handleToolbarAction("orderedList")}
+            className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+          >
+            <ListOrdered size={14} />
+          </button>
+
+          {/* Blockquote */}
+          <button
+            type="button"
+            title="Blockquote"
+            onClick={() => handleToolbarAction("blockquote")}
+            className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+          >
+            <Quote size={14} />
+          </button>
+
+          {/* Align Left */}
+          <button
+            type="button"
+            title="Align Left"
+            onClick={() => handleToolbarAction("alignLeft")}
+            className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+          >
+            <AlignLeft size={14} />
+          </button>
+
+          {/* Align Center */}
+          <button
+            type="button"
+            title="Align Center"
+            onClick={() => handleToolbarAction("alignCenter")}
+            className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+          >
+            <AlignCenter size={14} />
+          </button>
+
+          {/* Align Right */}
+          <button
+            type="button"
+            title="Align Right"
+            onClick={() => handleToolbarAction("alignRight")}
+            className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+          >
+            <AlignRight size={14} />
+          </button>
+
+          {/* Link */}
+          <button
+            type="button"
+            title="Insert/edit link (Ctrl+K)"
+            onClick={() => handleToolbarAction("link")}
+            className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+          >
+            <LinkIcon size={14} />
+          </button>
+
+          {/* Unlink */}
+          <button
+            type="button"
+            title="Remove link"
+            onClick={() => handleToolbarAction("unlink")}
+            className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+          >
+            <Unlink size={14} />
+          </button>
+
+          {/* Insert Read More Tag */}
+          <button
+            type="button"
+            title="Insert Read More tag"
+            onClick={() => handleToolbarAction("readMore")}
+            className="h-[26px] px-1.5 inline-flex items-center justify-center rounded-xs text-[10px] font-mono font-bold text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+          >
+            --MORE--
+          </button>
+
+          {/* Kitchen Sink / Toolbar Toggle */}
+          <button
+            type="button"
+            title="Toolbar Toggle (Kitchen Sink)"
+            onClick={() => setKitchenSink(!kitchenSink)}
+            className={`h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs transition ${
+              kitchenSink
+                ? "bg-[#e2e4e7] border border-[#ccd0d4] text-[#1d2327]"
+                : "text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+            }`}
+          >
+            <Grid size={14} />
+          </button>
+        </div>
+
+        {/* Row 2 (Kitchen Sink) */}
+        {kitchenSink && (
+          <div className="flex flex-wrap items-center gap-0.5 text-[#50575e] pt-0.5 border-t border-[#e2e4e7]">
+            {/* Strikethrough */}
+            <button
+              type="button"
+              title="Strikethrough"
+              onClick={() => handleToolbarAction("strikeThrough")}
+              className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+            >
+              <Strikethrough size={14} />
+            </button>
+
+            {/* Horizontal Line */}
+            <button
+              type="button"
+              title="Horizontal line"
+              onClick={() => handleToolbarAction("horizontalRule")}
+              className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+            >
+              <Minus size={14} />
+            </button>
+
+            {/* Text Color */}
+            <button
+              type="button"
+              title="Text color"
+              onClick={() => {
+                const c = window.prompt(
+                  "Enter text color (e.g. #0284c7, #059669, #dc2626, #1d2327):",
+                  "#0284c7",
+                );
+                if (c) handleToolbarAction("foreColor", c);
+              }}
+              className="h-[26px] px-1.5 inline-flex items-center justify-center gap-0.5 rounded-xs text-xs font-bold text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+            >
+              <span className="text-red-600 font-serif font-black text-sm">A</span>
+              <ChevronDown size={10} />
+            </button>
+
+            {/* Clear Formatting */}
+            <button
+              type="button"
+              title="Clear formatting"
+              onClick={() => handleToolbarAction("removeFormat")}
+              className="h-[26px] px-1 inline-flex items-center justify-center rounded-xs text-xs font-serif text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+            >
+              Tₓ
+            </button>
+
+            {/* Special Character */}
+            <button
+              type="button"
+              title="Special character"
+              onClick={() => {
+                const sym = window.prompt(
+                  "Choose or type symbol (°C, ±, ², ³, μm, Ω, λ, ≈):",
+                  "°C",
+                );
+                if (sym) handleToolbarAction("insertText", sym);
+              }}
+              className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-xs font-bold text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+            >
+              Ω
+            </button>
+
+            {/* Decrease Indent */}
+            <button
+              type="button"
+              title="Decrease indent"
+              onClick={() => handleToolbarAction("outdent")}
+              className="h-[26px] px-1 inline-flex items-center justify-center rounded-xs text-xs text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+            >
+              ⇤
+            </button>
+
+            {/* Increase Indent */}
+            <button
+              type="button"
+              title="Increase indent"
+              onClick={() => handleToolbarAction("indent")}
+              className="h-[26px] px-1 inline-flex items-center justify-center rounded-xs text-xs text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+            >
+              ⇥
+            </button>
+
+            {/* Undo */}
+            <button
+              type="button"
+              title="Undo (Ctrl+Z)"
+              onClick={() => handleToolbarAction("undo")}
+              className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+            >
+              <RotateCcw size={13} />
+            </button>
+
+            {/* Redo */}
+            <button
+              type="button"
+              title="Redo (Ctrl+Y)"
+              onClick={() => handleToolbarAction("redo")}
+              className="h-[26px] w-[26px] inline-flex items-center justify-center rounded-xs text-[#50575e] hover:bg-[#e2e4e7] hover:border hover:border-[#ccd0d4]"
+            >
+              <RotateCw size={13} />
+            </button>
+
+            <span className="text-[#dcdcde] mx-0.5">|</span>
+
+            {/* Insert Table */}
+            <button
+              type="button"
+              title="Insert Data Table"
+              onClick={() =>
+                setActiveInserter({
+                  target: activeLang === "en" ? "content" : "contentKm",
+                  type: "table",
+                })
+              }
+              className="h-[26px] px-2 inline-flex items-center gap-1 rounded-xs text-[11px] font-semibold text-[#1d2327] bg-white border border-[#ccd0d4] shadow-xs hover:bg-[#f0f0f1]"
+            >
+              <TableIcon size={12} className="text-[#4f46e5]" /> Table
+            </button>
+
+            {/* Insert Chart */}
+            <button
+              type="button"
+              title="Insert Geological Chart"
+              onClick={() =>
+                setActiveInserter({
+                  target: activeLang === "en" ? "content" : "contentKm",
+                  type: "chart",
+                })
+              }
+              className="h-[26px] px-2 inline-flex items-center gap-1 rounded-xs text-[11px] font-semibold text-[#1d2327] bg-white border border-[#ccd0d4] shadow-xs hover:bg-[#f0f0f1]"
+            >
+              <BarChart2 size={12} className="text-[#0d9488]" /> Chart
+            </button>
+
+            {/* Crop image in article */}
+            <button
+              type="button"
+              title="Crop Image"
+              onClick={handleCropInArticle}
+              className="h-[26px] px-2 inline-flex items-center gap-1 rounded-xs text-[11px] font-semibold text-[#1d2327] bg-white border border-[#ccd0d4] shadow-xs hover:bg-[#f0f0f1]"
+            >
+              <Crop size={12} className="text-[#7c3aed]" /> Crop
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderPublishBox = () => (
+    <div className="rounded-xs border border-[#ccd0d4] bg-white shadow-xs">
+      <div className="border-b border-[#ccd0d4] bg-[#f6f7f7] px-3.5 py-2 font-bold text-xs uppercase tracking-wider text-[#1d2327]">
+        Publish
+      </div>
+      <div className="p-3.5 space-y-3 text-xs text-[#50575e]">
+        {/* Action buttons */}
+        <div className="flex items-center justify-between pb-2 border-b border-[#f0f0f1]">
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => handleSave(false)}
+            className="rounded-xs border border-[#ccd0d4] bg-[#f6f7f7] px-3 py-1 font-semibold text-[#2c3338] shadow-xs hover:bg-white"
+          >
+            Save Draft
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (editingItem?.route) {
+                window.open(editingItem.route, "_blank");
+              } else if (editingKind === "news" && editingItem?.id) {
+                window.open(`/news/${editingItem.id}`, "_blank");
+              } else {
+                alert("Preview: Save draft or publish to preview on the live website.");
+              }
+            }}
+            className="rounded-xs border border-[#ccd0d4] bg-[#f6f7f7] px-3 py-1 font-semibold text-[#2c3338] shadow-xs hover:bg-white"
+          >
+            Preview
+          </button>
+        </div>
+
+        {/* Status row */}
+        <div>
+          <div className="flex items-center gap-1">
+            <span>Status:</span>
+            <strong className="text-[#1d2327]">
+              {status === "published" ? "Published" : "Draft"}
+            </strong>
+            <button
+              type="button"
+              onClick={() => setIsEditingStatus(!isEditingStatus)}
+              className="ml-1 text-[#2271b1] hover:underline font-semibold"
+            >
+              {isEditingStatus ? "Close" : "Edit"}
+            </button>
+          </div>
+          {isEditingStatus && (
+            <div className="mt-2 flex items-center gap-2 pt-1 border-t border-[#f0f0f1]">
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value as "published" | "draft")}
+                className="rounded-xs border border-[#ccd0d4] bg-white p-1 text-xs"
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+              <button
+                type="button"
+                onClick={() => setIsEditingStatus(false)}
+                className="rounded-xs border border-[#ccd0d4] bg-[#f6f7f7] px-2 py-0.5 text-xs font-semibold"
+              >
+                OK
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Visibility row */}
+        <div>
+          <div className="flex items-center gap-1">
+            <span>Visibility:</span>
+            <strong className="text-[#1d2327] capitalize">{visibility}</strong>
+            <button
+              type="button"
+              onClick={() => setIsEditingVisibility(!isEditingVisibility)}
+              className="ml-1 text-[#2271b1] hover:underline font-semibold"
+            >
+              {isEditingVisibility ? "Close" : "Edit"}
+            </button>
+          </div>
+          {isEditingVisibility && (
+            <div className="mt-2 space-y-1 pt-1 border-t border-[#f0f0f1]">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="post-visibility"
+                  checked={visibility === "public"}
+                  onChange={() => setVisibility("public")}
+                />
+                <span>Public</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="post-visibility"
+                  checked={visibility === "private"}
+                  onChange={() => setVisibility("private")}
+                />
+                <span>Private</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => setIsEditingVisibility(false)}
+                className="mt-1 rounded-xs border border-[#ccd0d4] bg-[#f6f7f7] px-2 py-0.5 text-xs font-semibold"
+              >
+                OK
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Publish date row */}
+        <div>
+          <div className="flex items-center gap-1">
+            <span>Publish:</span>
+            <strong className="text-[#1d2327]">{date || "immediately"}</strong>
+            <button
+              type="button"
+              onClick={() => setIsEditingDate(!isEditingDate)}
+              className="ml-1 text-[#2271b1] hover:underline font-semibold"
+            >
+              {isEditingDate ? "Close" : "Edit"}
+            </button>
+          </div>
+          {isEditingDate && (
+            <div className="mt-2 flex items-center gap-2 pt-1 border-t border-[#f0f0f1]">
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="rounded-xs border border-[#ccd0d4] p-1 text-xs"
+              />
+              <button
+                type="button"
+                onClick={() => setIsEditingDate(false)}
+                className="rounded-xs border border-[#ccd0d4] bg-[#f6f7f7] px-2 py-0.5 text-xs font-semibold"
+              >
+                OK
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Major publishing actions footer */}
+      <div className="flex items-center justify-between border-t border-[#dcdcde] bg-[#f6f7f7] p-3">
+        {editingItem && editingItem.kind === "news" ? (
+          <button
+            type="button"
+            onClick={async () => {
+              await handleDelete(editingItem);
+              close();
+            }}
+            className="text-[#b32d2e] hover:underline text-xs font-semibold"
+          >
+            Move to Trash
+          </button>
+        ) : (
+          <span />
+        )}
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => handleSave(true)}
+          className="rounded-xs bg-[#2271b1] hover:bg-[#135e96] border border-[#135e96] px-4 py-1.5 text-xs font-bold text-white shadow-xs transition"
+        >
+          {isNew || status === "draft" ? "Publish" : "Update"}
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderFormatBox = () => (
+    <div className="rounded-xs border border-[#ccd0d4] bg-white shadow-xs">
+      <div className="border-b border-[#ccd0d4] bg-[#f6f7f7] px-3.5 py-2 font-bold text-xs uppercase tracking-wider text-[#1d2327]">
+        Format
+      </div>
+      <div className="p-3.5 space-y-2 text-xs text-[#50575e]">
+        {[
+          { id: "standard", label: "Standard" },
+          { id: "aside", label: "Aside" },
+          { id: "image", label: "Image" },
+          { id: "video", label: "Video" },
+          { id: "quote", label: "Quote" },
+          { id: "link", label: "Link" },
+          { id: "gallery", label: "Gallery" },
+        ].map((fmt) => (
+          <label key={fmt.id} className="flex items-center gap-2 cursor-pointer hover:text-[#1d2327]">
+            <input
+              type="radio"
+              name="post-format"
+              checked={postFormat === fmt.id}
+              onChange={() => setPostFormat(fmt.id as any)}
+            />
+            <span>{fmt.label}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderCategoriesBox = () => {
+    const allAvailableTags = Array.from(new Set([...CATEGORIES, ...customCategories]));
+    return (
+      <div className="rounded-xs border border-[#ccd0d4] bg-white shadow-xs">
+        <div className="border-b border-[#ccd0d4] bg-[#f6f7f7] px-3.5 py-2 font-bold text-xs uppercase tracking-wider text-[#1d2327]">
+          Categories
+        </div>
+        <div className="p-3.5 space-y-3">
+          {/* Tabs */}
+          <div className="flex border-b border-[#ccd0d4] text-xs">
+            <button
+              type="button"
+              onClick={() => setCategoryTab("all")}
+              className={`px-3 py-1 -mb-px font-bold ${
+                categoryTab === "all"
+                  ? "border-t border-l border-r border-[#ccd0d4] bg-white text-[#1d2327]"
+                  : "text-[#50575e] hover:text-[#1d2327]"
+              }`}
+            >
+              All Categories
+            </button>
+            <button
+              type="button"
+              onClick={() => setCategoryTab("most-used")}
+              className={`px-3 py-1 -mb-px font-bold ${
+                categoryTab === "most-used"
+                  ? "border-t border-l border-r border-[#ccd0d4] bg-white text-[#1d2327]"
+                  : "text-[#50575e] hover:text-[#1d2327]"
+              }`}
+            >
+              Most Used
+            </button>
+          </div>
+
+          {/* Checkbox list */}
+          <div className="max-h-44 overflow-y-auto space-y-1.5 pr-1 text-xs text-[#50575e]">
+            {allAvailableTags.map((c) => {
+              const isChecked = tag === c;
+              return (
+                <label key={c} className="flex items-center gap-2 cursor-pointer hover:text-[#1d2327]">
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => setTag(c)}
+                  />
+                  <span>{c}</span>
+                </label>
+              );
+            })}
+          </div>
+
+          {/* + Add New Category */}
+          <div className="pt-2 border-t border-[#f0f0f1]">
+            {!showNewCategory ? (
+              <button
+                type="button"
+                onClick={() => setShowNewCategory(true)}
+                className="text-xs text-[#2271b1] hover:underline font-semibold"
+              >
+                + Add New Category
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  value={newCategoryInput}
+                  onChange={(e) => setNewCategoryInput(e.target.value)}
+                  placeholder="New Category Name"
+                  className="w-full rounded-xs border border-[#ccd0d4] p-1.5 text-xs text-[#1d2327] focus:outline-none"
+                />
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const trimmed = newCategoryInput.trim();
+                      if (trimmed) {
+                        setCustomCategories((prev) => [...prev, trimmed]);
+                        setTag(trimmed);
+                        setNewCategoryInput("");
+                        setShowNewCategory(false);
+                      }
+                    }}
+                    className="rounded-xs border border-[#ccd0d4] bg-[#f6f7f7] px-3 py-1 text-xs font-semibold text-[#1d2327] hover:bg-white"
+                  >
+                    Add Category
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewCategory(false)}
+                    className="text-xs text-[#646970] hover:underline"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderFeaturedImageBox = () => (
+    <div className="rounded-xs border border-[#ccd0d4] bg-white shadow-xs">
+      <div className="border-b border-[#ccd0d4] bg-[#f6f7f7] px-3.5 py-2 font-bold text-xs uppercase tracking-wider text-[#1d2327]">
+        Featured Image
+      </div>
+      <div className="p-3.5 space-y-3">
+        {image ? (
+          <div>
+            <div className="relative group overflow-hidden rounded-xs border border-[#ccd0d4] bg-[#f0f0f1]">
+              <img
+                src={image}
+                alt="Featured"
+                className="w-full h-36 object-cover"
+              />
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setCropperModal({
+                    imageUrl: image,
+                    onApply: (cropped) => setImage(cropped),
+                  })
+                }
+                className="text-xs text-[#7c3aed] hover:underline font-semibold inline-flex items-center gap-1"
+              >
+                <Crop size={12} /> ✂️ Crop Cover
+              </button>
+              <span className="text-[#ccd0d4]">|</span>
+              <button
+                type="button"
+                onClick={() => coverFileInputRef.current?.click()}
+                className="text-xs text-[#059669] hover:underline font-semibold inline-flex items-center gap-1"
+              >
+                <Upload size={12} /> Upload New
+              </button>
+              <span className="text-[#ccd0d4]">|</span>
+              <button
+                type="button"
+                onClick={() => setImage("")}
+                className="text-xs text-[#b32d2e] hover:underline font-semibold"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <button
+              type="button"
+              onClick={() => coverFileInputRef.current?.click()}
+              className="text-xs text-[#2271b1] hover:underline font-semibold block mb-2"
+            >
+              Set featured image (Upload from device)
+            </button>
+          </div>
+        )}
+
+        {/* Preset geological outcrop selector */}
+        <div className="pt-2 border-t border-[#f0f0f1]">
+          <span className="block text-[11px] font-bold text-[#646970] mb-1.5 uppercase">
+            Or Select Geological Outcrop:
+          </span>
+          <div className="grid grid-cols-3 gap-1.5">
+            {PHOTO_PRESETS.slice(0, 6).map((p) => (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => setImage(p.url)}
+                title={p.label}
+                className="overflow-hidden rounded-xs border border-[#ccd0d4] hover:border-[#2271b1] transition"
+              >
+                <img src={p.url} alt={p.label} className="w-full h-10 object-cover" />
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       {/* Hidden file inputs for direct image uploads */}
@@ -1493,16 +2509,21 @@ export default function PostManager() {
               </tr>
             ) : (
               filtered.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50/80 transition">
+                <tr
+                  key={item.id}
+                  onClick={() => openEdit(item)}
+                  className="hover:bg-sky-50/70 transition cursor-pointer group"
+                  title="Click to directly edit this post in the Classic Editor"
+                >
                   <td className="p-4 w-28">
                     <img
                       src={item.image || PHOTO_PRESETS[0].url}
                       alt=""
-                      className="h-16 w-24 rounded-lg object-cover border border-slate-200 shadow-xs"
+                      className="h-16 w-24 rounded-lg object-cover border border-slate-200 shadow-xs group-hover:scale-105 transition"
                     />
                   </td>
                   <td className="p-4 max-w-md">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 line-clamp-1">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-900 group-hover:text-blue-700 transition line-clamp-1">
                       {item.title}
                     </div>
                     {item.titleKm && (
@@ -1561,6 +2582,7 @@ export default function PostManager() {
                           href={item.route}
                           target="_blank"
                           rel="noreferrer"
+                          onClick={(e) => e.stopPropagation()}
                           title="View on live website"
                           className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
                         >
@@ -1569,7 +2591,10 @@ export default function PostManager() {
                       )}
                       <button
                         type="button"
-                        onClick={() => openEdit(item)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEdit(item);
+                        }}
                         className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition"
                       >
                         <Edit3 size={13} /> Edit
@@ -1577,7 +2602,10 @@ export default function PostManager() {
                       {item.kind === "news" && (
                         <button
                           type="button"
-                          onClick={() => handleDelete(item)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(item);
+                          }}
                           title="Delete post"
                           className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 transition"
                         >
@@ -1594,391 +2622,348 @@ export default function PostManager() {
       </div>
 
       {/* =========================================================================
-          AUTHENTIC WEBSITE POST CANVAS MODAL
-          Matches the exact design and interface of a live post on the website
+          AUTHENTIC WORDPRESS CLASSIC EDITOR VIEW
+          Exact layout matching user's uploaded Classic Editor screenshot
          ========================================================================= */}
       {(isNew || editingItem) && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-xs">
-          <div
-            ref={dialog}
-            tabIndex={-1}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="post-editor-title"
-            className="w-full max-w-5xl rounded-3xl bg-slate-50 p-4 sm:p-6 shadow-2xl border border-slate-200 overflow-hidden"
-          >
-            {/* Modal Top Control Bar */}
-            <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
-              <div className="flex items-center gap-2">
-                <h3
-                  id="post-editor-title"
-                  className="text-lg font-bold text-slate-900 flex items-center gap-2"
+        <div
+          ref={dialog}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="classic-editor-heading"
+          className="wp-classic-editor-overlay fixed inset-0 z-[1000] overflow-y-auto bg-[#f1f1f1] text-[#32373c] p-3 sm:p-6"
+          style={{
+            fontFamily:
+              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
+          }}
+        >
+          <div className="max-w-7xl mx-auto space-y-4">
+            {/* Top Navigation & Breadcrumb Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#ccd0d4]">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={close}
+                  disabled={saving}
+                  className="inline-flex items-center gap-1.5 rounded-xs border border-[#ccd0d4] bg-white px-3 py-1.5 text-xs font-semibold text-[#2c3338] shadow-xs hover:bg-[#f6f7f7] transition"
+                >
+                  <ArrowLeft size={14} /> Back to All Posts &amp; Pages
+                </button>
+                <h1
+                  id="classic-editor-heading"
+                  className="text-xl sm:text-2xl font-bold text-[#1d2327]"
                 >
                   {isNew
-                    ? "Create New Post"
-                    : `Edit ${editingKind === "news" ? "News Post" : editingKind === "topic" ? "Research Topic" : "Website Page"}: ${title || "Untitled"}`}
-                </h3>
-                <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
-                  {editingKind.toUpperCase()}
-                </span>
+                    ? "Add New Post"
+                    : `Edit ${editingKind === "news" ? "Post" : editingKind === "topic" ? "Research Topic" : "Page"}: ${title || "Untitled"}`}
+                </h1>
               </div>
-              <button
-                disabled={saving}
-                aria-label="Close post editor"
-                onClick={close}
-                className="rounded-full p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition"
-              >
-                <X size={20} />
-              </button>
+              <div className="flex items-center gap-2">
+                {!isNew && (
+                  <button
+                    type="button"
+                    onClick={openNew}
+                    className="inline-flex items-center gap-1 rounded-xs border border-[#2271b1] bg-white px-3 py-1.5 text-xs font-bold text-[#2271b1] hover:bg-[#2271b1] hover:text-white transition"
+                  >
+                    <Plus size={13} /> Add New
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={close}
+                  className="rounded p-1.5 text-[#646970] hover:bg-[#dcdcde] hover:text-[#1d2327] transition"
+                  title="Close Editor"
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
 
-            {/* Scrollable Post Content Canvas */}
-            <fieldset
-              disabled={saving}
-              className="space-y-4 max-h-[76vh] overflow-y-auto pr-2"
-            >
-              {/* Dual Language Helper Pill */}
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-emerald-50 border border-emerald-200 p-3">
-                <div className="text-xs text-emerald-900">
-                  Dual-language support: English is the primary source; Khmer override is rendered for Khmer language visitors.
-                </div>
-                <button
-                  type="button"
-                  onClick={handleTranslateAll}
-                  className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 transition"
-                >
-                  <Sparkles size={14} /> Fill known Khmer phrases
-                </button>
+            {/* Admin Notice Messages */}
+            {message && (
+              <div className="border-l-4 border-[#00a32a] bg-white p-3 shadow-xs text-xs font-semibold text-[#1d2327] flex items-center justify-between">
+                <span>{message}</span>
+                {editingItem?.route && (
+                  <a
+                    href={editingItem.route}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#2271b1] hover:underline ml-2"
+                  >
+                    View post &rarr;
+                  </a>
+                )}
               </div>
+            )}
+            {error && (
+              <div className="border-l-4 border-[#d63638] bg-white p-3 shadow-xs text-xs font-semibold text-[#d63638]">
+                {error}
+              </div>
+            )}
 
-              {/* The Live Post Container (WYSIWYG Authenticity) */}
-              <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm space-y-6">
+            {/* Main WordPress Classic 2-Column Grid */}
+            <div className="flex flex-col lg:flex-row gap-6 items-start">
+              
+              {/* LEFT COLUMN: Main Post Canvas (~72% width) */}
+              <div className="w-full lg:flex-1 min-w-0 space-y-4">
                 
-                {/* 1. Live Hero Image with 1-Click Replace Overlay */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wide">
-                      Featured Cover Photo
-                    </label>
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setCropperModal({
-                            imageUrl: image || PHOTO_PRESETS[0].url,
-                            onApply: (c) => setImage(c),
-                          })
-                        }
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-violet-700 hover:text-violet-800"
-                      >
-                        <Crop size={13} /> ✂️ Crop Cover
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => coverFileInputRef.current?.click()}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:text-emerald-800"
-                      >
-                        <Upload size={13} /> Upload Local Image
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="relative group overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-                    <img
-                      src={image || PHOTO_PRESETS[0].url}
-                      alt="Cover Preview"
-                      className="w-full max-h-[320px] object-cover transition group-hover:brightness-95"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setCropperModal({
-                            imageUrl: image || PHOTO_PRESETS[0].url,
-                            onApply: (c) => setImage(c),
-                          })
-                        }
-                        className="rounded-xl bg-violet-600 px-3.5 py-2 text-xs font-bold text-white shadow-md hover:bg-violet-700 transition"
-                      >
-                        ✂️ Crop Cover
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => coverFileInputRef.current?.click()}
-                        className="rounded-xl bg-white px-3.5 py-2 text-xs font-bold text-slate-800 shadow-md hover:bg-slate-50 transition"
-                      >
-                        📷 Change Cover Photo
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Image URL input and quick presets */}
-                  <div className="flex gap-2 items-center pt-1">
-                    <input
-                      type="text"
-                      aria-label="Cover image URL"
-                      value={image}
-                      onChange={(e) => setImage(e.target.value)}
-                      placeholder="https://images.unsplash.com/... or upload local image"
-                      className="w-full rounded-lg border border-slate-300 p-2 text-xs focus:border-emerald-500 focus:outline-none"
-                    />
-                  </div>
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                    <span className="text-[11px] font-bold text-slate-400">Presets:</span>
-                    {PHOTO_PRESETS.map((p) => (
-                      <button
-                        key={p.label}
-                        type="button"
-                        onClick={() => setImage(p.url)}
-                        className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] text-slate-700 hover:bg-slate-100"
-                      >
-                        {p.label}
-                      </button>
-                    ))}
-                  </div>
+                {/* 1. Large Post Title Input */}
+                <div>
+                  <input
+                    type="text"
+                    id="post-title"
+                    value={activeLang === "en" ? title : titleKm}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (activeLang === "en") {
+                        setTitle(v);
+                        if (v !== title) setTitleKm("");
+                      } else {
+                        setTitleKm(v);
+                      }
+                    }}
+                    placeholder="Enter title here"
+                    className="w-full rounded-xs border border-[#ddd] bg-white px-3 py-2 text-lg sm:text-xl font-semibold text-[#32373c] shadow-[inset_0_1px_2px_rgba(0,0,0,0.07)] focus:border-[#2271b1] focus:ring-1 focus:ring-[#2271b1] outline-none"
+                  />
                 </div>
 
-                {/* 2. Metadata Bar: Tag & Publish Date */}
-                <div className="grid gap-4 sm:grid-cols-2 border-y border-slate-100 py-3">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase">
-                      Category / Tag
-                    </label>
-                    <div className="mt-1 flex gap-2">
-                      <select
-                        value={tag}
-                        onChange={(e) => setTag(e.target.value)}
-                        className="rounded-lg border border-slate-300 bg-white p-2 text-xs focus:border-emerald-500 focus:outline-none"
-                      >
-                        {CATEGORIES.map((c) => (
-                          <option key={c} value={c}>
-                            {c}
-                          </option>
-                        ))}
-                      </select>
+                {/* 2. Permalink Slug Line */}
+                <div className="flex flex-wrap items-center gap-1.5 text-xs text-[#50575e] bg-white/70 p-2 rounded-xs border border-[#e2e4e7]">
+                  <span className="font-semibold text-[#1d2327]">Permalink:</span>
+                  <span className="font-mono text-[#50575e]">
+                    https://geocam-website.vercel.app/{editingKind === "news" ? "news" : editingKind === "topic" ? "research" : "page"}/
+                    <strong className="text-[#1d2327]">{customSlug || autoSlug}</strong>/
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingSlug(!isEditingSlug)}
+                    className="rounded-xs border border-[#ccd0d4] bg-[#f6f7f7] px-2 py-0.5 font-semibold text-[#2271b1] hover:bg-white text-[11px]"
+                  >
+                    {isEditingSlug ? "Done" : "Edit"}
+                  </button>
+                  {editingItem?.route && (
+                    <a
+                      href={editingItem.route}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-xs border border-[#ccd0d4] bg-[#f6f7f7] px-2 py-0.5 font-semibold text-[#2271b1] hover:bg-white text-[11px] inline-flex items-center gap-1"
+                    >
+                      <Eye size={11} /> View Post
+                    </a>
+                  )}
+                  {isEditingSlug && (
+                    <div className="w-full mt-1 flex gap-2">
                       <input
                         type="text"
-                        value={tag}
-                        onChange={(e) => setTag(e.target.value)}
-                        placeholder="Custom tag..."
-                        className="w-full rounded-lg border border-slate-300 p-2 text-xs focus:border-emerald-500 focus:outline-none"
+                        value={customSlug || autoSlug}
+                        onChange={(e) =>
+                          setCustomSlug(
+                            e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, "-"),
+                          )
+                        }
+                        className="w-full rounded-xs border border-[#ccd0d4] bg-white p-1 text-xs font-mono"
+                        placeholder="custom-slug"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingSlug(false)}
+                        className="rounded-xs border border-[#ccd0d4] bg-[#f6f7f7] px-2 text-xs font-semibold"
                       >
-                      </input>
+                        OK
+                      </button>
                     </div>
+                  )}
+                </div>
+
+                {/* 3. Bilingual Language Switcher Pill */}
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-xs border border-[#ccd0d4] bg-[#eef2f5] p-1.5 text-xs">
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchLang("en")}
+                      className={`flex items-center gap-1.5 rounded-xs px-3 py-1 font-bold transition ${
+                        activeLang === "en"
+                          ? "bg-white text-[#1d2327] shadow-xs border border-[#ccd0d4]"
+                          : "text-[#50575e] hover:text-[#1d2327]"
+                      }`}
+                    >
+                      🇬🇧 English Source (Primary)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchLang("km")}
+                      className={`flex items-center gap-1.5 rounded-xs px-3 py-1 font-bold transition ${
+                        activeLang === "km"
+                          ? "bg-white text-[#1d2327] shadow-xs border border-[#ccd0d4]"
+                          : "text-[#50575e] hover:text-[#1d2327]"
+                      }`}
+                    >
+                      🇰🇭 Khmer Translation (ខ្លឹមសារខ្មែរ)
+                      {titleKm ? " ✓" : ""}
+                    </button>
                   </div>
+                  <button
+                    type="button"
+                    onClick={handleTranslateAll}
+                    className="inline-flex items-center gap-1 rounded-xs bg-[#0073aa] px-2.5 py-1 text-[11px] font-semibold text-white shadow-xs hover:bg-[#005a87] transition"
+                  >
+                    <Sparkles size={12} /> Fill Known Khmer Phrases
+                  </button>
+                </div>
+
+                {/* 4. Media Button Row & Editor Switcher Tabs */}
+                <div className="flex items-end justify-between gap-2 pt-1">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase">
-                      Publish Date
-                    </label>
-                    <input
-                      type="date"
-                      aria-label="Publish Date"
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-slate-300 p-2 text-xs focus:border-emerald-500 focus:outline-none"
-                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActiveInserter({
+                          target: activeLang === "en" ? "content" : "contentKm",
+                          type: "photo",
+                        })
+                      }
+                      className="inline-flex items-center gap-1.5 rounded-t-xs border border-[#ccd0d4] bg-[#f6f7f7] px-3 py-1.5 text-xs font-bold text-[#2c3338] shadow-xs hover:bg-white transition"
+                    >
+                      <Camera size={14} className="text-[#50575e]" /> Add Media
+                    </button>
+                  </div>
+
+                  {/* Tabs: Visual and Text */}
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchEditorMode("visual")}
+                      className={`rounded-t-xs px-3.5 py-1.5 text-xs font-bold transition ${
+                        editorMode === "visual"
+                          ? "bg-white text-[#1d2327] border-t border-l border-r border-[#ccd0d4] pb-2 -mb-px z-10"
+                          : "bg-[#ebebeb] text-[#50575e] border border-[#ccd0d4] hover:bg-white"
+                      }`}
+                    >
+                      Visual
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchEditorMode("text")}
+                      className={`rounded-t-xs px-3.5 py-1.5 text-xs font-bold transition ${
+                        editorMode === "text"
+                          ? "bg-white text-[#1d2327] border-t border-l border-r border-[#ccd0d4] pb-2 -mb-px z-10"
+                          : "bg-[#ebebeb] text-[#50575e] border border-[#ccd0d4] hover:bg-white"
+                      }`}
+                    >
+                      Text
+                    </button>
                   </div>
                 </div>
 
-                {/* 3. Post Title Headline (H1 Style in Live Post Canvas) */}
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase">
-                      Title (English) *
-                    </label>
-                    <input
-                      type="text"
-                      aria-label="Title (English)"
-                      value={title}
-                      onChange={(e) => {
-                        setTitle(e.target.value);
-                        if (e.target.value !== title) setTitleKm("");
+                {/* 5. Classic TinyMCE Editor Box */}
+                <div className="overflow-hidden rounded-xs border border-[#ccd0d4] bg-white shadow-xs">
+                  {/* Classic TinyMCE Toolbar (Red-boxed in user screenshot) */}
+                  {renderClassicToolbar()}
+
+                  {/* Content Area */}
+                  {editorMode === "visual" ? (
+                    <div
+                      ref={contentVisualRef}
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onInput={handleVisualInput}
+                      onBlur={handleVisualInput}
+                      className="geocam-classic-editor-canvas min-h-[420px] max-h-[640px] overflow-y-auto p-5 text-[#1d2327] focus:outline-none"
+                      style={{
+                        fontFamily: 'Georgia, "Times New Roman", Times, serif',
+                        fontSize: "16px",
+                        lineHeight: "1.7",
                       }}
-                      placeholder="e.g. Field school returns to the Cardamom foothills"
-                      className="mt-1 w-full rounded-xl border border-slate-300 p-3 text-lg font-bold text-slate-900 focus:border-emerald-500 focus:outline-none shadow-xs"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase">
-                      Title (Khmer)
-                    </label>
-                    <input
-                      type="text"
-                      aria-label="Title (Khmer)"
-                      value={titleKm}
-                      onChange={(e) => setTitleKm(e.target.value)}
-                      placeholder="ចំណងជើងជាភាសាខ្មែរ"
-                      className="mt-1 w-full rounded-xl border border-slate-300 p-2.5 text-base font-semibold text-slate-800 focus:border-emerald-500 focus:outline-none"
+                  ) : (
+                    <textarea
+                      ref={activeLang === "en" ? contentTextareaRef : contentKmTextareaRef}
+                      value={activeLang === "en" ? content : contentKm}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (activeLang === "en") {
+                          setContent(val);
+                          if (val !== content) setContentKm("");
+                        } else {
+                          setContentKm(val);
+                        }
+                      }}
+                      rows={18}
+                      className="w-full min-h-[420px] p-4 font-mono text-[13px] leading-relaxed text-[#1d2327] focus:outline-none border-0"
+                      placeholder="Write your article in HTML code or switch to Visual mode above..."
                     />
-                  </div>
-                </div>
+                  )}
 
-                {/* 4. Article Excerpt (Leading Quote Callout Style) */}
-                <div className="rounded-xl border-l-4 border-emerald-600 bg-emerald-50/60 p-4 space-y-3">
-                  <div className="text-xs font-bold text-emerald-950 uppercase tracking-wide">
-                    Article Summary / Excerpt Callout
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-600 uppercase">
-                        Summary (English)
-                      </label>
-                      <textarea
-                        rows={3}
-                        aria-label="Summary (English)"
-                        value={excerpt}
-                        onChange={(e) => {
-                          setExcerpt(e.target.value);
-                          if (e.target.value !== excerpt) setExcerptKm("");
-                        }}
-                        placeholder="Short summary displayed on top callout and cards..."
-                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-xs focus:border-emerald-500 focus:outline-none"
-                      />
+                  {/* Word Count and Status Bar */}
+                  <div className="flex items-center justify-between border-t border-[#dcdcde] bg-[#f6f7f7] px-3 py-1.5 text-xs text-[#50575e]">
+                    <div className="font-sans">
+                      Word count: <strong>{getWordCount(activeLang === "en" ? content : contentKm)}</strong>
                     </div>
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-600 uppercase">
-                        Summary (Khmer)
-                      </label>
-                      <textarea
-                        rows={3}
-                        aria-label="Summary (Khmer)"
-                        value={excerptKm}
-                        onChange={(e) => setExcerptKm(e.target.value)}
-                        placeholder="សេចក្តីសង្ខេបជាភាសាខ្មែរ..."
-                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-xs focus:border-emerald-500 focus:outline-none"
-                      />
+                    <div className="font-sans text-[11px] text-[#646970]">
+                      {saveTimestamp ? `Draft saved at ${saveTimestamp}` : `Status: ${status}`}
                     </div>
                   </div>
                 </div>
 
-                {/* 5. Full Post Story Content (English) with WordPress Toolbar */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-slate-700 uppercase">
-                      Full Story / Article Content (English HTML)
-                    </label>
-                    <span className="text-xs text-slate-400">
-                      Use toolbar buttons below to insert tables, charts, or images
+                {/* 6. Excerpt Postbox (Collapsible) */}
+                <div className="rounded-xs border border-[#ccd0d4] bg-white shadow-xs">
+                  <div
+                    onClick={() => setShowExcerptBox(!showExcerptBox)}
+                    className="flex items-center justify-between border-b border-[#ccd0d4] bg-[#f6f7f7] px-3.5 py-2 cursor-pointer select-none hover:bg-[#edf0f2]"
+                  >
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#1d2327]">
+                      Excerpt
+                    </h3>
+                    <span className="text-[#50575e]">
+                      {showExcerptBox ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </span>
                   </div>
-
-                  <div className="overflow-hidden rounded-xl border border-slate-300 focus-within:border-emerald-500">
-                    {renderEditorToolbar("content")}
-                    {viewModeEn === "code" ? (
-                      <textarea
-                        ref={contentTextareaRef}
-                        rows={10}
-                        aria-label="Body (HTML) (English)"
-                        value={content}
-                        onChange={(e) => {
-                          setContent(e.target.value);
-                          if (e.target.value !== content) setContentKm("");
-                        }}
-                        placeholder="Write your article body here. Click '+ Photo', '+ Graph / Chart', or '+ Table' above to insert rich elements."
-                        className="w-full p-4 font-mono text-sm leading-relaxed focus:outline-none min-h-[220px]"
-                      />
-                    ) : (
-                      <div
-                        className="geocam-article-body prose prose-slate max-w-none p-6 bg-white min-h-[220px] max-h-[420px] overflow-y-auto"
-                        dangerouslySetInnerHTML={{
-                          __html:
-                            cleanPostHtml(content) ||
-                            '<p class="italic text-slate-400">No content entered yet. Switch to HTML tab to write.</p>',
-                        }}
-                      />
-                    )}
-                  </div>
+                  {showExcerptBox && (
+                    <div className="p-3.5 space-y-3">
+                      <p className="text-xs text-[#646970]">
+                        Excerpts are optional hand-crafted summaries of your content that can be used in your theme.
+                      </p>
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase text-[#50575e] mb-1">
+                          Summary (English)
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={excerpt}
+                          onChange={(e) => {
+                            setExcerpt(e.target.value);
+                            if (e.target.value !== excerpt) setExcerptKm("");
+                          }}
+                          placeholder="Brief summary in English..."
+                          className="w-full rounded-xs border border-[#ccd0d4] p-2 text-xs text-[#1d2327] focus:border-[#2271b1] focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase text-[#50575e] mb-1">
+                          Summary (Khmer)
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={excerptKm}
+                          onChange={(e) => setExcerptKm(e.target.value)}
+                          placeholder="សេចក្តីសង្ខេបជាភាសាខ្មែរ..."
+                          className="w-full rounded-xs border border-[#ccd0d4] p-2 text-xs text-[#1d2327] focus:border-[#2271b1] focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
-
-                {/* 6. Full Post Story Content (Khmer) with WordPress Toolbar */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-slate-700 uppercase">
-                      Full Story / Article Content (Khmer)
-                    </label>
-                    <span className="text-xs text-slate-400">
-                      ខ្លឹមសារជាភាសាខ្មែរ
-                    </span>
-                  </div>
-
-                  <div className="overflow-hidden rounded-xl border border-slate-300 focus-within:border-emerald-500">
-                    {renderEditorToolbar("contentKm")}
-                    {viewModeKm === "code" ? (
-                      <textarea
-                        ref={contentKmTextareaRef}
-                        rows={8}
-                        aria-label="Body (HTML) (Khmer)"
-                        value={contentKm}
-                        onChange={(e) => setContentKm(e.target.value)}
-                        placeholder="ខ្លឹមសារអត្ថបទពេញលេញជាភាសាខ្មែរ..."
-                        className="w-full p-4 font-mono text-sm leading-relaxed focus:outline-none min-h-[180px]"
-                      />
-                    ) : (
-                      <div
-                        className="geocam-article-body prose prose-slate max-w-none p-6 bg-white min-h-[180px] max-h-[380px] overflow-y-auto"
-                        dangerouslySetInnerHTML={{
-                          __html:
-                            cleanPostHtml(contentKm) ||
-                            '<p class="italic text-slate-400">មិនទាន់មានខ្លឹមសារខ្មែរនៅឡើយទេ។</p>',
-                        }}
-                      />
-                    )}
-                  </div>
-                </div>
-
-              </article>
-            </fieldset>
-
-            {error && (
-              <p role="alert" className="mt-3 text-red-800 text-sm">
-                {error}
-              </p>
-            )}
-            {message && (
-              <p role="status" className="mt-3 text-emerald-800 text-sm">
-                {message}
-              </p>
-            )}
-
-            {/* Modal Footer with Publishing Actions */}
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-3">
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-bold text-slate-600">
-                  Status:
-                </label>
-                <span className="text-xs font-medium">
-                  {status === "published"
-                    ? "Published (Public to website visitors)"
-                    : "Draft (Saved in administrative workspace)"}
-                </span>
               </div>
 
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={close}
-                  className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={() => handleSave(false)}
-                  className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-xs hover:bg-slate-50 transition"
-                >
-                  Save Draft
-                </button>
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={() => handleSave(true)}
-                  className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-emerald-700 transition"
-                >
-                  <CheckCircle2 size={16} /> Publish Live
-                </button>
+              {/* RIGHT SIDEBAR: Meta Boxes (~28% width) */}
+              <div className="w-full lg:w-[300px] flex-shrink-0 space-y-5">
+                {renderPublishBox()}
+                {renderFormatBox()}
+                {renderCategoriesBox()}
+                {renderFeaturedImageBox()}
               </div>
+
             </div>
           </div>
         </div>

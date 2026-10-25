@@ -668,7 +668,19 @@ export default function WordPressAdmin() {
             <ExternalLink size={14} />
             <span>Visit Site</span>
           </a>
-          <div className="wp-bar-node" onClick={() => handleNav("posts")}>
+          <div
+            className="wp-bar-node"
+            onClick={() => {
+              handleNav("posts");
+              const u = new URL(window.location.href);
+              u.searchParams.set("section", "posts");
+              u.searchParams.set("new", "true");
+              window.history.pushState({}, "", u.toString());
+              setTimeout(() => {
+                window.dispatchEvent(new CustomEvent("geocam:open-new-post"));
+              }, 60);
+            }}
+          >
             <Plus size={14} />
             <span>New Post</span>
           </div>
@@ -958,7 +970,19 @@ export default function WordPressAdmin() {
                   <button className="button" onClick={() => { handleNav("publications"); setShowAddPaper(true); }}>
                     <UploadCloud size={15} /> Upload Paper
                   </button>
-                  <button className="button button-primary" onClick={() => handleNav("posts")}>
+                  <button
+                    className="button button-primary"
+                    onClick={() => {
+                      handleNav("posts");
+                      const u = new URL(window.location.href);
+                      u.searchParams.set("section", "posts");
+                      u.searchParams.set("new", "true");
+                      window.history.pushState({}, "", u.toString());
+                      setTimeout(() => {
+                        window.dispatchEvent(new CustomEvent("geocam:open-new-post"));
+                      }, 60);
+                    }}
+                  >
                     + Create New Post
                   </button>
                 </div>
@@ -1342,6 +1366,24 @@ export default function WordPressAdmin() {
                     <a href={activePage} target="_blank" rel="noreferrer" className="button button-small">
                       <Eye size={13} /> View Live Page
                     </a>
+                    <button
+                      type="button"
+                      className="button button-primary button-small"
+                      style={{ background: "#2271b1", borderColor: "#135e96", color: "#fff" }}
+                      onClick={() => {
+                        handleNav("posts");
+                        const pageId = `page-${activePage.replace(/[\/\-_]/g, "_") || "home"}`;
+                        const u = new URL(window.location.href);
+                        u.searchParams.set("section", "posts");
+                        u.searchParams.set("edit", pageId);
+                        window.history.pushState({}, "", u.toString());
+                        setTimeout(() => {
+                          window.dispatchEvent(new CustomEvent("geocam:open-edit-page-id", { detail: pageId }));
+                        }, 60);
+                      }}
+                    >
+                      <Edit size={12} /> Edit in Classic Editor
+                    </button>
                   </div>
                 </div>
 
