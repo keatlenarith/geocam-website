@@ -1,14 +1,31 @@
 import { Container, PageHeader } from "@/components/site/Chrome";
 import { Link } from "@/lib/spa-router";
-import { publications } from "@/lib/data";
+import { useState, useEffect } from "react";
+import type { Publication } from "@/lib/data";
+import { getStoredPublications } from "@/lib/publication-service";
 import { useI18n } from "@/lib/i18n";
 import { useAdmin } from "@/admin/Auth";
 import { Edit3, PlusCircle, Eye, BookOpen, Download, ExternalLink } from "lucide-react";
+
 export default function PublicationView() {
   const { lang } = useI18n();
   const { admin } = useAdmin();
   const id = new URLSearchParams(location.search).get("id");
-  const p = publications.find((x) => x.id === id);
+
+  const [pubs, setPubs] = useState<Publication[]>(() => getStoredPublications());
+
+  useEffect(() => {
+    const handleSync = () => setPubs(getStoredPublications());
+    window.addEventListener("geocam_publications_changed", handleSync);
+    window.addEventListener("storage", handleSync);
+    return () => {
+      window.removeEventListener("geocam_publications_changed", handleSync);
+      window.removeEventListener("storage", handleSync);
+    };
+  }, []);
+
+  const p = pubs.find((x) => x.id === id);
+
   return (
     <>
       <PageHeader
@@ -27,7 +44,7 @@ export default function PublicationView() {
               className="flex flex-wrap items-center gap-2"
             >
               <Link
-                to={`/admin?section=publications&search=${encodeURIComponent(p.title)}`}
+                to={`/admin?section=publications&edit=${encodeURIComponent(p.id)}&search=${encodeURIComponent(p.title)}`}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition"
                 title="Edit this publication in Admin"
               >

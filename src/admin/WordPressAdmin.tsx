@@ -29,6 +29,11 @@ import {
   Sparkles,
   UploadCloud,
   Trash2,
+  Edit,
+  RotateCcw,
+  AlertTriangle,
+  X,
+  Check,
   Filter,
   BarChart3,
 } from "lucide-react";
@@ -49,6 +54,11 @@ import { fetchPostDrafts, savePost, newPost, type Post } from "./posts";
 import { getAllNews } from "../lib/news-service";
 import { applications as seedApps, events as seedEvents, type Application, type EventItem, type Publication } from "../lib/data";
 import researchLibrary from "../lib/research-library.json";
+import {
+  getStoredPublications,
+  saveStoredPublications,
+  resetStoredPublications,
+} from "../lib/publication-service";
 import { translateText } from "../lib/translation";
 import { defaultPageData } from "./page-data";
 import "./wp-admin.css";
@@ -73,6 +83,8 @@ const publicationCategories = [
   "Mineral deposits",
   "Environmental geology",
   "Hydrogeology",
+  "Environmental Hydrogeology",
+  "Marine Geology",
   "Karst & paleoclimate",
   "Stratigraphy & geomorphology",
   "Geophysics & Sensing",
@@ -152,18 +164,8 @@ export default function WordPressAdmin() {
   const [applications, setApplications] = useState<Application[]>(seedApps);
   const [events, setEvents] = useState<EventItem[]>(seedEvents);
 
-  // Publications State with Custom Add & Group Filter
-  const [papers, setPapers] = useState<Publication[]>(() => {
-    const custom = localStorage.getItem("geocam_custom_papers");
-    if (custom) {
-      try {
-        return [...JSON.parse(custom), ...researchLibrary];
-      } catch {
-        return researchLibrary;
-      }
-    }
-    return researchLibrary;
-  });
+  // Publications State with Custom Add, Edit, Delete, & Reset
+  const [papers, setPapers] = useState<Publication[]>(() => getStoredPublications());
   const [selectedTopic, setSelectedTopic] = useState<string>("All");
   const [paperSearch, setPaperSearch] = useState<string>(() => {
     try {
@@ -180,10 +182,37 @@ export default function WordPressAdmin() {
   const [newTopic, setNewTopic] = useState<string>("Tectonics");
   const [newYear, setNewYear] = useState(new Date().getFullYear());
   const [newJournal, setNewJournal] = useState("");
+  const [newPublicationType, setNewPublicationType] = useState("Journal Article");
   const [newDoi, setNewDoi] = useState("");
   const [newPdf, setNewPdf] = useState("");
+  const [newSourceUrl, setNewSourceUrl] = useState("");
   const [newAbstract, setNewAbstract] = useState("");
+  const [newTags, setNewTags] = useState("");
   const [paperMessage, setPaperMessage] = useState("");
+
+  // Edit Paper Form State
+  const [editingPaper, setEditingPaper] = useState<Publication | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editAuthors, setEditAuthors] = useState("");
+  const [editTopic, setEditTopic] = useState<string>("Tectonics");
+  const [editYear, setEditYear] = useState<number | string>(new Date().getFullYear());
+  const [editJournal, setEditJournal] = useState("");
+  const [editPublicationType, setEditPublicationType] = useState("Journal Article");
+  const [editDoi, setEditDoi] = useState("");
+  const [editPdf, setEditPdf] = useState("");
+  const [editSourceUrl, setEditSourceUrl] = useState("");
+  const [editAbstract, setEditAbstract] = useState("");
+  const [editTags, setEditTags] = useState("");
+
+  // Delete Paper Confirmation State
+  const [paperToDelete, setPaperToDelete] = useState<Publication | null>(null);
+
+  // Reset to Defaults Confirmation State
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  // Pagination for Papers Library
+  const [paperPage, setPaperPage] = useState(1);
+  const [paperPageSize, setPaperPageSize] = useState(25);
 
   // Pages Editor State
   const [activePage, setActivePage] = useState<string>(() => {
@@ -315,9 +344,98 @@ export default function WordPressAdmin() {
     }
   };
 
+  // Check if URL contains ?edit=<id> to trigger edit modal automatically
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const editId = params.get("edit");
+      if (editId) {
+        const found = papers.find((p) => p.id === editId);
+        if (found) {
+          handleStartEdit(found);
+        }
+      }
+    } catch {}
+  }, [papers]);
+
+  const handleStartEdit = (pub: Publication) => {
+    setEditingPaper(pub);
+    setEditTitle(pub.title || "");
+    setEditAuthors(pub.authors || "");
+    setEditTopic(pub.topic || "Tectonics");
+    setEditYear(pub.year ?? "");
+    setEditJournal(pub.journal || "");
+    setEditPublicationType(pub.publicationType || "Journal Article");
+    setEditDoi(pub.doi || "");
+    setEditPdf(pub.fileUrl || pub.pdfUrl || "");
+    setEditSourceUrl(pub.sourceUrl || "");
+    setEditAbstract(pub.abstract || "");
+    setEditTags(Array.isArray(pub.tags) ? pub.tags.join(", ") : "");
+  };
+
+  const handleSaveEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPaper || !editTitle.trim() || !editAuthors.trim()) return;
+
+    const parsedTags = editTags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    const updatedItem: Publication = {
+      ...editingPaper,
+      title: editTitle.trim(),
+      authors: editAuthors.trim(),
+      year: editYear === "" ? null : Number(editYear),
+      topic: editTopic,
+      journal: editJournal.trim() || "Cambodia Geosciences Journal",
+      publicationType: editPublicationType || "Journal Article",
+      doi: editDoi.trim(),
+      fileUrl: editPdf.trim(),
+      pdfUrl: editPdf.trim(),
+      sourceUrl: editSourceUrl.trim(),
+      abstract: editAbstract.trim(),
+      tags: parsedTags.length > 0 ? parsedTags : [editTopic, "Cambodia"],
+      metadataVerified: true,
+    };
+
+    const nextPapers = papers.map((p) =>
+      p.id === editingPaper.id ? updatedItem : p,
+    );
+    setPapers(nextPapers);
+    saveStoredPublications(nextPapers);
+    setEditingPaper(null);
+    setPaperMessage("✔ Research publication updated successfully! / បានកែប្រែព័ត៌មានអត្ថបទស្រាវជ្រាវដោយជោគជ័យ!");
+    setTimeout(() => setPaperMessage(""), 4000);
+  };
+
+  const handleExecuteDelete = () => {
+    if (!paperToDelete) return;
+    const nextPapers = papers.filter((p) => p.id !== paperToDelete.id);
+    setPapers(nextPapers);
+    saveStoredPublications(nextPapers);
+    const deletedTitle = paperToDelete.title;
+    setPaperToDelete(null);
+    setPaperMessage(`🗑️ Publication deleted: "${deletedTitle.slice(0, 40)}..." / បានលុបអត្ថបទស្រាវជ្រាវចេញពីបណ្ណាល័យ`);
+    setTimeout(() => setPaperMessage(""), 4000);
+  };
+
+  const handleExecuteReset = () => {
+    const seed = resetStoredPublications();
+    setPapers(seed);
+    setShowResetConfirm(false);
+    setPaperMessage("↺ Research library restored to system defaults / បានកំណត់បណ្ណាល័យស្រាវជ្រាវឡើងវិញជាលំនាំដើម!");
+    setTimeout(() => setPaperMessage(""), 4000);
+  };
+
   const handleAddPaper = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newAuthors.trim()) return;
+
+    const parsedTags = newTags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
 
     const paperItem: Publication = {
       id: crypto.randomUUID(),
@@ -329,26 +447,27 @@ export default function WordPressAdmin() {
       abstract: newAbstract.trim() || "Peer-reviewed Cambodian geological research publication.",
       doi: newDoi.trim(),
       fileUrl: newPdf.trim(),
-      publicationType: "Journal Article",
+      pdfUrl: newPdf.trim(),
+      sourceUrl: newSourceUrl.trim(),
+      publicationType: newPublicationType || "Journal Article",
       scope: "National",
       origin: "GeoCam Library",
       metadataVerified: true,
-      tags: [newTopic, "Cambodia"],
+      tags: parsedTags.length > 0 ? parsedTags : [newTopic, "Cambodia"],
     };
 
     const updated = [paperItem, ...papers];
     setPapers(updated);
-
-    // Persist custom papers locally
-    const customOnly = updated.filter((p) => p.origin === "GeoCam Library");
-    localStorage.setItem("geocam_custom_papers", JSON.stringify(customOnly));
+    saveStoredPublications(updated);
 
     setNewTitle("");
     setNewAuthors("");
     setNewDoi("");
     setNewPdf("");
+    setNewSourceUrl("");
     setNewAbstract("");
-    setPaperMessage("✔ Research paper uploaded and classified successfully!");
+    setNewTags("");
+    setPaperMessage("✔ Research paper uploaded and classified successfully! / បានបញ្ចូលនិងចាត់ថ្នាក់អត្ថបទស្រាវជ្រាវថ្មីដោយជោគជ័យ!");
     setShowAddPaper(false);
     setTimeout(() => setPaperMessage(""), 4000);
   };
@@ -363,9 +482,18 @@ export default function WordPressAdmin() {
       !paperSearch ||
       p.title.toLowerCase().includes(paperSearch.toLowerCase()) ||
       p.authors.toLowerCase().includes(paperSearch.toLowerCase()) ||
-      p.journal.toLowerCase().includes(paperSearch.toLowerCase());
+      p.journal.toLowerCase().includes(paperSearch.toLowerCase()) ||
+      (p.tags && p.tags.some((t) => t.toLowerCase().includes(paperSearch.toLowerCase())));
     return matchesTopic && matchesSearch;
   });
+
+  const totalFiltered = filteredPapers.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / paperPageSize));
+  const safePage = Math.min(paperPage, totalPages);
+  const paginatedPapers = filteredPapers.slice(
+    (safePage - 1) * paperPageSize,
+    safePage * paperPageSize,
+  );
 
   const availablePagesList = editablePages;
   const filteredPagesList = availablePagesList.filter((slug) => {
@@ -1127,7 +1255,7 @@ export default function WordPressAdmin() {
           )}
 
           {/* ================================================================
-              VIEW: PAPERS & RESEARCH (NEW UPLOAD & CATEGORY CLASSIFICATION)
+              VIEW: PAPERS & RESEARCH (NEW UPLOAD, EDIT, DELETE & RESET)
               ================================================================ */}
           {section === "publications" && (
             <div>
@@ -1135,16 +1263,30 @@ export default function WordPressAdmin() {
                 <div>
                   <h1>Research Papers & Journal Library</h1>
                   <p style={{ color: "var(--wp-text-muted)", margin: "4px 0 0" }}>
-                    Classified by scientific groups and domains. Easily upload new papers or link external DOIs.
+                    Classified by scientific groups and domains. Easily upload, edit metadata, link external DOIs, or remove papers.
                   </p>
                 </div>
-                <button
-                  className="button button-primary"
-                  onClick={() => setShowAddPaper(!showAddPaper)}
-                >
-                  <UploadCloud size={16} />
-                  {showAddPaper ? "Close Upload Form" : "+ Upload New Paper / Journal"}
-                </button>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    className="button"
+                    onClick={() => setShowResetConfirm(true)}
+                    title="Reset library to system defaults / កំណត់ឡើងវិញទៅលំនាំដើម"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+                  >
+                    <RotateCcw size={15} />
+                    Reset to Defaults
+                  </button>
+                  <button
+                    type="button"
+                    className="button button-primary"
+                    onClick={() => setShowAddPaper(!showAddPaper)}
+                    style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+                  >
+                    <UploadCloud size={16} />
+                    {showAddPaper ? "Close Upload Form" : "+ Upload New Paper / Journal"}
+                  </button>
+                </div>
               </div>
 
               {paperMessage && (
@@ -1222,14 +1364,20 @@ export default function WordPressAdmin() {
 
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "12px" }}>
                         <div>
-                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px" }}>PDF Document URL / Storage Link:</label>
-                          <input
-                            type="url"
-                            placeholder="https://.../paper.pdf"
-                            value={newPdf}
-                            onChange={(e) => setNewPdf(e.target.value)}
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px" }}>Publication Type:</label>
+                          <select
+                            value={newPublicationType}
+                            onChange={(e) => setNewPublicationType(e.target.value)}
                             style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
-                          />
+                          >
+                            <option value="Journal Article">Journal Article</option>
+                            <option value="Conference Paper">Conference Paper</option>
+                            <option value="Technical Report">Technical Report</option>
+                            <option value="Thesis">Thesis</option>
+                            <option value="Book Chapter">Book Chapter</option>
+                            <option value="Geological Map & Guide">Geological Map & Guide</option>
+                            <option value="Preprint">Preprint</option>
+                          </select>
                         </div>
                         <div>
                           <label style={{ display: "block", fontWeight: 700, marginBottom: "4px" }}>DOI or Citation Link:</label>
@@ -1243,7 +1391,30 @@ export default function WordPressAdmin() {
                         </div>
                       </div>
 
-                      <div style={{ marginBottom: "16px" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "12px" }}>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px" }}>PDF Document URL / Storage Link:</label>
+                          <input
+                            type="text"
+                            placeholder="/research/...pdf or https://..."
+                            value={newPdf}
+                            onChange={(e) => setNewPdf(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px" }}>Source / External Web Link:</label>
+                          <input
+                            type="text"
+                            placeholder="https://..."
+                            value={newSourceUrl}
+                            onChange={(e) => setNewSourceUrl(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ marginBottom: "12px" }}>
                         <label style={{ display: "block", fontWeight: 700, marginBottom: "4px" }}>Abstract / Scientific Summary:</label>
                         <textarea
                           rows={3}
@@ -1252,6 +1423,17 @@ export default function WordPressAdmin() {
                           onChange={(e) => setNewAbstract(e.target.value)}
                           style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
                         ></textarea>
+                      </div>
+
+                      <div style={{ marginBottom: "16px" }}>
+                        <label style={{ display: "block", fontWeight: 700, marginBottom: "4px" }}>Tags (comma-separated):</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Tectonics, Basin, Cambodia, Seismic"
+                          value={newTags}
+                          onChange={(e) => setNewTags(e.target.value)}
+                          style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                        />
                       </div>
 
                       <div style={{ display: "flex", gap: "10px" }}>
@@ -1274,26 +1456,34 @@ export default function WordPressAdmin() {
                   Filter by Category:
                 </span>
                 <button
+                  type="button"
                   className="button button-small"
                   style={{
                     background: selectedTopic === "All" ? "var(--wp-cyan)" : "var(--wp-bg-card)",
                     color: selectedTopic === "All" ? "#000" : "var(--wp-text-primary)",
                     borderColor: selectedTopic === "All" ? "var(--wp-cyan)" : "var(--wp-border)",
                   }}
-                  onClick={() => setSelectedTopic("All")}
+                  onClick={() => {
+                    setSelectedTopic("All");
+                    setPaperPage(1);
+                  }}
                 >
                   All Categories ({papers.length})
                 </button>
                 {publicationCategories.map((cat) => (
                   <button
                     key={cat}
+                    type="button"
                     className="button button-small"
                     style={{
                       background: selectedTopic === cat ? "var(--wp-cyan)" : "var(--wp-bg-card)",
                       color: selectedTopic === cat ? "#000" : "var(--wp-text-primary)",
                       borderColor: selectedTopic === cat ? "var(--wp-cyan)" : "var(--wp-border)",
                     }}
-                    onClick={() => setSelectedTopic(cat)}
+                    onClick={() => {
+                      setSelectedTopic(cat);
+                      setPaperPage(1);
+                    }}
                   >
                     {cat}
                   </button>
@@ -1306,9 +1496,12 @@ export default function WordPressAdmin() {
                   <Search size={16} style={{ position: "absolute", left: "12px", top: "12px", color: "var(--wp-text-muted)" }} />
                   <input
                     type="search"
-                    placeholder="Search papers by title, author, or journal..."
+                    placeholder="Search papers by title, author, journal, or keywords..."
                     value={paperSearch}
-                    onChange={(e) => setPaperSearch(e.target.value)}
+                    onChange={(e) => {
+                      setPaperSearch(e.target.value);
+                      setPaperPage(1);
+                    }}
                     style={{
                       width: "100%",
                       padding: "8px 12px 8px 36px",
@@ -1330,18 +1523,23 @@ export default function WordPressAdmin() {
                     <th>Authors</th>
                     <th>Year</th>
                     <th>Journal / Source</th>
-                    <th>Actions</th>
+                    <th style={{ minWidth: "220px" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredPapers.slice(0, 30).map((pub) => (
+                  {paginatedPapers.map((pub) => (
                     <tr key={pub.id}>
                       <td style={{ maxWidth: "420px" }}>
                         <strong>{pub.title}</strong>
-                        <div style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "4px" }}>
+                        <div style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "4px", flexWrap: "wrap" }}>
                           <span style={{ fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "10px", background: "rgba(56,189,248,0.15)", color: "var(--wp-cyan)" }}>
                             {pub.topic}
                           </span>
+                          {pub.publicationType && (
+                            <span style={{ fontSize: "10px", padding: "1px 6px", borderRadius: "6px", background: "rgba(148,163,184,0.15)", color: "var(--wp-text-muted)" }}>
+                              {pub.publicationType}
+                            </span>
+                          )}
                           {pub.doi && (
                             <a href={`https://doi.org/${pub.doi}`} target="_blank" rel="noreferrer" style={{ fontSize: "11px" }}>
                               DOI: {pub.doi}
@@ -1352,18 +1550,72 @@ export default function WordPressAdmin() {
                       <td style={{ fontSize: "13px" }}>{pub.authors}</td>
                       <td><strong>{pub.year || "—"}</strong></td>
                       <td style={{ fontSize: "13px" }}>{pub.journal || "Cambodia Geosciences"}</td>
-                      <td>
-                        {pub.fileUrl ? (
-                          <a href={pub.fileUrl} target="_blank" rel="noreferrer" className="button button-small">
-                            View PDF
-                          </a>
-                        ) : pub.doi ? (
-                          <a href={`https://doi.org/${pub.doi}`} target="_blank" rel="noreferrer" className="button button-small">
-                            Read Online
-                          </a>
-                        ) : (
-                          <span style={{ color: "var(--wp-text-muted)", fontSize: "12px" }}>Indexed</span>
-                        )}
+                      <td style={{ whiteSpace: "nowrap" }}>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                          <button
+                            type="button"
+                            className="button button-small"
+                            onClick={() => handleStartEdit(pub)}
+                            title="Edit publication / កែប្រែព័ត៌មានអត្ថបទ"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "4px",
+                              color: "var(--wp-cyan)",
+                              borderColor: "rgba(56,189,248,0.35)",
+                            }}
+                          >
+                            <Edit size={12} />
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="button button-small"
+                            onClick={() => setPaperToDelete(pub)}
+                            title="Delete publication / លុបអត្ថបទស្រាវជ្រាវ"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "4px",
+                              color: "var(--wp-rose)",
+                              borderColor: "rgba(248,113,113,0.35)",
+                            }}
+                          >
+                            <Trash2 size={12} />
+                            Delete
+                          </button>
+                          {pub.fileUrl ? (
+                            <a
+                              href={pub.fileUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="button button-small"
+                              title="View PDF Document"
+                            >
+                              PDF
+                            </a>
+                          ) : pub.doi ? (
+                            <a
+                              href={`https://doi.org/${pub.doi}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="button button-small"
+                              title="Read Online via DOI"
+                            >
+                              DOI
+                            </a>
+                          ) : pub.sourceUrl ? (
+                            <a
+                              href={pub.sourceUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="button button-small"
+                              title="Source Link"
+                            >
+                              Link
+                            </a>
+                          ) : null}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1376,6 +1628,395 @@ export default function WordPressAdmin() {
                   )}
                 </tbody>
               </table>
+
+              {/* PAGINATION BAR */}
+              {totalFiltered > 0 && (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: "12px",
+                    marginTop: "16px",
+                    padding: "10px 14px",
+                    background: "var(--wp-bg-surface)",
+                    border: "1px solid var(--wp-border)",
+                    borderRadius: "8px",
+                    fontSize: "13px",
+                  }}
+                >
+                  <div style={{ color: "var(--wp-text-muted)" }}>
+                    Showing <strong>{Math.min(totalFiltered, (safePage - 1) * paperPageSize + 1)}</strong> to{" "}
+                    <strong>{Math.min(totalFiltered, safePage * paperPageSize)}</strong> of{" "}
+                    <strong>{totalFiltered}</strong> publications
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <button
+                      type="button"
+                      className="button button-small"
+                      disabled={safePage <= 1}
+                      onClick={() => setPaperPage((p) => Math.max(1, p - 1))}
+                    >
+                      Previous
+                    </button>
+                    <span>
+                      Page {safePage} of {totalPages}
+                    </span>
+                    <button
+                      type="button"
+                      className="button button-small"
+                      disabled={safePage >= totalPages}
+                      onClick={() => setPaperPage((p) => Math.min(totalPages, p + 1))}
+                    >
+                      Next
+                    </button>
+                    <select
+                      value={paperPageSize}
+                      onChange={(e) => {
+                        setPaperPageSize(Number(e.target.value));
+                        setPaperPage(1);
+                      }}
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: "4px",
+                        background: "var(--wp-input-bg)",
+                        color: "var(--wp-input-text)",
+                        border: "1px solid var(--wp-input-border)",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <option value={10}>10 / page</option>
+                      <option value={25}>25 / page</option>
+                      <option value={50}>50 / page</option>
+                      <option value={100}>100 / page</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* EDIT PUBLICATION MODAL DIALOG */}
+              {editingPaper && (
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+                  <div
+                    className="w-full max-w-2xl rounded-2xl border border-[var(--wp-border)] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+                    style={{ background: "var(--wp-bg-card, #1e293b)", color: "var(--wp-text-primary, #f8fafc)" }}
+                  >
+                    <div className="flex items-center justify-between border-b border-[var(--wp-border)] pb-3">
+                      <div className="flex items-center gap-2">
+                        <Edit size={20} className="text-cyan-400" />
+                        <div>
+                          <h3 className="text-base font-bold" style={{ margin: 0 }}>
+                            Edit Research Publication / កែប្រែព័ត៌មានអត្ថបទស្រាវជ្រាវ
+                          </h3>
+                          <p style={{ margin: 0, fontSize: "12px", color: "var(--wp-text-muted)" }}>
+                            ID: {editingPaper.id}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setEditingPaper(null)}
+                        className="button button-small"
+                        style={{ padding: "4px 8px" }}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+
+                    <form onSubmit={handleSaveEdit}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "14px", marginBottom: "12px" }}>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Paper Title * / ចំណងជើងអត្ថបទ *:
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={editTitle}
+                            onChange={(e) => setEditTitle(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Category / Research Group * / ក្រុមស្រាវជ្រាវ *:
+                          </label>
+                          <select
+                            value={editTopic}
+                            onChange={(e) => setEditTopic(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          >
+                            {publicationCategories.map((cat) => (
+                              <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 100px", gap: "14px", marginBottom: "12px" }}>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Authors * / អ្នកនិពន្ធ *:
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={editAuthors}
+                            onChange={(e) => setEditAuthors(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Journal / Publisher / ទស្សនាវដ្តី:
+                          </label>
+                          <input
+                            type="text"
+                            value={editJournal}
+                            onChange={(e) => setEditJournal(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Year / ឆ្នាំ:
+                          </label>
+                          <input
+                            type="number"
+                            value={editYear}
+                            onChange={(e) => setEditYear(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "12px" }}>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Publication Type / ប្រភេទការបោះពុម្ព:
+                          </label>
+                          <select
+                            value={editPublicationType}
+                            onChange={(e) => setEditPublicationType(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          >
+                            <option value="Journal Article">Journal Article</option>
+                            <option value="Conference Paper">Conference Paper</option>
+                            <option value="Technical Report">Technical Report</option>
+                            <option value="Thesis">Thesis</option>
+                            <option value="Book Chapter">Book Chapter</option>
+                            <option value="Geological Map & Guide">Geological Map & Guide</option>
+                            <option value="Preprint">Preprint</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            DOI or Citation Code:
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="10.1016/..."
+                            value={editDoi}
+                            onChange={(e) => setEditDoi(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "12px" }}>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            PDF Document URL / ឯកសារ PDF:
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="/research/...pdf or https://..."
+                            value={editPdf}
+                            onChange={(e) => setEditPdf(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Source / External Web Link:
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="https://..."
+                            value={editSourceUrl}
+                            onChange={(e) => setEditSourceUrl(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ marginBottom: "12px" }}>
+                        <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                          Abstract / Scientific Summary / សង្ខេបស្រាវជ្រាវ:
+                        </label>
+                        <textarea
+                          rows={4}
+                          value={editAbstract}
+                          onChange={(e) => setEditAbstract(e.target.value)}
+                          style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)", fontSize: "13px" }}
+                        />
+                      </div>
+
+                      <div style={{ marginBottom: "16px" }}>
+                        <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                          Tags (comma-separated) / ស្លាក:
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Tectonics, Basin, Cambodia, Seismic"
+                          value={editTags}
+                          onChange={(e) => setEditTags(e.target.value)}
+                          style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                        />
+                      </div>
+
+                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", borderTop: "1px solid var(--wp-border)", paddingTop: "14px" }}>
+                        <button
+                          type="button"
+                          className="button"
+                          onClick={() => setEditingPaper(null)}
+                          style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+                        >
+                          <X size={15} />
+                          Cancel / បោះបង់
+                        </button>
+                        <button
+                          type="submit"
+                          className="button button-primary"
+                          style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+                        >
+                          <Check size={15} />
+                          Save Changes / រក្សាទុក
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+
+              {/* DELETE CONFIRMATION MODAL DIALOG */}
+              {paperToDelete && (
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+                  <div
+                    className="w-full max-w-md rounded-2xl border border-[var(--wp-border)] p-6 shadow-2xl space-y-4"
+                    style={{ background: "var(--wp-bg-card, #1e293b)", color: "var(--wp-text-primary, #f8fafc)" }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div style={{ padding: "8px", borderRadius: "50%", background: "rgba(248,113,113,0.15)", color: "var(--wp-rose)" }}>
+                        <Trash2 size={24} />
+                      </div>
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>
+                          Delete Publication / លុបអត្ថបទស្រាវជ្រាវ
+                        </h3>
+                        <p style={{ margin: "2px 0 0", fontSize: "12px", color: "var(--wp-text-muted)" }}>
+                          Confirm deletion from research library
+                        </p>
+                      </div>
+                    </div>
+
+                    <div style={{ padding: "12px", borderRadius: "8px", background: "rgba(0,0,0,0.25)", border: "1px solid var(--wp-border)" }}>
+                      <p style={{ margin: "0 0 6px", fontWeight: 700, fontSize: "14px" }}>
+                        {paperToDelete.title}
+                      </p>
+                      <p style={{ margin: "0 0 4px", fontSize: "12px", color: "var(--wp-text-muted)" }}>
+                        Authors: {paperToDelete.authors}
+                      </p>
+                      <div style={{ display: "flex", gap: "8px", fontSize: "11px", marginTop: "6px" }}>
+                        <span style={{ padding: "2px 6px", borderRadius: "4px", background: "rgba(56,189,248,0.15)", color: "var(--wp-cyan)" }}>
+                          {paperToDelete.topic}
+                        </span>
+                        <span style={{ color: "var(--wp-text-muted)" }}>
+                          Year: {paperToDelete.year || "—"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p style={{ margin: 0, fontSize: "13px", color: "var(--wp-rose)" }}>
+                      ⚠️ Are you sure you want to permanently delete this publication? This action will remove it from the public catalog and admin dashboard.
+                    </p>
+
+                    <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", paddingTop: "8px" }}>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => setPaperToDelete(null)}
+                      >
+                        Cancel / បោះបង់
+                      </button>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={handleExecuteDelete}
+                        style={{
+                          background: "var(--wp-rose)",
+                          color: "#fff",
+                          borderColor: "var(--wp-rose)",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <Trash2 size={15} />
+                        Delete Permanently / លុបជាអចិន្ត្រៃយ៍
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* RESET DEFAULTS CONFIRMATION MODAL */}
+              {showResetConfirm && (
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+                  <div
+                    className="w-full max-w-md rounded-2xl border border-[var(--wp-border)] p-6 shadow-2xl space-y-4"
+                    style={{ background: "var(--wp-bg-card, #1e293b)", color: "var(--wp-text-primary, #f8fafc)" }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div style={{ padding: "8px", borderRadius: "50%", background: "rgba(56,189,248,0.15)", color: "var(--wp-cyan)" }}>
+                        <RotateCcw size={24} />
+                      </div>
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>
+                          Reset Publications Library / កំណត់ដើមឡើងវិញ
+                        </h3>
+                        <p style={{ margin: "2px 0 0", fontSize: "12px", color: "var(--wp-text-muted)" }}>
+                          Restore original catalog seed
+                        </p>
+                      </div>
+                    </div>
+
+                    <p style={{ margin: 0, fontSize: "13px", color: "var(--wp-text-secondary)" }}>
+                      Are you sure you want to restore the research library to system defaults? Any custom edits, additions, or deleted publications will be reset to the original collection.
+                    </p>
+
+                    <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", paddingTop: "8px" }}>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => setShowResetConfirm(false)}
+                      >
+                        Cancel / បោះបង់
+                      </button>
+                      <button
+                        type="button"
+                        className="button button-primary"
+                        onClick={handleExecuteReset}
+                        style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+                      >
+                        <RotateCcw size={15} />
+                        Confirm Reset / កំណត់ឡើងវិញ
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

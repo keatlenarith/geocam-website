@@ -1,9 +1,11 @@
 import { translateText } from "../lib/translation";
 import { createFileRoute, Link } from "@/lib/spa-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Container, PageHeader, meta } from "@/components/site/Chrome";
-import { publications, topics } from "@/lib/data";
+import { topics, type Publication } from "@/lib/data";
+import { getStoredPublications } from "@/lib/publication-service";
 import { useI18n } from "@/lib/i18n";
+
 export const Route = createFileRoute("/publications")({
   head: () =>
     meta(
@@ -12,21 +14,36 @@ export const Route = createFileRoute("/publications")({
     ),
   component: Pubs,
 });
+
 function Pubs() {
   const { t, lang } = useI18n();
   const km = lang === "km";
+  const [items, setItems] = useState<Publication[]>(() => getStoredPublications());
+
+  useEffect(() => {
+    const handleSync = () => setItems(getStoredPublications());
+    window.addEventListener("geocam_publications_changed", handleSync);
+    window.addEventListener("storage", handleSync);
+    return () => {
+      window.removeEventListener("geocam_publications_changed", handleSync);
+      window.removeEventListener("storage", handleSync);
+    };
+  }, []);
+
   const [q, setQ] = useState("");
   const [topic, setTopic] = useState("All");
   const [year, setYear] = useState("All");
   const [access, setAccess] = useState("All");
+
   const years = [
     ...new Set(
-      publications.map((p) => p.year).filter((y): y is number => y !== null),
+      items.map((p) => p.year).filter((y): y is number => y !== null),
     ),
   ].sort((a, b) => b - a);
+
   const list = useMemo(
     () =>
-      publications.filter(
+      items.filter(
         (p) =>
           (topic === "All" || p.topic === topic) &&
           (year === "All" ||
@@ -41,8 +58,9 @@ function Pubs() {
             .toLowerCase()
             .includes(q.trim().toLowerCase()),
       ),
-    [q, topic, year, access],
+    [items, q, topic, year, access],
   );
+
   return (
     <>
       <PageHeader
@@ -54,8 +72,8 @@ function Pubs() {
         <div className="card-surface p-6">
           <p className="font-semibold">
             {km
-              ? `ឯកសារយោង ${publications.length} · ឯកសារប្រមូលបាន ៤៥ · បានធ្វើបច្ចុប្បន្នភាពថ្ងៃទី ១៩ ខែតុលា ឆ្នាំ២០២៦`
-              : `${publications.length} references · 45 collected documents · Updated 19 October 2026`}
+              ? `ឯកសារយោង ${items.length} · បានធ្វើបច្ចុប្បន្នភាពឆ្នាំ២០២៦`
+              : `${items.length} references · Updated 2026`}
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
             {km
