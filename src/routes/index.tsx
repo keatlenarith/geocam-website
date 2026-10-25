@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@/lib/spa-router";
 import hero from "@/assets/hero.jpg";
 import { useI18n } from "@/lib/i18n";
 import { useState, useEffect } from "react";
-import { events, researchAreas } from "@/lib/data";
+import { researchAreas } from "@/lib/data";
+import { getStoredEvents } from "@/lib/event-service";
 import { getPublishedNews, type NewsItem } from "@/lib/news-service";
 import { meta } from "@/components/site/Chrome";
 import { EarthquakeAnnouncements } from "@/features/earthquakes/EarthquakeAnnouncements";
@@ -50,6 +51,7 @@ function Home() {
   const { lang } = useI18n();
   const c = copy[lang];
   const [newsList, setNewsList] = useState<NewsItem[]>(() => getPublishedNews());
+  const [homeEvents, setHomeEvents] = useState(() => getStoredEvents());
 
   const {
     events: earthquakeEvents,
@@ -62,8 +64,15 @@ function Home() {
 
   useEffect(() => {
     const handleUpdate = () => setNewsList(getPublishedNews());
+    const handleEventsSync = () => setHomeEvents(getStoredEvents());
+    window.addEventListener("geocam_events_changed", handleEventsSync);
+    window.addEventListener("storage", handleEventsSync);
     window.addEventListener("geocam:news-updated", handleUpdate);
-    return () => window.removeEventListener("geocam:news-updated", handleUpdate);
+    return () => {
+      window.removeEventListener("geocam:news-updated", handleUpdate);
+      window.removeEventListener("geocam_events_changed", handleEventsSync);
+      window.removeEventListener("storage", handleEventsSync);
+    };
   }, []);
 
   return <div className="geocam-landing">
@@ -140,7 +149,7 @@ function Home() {
       <ArrowUpRight size={16} />
     </div>
   </Link>
-))}</div></div><div><div className="flex items-center justify-between"><h3 className="text-xl font-semibold">{c.events}</h3><Link to="/events" className="gc-text-link">{c.all}<ArrowUpRight size={16}/></Link></div><div className="mt-5 space-y-3">{events.filter(e=>e.status==='published').slice(0,4).map(e=><Link to="/events" key={e.id} className="gc-event"><span className="gc-event-date">{e.date.slice(8)}<small>{new Date(e.date).toLocaleString(lang==='km'?'km-KH':'en',{month:'short'})}</small></span><span><strong className="block text-sm">{lang === "km" ? ((e as any).titleKm || e.title) : e.title}</strong><span className="mt-1 block text-xs text-slate-500">{lang === "km" ? ((e as any).kindKm || e.kind) : e.kind} · {lang === "km" ? ((e as any).placeKm || e.place) : e.place}</span></span><ArrowUpRight size={16} className="ml-auto shrink-0 text-emerald-700"/></Link>)}</div></div></div></div></section>
+))}</div></div><div><div className="flex items-center justify-between"><h3 className="text-xl font-semibold">{c.events}</h3><Link to="/events" className="gc-text-link">{c.all}<ArrowUpRight size={16}/></Link></div><div className="mt-5 space-y-3">{homeEvents.filter(e=>e.status==='published').slice(0,4).map(e=><Link to="/events" key={e.id} className="gc-event"><span className="gc-event-date">{e.date.slice(8)}<small>{new Date(e.date).toLocaleString(lang==='km'?'km-KH':'en',{month:'short'})}</small></span><span><strong className="block text-sm">{lang === "km" ? ((e as any).titleKm || e.title) : e.title}</strong><span className="mt-1 block text-xs text-slate-500">{lang === "km" ? ((e as any).kindKm || e.kind) : e.kind} · {lang === "km" ? ((e as any).placeKm || e.place) : e.place}</span></span><ArrowUpRight size={16} className="ml-auto shrink-0 text-emerald-700"/></Link>)}</div></div></div></div></section>
       {/* Live Regional Earthquake Bulletins (Positioned below Upcoming Events) */}
       <section className="mx-auto max-w-[1800px] px-5 py-8 md:py-10">
         <EarthquakeAnnouncements

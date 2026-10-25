@@ -59,6 +59,11 @@ import {
   saveStoredPublications,
   resetStoredPublications,
 } from "../lib/publication-service";
+import {
+  getStoredEvents,
+  saveStoredEvents,
+  resetStoredEvents,
+} from "../lib/event-service";
 import { translateText } from "../lib/translation";
 import { defaultPageData } from "./page-data";
 import "./wp-admin.css";
@@ -162,7 +167,40 @@ export default function WordPressAdmin() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [layers, setLayers] = useState<MapDataset[]>([]);
   const [applications, setApplications] = useState<Application[]>(seedApps);
-  const [events, setEvents] = useState<EventItem[]>(seedEvents);
+  const [events, setEvents] = useState<EventItem[]>(() => getStoredEvents());
+
+  // Events Management States (Add, Edit, Delete, Reset, Filter)
+  const [eventSearch, setEventSearch] = useState("");
+  const [eventStatusFilter, setEventStatusFilter] = useState<"All" | "published" | "draft">("All");
+  const [showAddEvent, setShowAddEvent] = useState(false);
+  const [eventMessage, setEventMessage] = useState("");
+
+  // New Event Form State
+  const [newEvTitle, setNewEvTitle] = useState("");
+  const [newEvTitleKm, setNewEvTitleKm] = useState("");
+  const [newEvDate, setNewEvDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [newEvPlace, setNewEvPlace] = useState("");
+  const [newEvPlaceKm, setNewEvPlaceKm] = useState("");
+  const [newEvKind, setNewEvKind] = useState("Field trip");
+  const [newEvKindKm, setNewEvKindKm] = useState("ការងារទីវាល");
+  const [newEvStatus, setNewEvStatus] = useState<"published" | "draft">("published");
+
+  // Edit Event Form State
+  const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
+  const [editEvTitle, setEditEvTitle] = useState("");
+  const [editEvTitleKm, setEditEvTitleKm] = useState("");
+  const [editEvDate, setEditEvDate] = useState("");
+  const [editEvPlace, setEditEvPlace] = useState("");
+  const [editEvPlaceKm, setEditEvPlaceKm] = useState("");
+  const [editEvKind, setEditEvKind] = useState("Field trip");
+  const [editEvKindKm, setEditEvKindKm] = useState("ការងារទីវាល");
+  const [editEvStatus, setEditEvStatus] = useState<"published" | "draft">("published");
+
+  // Delete Event Confirmation State
+  const [eventToDelete, setEventToDelete] = useState<EventItem | null>(null);
+
+  // Reset Events Confirmation State
+  const [showResetEventsConfirm, setShowResetEventsConfirm] = useState(false);
 
   // Publications State with Custom Add, Edit, Delete, & Reset
   const [papers, setPapers] = useState<Publication[]>(() => getStoredPublications());
@@ -494,6 +532,122 @@ export default function WordPressAdmin() {
     (safePage - 1) * paperPageSize,
     safePage * paperPageSize,
   );
+
+  // Events Handlers (Edit, Delete, Toggle, Create, Reset)
+  const handleStartEditEvent = (ev: EventItem) => {
+    setEditingEvent(ev);
+    setEditEvTitle(ev.title || "");
+    setEditEvTitleKm(ev.titleKm || "");
+    setEditEvDate(ev.date || "");
+    setEditEvPlace(ev.place || "");
+    setEditEvPlaceKm(ev.placeKm || "");
+    setEditEvKind(ev.kind || "Field trip");
+    setEditEvKindKm(ev.kindKm || "");
+    setEditEvStatus(ev.status || "published");
+  };
+
+  const handleSaveEditEvent = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingEvent || !editEvTitle.trim() || !editEvDate.trim() || !editEvPlace.trim()) return;
+
+    const updatedItem: EventItem = {
+      ...editingEvent,
+      title: editEvTitle.trim(),
+      titleKm: editEvTitleKm.trim() || undefined,
+      date: editEvDate.trim(),
+      place: editEvPlace.trim(),
+      placeKm: editEvPlaceKm.trim() || undefined,
+      kind: editEvKind.trim() || "Field trip",
+      kindKm: editEvKindKm.trim() || undefined,
+      status: editEvStatus,
+    };
+
+    const nextEvents = events.map((item) =>
+      item.id === editingEvent.id ? updatedItem : item,
+    );
+    setEvents(nextEvents);
+    saveStoredEvents(nextEvents);
+    setEditingEvent(null);
+    setEventMessage("✔ Event updated successfully! / បានកែប្រែព័ត៌មានព្រឹត្តិការណ៍ដោយជោគជ័យ!");
+    setTimeout(() => setEventMessage(""), 4000);
+  };
+
+  const handleExecuteDeleteEvent = () => {
+    if (!eventToDelete) return;
+    const nextEvents = events.filter((item) => item.id !== eventToDelete.id);
+    setEvents(nextEvents);
+    saveStoredEvents(nextEvents);
+    const deletedTitle = eventToDelete.title;
+    setEventToDelete(null);
+    setEventMessage(`🗑️ Event deleted: "${deletedTitle}" / បានលុបព្រឹត្តិការណ៍ដោយជោគជ័យ!`);
+    setTimeout(() => setEventMessage(""), 4000);
+  };
+
+  const handleExecuteResetEvents = () => {
+    const seed = resetStoredEvents();
+    setEvents(seed);
+    setShowResetEventsConfirm(false);
+    setEventMessage("↺ Events schedule restored to system defaults / បានកំណត់ព្រឹត្តិការណ៍ឡើងវិញជាលំនាំដើម!");
+    setTimeout(() => setEventMessage(""), 4000);
+  };
+
+  const handleToggleEventStatus = (ev: EventItem) => {
+    const nextStatus: "published" | "draft" = ev.status === "draft" ? "published" : "draft";
+    const nextEvents = events.map((item) =>
+      item.id === ev.id ? { ...item, status: nextStatus } : item,
+    );
+    setEvents(nextEvents);
+    saveStoredEvents(nextEvents);
+    setEventMessage(`✔ Event status updated to ${nextStatus}.`);
+    setTimeout(() => setEventMessage(""), 3000);
+  };
+
+  const handleCreateEvent = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newEvTitle.trim() || !newEvDate.trim() || !newEvPlace.trim()) return;
+
+    const newEventItem: EventItem = {
+      id: "ev-" + Date.now().toString(36),
+      title: newEvTitle.trim(),
+      titleKm: newEvTitleKm.trim() || undefined,
+      date: newEvDate.trim(),
+      place: newEvPlace.trim(),
+      placeKm: newEvPlaceKm.trim() || undefined,
+      kind: newEvKind.trim() || "Field trip",
+      kindKm: newEvKindKm.trim() || undefined,
+      status: newEvStatus,
+    };
+
+    const nextEvents = [newEventItem, ...events];
+    setEvents(nextEvents);
+    saveStoredEvents(nextEvents);
+
+    setNewEvTitle("");
+    setNewEvTitleKm("");
+    setNewEvDate(new Date().toISOString().slice(0, 10));
+    setNewEvPlace("");
+    setNewEvPlaceKm("");
+    setNewEvKind("Field trip");
+    setNewEvKindKm("ការងារទីវាល");
+    setNewEvStatus("published");
+    setShowAddEvent(false);
+    setEventMessage("✔ New event created and scheduled successfully! / បានបង្កើតព្រឹត្តិការណ៍ថ្មីដោយជោគជ័យ!");
+    setTimeout(() => setEventMessage(""), 4000);
+  };
+
+  const filteredEvents = events.filter((ev) => {
+    const matchesStatus = eventStatusFilter === "All" || ev.status === eventStatusFilter;
+    const q = eventSearch.toLowerCase().trim();
+    const matchesSearch =
+      !q ||
+      ev.title.toLowerCase().includes(q) ||
+      (ev.titleKm && ev.titleKm.toLowerCase().includes(q)) ||
+      ev.place.toLowerCase().includes(q) ||
+      (ev.placeKm && ev.placeKm.toLowerCase().includes(q)) ||
+      ev.kind.toLowerCase().includes(q) ||
+      (ev.kindKm && ev.kindKm.toLowerCase().includes(q));
+    return matchesStatus && matchesSearch;
+  });
 
   const availablePagesList = editablePages;
   const filteredPagesList = availablePagesList.filter((slug) => {
@@ -2042,45 +2196,610 @@ export default function WordPressAdmin() {
           )}
 
           {/* ================================================================
-              VIEW: EVENTS
+              VIEW: EVENTS (CONFERENCES & FIELD TRIPS - ADD, EDIT, DELETE & RESET)
               ================================================================ */}
           {section === "events" && (
             <div>
               <div className="wp-header">
-                <h1>Conferences & Field Trips</h1>
+                <div>
+                  <h1>Conferences & Field Trips</h1>
+                  <p style={{ color: "var(--wp-text-muted)", margin: "4px 0 0" }}>
+                    Manage upcoming conferences, geological field excursions, student meetups, and webinars.
+                  </p>
+                </div>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    className="button"
+                    onClick={() => setShowResetEventsConfirm(true)}
+                    title="Reset events schedule to system defaults / កំណត់ឡើងវិញទៅលំនាំដើម"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+                  >
+                    <RotateCcw size={15} />
+                    Reset to Defaults
+                  </button>
+                  <button
+                    type="button"
+                    className="button button-primary"
+                    onClick={() => setShowAddEvent(!showAddEvent)}
+                    style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+                  >
+                    <Plus size={16} />
+                    {showAddEvent ? "Close Form" : "+ Create New Event"}
+                  </button>
+                </div>
               </div>
+
+              {eventMessage && (
+                <div style={{ padding: "10px 16px", background: "rgba(52,211,153,0.15)", border: "1px solid #34d399", color: "#34d399", borderRadius: "8px", marginBottom: "16px", fontWeight: 600 }}>
+                  {eventMessage}
+                </div>
+              )}
+
+              {/* CREATE NEW EVENT DRAWER FORM */}
+              {showAddEvent && (
+                <div className="postbox" style={{ borderColor: "var(--wp-cyan)", boxShadow: "0 0 20px rgba(56,189,248,0.2)" }}>
+                  <div className="postbox-header">
+                    <h2><Plus size={18} style={{ color: "var(--wp-cyan)" }} /> Create New Conference / Field Trip Event</h2>
+                  </div>
+                  <div className="postbox-inside">
+                    <form onSubmit={handleCreateEvent}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "12px" }}>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Event Title (English) *:
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. Laterite & weathering profiles field trip"
+                            value={newEvTitle}
+                            onChange={(e) => setNewEvTitle(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            ចំណងជើងព្រឹត្តិការណ៍ (ភាសាខ្មែរ):
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="ឧ. ដំណើរទស្សនកិច្ចសិក្សាទីវាលលើទម្រង់ដីឡាតេរីត"
+                            value={newEvTitleKm}
+                            onChange={(e) => setNewEvTitleKm(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 120px", gap: "14px", marginBottom: "12px" }}>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Date (YYYY-MM-DD) *:
+                          </label>
+                          <input
+                            type="date"
+                            required
+                            value={newEvDate}
+                            onChange={(e) => setNewEvDate(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Event Kind / Type:
+                          </label>
+                          <select
+                            value={newEvKind}
+                            onChange={(e) => {
+                              const k = e.target.value;
+                              setNewEvKind(k);
+                              if (k === "Field trip") setNewEvKindKm("ការងារទីវាល");
+                              else if (k === "Conference") setNewEvKindKm("សន្និសីទ");
+                              else if (k === "Webinar") setNewEvKindKm("សិក្ខាសាលាអនឡាញ");
+                              else if (k === "Meetup") setNewEvKindKm("ការជួបជុំ");
+                              else if (k === "Workshop") setNewEvKindKm("សិក្ខាសាលា");
+                            }}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          >
+                            <option value="Field trip">Field trip</option>
+                            <option value="Conference">Conference</option>
+                            <option value="Webinar">Webinar</option>
+                            <option value="Meetup">Meetup</option>
+                            <option value="Workshop">Workshop</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Status:
+                          </label>
+                          <select
+                            value={newEvStatus}
+                            onChange={(e) => setNewEvStatus(e.target.value as "published" | "draft")}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          >
+                            <option value="published">Published</option>
+                            <option value="draft">Draft</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "16px" }}>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Location / Venue (English) *:
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. Kampong Thom Province / Online"
+                            value={newEvPlace}
+                            onChange={(e) => setNewEvPlace(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            ទីតាំង (ភាសាខ្មែរ):
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="ឧ. ខេត្តកំពង់ធំ / លើបណ្តាញអនឡាញ"
+                            value={newEvPlaceKm}
+                            onChange={(e) => setNewEvPlaceKm(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ display: "flex", gap: "10px" }}>
+                        <button type="submit" className="button button-primary" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                          <CheckCircle2 size={16} /> Save & Schedule Event
+                        </button>
+                        <button type="button" className="button" onClick={() => setShowAddEvent(false)}>
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+
+              {/* FILTER & SEARCH CONTROLS */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", margin: "16px 0" }}>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                  <button
+                    type="button"
+                    className="button button-small"
+                    style={{
+                      background: eventStatusFilter === "All" ? "var(--wp-cyan)" : "var(--wp-bg-card)",
+                      color: eventStatusFilter === "All" ? "#000" : "var(--wp-text-primary)",
+                      borderColor: eventStatusFilter === "All" ? "var(--wp-cyan)" : "var(--wp-border)",
+                    }}
+                    onClick={() => setEventStatusFilter("All")}
+                  >
+                    All Events ({events.length})
+                  </button>
+                  <button
+                    type="button"
+                    className="button button-small"
+                    style={{
+                      background: eventStatusFilter === "published" ? "var(--wp-cyan)" : "var(--wp-bg-card)",
+                      color: eventStatusFilter === "published" ? "#000" : "var(--wp-text-primary)",
+                      borderColor: eventStatusFilter === "published" ? "var(--wp-cyan)" : "var(--wp-border)",
+                    }}
+                    onClick={() => setEventStatusFilter("published")}
+                  >
+                    Published ({events.filter((e) => e.status === "published").length})
+                  </button>
+                  <button
+                    type="button"
+                    className="button button-small"
+                    style={{
+                      background: eventStatusFilter === "draft" ? "var(--wp-cyan)" : "var(--wp-bg-card)",
+                      color: eventStatusFilter === "draft" ? "#000" : "var(--wp-text-primary)",
+                      borderColor: eventStatusFilter === "draft" ? "var(--wp-cyan)" : "var(--wp-border)",
+                    }}
+                    onClick={() => setEventStatusFilter("draft")}
+                  >
+                    Drafts ({events.filter((e) => e.status === "draft").length})
+                  </button>
+                </div>
+
+                <div style={{ position: "relative", minWidth: "260px" }}>
+                  <Search size={15} style={{ position: "absolute", left: "10px", top: "10px", color: "var(--wp-text-muted)" }} />
+                  <input
+                    type="search"
+                    placeholder="Search events by title, location, or type..."
+                    value={eventSearch}
+                    onChange={(e) => setEventSearch(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "6px 10px 6px 32px",
+                      borderRadius: "6px",
+                      background: "var(--wp-input-bg)",
+                      color: "var(--wp-input-text)",
+                      border: "1px solid var(--wp-input-border)",
+                      fontSize: "13px",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* EVENTS TABLE */}
               <table className="wp-list-table">
                 <thead>
                   <tr>
-                    <th>Event Title</th>
+                    <th>Event Title & Type</th>
                     <th>Date</th>
-                    <th>Location</th>
+                    <th>Location / Venue</th>
                     <th>Status</th>
-                    <th>Action</th>
+                    <th style={{ minWidth: "240px" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {events.map((ev) => (
+                  {filteredEvents.map((ev) => (
                     <tr key={ev.id}>
-                      <td><strong>{ev.title}</strong></td>
-                      <td>{ev.date}</td>
-                      <td>{ev.place}</td>
-                      <td><span className={`status-badge ${ev.status}`}>{ev.status}</span></td>
+                      <td style={{ maxWidth: "380px" }}>
+                        <strong>{ev.title}</strong>
+                        {ev.titleKm && (
+                          <div style={{ fontSize: "12px", color: "var(--wp-text-muted)", marginTop: "2px" }}>
+                            {ev.titleKm}
+                          </div>
+                        )}
+                        <div style={{ marginTop: "4px" }}>
+                          <span style={{ fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "10px", background: "rgba(56,189,248,0.15)", color: "var(--wp-cyan)" }}>
+                            {ev.kind} {ev.kindKm ? `· ${ev.kindKm}` : ""}
+                          </span>
+                        </div>
+                      </td>
+                      <td style={{ whiteSpace: "nowrap" }}>
+                        <strong>{ev.date}</strong>
+                      </td>
+                      <td style={{ fontSize: "13px" }}>
+                        {ev.place}
+                        {ev.placeKm && (
+                          <div style={{ fontSize: "11px", color: "var(--wp-text-muted)" }}>
+                            {ev.placeKm}
+                          </div>
+                        )}
+                      </td>
                       <td>
-                        <button
-                          className="button button-small"
-                          onClick={() => {
-                            const next = ev.status === "draft" ? "published" : "draft";
-                            setEvents(events.map((e) => (e.id === ev.id ? { ...e, status: next } : e)));
-                          }}
-                        >
-                          {ev.status === "draft" ? "Publish" : "Unpublish"}
-                        </button>
+                        <span className={`status-badge ${ev.status}`}>{ev.status}</span>
+                      </td>
+                      <td style={{ whiteSpace: "nowrap" }}>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                          <button
+                            type="button"
+                            className="button button-small"
+                            onClick={() => handleStartEditEvent(ev)}
+                            title="Edit event details / កែប្រែព័ត៌មានព្រឹត្តិការណ៍"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "4px",
+                              color: "var(--wp-cyan)",
+                              borderColor: "rgba(56,189,248,0.35)",
+                            }}
+                          >
+                            <Edit size={12} />
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="button button-small"
+                            onClick={() => setEventToDelete(ev)}
+                            title="Delete event / លុបព្រឹត្តិការណ៍"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "4px",
+                              color: "var(--wp-rose)",
+                              borderColor: "rgba(248,113,113,0.35)",
+                            }}
+                          >
+                            <Trash2 size={12} />
+                            Delete
+                          </button>
+                          <button
+                            type="button"
+                            className="button button-small"
+                            onClick={() => handleToggleEventStatus(ev)}
+                            title={ev.status === "draft" ? "Publish to public website" : "Revert to draft"}
+                          >
+                            {ev.status === "draft" ? "Publish" : "Unpublish"}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
+                  {filteredEvents.length === 0 && (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: "center", padding: "30px", color: "var(--wp-text-muted)" }}>
+                        No events found matching this filter or search. Click "+ Create New Event" above!
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
+
+              {/* EDIT EVENT MODAL DIALOG */}
+              {editingEvent && (
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+                  <div
+                    className="w-full max-w-xl rounded-2xl border border-[var(--wp-border)] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+                    style={{ background: "var(--wp-bg-card, #1e293b)", color: "var(--wp-text-primary, #f8fafc)" }}
+                  >
+                    <div className="flex items-center justify-between border-b border-[var(--wp-border)] pb-3">
+                      <div className="flex items-center gap-2">
+                        <Edit size={20} className="text-cyan-400" />
+                        <div>
+                          <h3 className="text-base font-bold" style={{ margin: 0 }}>
+                            Edit Event / កែប្រែព័ត៌មានព្រឹត្តិការណ៍
+                          </h3>
+                          <p style={{ margin: 0, fontSize: "12px", color: "var(--wp-text-muted)" }}>
+                            ID: {editingEvent.id}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setEditingEvent(null)}
+                        className="button button-small"
+                        style={{ padding: "4px 8px" }}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+
+                    <form onSubmit={handleSaveEditEvent}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "12px" }}>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Event Title (English) *:
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={editEvTitle}
+                            onChange={(e) => setEditEvTitle(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            ចំណងជើងព្រឹត្តិការណ៍ (ភាសាខ្មែរ):
+                          </label>
+                          <input
+                            type="text"
+                            value={editEvTitleKm}
+                            onChange={(e) => setEditEvTitleKm(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 120px", gap: "14px", marginBottom: "12px" }}>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Date (YYYY-MM-DD) *:
+                          </label>
+                          <input
+                            type="date"
+                            required
+                            value={editEvDate}
+                            onChange={(e) => setEditEvDate(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Event Kind / Type:
+                          </label>
+                          <select
+                            value={editEvKind}
+                            onChange={(e) => {
+                              const k = e.target.value;
+                              setEditEvKind(k);
+                              if (k === "Field trip") setEditEvKindKm("ការងារទីវាល");
+                              else if (k === "Conference") setEditEvKindKm("សន្និសីទ");
+                              else if (k === "Webinar") setEditEvKindKm("សិក្ខាសាលាអនឡាញ");
+                              else if (k === "Meetup") setEditEvKindKm("ការជួបជុំ");
+                              else if (k === "Workshop") setEditEvKindKm("សិក្ខាសាលា");
+                            }}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          >
+                            <option value="Field trip">Field trip</option>
+                            <option value="Conference">Conference</option>
+                            <option value="Webinar">Webinar</option>
+                            <option value="Meetup">Meetup</option>
+                            <option value="Workshop">Workshop</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Status:
+                          </label>
+                          <select
+                            value={editEvStatus}
+                            onChange={(e) => setEditEvStatus(e.target.value as "published" | "draft")}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          >
+                            <option value="published">Published</option>
+                            <option value="draft">Draft</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "16px" }}>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            Location / Venue (English) *:
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={editEvPlace}
+                            onChange={(e) => setEditEvPlace(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: 700, marginBottom: "4px", fontSize: "13px" }}>
+                            ទីតាំង (ភាសាខ្មែរ):
+                          </label>
+                          <input
+                            type="text"
+                            value={editEvPlaceKm}
+                            onChange={(e) => setEditEvPlaceKm(e.target.value)}
+                            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", background: "var(--wp-input-bg)", color: "var(--wp-input-text)", border: "1px solid var(--wp-input-border)" }}
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", borderTop: "1px solid var(--wp-border)", paddingTop: "14px" }}>
+                        <button
+                          type="button"
+                          className="button"
+                          onClick={() => setEditingEvent(null)}
+                          style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+                        >
+                          <X size={15} />
+                          Cancel / បោះបង់
+                        </button>
+                        <button
+                          type="submit"
+                          className="button button-primary"
+                          style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+                        >
+                          <Check size={15} />
+                          Save Changes / រក្សាទុក
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+
+              {/* DELETE EVENT CONFIRMATION MODAL DIALOG */}
+              {eventToDelete && (
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+                  <div
+                    className="w-full max-w-md rounded-2xl border border-[var(--wp-border)] p-6 shadow-2xl space-y-4"
+                    style={{ background: "var(--wp-bg-card, #1e293b)", color: "var(--wp-text-primary, #f8fafc)" }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div style={{ padding: "8px", borderRadius: "50%", background: "rgba(248,113,113,0.15)", color: "var(--wp-rose)" }}>
+                        <Trash2 size={24} />
+                      </div>
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>
+                          Delete Event / លុបព្រឹត្តិការណ៍
+                        </h3>
+                        <p style={{ margin: "2px 0 0", fontSize: "12px", color: "var(--wp-text-muted)" }}>
+                          Confirm deletion from event schedule
+                        </p>
+                      </div>
+                    </div>
+
+                    <div style={{ padding: "12px", borderRadius: "8px", background: "rgba(0,0,0,0.25)", border: "1px solid var(--wp-border)" }}>
+                      <p style={{ margin: "0 0 4px", fontWeight: 700, fontSize: "14px" }}>
+                        {eventToDelete.title}
+                      </p>
+                      {eventToDelete.titleKm && (
+                        <p style={{ margin: "0 0 6px", fontSize: "12px", color: "var(--wp-text-muted)" }}>
+                          {eventToDelete.titleKm}
+                        </p>
+                      )}
+                      <div style={{ display: "flex", gap: "8px", fontSize: "11px", marginTop: "6px" }}>
+                        <span style={{ padding: "2px 6px", borderRadius: "4px", background: "rgba(56,189,248,0.15)", color: "var(--wp-cyan)" }}>
+                          {eventToDelete.kind}
+                        </span>
+                        <span style={{ color: "var(--wp-text-muted)" }}>
+                          Date: {eventToDelete.date}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p style={{ margin: 0, fontSize: "13px", color: "var(--wp-rose)" }}>
+                      ⚠️ Are you sure you want to permanently delete this event? This action will remove it from the public schedule and website.
+                    </p>
+
+                    <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", paddingTop: "8px" }}>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => setEventToDelete(null)}
+                      >
+                        Cancel / បោះបង់
+                      </button>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={handleExecuteDeleteEvent}
+                        style={{
+                          background: "var(--wp-rose)",
+                          color: "#fff",
+                          borderColor: "var(--wp-rose)",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <Trash2 size={15} />
+                        Delete Permanently / លុបជាអចិន្ត្រៃយ៍
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* RESET EVENTS CONFIRMATION MODAL */}
+              {showResetEventsConfirm && (
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+                  <div
+                    className="w-full max-w-md rounded-2xl border border-[var(--wp-border)] p-6 shadow-2xl space-y-4"
+                    style={{ background: "var(--wp-bg-card, #1e293b)", color: "var(--wp-text-primary, #f8fafc)" }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div style={{ padding: "8px", borderRadius: "50%", background: "rgba(56,189,248,0.15)", color: "var(--wp-cyan)" }}>
+                        <RotateCcw size={24} />
+                      </div>
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700 }}>
+                          Reset Events Schedule / កំណត់ដើមឡើងវិញ
+                        </h3>
+                        <p style={{ margin: "2px 0 0", fontSize: "12px", color: "var(--wp-text-muted)" }}>
+                          Restore default conference & field trip schedule
+                        </p>
+                      </div>
+                    </div>
+
+                    <p style={{ margin: 0, fontSize: "13px", color: "var(--wp-text-secondary)" }}>
+                      Are you sure you want to restore the events schedule to system defaults? Any custom added, edited, or deleted events will be reset to the original collection.
+                    </p>
+
+                    <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", paddingTop: "8px" }}>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => setShowResetEventsConfirm(false)}
+                      >
+                        Cancel / បោះបង់
+                      </button>
+                      <button
+                        type="button"
+                        className="button button-primary"
+                        onClick={handleExecuteResetEvents}
+                        style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+                      >
+                        <RotateCcw size={15} />
+                        Confirm Reset / កំណត់ឡើងវិញ
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
