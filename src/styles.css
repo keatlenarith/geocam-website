@@ -189,9 +189,8 @@ body {overflow-x:hidden}
 .gc-desktop-nav {flex:1;justify-content:center;min-width:0}
 .gc-nav-group {position:relative}
 .gc-nav-trigger {display:flex;align-items:center;gap:.5rem;border:0;border-radius:12px;background:transparent;padding:.8rem .9rem;color:#253248;font-size:clamp(.86rem,.95vw,1.03rem);font-weight:700;white-space:nowrap;cursor:pointer}
-.gc-nav-trigger:hover,.gc-nav-group:focus-within .gc-nav-trigger {background:#eef3ff;color:#2457d6}
-.gc-nav-panel {display:none;position:absolute;top:100%;left:0;min-width:265px;padding:.6rem;background:#fff;border:1px solid #e1e6ef;border-radius:16px;box-shadow:0 20px 55px rgba(20,39,74,.17);z-index:1100}
-.gc-nav-group:hover .gc-nav-panel,.gc-nav-group:focus-within .gc-nav-panel {display:block}
+.gc-nav-trigger:hover,.gc-nav-group.is-open .gc-nav-trigger,.gc-nav-trigger[aria-expanded="true"] {background:#eef3ff;color:#2457d6}
+.gc-nav-panel {display:block;position:absolute;top:100%;left:0;min-width:265px;padding:.6rem;background:#fff;border:1px solid #e1e6ef;border-radius:16px;box-shadow:0 20px 55px rgba(20,39,74,.17);z-index:1100}
 .gc-nav-link {display:flex;align-items:center;justify-content:space-between;gap:1rem;border-radius:9px;padding:.8rem .9rem;color:#27364a;text-decoration:none;font-size:.96rem;line-height:1.5}
 .gc-nav-link:hover,.gc-nav-link:focus-visible {background:#eef3ff;color:#2457d6}
 .gc-mobile-group {border-bottom:1px solid #e1e6ef}
@@ -244,7 +243,7 @@ html:lang(km) .gc-feature p,html:lang(km) .gc-area p {font-size:16px;line-height
 .gc-feature p {min-height:0;flex:1}
 .gc-feature>.gc-feature-arrow {margin-top:1.1rem}
 .gc-nav-trigger .gc-chevron {transition:transform .22s ease;color:#537099;flex-shrink:0}
-.gc-nav-group:hover .gc-chevron,.gc-nav-group:focus-within .gc-chevron {transform:rotate(180deg);color:#2457d6}
+.gc-nav-group.is-open .gc-chevron,.gc-nav-trigger[aria-expanded="true"] .gc-chevron {transform:rotate(180deg);color:#2457d6}
 .gc-nav-panel {animation:gc-menu-in .17s ease-out;transform-origin:top left}
 @keyframes gc-menu-in {from {opacity:0;transform:translateY(-5px)}to {opacity:1;transform:translateY(0)}}
 .gc-nav-trigger:focus-visible {outline:2px solid #2457d6;outline-offset:3px}

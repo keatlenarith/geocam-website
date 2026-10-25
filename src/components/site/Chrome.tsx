@@ -1,6 +1,6 @@
 import { ChevronDown, ArrowUpRight } from "lucide-react";
 import { Link } from "@/lib/spa-router";
-import { useState, type ReactNode } from "react";
+import { useState, useRef, useEffect, useCallback, type ReactNode } from "react";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { VisitorCounter } from "./VisitorCounter";
 
@@ -84,6 +84,48 @@ function LangSwitch() {
 export function SiteHeader() {
   const { t, lang } = useI18n();
   const [open, setOpen] = useState(false);
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const desktopNavRef = useRef<HTMLElement>(null);
+  const closeCooldownRef = useRef(false);
+
+  const closeDropdowns = useCallback(() => {
+    closeCooldownRef.current = true;
+    setOpenGroup(null);
+    if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    setTimeout(() => {
+      closeCooldownRef.current = false;
+    }, 250);
+  }, []);
+
+  useEffect(() => {
+    const onPopState = () => {
+      closeDropdowns();
+      setOpen(false);
+    };
+    const onMouseDown = (e: MouseEvent) => {
+      if (desktopNavRef.current && !desktopNavRef.current.contains(e.target as Node)) {
+        closeDropdowns();
+      }
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        closeDropdowns();
+        setOpen(false);
+      }
+    };
+
+    window.addEventListener("popstate", onPopState);
+    document.addEventListener("mousedown", onMouseDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      document.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [closeDropdowns]);
+
   return (
     <header className="sticky top-0 z-[1000] border-b border-border bg-background/95 backdrop-blur">
       <a
@@ -95,37 +137,72 @@ export function SiteHeader() {
       <div className="mx-auto flex w-full max-w-[1800px] items-center justify-between gap-5 px-5 py-3 xl:px-10">
         <Logo />
         <nav
+          ref={desktopNavRef}
           className="gc-desktop-nav hidden items-center gap-2 lg:flex"
           aria-label="Main"
         >
-          {navGroups.map((group) => (
-            <div key={group.en} className="gc-nav-group">
-              <button
-                type="button"
-                className="gc-nav-trigger"
-                aria-haspopup="true"
+          {navGroups.map((group) => {
+            const isOpen = openGroup === group.en;
+            return (
+              <div
+                key={group.en}
+                className={`gc-nav-group ${isOpen ? "is-open" : ""}`}
+                onMouseEnter={() => {
+                  if (!closeCooldownRef.current) {
+                    setOpenGroup(group.en);
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                    setOpenGroup((curr) => (curr === group.en ? null : curr));
+                  }
+                }}
               >
-                {lang === "km" ? group.km : group.en}
-                <ChevronDown
-                  className="gc-chevron"
-                  size={17}
-                  strokeWidth={2.2}
-                  aria-hidden="true"
-                />
-              </button>
-              <div className="gc-nav-panel">
-                {group.items.map((path) => {
-                  const item = nav.find((n) => n.to === path)!;
-                  return (
-                    <Link key={path} to={path} className="gc-nav-link">
-                      {t(item.k)}
-                      <ArrowUpRight size={16} aria-hidden="true" />
-                    </Link>
-                  );
-                })}
+                <button
+                  type="button"
+                  className="gc-nav-trigger"
+                  aria-haspopup="true"
+                  aria-expanded={isOpen}
+                  onClick={() => {
+                    if (isOpen) {
+                      closeDropdowns();
+                    } else {
+                      setOpenGroup(group.en);
+                    }
+                  }}
+                >
+                  {lang === "km" ? group.km : group.en}
+                  <ChevronDown
+                    className="gc-chevron"
+                    size={17}
+                    strokeWidth={2.2}
+                    aria-hidden="true"
+                  />
+                </button>
+                {isOpen && (
+                  <div className="gc-nav-panel" role="menu">
+                    {group.items.map((path) => {
+                      const item = nav.find((n) => n.to === path)!;
+                      return (
+                        <Link
+                          key={path}
+                          to={path}
+                          className="gc-nav-link"
+                          role="menuitem"
+                          onClick={() => {
+                            closeDropdowns();
+                          }}
+                        >
+                          {t(item.k)}
+                          <ArrowUpRight size={16} aria-hidden="true" />
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </nav>
         <div className="flex items-center gap-2">
           <a
@@ -179,7 +256,10 @@ export function SiteHeader() {
                   <Link
                     key={path}
                     to={path}
-                    onClick={() => setOpen(false)}
+                    onClick={() => {
+                      setOpen(false);
+                      closeDropdowns();
+                    }}
                     className="block py-2 pl-4"
                   >
                     {t(item.k)}
@@ -190,7 +270,10 @@ export function SiteHeader() {
           ))}
           <Link
             to="/dashboard"
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              setOpen(false);
+              closeDropdowns();
+            }}
             className="block py-3"
           >
             {t("dashboard")}
