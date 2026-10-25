@@ -42,6 +42,7 @@ import { Share2 } from "lucide-react";
 import TranslationManager from "./TranslationManager";
 import { Languages } from "lucide-react";
 import AnalyticsDashboard from "./AnalyticsDashboard";
+import GeodataTocManager from "./GeodataTocManager";
 import LayerManager from "../features/geodata/LayerManager";
 import type { MapDataset } from "../features/geodata/import-geodata";
 import { fetchPostDrafts, savePost, newPost, type Post } from "./posts";
@@ -1391,14 +1392,11 @@ export default function WordPressAdmin() {
           )}
 
           {/* ================================================================
-              VIEW: GEODATA
+              VIEW: GEODATA (Table of Contents & Symbology Manager)
               ================================================================ */}
           {section === "geodata" && (
             <div>
-              <div className="wp-header">
-                <h1>GeoData & GIS Map Layers</h1>
-              </div>
-              <LayerManager onLayers={setLayers} />
+              <GeodataTocManager />
             </div>
           )}
 

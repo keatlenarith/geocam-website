@@ -1,6 +1,7 @@
 import type { MapDataset } from "../../features/geodata/import-geodata";
 import { renderDataset } from "../../features/geodata/render-layer";
-import { useEffect, useRef } from "react";
+import { loadSavedTocSymbology } from "../../features/geodata/toc-config";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -125,32 +126,44 @@ export default function GeoMap({
       maxNativeZoom: cfg.maxNativeZoom,
       maxZoom: 19,
     }).addTo(m);
+    const saved = loadSavedTocSymbology();
+    const geoSym = saved["builtin_bedrock_geology"];
+    const minSym = saved["builtin_mineral_deposits"];
+    const strSym = saved["builtin_structural_faults"];
+
+    let strDash: string | undefined = "8 6";
+    if (strSym?.lineStyle === "solid") strDash = undefined;
+    else if (strSym?.lineStyle === "dotted") strDash = "2 5";
+    else if (strSym?.lineStyle === "dash-dot") strDash = "8 4 2 4";
+
     const g = {
       geology: L.layerGroup(
         geology.map((p) =>
           L.polygon(p.coords, {
-            color: p.color,
-            fillOpacity: 0.45,
-            weight: 1,
+            color: geoSym?.color || p.color,
+            fillColor: geoSym?.fillColor || p.color,
+            fillOpacity: geoSym?.opacity ?? 0.45,
+            weight: geoSym?.strokeWidth ?? 1,
           }).bindPopup(p.name),
         ),
       ),
       minerals: L.layerGroup(
         minerals.map((p) =>
           L.circleMarker(p.at, {
-            radius: 7,
-            color: "#7a3b1d",
-            fillColor: "#e07a4a",
-            fillOpacity: 0.9,
+            radius: minSym?.symbolSize ? Math.max(5, Math.round(minSym.symbolSize / 3)) : 7,
+            color: minSym?.color || "#7a3b1d",
+            fillColor: minSym?.fillColor || "#e07a4a",
+            fillOpacity: minSym?.opacity ?? 0.9,
+            weight: minSym?.strokeWidth ?? 2,
           }).bindPopup(p.name),
         ),
       ),
       structures: L.layerGroup(
         structures.map((s) =>
           L.polyline(s.coords, {
-            color: "#1f3d2b",
-            weight: 3,
-            dashArray: "8 6",
+            color: strSym?.color || "#1f3d2b",
+            weight: strSym?.strokeWidth ?? 3,
+            dashArray: strDash,
           }).bindPopup(s.name),
         ),
       ),

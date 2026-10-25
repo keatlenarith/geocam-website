@@ -60,12 +60,25 @@ function GeoData() {
         }
       />
       <Container>
-        <a
-          href="/geopark"
-          className="mb-5 inline-flex rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-muted"
-        >
-          {km ? "ស្វែងយល់ពីឧទ្យានភូគព្ភសាស្ត្រ 3D →" : "Explore 3D Geopark →"}
-        </a>
+        <div className="mb-5 flex flex-wrap items-center gap-3">
+          <a
+            href="/geopark"
+            className="inline-flex rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-muted"
+          >
+            {km ? "ស្វែងយល់ពីឧទ្យានភូគព្ភសាស្ត្រ 3D →" : "Explore 3D Geopark →"}
+          </a>
+          {admin && (
+            <a
+              href="/admin?section=geodata"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 shadow-sm"
+            >
+              <span>⚙️</span>
+              {km
+                ? "គ្រប់គ្រងមាតិកា និងរូបសញ្ញាស្រទាប់ (TOC & Symbology) →"
+                : "Manage Geodata TOC & Symbology →"}
+            </a>
+          )}
+        </div>
         <DemoNote>
           The built-in geology, mineral and structure layers are illustrative.
           {admin
