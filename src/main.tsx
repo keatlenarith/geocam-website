@@ -32,6 +32,7 @@ import NewsItem from "./routes/news-item";
 import ArticleReader from "./admin/PublicPosts";
 import ResearchTopic from "./routes/research-topic";
 import PublicationView from "./routes/publication-view";
+import BasicKnowledge from "./routes/basic-knowledge";
 import WordPressAdmin from "./admin/WordPressAdmin";
 import { initAnalyticsTracker } from "./features/analytics/tracker";
 const AdminDashboard = () => (
@@ -46,6 +47,7 @@ const pages: Record<string, React.ComponentType<any>> = {
   "/wp-admin": AdminDashboard,
   "/": Home.component,
   "/about": About.component,
+  "/basic-knowledge": BasicKnowledge,
   "/research": Research.component,
   "/publications": Publications.component,
   "/events": Events.component,

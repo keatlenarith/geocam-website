@@ -3,9 +3,11 @@ import { Link } from "@/lib/spa-router";
 import { useState, useRef, useEffect, useCallback, type ReactNode } from "react";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { VisitorCounter } from "./VisitorCounter";
+import { GlobalSearch } from "./GlobalSearch";
 
 const nav: { to: string; k: TKey }[] = [
   { to: "/about", k: "about" },
+  { to: "/basic-knowledge", k: "basicKnowledge" },
   { to: "/research", k: "research" },
   { to: "/publications", k: "publications" },
   { to: "/events", k: "events" },
@@ -33,7 +35,7 @@ const navGroups = [
   {
     en: "Knowledge & Research",
     km: "ចំណេះដឹង និងការស្រាវជ្រាវ",
-    items: ["/research", "/publications", "/lexicon"],
+    items: ["/basic-knowledge", "/research", "/publications", "/lexicon"],
   },
   { en: "Community", km: "សហគមន៍", items: ["/news", "/events"] },
 ];
@@ -205,6 +207,7 @@ export function SiteHeader() {
           })}
         </nav>
         <div className="flex items-center gap-2">
+          <GlobalSearch />
           <a
             href="https://www.facebook.com/geoscience.cambodia/"
             target="_blank"
@@ -241,6 +244,9 @@ export function SiteHeader() {
           className="gc-mobile-nav border-t border-border px-4 pb-4 lg:hidden"
           aria-label="Mobile"
         >
+          <div className="pt-3 pb-1">
+            <GlobalSearch />
+          </div>
           <div className="flex items-center justify-between py-3 border-b border-border/60 mb-2">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               {lang === "km" ? "ភាសា" : "Language"}

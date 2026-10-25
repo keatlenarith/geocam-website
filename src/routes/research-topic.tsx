@@ -80,10 +80,58 @@ export default function ResearchTopic() {
           )}
         </div>
 
-        {/* Main Post Article */}
-        <article className="card-surface mx-auto max-w-5xl p-4 sm:p-6 md:p-10 shadow-sm rounded-2xl border border-slate-200 w-full overflow-hidden">
+                {/* 3-Column Reading Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)_270px] gap-8 items-start">
+          {/* Left Column: Frameless Table of Contents (Content: 1... 2... 3...) */}
+          <aside className="hidden lg:block sticky top-24 space-y-4 text-sm pr-2">
+            <div className="pb-2 border-b border-slate-200/60">
+              <span className="font-bold text-xs uppercase tracking-wider text-slate-500">
+                {lang === "km" ? "មាតិកា៖" : "Content:"}
+              </span>
+            </div>
+            <nav className="space-y-1.5" aria-label="Table of contents">
+              <a
+                href="#overview"
+                className="block text-slate-700 hover:text-emerald-700 hover:underline py-1 font-medium transition"
+              >
+                1. {lang === "km" ? "ទិដ្ឋភាពទូទៅ និងសណ្ឋាន" : "Overview & Setting"}
+              </a>
+              <a
+                href="#takeaways"
+                className="block text-slate-700 hover:text-emerald-700 hover:underline py-1 font-medium transition"
+              >
+                2. {lang === "km" ? "ចំណុចគន្លឹះសំខាន់ៗ" : "Core Takeaways"}
+              </a>
+              {focus.sections.map((sec, sIdx) => (
+                <a
+                  key={sIdx}
+                  href={`#section-${sIdx + 1}`}
+                  className="block text-slate-700 hover:text-emerald-700 hover:underline py-1 font-medium transition line-clamp-2"
+                >
+                  {sIdx + 3}. {lang === "km" ? sec.titleKm : sec.titleEn}
+                </a>
+              ))}
+              <a
+                href="#literature"
+                className="block text-slate-700 hover:text-emerald-700 hover:underline py-1 font-medium transition"
+              >
+                {focus.sections.length + 3}. {lang === "km" ? "ឯកសារ និងទស្សនាវដ្ដី" : "Peer-Reviewed Literature"}
+              </a>
+              {focus.sources && focus.sources.length > 0 && (
+                <a
+                  href="#sources"
+                  className="block text-slate-700 hover:text-emerald-700 hover:underline py-1 font-medium transition"
+                >
+                  {focus.sections.length + 4}. {lang === "km" ? "ប្រភពឯកសារយោង" : "Sources & Provenance"}
+                </a>
+              )}
+            </nav>
+          </aside>
+
+          {/* Center Column: Main Post Article */}
+          <article className="card-surface mx-auto max-w-4xl p-4 sm:p-6 md:p-10 shadow-sm rounded-2xl border border-slate-200 w-full overflow-hidden">
           {/* Header metadata */}
-          <div className="border-b border-slate-200 pb-6 mb-8">
+          <div id="overview" className="border-b border-slate-200 pb-6 mb-8 scroll-mt-24">
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
                 <Compass size={13} />
@@ -131,7 +179,7 @@ export default function ResearchTopic() {
           </figure>
 
           {/* Key Takeaways Callout */}
-          <div className="mb-10 rounded-xl border-l-4 border-l-emerald-600 bg-emerald-50/60 p-5 md:p-6 border border-emerald-100">
+          <div id="takeaways" className="mb-10 rounded-xl border-l-4 border-l-emerald-600 bg-emerald-50/60 p-5 md:p-6 border border-emerald-100 scroll-mt-24">
             <h3 className="flex items-center gap-2 text-base font-bold text-emerald-900">
               <Sparkles size={18} className="text-emerald-700" />
               {lang === "km" ? "ចំណុចគន្លឹះសំខាន់ៗ" : "Core Scientific Takeaways"}
@@ -149,7 +197,7 @@ export default function ResearchTopic() {
           {/* Article Sections */}
           <div className="space-y-8 text-slate-800 leading-relaxed text-base md:text-lg">
             {focus.sections.map((section, idx) => (
-              <section key={idx} className="border-b border-slate-100 pb-8 last:border-b-0">
+              <section key={idx} id={`section-${idx + 1}`} className="border-b border-slate-100 pb-8 last:border-b-0 scroll-mt-24">
                 <h2 className="text-2xl md:text-2xl font-bold text-slate-900 mb-4">
                   {lang === "km" ? section.titleKm : section.titleEn}
                 </h2>
@@ -265,7 +313,7 @@ export default function ResearchTopic() {
           </div>
 
           {/* Highlighted Research Papers & Journals Section */}
-          <div className="mt-12 pt-8 border-t-2 border-slate-200">
+          <div id="literature" className="mt-12 pt-8 border-t-2 border-slate-200 scroll-mt-24">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
@@ -449,6 +497,43 @@ export default function ResearchTopic() {
             </div>
           )}
         </article>
+
+          {/* Right Column: Related Posts Panel */}
+          <aside className="hidden xl:block sticky top-24 space-y-4 pl-2">
+            <div className="pb-2 border-b border-slate-200/60">
+              <span className="font-bold text-xs uppercase tracking-wider text-slate-500">
+                {lang === "km" ? "អត្ថបទពាក់ព័ន្ធ....." : "Related Post....."}
+              </span>
+            </div>
+            <div className="space-y-3">
+              {otherTopics.slice(0, 5).map((item, oIdx) => (
+                <Link
+                  key={item.id}
+                  to={`/research/topic?id=${encodeURIComponent(item.key)}`}
+                  className="group block p-2.5 rounded-xl transition hover:bg-slate-50 border border-slate-100 bg-white shadow-2xs"
+                >
+                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-slate-100 mb-2">
+                    <img
+                      src={item.image}
+                      alt={item.titleEn}
+                      className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <span className="absolute bottom-1.5 left-1.5 rounded-md bg-slate-900/80 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-xs">
+                      {oIdx + 1}. {lang === "km" ? item.shortTitleKm : item.shortTitleEn}
+                    </span>
+                  </div>
+                  <h5 className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition line-clamp-2 leading-snug">
+                    {lang === "km" ? item.titleKm : item.titleEn}
+                  </h5>
+                  <p className="mt-1 text-[11px] text-slate-500 line-clamp-2">
+                    {lang === "km" ? item.leadKm : item.leadEn}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </aside>
+        </div>
 
         {/* Explore Other Key Disciplines Navigation */}
         <section className="mt-12 mb-16">

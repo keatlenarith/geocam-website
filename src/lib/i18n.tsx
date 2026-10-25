@@ -13,6 +13,7 @@ export const dict = {
   home: { en: "Home", km: "ទំព័រដើម" },
   about: { en: "About", km: "អំពីយើង" },
   research: { en: "Research", km: "ការស្រាវជ្រាវ" },
+  basicKnowledge: { en: "Basic Knowledge", km: "ចំណេះដឹងមូលដ្ឋាន" },
   publications: { en: "Publications", km: "ការបោះពុម្ពផ្សាយ" },
   events: { en: "Events", km: "ព្រឹត្តិការណ៍" },
   membership: { en: "Membership", km: "សមាជិកភាព" },
