@@ -88,3 +88,30 @@ test("Article Reading Layout: Frameless TOC on left and Related Posts on right",
   assert.match(publicPostsCode, /Content:/);
   assert.match(publicPostsCode, /Related Post\.\.\.\.\./);
 });
+
+
+test("Live Ticker & Knowledge Billboard: Rendered on home page with earthquakes, basic knowledge and events", () => {
+  const indexCode = fs.readFileSync(path.join(root, "src/routes/index.tsx"), "utf8");
+  assert.match(indexCode, /import \{ LiveTickerRibbon \} from "@/);
+  assert.match(indexCode, /import \{ KnowledgeBillboard \} from "@/);
+  assert.match(indexCode, /<LiveTickerRibbon \/>/);
+  assert.match(indexCode, /<KnowledgeBillboard \/>/);
+
+  const tickerCode = fs.readFileSync(path.join(root, "src/components/site/LiveTickerRibbon.tsx"), "utf8");
+  assert.match(tickerCode, /LIVE TICKER/);
+  assert.match(tickerCode, /បច្ចុប្បន្នភាព/);
+  assert.match(tickerCode, /BASIC KNOWLEDGE/);
+  assert.match(tickerCode, /ចំណេះដឹងមូលដ្ឋាន/);
+  assert.match(tickerCode, /\/earthquake-monitoring/);
+  assert.match(tickerCode, /\/basic-knowledge/);
+  assert.match(tickerCode, /\/events/);
+
+  const billboardCode = fs.readFileSync(path.join(root, "src/components/site/KnowledgeBillboard.tsx"), "utf8");
+  assert.match(billboardCode, /FEATURED BASIC KNOWLEDGE/);
+  assert.match(billboardCode, /ចំណេះដឹងមូលដ្ឋានពិសេស/);
+  assert.match(billboardCode, /\/basic-knowledge/);
+
+  const css = fs.readFileSync(path.join(root, "src/styles.css"), "utf8");
+  assert.match(css, /gc-ticker-track/);
+  assert.match(css, /gc-ticker-scroll/);
+});

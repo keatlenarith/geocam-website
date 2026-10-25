@@ -645,3 +645,25 @@ article figure figcaption,
   50% { opacity: 0.45; }
   100% { transform: scale(2.0); opacity: 0; }
 }
+
+
+/* Financial / Forex Exchange Style Live Ticker Ribbon */
+@keyframes gc-ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.gc-ticker-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: gc-ticker-scroll 55s linear infinite;
+}
+
+.gc-ticker-container:hover .gc-ticker-track {
+  animation-play-state: paused;
+}
