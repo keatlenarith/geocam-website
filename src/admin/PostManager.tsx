@@ -13,6 +13,10 @@ import { FOCUS_TOPICS, type FocusTopic } from "../features/research/focus-topics
 import { defaultPageData } from "./page-data";
 import { supabase } from "../lib/supabase";
 import {
+  broadcastToFacebook,
+  getFacebookSettings,
+} from "../lib/facebook-service";
+import {
   Plus,
   Search,
   Filter,
@@ -535,6 +539,13 @@ export default function PostManager() {
   const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [showExcerptBox, setShowExcerptBox] = useState(true);
   const [saveTimestamp, setSaveTimestamp] = useState("");
+  const [publishToFb, setPublishToFb] = useState(() => {
+    try {
+      return getFacebookSettings().autoPostArticles;
+    } catch {
+      return true;
+    }
+  });
 
   const contentVisualRef = useRef<HTMLDivElement>(null);
 
@@ -965,9 +976,33 @@ export default function PostManager() {
       setSaveTimestamp(
         new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       );
+
+      // Trigger automatic Facebook Page Broadcast if publishNow is true and enabled
+      let fbNotice = "";
+      if (publishNow && publishToFb && editingKind === "news") {
+        try {
+          const fbRes = await broadcastToFacebook({
+            type: "news",
+            title: title.trim(),
+            titleKm: titleKm.trim() || undefined,
+            summary: excerpt.trim() || content.slice(0, 200).trim(),
+            summaryKm: excerptKm.trim() || contentKm.slice(0, 200).trim() || undefined,
+            imageUrl: image.trim() || undefined,
+            link: `/news/item?id=${encodeURIComponent(editingItem?.id || title.trim())}`,
+          });
+          if (fbRes.success) {
+            fbNotice = " · 📢 Published to Facebook Page!";
+          } else if (fbRes.error) {
+            fbNotice = ` · ⚠️ Facebook: ${fbRes.error}`;
+          }
+        } catch (fbErr: any) {
+          fbNotice = ` · ⚠️ Facebook broadcast failed: ${fbErr?.message || "Check settings"}`;
+        }
+      }
+
       setMessage(
         publishNow
-          ? "Post published."
+          ? `Post published.${fbNotice}`
           : "Draft saved. The public version changes only when you publish.",
       );
       return true;
@@ -2092,6 +2127,22 @@ export default function PostManager() {
             </div>
           )}
         </div>
+        {/* Facebook Page Auto-Broadcast Option */}
+        {editingKind === "news" && (
+          <div className="pt-2 border-t border-[#f0f0f1]">
+            <label className="flex items-start gap-2 cursor-pointer text-xs">
+              <input
+                type="checkbox"
+                checked={publishToFb}
+                onChange={(e) => setPublishToFb(e.target.checked)}
+                className="mt-0.5 rounded-xs border-[#ccd0d4] text-[#2271b1] focus:ring-0"
+              />
+              <span className="leading-snug text-[#50575e]">
+                Auto-publish to Facebook Page (<strong>GeoCam</strong>)
+              </span>
+            </label>
+          </div>
+        )}
       </div>
 
       {/* Major publishing actions footer */}

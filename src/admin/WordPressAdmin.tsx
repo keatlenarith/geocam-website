@@ -43,6 +43,10 @@ import PostManager from "./PostManager";
 import Appearance from "./Appearance";
 import { MemberManager } from "./MemberManager";
 import { FacebookManager } from "./FacebookManager";
+import {
+  broadcastToFacebook,
+  getFacebookSettings,
+} from "../lib/facebook-service";
 import { Share2 } from "lucide-react";
 import TranslationManager from "./TranslationManager";
 import { Languages } from "lucide-react";
@@ -621,6 +625,22 @@ export default function WordPressAdmin() {
     const nextEvents = [newEventItem, ...events];
     setEvents(nextEvents);
     saveStoredEvents(nextEvents);
+
+    // Auto-broadcast new event to Facebook if enabled
+    if (newEventItem.status === "published" && getFacebookSettings().autoPostEvents) {
+      broadcastToFacebook({
+        type: "event",
+        title: newEventItem.title,
+        titleKm: newEventItem.titleKm,
+        summary: `${newEventItem.kind} at ${newEventItem.place} on ${newEventItem.date}`,
+        summaryKm: newEventItem.placeKm ? `ទីតាំង៖ ${newEventItem.placeKm} កាលបរិច្ឆេទ៖ ${newEventItem.date}` : undefined,
+        link: "/events",
+        meta: {
+          date: newEventItem.date,
+          location: newEventItem.place,
+        },
+      }).catch((err) => console.warn("[Facebook AutoPost Error]", err));
+    }
 
     setNewEvTitle("");
     setNewEvTitleKm("");
