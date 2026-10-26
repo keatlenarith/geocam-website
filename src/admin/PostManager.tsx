@@ -117,6 +117,7 @@ const PHOTO_PRESETS = [
 ];
 
 const CATEGORIES = [
+  "General News",
   "Education",
   "Geohazards",
   "Society",
@@ -130,6 +131,22 @@ const CATEGORIES = [
   "Science & Maps",
   "Tools & Portals",
 ];
+
+const CATEGORY_KM_MAP: Record<string, string> = {
+  "General News": "ព័ត៌មានទូទៅ",
+  Education: "ការអប់រំ",
+  Geohazards: "គ្រោះភូគព្ភសាស្ត្រ",
+  Society: "សង្គម",
+  Geochemistry: "គីមីភូគព្ភសាស្ត្រ",
+  Tectonics: "តិចតូនិច",
+  Mining: "រ៉ែ",
+  "Marine Geology": "ភូគព្ភសាស្ត្រសមុទ្រ",
+  "Environmental Hydrogeology": "បរិស្ថានវារីភូគព្ភសាស្ត្រ",
+  Fieldwork: "ការងារទីវាល",
+  "Core Pages": "ទំព័រគោល",
+  "Science & Maps": "វិទ្យាសាស្ត្រ និងផែនទី",
+  "Tools & Portals": "ឧបករណ៍ និងច្រកទ្វារ",
+};
 
 const TABLE_TEMPLATES = [
   {
@@ -2240,6 +2257,7 @@ export default function PostManager() {
           <div className="max-h-44 overflow-y-auto space-y-1.5 pr-1 text-xs text-[#50575e]">
             {allAvailableTags.map((c) => {
               const isChecked = tag === c;
+              const kmLabel = CATEGORY_KM_MAP[c];
               return (
                 <label key={c} className="flex items-center gap-2 cursor-pointer hover:text-[#1d2327]">
                   <input
@@ -2247,7 +2265,9 @@ export default function PostManager() {
                     checked={isChecked}
                     onChange={() => setTag(c)}
                   />
-                  <span>{c}</span>
+                  <span>
+                    {c} {kmLabel ? <span className="text-[#8c8f94] text-[11px]">({kmLabel})</span> : null}
+                  </span>
                 </label>
               );
             })}
@@ -2513,7 +2533,7 @@ export default function PostManager() {
               <option value="All">All Categories</option>
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
-                  {c}
+                  {c} {CATEGORY_KM_MAP[c] ? `(${CATEGORY_KM_MAP[c]})` : ""}
                 </option>
               ))}
             </select>
