@@ -87,16 +87,6 @@ export function trackPageView(customPath?: string) {
 
   const endpoint = "/api/analytics";
 
-  if (typeof navigator.sendBeacon === "function") {
-    try {
-      const blob = new Blob([payload], { type: "application/json" });
-      const queued = navigator.sendBeacon(endpoint, blob);
-      if (queued) return;
-    } catch {
-      // Fallback to fetch
-    }
-  }
-
   fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

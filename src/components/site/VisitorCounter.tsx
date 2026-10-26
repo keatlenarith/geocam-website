@@ -78,30 +78,33 @@ export function VisitorCounter({ className = "" }: { className?: string }) {
           <span>{kh ? "ចរាចរណ៍គេហទំព័រ:" : "Site Traffic:"}</span>
         </div>
 
+        {/* ចំនួនបូកយោង (All-Time Cumulative) */}
         <span className="inline-flex items-center gap-1.5 rounded-full border border-on-dark/20 bg-white/10 px-3 py-1 shadow-2xs">
           <Eye size={13} className="text-sky-400" aria-hidden="true" />
-          <span>{kh ? "ការចូលមើល:" : "Views:"}</span>
+          <span>{kh ? "ចំនួនបូកយោង:" : "Cumulative:"}</span>
           <strong className="text-white font-bold">
             {allTimeViews.toLocaleString()}
           </strong>
         </span>
 
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-on-dark/20 bg-white/10 px-3 py-1 shadow-2xs">
-          <Users size={13} className="text-emerald-400" aria-hidden="true" />
-          <span>{kh ? "ការទស្សនា:" : "Visits:"}</span>
-          <strong className="text-white font-bold">
-            {allTimeVisits.toLocaleString()}
-          </strong>
-        </span>
-
+        {/* ចំនួនប្រចាំថ្ងៃ (Daily Today) */}
         <span className="inline-flex items-center gap-1.5 rounded-full border border-on-dark/20 bg-white/10 px-3 py-1 shadow-2xs">
           <span
             className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"
             aria-hidden="true"
           />
-          <span>{kh ? "ថ្ងៃនេះ:" : "Today:"}</span>
+          <span>{kh ? "ចំនួនប្រចាំថ្ងៃ:" : "Daily (Today):"}</span>
           <strong className="text-white font-bold">
             {todayViews.toLocaleString()}
+          </strong>
+        </span>
+
+        {/* ការទស្សនាសរុប (Visits) */}
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-on-dark/20 bg-white/10 px-3 py-1 shadow-2xs">
+          <Users size={13} className="text-emerald-400" aria-hidden="true" />
+          <span>{kh ? "ការទស្សនា:" : "Visits:"}</span>
+          <strong className="text-white font-bold">
+            {allTimeVisits.toLocaleString()}
           </strong>
         </span>
 
@@ -166,7 +169,7 @@ export function VisitorCounter({ className = "" }: { className?: string }) {
             <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="rounded-2xl border border-border bg-muted/40 p-3.5 text-center">
                 <span className="text-[11px] font-bold uppercase text-muted-foreground block">
-                  {kh ? "ថ្ងៃនេះ" : "Today"}
+                  {kh ? "ចំនួនប្រចាំថ្ងៃ (ថ្ងៃនេះ)" : "Daily (Today)"}
                 </span>
                 <span className="text-2xl font-extrabold font-mono text-primary block mt-1">
                   {todayViews.toLocaleString()}
@@ -202,7 +205,7 @@ export function VisitorCounter({ className = "" }: { className?: string }) {
 
               <div className="rounded-2xl border border-border bg-emerald-500/10 border-emerald-500/20 p-3.5 text-center">
                 <span className="text-[11px] font-bold uppercase text-emerald-700 block">
-                  {kh ? "សរុបទាំងអស់" : "All Time"}
+                  {kh ? "ចំនួនបូកយោង (សរុប)" : "Cumulative (All Time)"}
                 </span>
                 <span className="text-2xl font-extrabold font-mono text-emerald-700 block mt-1">
                   {allTimeViews.toLocaleString()}
