@@ -64,8 +64,8 @@ type HomeVideo = {
 
 const DEFAULT_PLAYLISTS = [
   { id: "all", labelEn: "All Videos", labelKm: "ទាំងអស់" },
-  { id: "playlist-1", labelEn: "Playlist 1 (Geological Mapping)", labelKm: "បញ្ជីវីដេអូទី ១ (ការធ្វើផែនទី)" },
-  { id: "playlist-2", labelEn: "Playlist 2 (Field Drawing)", labelKm: "បញ្ជីវីដេអូទី ២ (គំនូរផែនទីវាល)" },
+  { id: "playlist-1", labelEn: "KIGAM 01", labelKm: "KIGAM 01" },
+  { id: "playlist-2", labelEn: "KIGAM 02", labelKm: "KIGAM 02" },
   { id: "field-work", labelEn: "Field Expeditions", labelKm: "ការងារទីវាល" },
   { id: "education", labelEn: "Education & Lectures", labelKm: "ការអប់រំ និងបាឋកថា" },
   { id: "documentary", labelEn: "Documentaries", labelKm: "ភាពយន្តឯកសារ" },
@@ -75,8 +75,8 @@ const DEFAULT_PLAYLISTS = [
 function resolveVideoPlaylistKey(video: HomeVideo): string {
   if (video.playlistName) {
     const p = video.playlistName.trim().toLowerCase();
-    if (p.includes("playlist 1") || p === "playlist-1" || p === "1") return "playlist-1";
-    if (p.includes("playlist 2") || p === "playlist-2" || p === "2") return "playlist-2";
+    if (p.includes("kigam 01") || p.includes("kigam 1") || p.includes("playlist 1") || p === "playlist-1" || p === "1") return "playlist-1";
+    if (p.includes("kigam 02") || p.includes("kigam 2") || p.includes("playlist 2") || p === "playlist-2" || p === "2") return "playlist-2";
     return p;
   }
   const url = video.url || "";
@@ -195,7 +195,7 @@ function HomeVideoPlaylist() {
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("education");
-  const [playlistName, setPlaylistName] = useState("Playlist 1");
+  const [playlistName, setPlaylistName] = useState("KIGAM 01");
   const [customPlaylist, setCustomPlaylist] = useState("");
   const [formError, setFormError] = useState("");
   const [editingVideoId, setEditingVideoId] = useState<string | null>(null);
@@ -204,8 +204,8 @@ function HomeVideoPlaylist() {
 
   const playlistOptions = useMemo(() => {
     const set = new Set<string>();
-    set.add("Playlist 1");
-    set.add("Playlist 2");
+    set.add("KIGAM 01");
+    set.add("KIGAM 02");
     videos.forEach(v => {
       if (v.playlistName && v.playlistName.trim()) set.add(v.playlistName.trim());
     });
@@ -215,12 +215,12 @@ function HomeVideoPlaylist() {
   const tabs = useMemo(() => {
     const baseTabs: { id: string; labelEn: string; labelKm: string }[] = [
       { id: "all", labelEn: "All Videos", labelKm: "ទាំងអស់" },
-      { id: "playlist-1", labelEn: "Playlist 1", labelKm: "បញ្ជីវីដេអូទី ១" },
-      { id: "playlist-2", labelEn: "Playlist 2", labelKm: "បញ្ជីវីដេអូទី ២" },
+      { id: "playlist-1", labelEn: "KIGAM 01", labelKm: "KIGAM 01" },
+      { id: "playlist-2", labelEn: "KIGAM 02", labelKm: "KIGAM 02" },
     ];
     playlistOptions.forEach(p => {
       const lower = p.toLowerCase();
-      if (lower !== "playlist 1" && lower !== "playlist 2") {
+      if (lower !== "kigam 01" && lower !== "kigam 02" && lower !== "playlist 1" && lower !== "playlist 2") {
         baseTabs.push({ id: "custom:" + lower, labelEn: p, labelKm: p });
       }
     });
@@ -277,8 +277,8 @@ function HomeVideoPlaylist() {
   const getPlaylistBadge = (v: HomeVideo) => {
     if (v.playlistName) return v.playlistName;
     const key = resolveVideoPlaylistKey(v);
-    if (key === "playlist-1") return "Playlist 1";
-    if (key === "playlist-2") return "Playlist 2";
+    if (key === "playlist-1") return "KIGAM 01";
+    if (key === "playlist-2") return "KIGAM 02";
     return km ? "ទូទៅ" : "General";
   };
 
@@ -405,7 +405,7 @@ function HomeVideoPlaylist() {
         event.preventDefault();
         if (!title.trim() || !videoSource(url.trim())) { setFormError(km ? "សូមបញ្ចូលចំណងជើង និងតំណ HTTPS ត្រឹមត្រូវ។" : "Enter a title and a valid HTTPS video link."); return; }
         if (videos.some(video => video.url === url.trim())) { setFormError(km ? "តំណនេះមានក្នុងបញ្ជីរួចហើយ។" : "This link is already in the playlist."); return; }
-        const assignedPlaylist = playlistName === "__new__" ? (customPlaylist.trim() || "Playlist 1") : playlistName;
+        const assignedPlaylist = playlistName === "__new__" ? (customPlaylist.trim() || "KIGAM 01") : playlistName;
         const next: HomeVideo = {
           id: crypto.randomUUID(),
           title: title.trim(),
@@ -428,7 +428,7 @@ function HomeVideoPlaylist() {
           </select>
         </label>
         {playlistName === "__new__" ? (
-          <label className="text-sm font-semibold">{km ? "ឈ្មោះ Playlist ថ្មី" : "New Playlist Name"}<input required maxLength={80} value={customPlaylist} onChange={e => setCustomPlaylist(e.target.value)} placeholder="e.g. Playlist 3" className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 font-normal" /></label>
+          <label className="text-sm font-semibold">{km ? "ឈ្មោះ Playlist ថ្មី" : "New Playlist Name"}<input required maxLength={80} value={customPlaylist} onChange={e => setCustomPlaylist(e.target.value)} placeholder="e.g. KIGAM 03" className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 font-normal" /></label>
         ) : (
           <label className="text-sm font-semibold">{km ? "ប្រភេទប្រធានបទ" : "Topic Category"}
             <select value={category} onChange={e => setCategory(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 font-normal">
@@ -455,7 +455,7 @@ function HomeVideoPlaylist() {
                 <div className="space-y-3">
                   <div className="grid gap-2 sm:grid-cols-2">
                     <label className="text-xs font-semibold">{km ? "ចំណងជើង" : "Title"}<input value={editTitle} onChange={e => setEditTitle(e.target.value)} className="mt-1 w-full rounded border p-2 text-xs" /></label>
-                    <label className="text-xs font-semibold">{km ? "ឈ្មោះ Playlist" : "Playlist Name"}<input value={editPlaylist} onChange={e => setEditPlaylist(e.target.value)} placeholder="e.g. Playlist 1" className="mt-1 w-full rounded border p-2 text-xs" /></label>
+                    <label className="text-xs font-semibold">{km ? "ឈ្មោះ Playlist" : "Playlist Name"}<input value={editPlaylist} onChange={e => setEditPlaylist(e.target.value)} placeholder="e.g. KIGAM 01" className="mt-1 w-full rounded border p-2 text-xs" /></label>
                   </div>
                   <div className="flex gap-2">
                     <button
