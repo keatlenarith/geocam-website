@@ -22,7 +22,7 @@ export function VisitorCounter({ className = "" }: { className?: string }) {
 
   useEffect(() => {
     let isMounted = true;
-    fetch("/api/analytics")
+    fetch("/api/analytics?t=" + Date.now())
       .then((res) => {
         if (!res.ok) throw new Error("HTTP " + res.status);
         return res.json();
@@ -36,8 +36,20 @@ export function VisitorCounter({ className = "" }: { className?: string }) {
         // Non-blocking fallback
       });
 
+    const handleUpdate = () => {
+      fetch("/api/analytics?t=" + Date.now())
+        .then((r) => r.json())
+        .then((d) => {
+          if (isMounted && d) setReport(d);
+        })
+        .catch(() => {});
+    };
+
+    window.addEventListener("geocam:analytics-updated", handleUpdate);
+
     return () => {
       isMounted = false;
+      window.removeEventListener("geocam:analytics-updated", handleUpdate);
     };
   }, []);
 

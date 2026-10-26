@@ -102,9 +102,15 @@ export function trackPageView(customPath?: string) {
     headers: { "Content-Type": "application/json" },
     body: payload,
     keepalive: true,
-  }).catch(() => {
-    // Analytics failures must never interrupt user experience
-  });
+  })
+    .then(() => {
+      try {
+        window.dispatchEvent(new CustomEvent("geocam:analytics-updated"));
+      } catch {}
+    })
+    .catch(() => {
+      // Analytics failures must never interrupt user experience
+    });
 }
 
 /**
