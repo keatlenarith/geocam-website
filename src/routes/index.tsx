@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@/lib/spa-router";
 import hero from "@/assets/hero-background.webp";
 import { useI18n } from "@/lib/i18n";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useCms } from "@/visual-cms/VisualCms";
 import { useAdmin } from "@/admin/Auth";
 import { researchAreas } from "@/lib/data";
@@ -51,10 +51,55 @@ const focusImages: Record<string, {src: string; alt: string}> = {
     alt: "Offshore marine basins, Gulf of Thailand tectonic evolution, coastal sediment dynamics, and offshore bathymetry"
   },
 };
-type HomeVideo = { id: string; title: string; url: string; description: string };
+type HomeVideo = {
+  id: string;
+  title: string;
+  url: string;
+  description: string;
+  category?: string;
+  categoryKm?: string;
+};
+
+const VIDEO_CATEGORIES = [
+  { id: "all", labelEn: "All Videos", labelKm: "ទាំងអស់" },
+  { id: "field-work", labelEn: "Field Expeditions", labelKm: "ការងារទីវាល" },
+  { id: "education", labelEn: "Education & Lectures", labelKm: "ការអប់រំ និងបាឋកថា" },
+  { id: "documentary", labelEn: "Documentaries", labelKm: "ភាពយន្តឯកសារ" },
+  { id: "general", labelEn: "General News & Updates", labelKm: "ព័ត៌មានទូទៅ & បច្ចុប្បន្នភាព" },
+] as const;
+
+function matchVideoCategory(cat?: string): string {
+  if (!cat) return "general";
+  const val = cat.trim().toLowerCase();
+  if (val === "field-work" || val.includes("field") || val.includes("ទីវាល")) return "field-work";
+  if (val === "education" || val.includes("edu") || val.includes("lecture") || val.includes("អប់រំ") || val.includes("បាឋកថា")) return "education";
+  if (val === "documentary" || val.includes("doc") || val.includes("ឯកសារ")) return "documentary";
+  return "general";
+}
+
+function getVideoCategoryLabel(categoryKey: string, km: boolean): string {
+  const matched = VIDEO_CATEGORIES.find(c => c.id === categoryKey);
+  if (!matched) return km ? "ទូទៅ" : "General";
+  return km ? matched.labelKm : matched.labelEn;
+}
+
 const defaultHomeVideos: HomeVideo[] = [
-  { id: "geocam-playlist-one", title: "Geoscience playlist 1", url: "https://www.youtube.com/watch?v=KxH-9WQ9m3Y&list=PL5yaghDzLHa45AXB9dIRwYscgIw_GGQvw", description: "Explore the first collection. Use the playlist menu inside the player to choose another video." },
-  { id: "geocam-playlist-two", title: "Geoscience playlist 2", url: "https://www.youtube.com/playlist?list=PL5yaghDzLHa4D9HD6cvtARyhaDW6Vdlo1", description: "Explore the second collection. Use the playlist menu inside the player to choose another video." },
+  {
+    id: "geocam-playlist-one",
+    title: "Geoscience playlist 1",
+    url: "https://www.youtube.com/watch?v=KxH-9WQ9m3Y&list=PL5yaghDzLHa45AXB9dIRwYscgIw_GGQvw",
+    description: "Explore the first collection. Use the playlist menu inside the player to choose another video.",
+    category: "field-work",
+    categoryKm: "ការងារទីវាល",
+  },
+  {
+    id: "geocam-playlist-two",
+    title: "Geoscience playlist 2",
+    url: "https://www.youtube.com/playlist?list=PL5yaghDzLHa4D9HD6cvtARyhaDW6Vdlo1",
+    description: "Explore the second collection. Use the playlist menu inside the player to choose another video.",
+    category: "education",
+    categoryKm: "ការអប់រំ និងបាឋកថា",
+  },
 ];
 
 function videoSource(value: string) {
@@ -96,25 +141,72 @@ function HomeVideoPlaylist() {
       v && typeof v.id === "string" && typeof v.title === "string" && typeof v.url === "string" && typeof v.description === "string" && !!videoSource(v.url));
   } catch { /* A malformed saved playlist leaves the rest of the homepage available. */ }
   const [selectedId, setSelectedId] = useState("");
+  const [activeCategory, setActiveCategory] = useState("all");
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("field-work");
   const [formError, setFormError] = useState("");
-  const selected = videos.find(v => v.id === selectedId) || videos[0];
+
+  const filteredVideos = useMemo(() => {
+    if (activeCategory === "all") return videos;
+    return videos.filter(v => matchVideoCategory(v.category) === activeCategory);
+  }, [videos, activeCategory]);
+
+  const selected = videos.find(v => v.id === selectedId) || filteredVideos[0] || videos[0];
   const source = selected ? videoSource(selected.url) : null;
   useEffect(() => { setPlaying(false); setFailed(false); }, [selected?.id, selected?.url]);
+
   const update = (next: HomeVideo[]) => cms.setEntry("/::en", "home-video-playlist", {
     kind: "text", value: JSON.stringify(next), status: "Approved", manuallyEdited: true,
   });
+
   return <section id="geoscience-videos" aria-labelledby="home-videos-heading" className="gc-section mx-auto max-w-[1800px] px-5" data-no-translate data-cms-ui>
-    <div className="gc-section-heading"><div>
-      <span className="gc-kicker"><Globe2 size={15} /> {km ? "រៀនតាមរយៈវីដេអូ" : "WATCH & DISCOVER"}</span>
-      <h2 id="home-videos-heading" className="gc-title">{km ? "វីដេអូភូគព្ភវិទ្យា" : "Geoscience Videos"}</h2>
-      <p className="gc-subtitle">{km ? "ស្វែងយល់ពីផែនដី តាមរយៈវីដេអូដែលបានជ្រើសរើស។" : "A handpicked collection of discoveries, field stories and ideas about our planet."}</p>
-    </div><span className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800">{videos.length} {km ? "បណ្តុំ" : videos.length === 1 ? "collection" : "collections"}</span></div>
-    <div className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
+    <div className="gc-section-heading">
+      <div>
+        <span className="gc-kicker"><Globe2 size={15} /> {km ? "រៀនតាមរយៈវីដេអូ" : "WATCH & DISCOVER"}</span>
+        <h2 id="home-videos-heading" className="gc-title">{km ? "វីដេអូភូគព្ភវិទ្យា" : "Geoscience Videos"}</h2>
+        <p className="gc-subtitle">{km ? "ស្វែងយល់ពីផែនដី តាមរយៈវីដេអូដែលបានជ្រើសរើស។" : "A handpicked collection of discoveries, field stories and ideas about our planet."}</p>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800">
+          {videos.length} {km ? "បណ្តុំ" : videos.length === 1 ? "collection" : "collections"}
+        </span>
+      </div>
+    </div>
+
+    {/* Video Category Filter Tabs */}
+    <div className="mb-4 flex flex-wrap items-center gap-2" role="tablist" aria-label={km ? "ប្រភេទវីដេអូ" : "Video categories"}>
+      {VIDEO_CATEGORIES.map(cat => {
+        const count = cat.id === "all" ? videos.length : videos.filter(v => matchVideoCategory(v.category) === cat.id).length;
+        const isActive = activeCategory === cat.id;
+        return (
+          <button
+            key={cat.id}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            onClick={() => setActiveCategory(cat.id)}
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all ${
+              isActive
+                ? "bg-emerald-800 text-white shadow-sm ring-2 ring-emerald-800 ring-offset-1"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
+          >
+            <span>{km ? cat.labelKm : cat.labelEn}</span>
+            <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+              isActive ? "bg-white/20 text-white" : "bg-slate-200 text-slate-600"
+            }`}>
+              {count}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+
+    <div className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
       <div className="min-w-0">
         <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-[#0b162f] text-white">
           {playing && selected && source && !failed ? source.kind === "embed"
@@ -132,18 +224,57 @@ function HomeVideoPlaylist() {
               </div>
             </div>}
         </div>
-        <div className="p-5 md:p-7"><div className="flex flex-wrap items-center justify-between gap-3"><h3 className="text-lg font-semibold text-slate-900">{selected?.title || (km ? "បញ្ជីវីដេអូ GeoCam" : "The GeoCam watchlist")}</h3>{selected && <a href={selected.url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-emerald-700 underline underline-offset-4">{km ? "ប្រភពដើម" : "Open original"} ↗</a>}</div><p className="mt-2 text-sm leading-relaxed text-slate-600">{selected?.description || (km ? "ជ្រើសរើសវីដេអូពីបញ្ជី។" : "Field learning, inspiring landscapes and science worth sharing.")}</p></div>
+        <div className="p-5 md:p-7">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+                {getVideoCategoryLabel(matchVideoCategory(selected?.category), km)}
+              </span>
+              <h3 className="text-lg font-semibold text-slate-900">{selected?.title || (km ? "បញ្ជីវីដេអូ GeoCam" : "The GeoCam watchlist")}</h3>
+            </div>
+            {selected && <a href={selected.url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-emerald-700 underline underline-offset-4">{km ? "ប្រភពដើម" : "Open original"} ↗</a>}
+          </div>
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">{selected?.description || (km ? "ជ្រើសរើសវីដេអូពីបញ្ជី។" : "Field learning, inspiring landscapes and science worth sharing.")}</p>
+        </div>
       </div>
       <aside aria-label={km ? "បញ្ជីវីដេអូ" : "Video playlist"} className="min-w-0 border-t border-slate-200 bg-slate-50 lg:border-t-0 lg:border-l">
-        <div className="border-b border-slate-200 px-5 py-5"><h3 className="font-semibold text-slate-900">{km ? "បញ្ជីវីដេអូ" : "Your video collections"}</h3><p className="mt-1 text-xs text-slate-500">{km ? "ជ្រើសរើសវីដេអូដើម្បីមើល" : "Choose a collection, then browse its videos in the player"}</p></div>
-        <ol className="max-h-[480px] overflow-y-auto p-3">{videos.map((video, index) => {
-          const item = videoSource(video.url)!;
-          return <li key={video.id} className="mb-2"><button type="button" aria-pressed={selected?.id === video.id} onClick={() => { setSelectedId(video.id); setPlaying(false); }} className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors ${selected?.id === video.id ? "border-emerald-300 bg-white shadow-sm" : "border-transparent hover:bg-white"}`}>
-            <span className="relative flex aspect-video w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-800 text-white">{item.thumbnail ? <img src={item.thumbnail} alt="" loading="lazy" className="h-full w-full object-cover" /> : <span aria-hidden="true">▷</span>}</span>
-            <span className="min-w-0"><span className="block text-[10px] font-bold uppercase tracking-wider text-emerald-700">{String(index + 1).padStart(2, "0")} · {item.label}</span><span className="mt-1 block break-words text-sm font-semibold text-slate-900">{video.title}</span></span>
-          </button></li>;
-        })}</ol>
-        {!videos.length && <p className="px-6 pb-8 text-sm leading-relaxed text-slate-500">{km ? "វីដេអូថ្មីនឹងមកដល់ក្នុងពេលឆាប់ៗនេះ។" : "The collection is being curated. New videos are coming soon."}</p>}
+        <div className="border-b border-slate-200 px-5 py-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-slate-900">{km ? "បញ្ជីវីដេអូ" : "Your video collections"}</h3>
+            <span className="text-xs text-slate-500">{filteredVideos.length} {km ? "វីដេអូ" : "videos"}</span>
+          </div>
+          <p className="mt-1 text-xs text-slate-500">{km ? "ជ្រើសរើសវីដេអូដើម្បីមើល" : "Choose a collection, then browse its videos in the player"}</p>
+        </div>
+        <ol className="max-h-[480px] overflow-y-auto p-3">
+          {filteredVideos.map((video, index) => {
+            const item = videoSource(video.url)!;
+            const catLabel = getVideoCategoryLabel(matchVideoCategory(video.category), km);
+            return <li key={video.id} className="mb-2"><button type="button" aria-pressed={selected?.id === video.id} onClick={() => { setSelectedId(video.id); setPlaying(false); }} className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors ${selected?.id === video.id ? "border-emerald-300 bg-white shadow-sm" : "border-transparent hover:bg-white"}`}>
+              <span className="relative flex aspect-video w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-800 text-white">{item.thumbnail ? <img src={item.thumbnail} alt="" loading="lazy" className="h-full w-full object-cover" /> : <span aria-hidden="true">▷</span>}</span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-emerald-700">{String(index + 1).padStart(2, "0")} · {item.label}</span>
+                  <span className="rounded bg-slate-200/70 px-1.5 py-0.2 text-[9px] font-medium text-slate-600">{catLabel}</span>
+                </span>
+                <span className="mt-1 block break-words text-sm font-semibold text-slate-900">{video.title}</span>
+              </span>
+            </button></li>;
+          })}
+        </ol>
+        {!filteredVideos.length && (
+          <div className="p-6 text-center text-sm leading-relaxed text-slate-500">
+            <p>{km ? "មិនមានវីដេអូនៅក្នុងប្រភេទនេះទេ។" : "No videos found in this category."}</p>
+            {activeCategory !== "all" && (
+              <button
+                type="button"
+                onClick={() => setActiveCategory("all")}
+                className="mt-2 text-xs font-semibold text-emerald-700 underline"
+              >
+                {km ? "បង្ហាញវីដេអូទាំងអស់" : "Show all videos"}
+              </button>
+            )}
+          </div>
+        )}
       </aside>
     </div>
     {editable && <details className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-5" data-no-cms>
@@ -153,16 +284,31 @@ function HomeVideoPlaylist() {
         event.preventDefault();
         if (!title.trim() || !videoSource(url.trim())) { setFormError(km ? "សូមបញ្ចូលចំណងជើង និងតំណ HTTPS ត្រឹមត្រូវ។" : "Enter a title and a valid HTTPS video link."); return; }
         if (videos.some(video => video.url === url.trim())) { setFormError(km ? "តំណនេះមានក្នុងបញ្ជីរួចហើយ។" : "This link is already in the playlist."); return; }
-        const next = { id: crypto.randomUUID(), title: title.trim(), url: url.trim(), description: description.trim() };
+        const matchedCat = VIDEO_CATEGORIES.find(c => c.id === category) || VIDEO_CATEGORIES[1];
+        const next: HomeVideo = {
+          id: crypto.randomUUID(),
+          title: title.trim(),
+          url: url.trim(),
+          description: description.trim(),
+          category: matchedCat.labelEn,
+          categoryKm: matchedCat.labelKm,
+        };
         update([...videos, next]); setSelectedId(next.id); setTitle(""); setUrl(""); setDescription(""); setFormError("");
       }}>
         <label className="text-sm font-semibold">{km ? "ចំណងជើង" : "Video title"}<input required maxLength={180} value={title} onChange={e => setTitle(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 font-normal" /></label>
         <label className="text-sm font-semibold">{km ? "តំណវីដេអូ" : "Video link (HTTPS)"}<input type="url" required maxLength={2048} value={url} onChange={e => setUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=…" className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 font-normal" /></label>
+        <label className="text-sm font-semibold">{km ? "ប្រភេទវីដេអូ" : "Category"}
+          <select value={category} onChange={e => setCategory(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 font-normal">
+            {VIDEO_CATEGORIES.filter(c => c.id !== "all").map(c => (
+              <option key={c.id} value={c.id}>{km ? c.labelKm : c.labelEn}</option>
+            ))}
+          </select>
+        </label>
         <label className="text-sm font-semibold md:col-span-2">{km ? "ការពិពណ៌នា" : "Description (optional)"}<textarea maxLength={1000} value={description} onChange={e => setDescription(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 font-normal" /></label>
         {formError && <p role="alert" className="text-sm text-red-700 md:col-span-2">{formError}</p>}
         <button type="submit" className="justify-self-start rounded-lg bg-emerald-800 px-5 py-3 text-sm font-semibold text-white">{km ? "បន្ថែមក្នុងបញ្ជី" : "Add to playlist"}</button>
       </form>
-      <ul className="mt-5 space-y-2">{videos.map((video, index) => <li key={video.id} className="flex flex-wrap items-center gap-2 rounded-lg bg-white p-3 text-sm"><span className="mr-auto break-words font-semibold">{video.title}</span><button type="button" disabled={index === 0} className="rounded border px-3 py-2 disabled:opacity-30" aria-label={`Move ${video.title} up`} onClick={() => { const next = [...videos]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; update(next); }}>↑</button><button type="button" disabled={index === videos.length - 1} className="rounded border px-3 py-2 disabled:opacity-30" aria-label={`Move ${video.title} down`} onClick={() => { const next = [...videos]; [next[index], next[index + 1]] = [next[index + 1], next[index]]; update(next); }}>↓</button><button type="button" className="rounded border border-red-200 px-3 py-2 text-red-700" onClick={() => update(videos.filter(v => v.id !== video.id))}>{km ? "លុប" : "Remove"}</button></li>)}</ul>
+      <ul className="mt-5 space-y-2">{videos.map((video, index) => <li key={video.id} className="flex flex-wrap items-center gap-2 rounded-lg bg-white p-3 text-sm"><span className="rounded bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-800">{getVideoCategoryLabel(matchVideoCategory(video.category), km)}</span><span className="mr-auto break-words font-semibold">{video.title}</span><button type="button" disabled={index === 0} className="rounded border px-3 py-2 disabled:opacity-30" aria-label={`Move ${video.title} up`} onClick={() => { const next = [...videos]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; update(next); }}>↑</button><button type="button" disabled={index === videos.length - 1} className="rounded border px-3 py-2 disabled:opacity-30" aria-label={`Move ${video.title} down`} onClick={() => { const next = [...videos]; [next[index], next[index + 1]] = [next[index + 1], next[index]]; update(next); }}>↓</button><button type="button" className="rounded border border-red-200 px-3 py-2 text-red-700" onClick={() => update(videos.filter(v => v.id !== video.id))}>{km ? "លុប" : "Remove"}</button></li>)}</ul>
     </details>}
   </section>;
 }
