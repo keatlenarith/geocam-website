@@ -68,12 +68,36 @@ const VIDEO_CATEGORIES = [
   { id: "general", labelEn: "General News & Updates", labelKm: "ព័ត៌មានទូទៅ & បច្ចុប្បន្នភាព" },
 ] as const;
 
-function matchVideoCategory(cat?: string): string {
-  if (!cat) return "general";
-  const val = cat.trim().toLowerCase();
-  if (val === "field-work" || val.includes("field") || val.includes("ទីវាល")) return "field-work";
-  if (val === "education" || val.includes("edu") || val.includes("lecture") || val.includes("អប់រំ") || val.includes("បាឋកថា")) return "education";
-  if (val === "documentary" || val.includes("doc") || val.includes("ឯកសារ")) return "documentary";
+function matchVideoCategory(cat?: string, title?: string): string {
+  if (cat && cat !== "general" && cat !== "ទូទៅ") {
+    const val = cat.trim().toLowerCase();
+    if (val === "field-work" || val.includes("field") || val.includes("ទីវាល")) return "field-work";
+    if (val === "education" || val.includes("edu") || val.includes("lecture") || val.includes("អប់រំ") || val.includes("បាឋកថា")) return "education";
+    if (val === "documentary" || val.includes("doc") || val.includes("ឯកសារ")) return "documentary";
+    return "general";
+  }
+  const t = (title || "").toLowerCase();
+  if (t.includes("fieldwork - day") || t.includes("field mapping part") || t.includes("fieldwork")) {
+    return "field-work";
+  }
+  if (
+    t.includes("lecture") ||
+    t.includes("technique") ||
+    t.includes("cyber mapping") ||
+    t.includes("mineral exploration") ||
+    t.includes("modelling") ||
+    t.includes("strike & dip") ||
+    t.includes("geometry") ||
+    t.includes("geological features") ||
+    t.includes("reading geological map") ||
+    t.includes("outcome - geological map") ||
+    t.includes("education")
+  ) {
+    return "education";
+  }
+  if (t.includes("documentary") || t.includes("ភាពយន្តឯកសារ")) {
+    return "documentary";
+  }
   return "general";
 }
 
@@ -152,7 +176,7 @@ function HomeVideoPlaylist() {
 
   const filteredVideos = useMemo(() => {
     if (activeCategory === "all") return videos;
-    return videos.filter(v => matchVideoCategory(v.category) === activeCategory);
+    return videos.filter(v => matchVideoCategory(v.category, v.title) === activeCategory);
   }, [videos, activeCategory]);
 
   const selected = videos.find(v => v.id === selectedId) || filteredVideos[0] || videos[0];
@@ -180,7 +204,7 @@ function HomeVideoPlaylist() {
     {/* Video Category Filter Tabs */}
     <div className="mb-4 flex flex-wrap items-center gap-2" role="tablist" aria-label={km ? "ប្រភេទវីដេអូ" : "Video categories"}>
       {VIDEO_CATEGORIES.map(cat => {
-        const count = cat.id === "all" ? videos.length : videos.filter(v => matchVideoCategory(v.category) === cat.id).length;
+        const count = cat.id === "all" ? videos.length : videos.filter(v => matchVideoCategory(v.category, v.title) === cat.id).length;
         const isActive = activeCategory === cat.id;
         return (
           <button
@@ -228,7 +252,7 @@ function HomeVideoPlaylist() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
-                {getVideoCategoryLabel(matchVideoCategory(selected?.category), km)}
+                {getVideoCategoryLabel(matchVideoCategory(selected?.category, selected?.title), km)}
               </span>
               <h3 className="text-lg font-semibold text-slate-900">{selected?.title || (km ? "បញ្ជីវីដេអូ GeoCam" : "The GeoCam watchlist")}</h3>
             </div>
@@ -248,7 +272,7 @@ function HomeVideoPlaylist() {
         <ol className="max-h-[480px] overflow-y-auto p-3">
           {filteredVideos.map((video, index) => {
             const item = videoSource(video.url)!;
-            const catLabel = getVideoCategoryLabel(matchVideoCategory(video.category), km);
+            const catLabel = getVideoCategoryLabel(matchVideoCategory(video.category, video.title), km);
             return <li key={video.id} className="mb-2"><button type="button" aria-pressed={selected?.id === video.id} onClick={() => { setSelectedId(video.id); setPlaying(false); }} className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors ${selected?.id === video.id ? "border-emerald-300 bg-white shadow-sm" : "border-transparent hover:bg-white"}`}>
               <span className="relative flex aspect-video w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-800 text-white">{item.thumbnail ? <img src={item.thumbnail} alt="" loading="lazy" className="h-full w-full object-cover" /> : <span aria-hidden="true">▷</span>}</span>
               <span className="min-w-0 flex-1">
@@ -308,7 +332,7 @@ function HomeVideoPlaylist() {
         {formError && <p role="alert" className="text-sm text-red-700 md:col-span-2">{formError}</p>}
         <button type="submit" className="justify-self-start rounded-lg bg-emerald-800 px-5 py-3 text-sm font-semibold text-white">{km ? "បន្ថែមក្នុងបញ្ជី" : "Add to playlist"}</button>
       </form>
-      <ul className="mt-5 space-y-2">{videos.map((video, index) => <li key={video.id} className="flex flex-wrap items-center gap-2 rounded-lg bg-white p-3 text-sm"><span className="rounded bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-800">{getVideoCategoryLabel(matchVideoCategory(video.category), km)}</span><span className="mr-auto break-words font-semibold">{video.title}</span><button type="button" disabled={index === 0} className="rounded border px-3 py-2 disabled:opacity-30" aria-label={`Move ${video.title} up`} onClick={() => { const next = [...videos]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; update(next); }}>↑</button><button type="button" disabled={index === videos.length - 1} className="rounded border px-3 py-2 disabled:opacity-30" aria-label={`Move ${video.title} down`} onClick={() => { const next = [...videos]; [next[index], next[index + 1]] = [next[index + 1], next[index]]; update(next); }}>↓</button><button type="button" className="rounded border border-red-200 px-3 py-2 text-red-700" onClick={() => update(videos.filter(v => v.id !== video.id))}>{km ? "លុប" : "Remove"}</button></li>)}</ul>
+      <ul className="mt-5 space-y-2">{videos.map((video, index) => <li key={video.id} className="flex flex-wrap items-center gap-2 rounded-lg bg-white p-3 text-sm"><span className="rounded bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-800">{getVideoCategoryLabel(matchVideoCategory(video.category, video.title), km)}</span><span className="mr-auto break-words font-semibold">{video.title}</span><button type="button" disabled={index === 0} className="rounded border px-3 py-2 disabled:opacity-30" aria-label={`Move ${video.title} up`} onClick={() => { const next = [...videos]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; update(next); }}>↑</button><button type="button" disabled={index === videos.length - 1} className="rounded border px-3 py-2 disabled:opacity-30" aria-label={`Move ${video.title} down`} onClick={() => { const next = [...videos]; [next[index], next[index + 1]] = [next[index + 1], next[index]]; update(next); }}>↓</button><button type="button" className="rounded border border-red-200 px-3 py-2 text-red-700" onClick={() => update(videos.filter(v => v.id !== video.id))}>{km ? "លុប" : "Remove"}</button></li>)}</ul>
     </details>}
   </section>;
 }
