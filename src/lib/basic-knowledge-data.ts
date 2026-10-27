@@ -550,8 +550,35 @@ export const BASIC_KNOWLEDGE_ARTICLES: KnowledgeArticle[] = [
           subKm: "រូបថតអង្កេត JICA ២០១០ លេខ ១២ (ឧបសម្ព័ន្ធ V-4, ទំព័រ ១៣០)"
         }
       ]
+    },
+    {
+      id: "atlas-references-sources",
+      headingEn: "11. Geological References, Cartographic Sources and Data Provenance",
+      headingKm: "១១. ឯកសារយោងភូគព្ភសាស្ត្រ ប្រភពផែនទី និងប្រភពទិន្នន័យ (Data Provenance)",
+      contentEn: "The data, whole-rock geochemical analyses, thin-sections, and cartographic boundaries in this Atlas are synthesized from verified national surveys, international bilateral technical cooperation missions, and peer-reviewed international geoscientific literature.",
+      contentKm: "ទិន្នន័យ ការវិភាគគីមីថ្មសរុប បន្ទះស្តើងក្រោមមីក្រូទស្សន៍ និងព្រំប្រទល់ផែនទីនៅក្នុងកម្រងអាត្លាសនេះ ត្រូវបានសំយោគចេញពីការអង្កេតថ្នាក់ជាតិ គម្រោងសហប្រតិបត្តិការបច្ចេកទេសទ្វេភាគីអន្តរជាតិ និងអត្ថបទស្រាវជ្រាវវិទ្យាសាស្ត្រអន្តរជាតិផ្លូវការ។",
+      bulletsEn: [
+        "JICA (2010): The Master Plan Study for Promotion of the Mining Industry in the Kingdom of Cambodia. Japan International Cooperation Agency & Ministry of Industry, Mines and Energy (MIME), Final Report & Analytical Appendices V-4 (Field Photos), V-5 (74 Rock Samples), V-7 (Whole-Rock XRF), V-8 (36-Element Assays), and V-10 (Sediment Geochemistry).",
+        "Department of Geology / GDMR (2014): Geological and Structural Map of Cambodia (1:500,000 scale). General Department of Mineral Resources, Ministry of Mines and Energy (MME), Phnom Penh.",
+        "Shellnutt, J.G., Nguyen, D.T., Lee, H.Y. (2023): Cretaceous arc magmatism in eastern Cambodia: Implications for paleo-Pacific subduction beneath Indochina. Frontiers in Earth Science, 11:1110568. doi:10.3389/feart.2023.1110568.",
+        "Gillespie, M.R. & Styles, M.T. (1999): BGS Rock Classification Scheme, Volume 1: Classification of igneous rocks. British Geological Survey Research Report, RR 99-06.",
+        "CCOP Geodata Repository (2020): Specimen Photographic Archive for Cambodian Carbonate, Sandstone, Basalt, and Lateritic Profiles (Specimens CAM_GDP_0050, 0051, 0003, MDK25015, MDK25016). Coordinating Committee for Geoscience Programmes in East and Southeast Asia.",
+        "BGI / Bureau Gravimetrique International (2012): World Gravity Map 2012 (WGM2012) Global Bouguer and Isostatic Gravity Anomaly Grids (2 arc-minute resolution). Commission for the Geological Map of the World (CGMW), UNESCO.",
+        "Meyer, B., Saltus, R., Chulliat, A. (2017): EMAG2v3: Earth Magnetic Anomaly Grid (2-arc-minute resolution), Version 3, NOAA National Centers for Environmental Information. doi:10.7289/V5H70CVX.",
+        "Sandwell, D.T., et al. (2014): New global marine gravity model from CryoSat-2 and Jason-1 reveals buried tectonic structure. Science 346, 65-67. Scripps Institution of Oceanography, UCSD."
+      ],
+      bulletsKm: [
+        "JICA (២០១០)៖ ផែនការមេសម្រាប់ការលើកកម្ពស់វិស័យឧស្សាហកម្មរ៉ែនៅព្រះរាជាណាចក្រកម្ពុជា។ ទីភ្នាក់ងារសហប្រតិបត្តិការអន្តរជាតិនៃប្រទេសជប៉ុន (JICA) និងក្រសួងឧស្សាហកម្ម រ៉ែ និងថាមពល (MIME) របាយការណ៍ស្ថាពរ និងឧបសម្ព័ន្ធវិភាគ V-4 (រូបថតចុះវាល) V-5 (សំណាកថ្ម ៧៤) V-7 (គីមីថ្មសរុប XRF) V-8 (ធាតុវិភាគ ៣៦) និង V-10 (គីមីដីល្បាប់)។",
+        "នាយកដ្ឋានភូគព្ភសាស្ត្រ / GDMR (២០១៤)៖ ផែនទីភូគព្ភសាស្ត្រ និងរចនាសម្ព័ន្ធនៃព្រះរាជាណាចក្រកម្ពុជា (មាត្រដ្ឋាន ១:៥០០,០០០)។ អគ្គនាយកដ្ឋានធនធានរ៉ែ ក្រសួងរ៉ែ និងថាមពល (MME) រាជធានីភ្នំពេញ។",
+        "Shellnutt, J.G., Nguyen, D.T., Lee, H.Y. (២០២៣)៖ សកម្មភាពម៉ាក់ម៉ាធ្នូកោះយុគគ្រីតាសេនៅកម្ពុជាភាគខាងកើត៖ ផលប៉ះពាល់នៃការរងសម្ពាធមហាសមុទ្រប៉ាស៊ីហ្វិកបុរាណក្រោមប្លុកឥណ្ឌូចិន។ Frontiers in Earth Science, 11:1110568. doi:10.3389/feart.2023.1110568.",
+        "Gillespie, M.R. & Styles, M.T. (១៩៩៩)៖ គ្រោងការណ៍ចំណាត់ថ្នាក់ថ្ម BGS ភាគ ១៖ ចំណាត់ថ្នាក់សិលាអគ្នី។ របាយការណ៍ស្រាវជ្រាវរបស់អង្គការអង្កេតភូគព្ភសាស្ត្រអង់គ្លេស (British Geological Survey) RR 99-06.",
+        "ឃ្លាំងទិន្នន័យភូគព្ភសាស្ត្រ CCOP (២០២០)៖ បណ្ណសាររូបថតសំណាកថ្មកាបូណាត ថ្មភក់ ថ្មបាសាល់ និងមុខកាត់ដីឡាតេរីតនៅកម្ពុជា (សំណាក CAM_GDP_0050, 0051, 0003, MDK25015, MDK25016)។ គណៈកម្មាធិការសម្របសម្រួលកម្មវិធីភូគព្ភសាស្ត្រប្រចាំតំបន់អាស៊ីបូព៌ា និងអាស៊ីអាគ្នេយ៍ (CCOP)។",
+        "BGI / Bureau Gravimétrique International (២០១២)៖ ផែនទីទំនាញផែនដីពិភពលោក ២០១២ (WGM2012) ក្របខ័ណ្ឌអានូម៉ាលីទំនាញប៊ូហ្គ័រ និងអ៊ីសូស្តាស៊ីសកល។ គណៈកម្មការសម្រាប់ផែនទីភូគព្ភសាស្ត្រពិភពលោក (CGMW) អង្គការយូណេស្កូ (UNESCO)។",
+        "Meyer, B., Saltus, R., Chulliat, A. (២០១៧)៖ EMAG2v3: ក្រឡាចត្រង្គអានូម៉ាលីដែនម៉ាញ៉េទិចផែនដី (កម្រិត ២ នាទី) កំណែទី ៣ NOAA NCEI. doi:10.7289/V5H70CVX.",
+        "Sandwell, D.T., et al. (២០១៤)៖ គំរូទំនាញផែនដីសមុទ្រសកលពីផ្កាយរណប CryoSat-2 និង Jason-1 បង្ហាញរចនាសម្ព័ន្ធតិចតូនិចកប់ក្នុងជម្រៅជ្រៅ។ ទស្សនាវដ្តី Science 346, 65-67 វិទ្យាស្ថានមហាសមុទ្រ Scripps សាកលវិទ្យាល័យកាលីហ្វ័រញ៉ា សាន់ឌីអេហ្គោ (UCSD)។"
+      ]
     }
-],
+  ],
     takeawaysEn: [
       "Cambodia's bedrock consists of three foundational classes: igneous plutons/basalts, Mesozoic sandstones, and older metamorphic schists.",
       "The newly integrated 2026 Atlas provides 74 surveyed rock samples, whole-rock XRF geochemistry, and thin-section microphotographs.",
