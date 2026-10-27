@@ -124,6 +124,27 @@ function sanitizeTmdLocation(raw: string): string {
   return text || "Regional epicenter";
 }
 
+function parsePhivolcsTime(str: string): string | null {
+  // e.g. "27 October 2026 - 05:56 PM" (Philippine Time = UTC+8)
+  const parts = str.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})\s*-\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  if (!parts) return null;
+  const months: Record<string, number> = {
+    january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+    july: 6, august: 7, september: 8, october: 9, november: 10, december: 11,
+  };
+  const d = parseInt(parts[1], 10);
+  const m = months[parts[2].toLowerCase()];
+  const y = parseInt(parts[3], 10);
+  let h = parseInt(parts[4], 10);
+  const min = parseInt(parts[5], 10);
+  const ampm = parts[6].toUpperCase();
+  if (ampm === "PM" && h < 12) h += 12;
+  if (ampm === "AM" && h === 12) h = 0;
+  if (m === undefined) return null;
+  const utcDate = new Date(Date.UTC(y, m, d, h - 8, min, 0));
+  return utcDate.toISOString();
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS and Cache Headers
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -450,6 +471,103 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (err: any) {
     providerHealth.CENC.status = "delayed";
     providerHealth.CENC.note = "Upstream connection timeout or delayed";
+  }
+
+  // 4. Fetch PHIVOLCS DOST (Philippines) Official Bulletin Feed
+  try {
+    const phivolcsRes = await fetch("https://earthquake.phivolcs.dost.gov.ph/", {
+      signal: AbortSignal.timeout(8000),
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
+    });
+
+    if (phivolcsRes.ok) {
+      const html = await phivolcsRes.text();
+      const trRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
+      let trMatch;
+      let phivolcsCount = 0;
+
+      while ((trMatch = trRegex.exec(html)) !== null) {
+        const row = trMatch[1];
+        if (!row.includes("href=") || !row.includes("Earthquake_Information")) continue;
+
+        const tds: string[] = [];
+        const tdRegex = /<td[^>]*>([\s\S]*?)<\/td>/gi;
+        let tdMatch;
+        while ((tdMatch = tdRegex.exec(row)) !== null) {
+          tds.push(tdMatch[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim());
+        }
+
+        if (tds.length < 6) continue;
+
+        const [rawTime, rawLat, rawLon, rawDepth, rawMag, rawLoc] = tds;
+        const originTime = parsePhivolcsTime(rawTime);
+        if (!originTime) continue;
+
+        const lat = parseFloat(rawLat);
+        const lon = parseFloat(rawLon);
+        const depth = parseFloat(rawDepth);
+        const mag = parseFloat(rawMag);
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+
+        // Check if event falls within requested time window
+        const eventMs = new Date(originTime).getTime();
+        if (Date.now() - eventMs > windowMs) continue;
+
+        const isReg = lat >= 5.0 && lat <= 25.0 && lon >= 92.0 && lon <= 112.0;
+        const dLat = (lat - 12.5657) * 111;
+        const dLon = (lon - 104.991) * 111 * Math.cos((12.5657 * Math.PI) / 180);
+        const distKm = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
+
+        const linkMatch = row.match(/href=["']([^"']+)["']/i);
+        const relLink = linkMatch ? linkMatch[1].replace(/\\/g, "/") : "";
+        const sourceUrl = relLink
+          ? `https://earthquake.phivolcs.dost.gov.ph/${relLink}`
+          : "https://earthquake.phivolcs.dost.gov.ph/";
+
+        const cleanLoc = rawLoc || "Philippines epicenter";
+        const id = `phivolcs-${lat.toFixed(2)}-${lon.toFixed(2)}-${originTime.slice(0, 16)}`;
+
+        rawEvents.push({
+          id,
+          originTime,
+          firstSeenAt: originTime,
+          latitude: lat,
+          longitude: lon,
+          depthKm: Number.isFinite(depth) ? depth : null,
+          magnitude: Number.isFinite(mag) ? mag : null,
+          magnitudeType: "M",
+          location: `${cleanLoc}, Philippines`,
+          reviewStatus: "reviewed",
+          status: "reviewed",
+          url: sourceUrl,
+          isRegional: isReg,
+          distanceToCambodiaKm: distKm,
+          reports: [
+            {
+              provider: "PHIVOLCS",
+              providerEventId: id,
+              sourceUrl,
+              magnitude: Number.isFinite(mag) ? mag : null,
+              depthKm: Number.isFinite(depth) ? depth : null,
+            },
+          ],
+        });
+        phivolcsCount++;
+      }
+
+      providerHealth.PHIVOLCS.status = "available";
+      providerHealth.PHIVOLCS.eventCount = phivolcsCount;
+    } else {
+      providerHealth.PHIVOLCS.status = "unavailable";
+      providerHealth.PHIVOLCS.note = `Upstream HTTP ${phivolcsRes.status}`;
+    }
+  } catch (err: any) {
+    providerHealth.PHIVOLCS.status = "delayed";
+    providerHealth.PHIVOLCS.note = "Upstream connection timeout or delayed";
   }
 
   // Deduplicate events across providers (tolerance: 60s and 30km)
