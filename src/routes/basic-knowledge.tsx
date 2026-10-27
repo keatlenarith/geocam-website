@@ -20,6 +20,7 @@ import {
   Compass,
   Bookmark,
   ExternalLink,
+  Download,
 } from "lucide-react";
 import {
   BASIC_KNOWLEDGE_ARTICLES,
@@ -347,6 +348,46 @@ export default function BasicKnowledge() {
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent" />
                 </div>
 
+                {/* PDF Report Download Box */}
+                {curatedArticle.document && (
+                  <div className="rounded-2xl border-2 border-blue-200 bg-gradient-to-br from-blue-50/90 to-indigo-50/80 p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="space-y-1.5 max-w-xl">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
+                          <FileText size={12} /> PDF Report
+                        </span>
+                        <span className="text-xs font-mono font-bold text-blue-800">
+                          {curatedArticle.document.size}
+                        </span>
+                      </div>
+                      <h3 className="text-base sm:text-lg font-extrabold text-slate-900 leading-snug">
+                        {lang === "km"
+                          ? curatedArticle.document.titleKm
+                          : curatedArticle.document.titleEn}
+                      </h3>
+                      {(curatedArticle.document.descriptionKm ||
+                        curatedArticle.document.descriptionEn) && (
+                        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                          {lang === "km"
+                            ? curatedArticle.document.descriptionKm
+                            : curatedArticle.document.descriptionEn}
+                        </p>
+                      )}
+                    </div>
+
+                    <a
+                      href={curatedArticle.document.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download={curatedArticle.document.filename}
+                      className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-md hover:bg-blue-700 hover:shadow-lg transition active:scale-95"
+                    >
+                      <Download size={16} />
+                      <span>{lang === "km" ? "ទាញយកឯកសារ PDF" : "Download PDF Atlas"}</span>
+                    </a>
+                  </div>
+                )}
+
                 {/* Narrative Sections */}
                 <div className="space-y-8 text-slate-800 text-sm sm:text-base leading-relaxed">
                   {curatedArticle.sections.map((sec) => {
@@ -378,6 +419,22 @@ export default function BasicKnowledge() {
                             </span>
                             {callout}
                           </div>
+                        )}
+
+                        {sec.image && (
+                          <figure className="my-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-2 sm:p-3 text-center">
+                            <img
+                              src={sec.image}
+                              alt={lang === "km" ? sec.imageCaptionKm || "" : sec.imageCaptionEn || ""}
+                              className="w-full max-h-[500px] object-contain rounded-xl bg-white mx-auto"
+                              loading="lazy"
+                            />
+                            {(sec.imageCaptionKm || sec.imageCaptionEn) && (
+                              <figcaption className="mt-2 text-xs text-slate-600 italic px-2">
+                                {lang === "km" ? sec.imageCaptionKm : sec.imageCaptionEn}
+                              </figcaption>
+                            )}
+                          </figure>
                         )}
                       </section>
                     );

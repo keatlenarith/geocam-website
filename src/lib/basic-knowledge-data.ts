@@ -8,6 +8,19 @@ export interface KnowledgeSection {
   bulletsKm?: string[];
   calloutEn?: string;
   calloutKm?: string;
+  image?: string;
+  imageCaptionEn?: string;
+  imageCaptionKm?: string;
+}
+
+export interface KnowledgeDocument {
+  titleEn: string;
+  titleKm: string;
+  filename: string;
+  size: string;
+  url: string;
+  descriptionEn?: string;
+  descriptionKm?: string;
 }
 
 export interface KnowledgeArticle {
@@ -26,6 +39,7 @@ export interface KnowledgeArticle {
   authorKm: string;
   tagEn: string;
   tagKm: string;
+  document?: KnowledgeDocument;
   sections: KnowledgeSection[];
   takeawaysEn: string[];
   takeawaysKm: string[];
@@ -42,49 +56,86 @@ export const BASIC_KNOWLEDGE_ARTICLES: KnowledgeArticle[] = [
     titleKm: "ចំណាត់ថ្នាក់ថ្មនៅកម្ពុជា៖ ថ្មម៉ាក់ម៉ា ថ្មកម្ទេចកំណ និងថ្មប្រែរូប",
     excerptEn: "A foundational guide to identifying granite intrusions, sandstone plateaus, limestone karst, and schist belts across Cambodia's provinces.",
     excerptKm: "មគ្គុទ្ទេសក៍មូលដ្ឋានសម្រាប់កំណត់អត្តសញ្ញាណថ្មក្រានីត ខ្ពង់រាបថ្មភក់ កាស្ត៍ថ្មកំបោរ និងខ្សែក្រវាត់ថ្មសៀសនៅទូទាំងខេត្តនានាក្នុងប្រទេសកម្ពុជា។",
-    readTime: "6 min read",
-    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
-    date: "2026-10-18",
-    authorEn: "Department of Geology & Mineral Resources",
-    authorKm: "នាយកដ្ឋានភូគព្ភសាស្ត្រ និងធនធានរ៉ែ",
-    tagEn: "Featured Guide",
-    tagKm: "មគ្គុទ្ទេសក៍ពិសេស",
+    readTime: "10 min read",
+    image: "/images/rock-atlas/JICA_sample_map.png",
+    date: "2026-10-27",
+    authorEn: "Department of Geology & Mineral Resources (GDMR / JICA / CCOP)",
+    authorKm: "អគ្គនាយកដ្ឋានធនធានរ៉ែ (GDMR / JICA / CCOP)",
+    tagEn: "National Rock Atlas & Geochemistry",
+    tagKm: "កម្រងអាត្លាសថ្ម និងគីមីភូគព្ភសាស្ត្រជាតិ",
+    document: {
+      titleEn: "Cambodia Rock Geology and Geochemistry Atlas (October 2026)",
+      titleKm: "កម្រងអាត្លាសថ្ម ភូគព្ភវិទ្យា និងគីមីភូគព្ភសាស្ត្រនៃប្រទេសកម្ពុជា (២៧ តុលា ២០២៦)",
+      filename: "Cambodia_rock_geology_geochemistry_atlas.pdf",
+      size: "42.5 MB",
+      url: "/documents/Cambodia_rock_geology_geochemistry_atlas.pdf",
+      descriptionEn: "Complete 26-page atlas featuring 74 field rock samples, 20 whole-rock XRF analyses, QAPF/TAS classification diagrams, Harker variation plots, genuine field photographs, and geophysical correlations.",
+      descriptionKm: "កម្រងឯកសារអាត្លាសពេញលេញ ២៦ ទំព័រ រួមបញ្ចូលសំណាកថ្មវាល ៧៤ កន្លែង ការវិភាគគីមីថ្មសរុប XRF ចំនួន ២០ គំនូសតាងចំណាត់ថ្នាក់ QAPF/TAS គំនូសតាងបម្រែបម្រួលធាតុ Harker រូបថតចុះវាលជាក់ស្តែង និងទំនាក់ទំនងរូបភូគព្ភសាស្ត្រ។",
+    },
     sections: [
       {
         id: "overview-lithology",
-        headingEn: "Overview of Cambodian Lithology",
-        headingKm: "ទិដ្ឋភាពទូទៅនៃសណ្ឋានថ្មនៅកម្ពុជា",
-        contentEn: "Cambodia exhibits a rich diversity of rock types spanning from the Paleozoic era to the Quaternary. The landscape is shaped by granitic plutons, vast Mesozoic continental sandstone covers, isolated Permian limestone towers, and widespread Cenozoic basalt plateaus in the northeast.",
-        contentKm: "ប្រទេសកម្ពុជាមានភាពសម្បូរបែបនៃប្រភេទថ្មចាប់ពីស័កបុរាណសត្វរហូតដល់សម័យទីបួន។ ទិដ្ឋភាពទូទៅត្រូវបានកំណត់ដោយថ្មក្រានីតម៉ាក់ម៉ា ស្រទាប់ថ្មភក់ដីគោកយុគកណ្តាលសត្វ ប៉មថ្មកំបោរកាស្ត៍យុគពែរមៀន និងខ្ពង់រាបថ្មបាសាល់យុគថ្មីនៅប៉ែកឦសាន។",
+        headingEn: "Overview of Cambodian Lithology & Atlas Compilation",
+        headingKm: "ទិដ្ឋភាពទូទៅនៃសណ្ឋានថ្ម និងកម្រងអាត្លាសជាតិ",
+        contentEn: "Cambodia exhibits a rich diversity of rock types spanning from the Paleozoic era to the Quaternary. The landscape is shaped by granitic plutons, vast Mesozoic continental sandstone covers, isolated Permian limestone towers, and widespread Cenozoic basalt plateaus in the northeast. This official 2026 atlas compiles 74 rock samples from the JICA National Mining Master Plan, CCOP specimen archives, and peer-reviewed Cretaceous plutonic suites.",
+        contentKm: "ប្រទេសកម្ពុជាមានភាពសម្បូរបែបនៃប្រភេទថ្មចាប់ពីស័កបុរាណសត្វរហូតដល់សម័យទីបួន។ ទិដ្ឋភាពទូទៅត្រូវបានកំណត់ដោយថ្មក្រានីតម៉ាក់ម៉ា ស្រទាប់ថ្មភក់ដីគោកយុគកណ្តាលសត្វ ប៉មថ្មកំបោរកាស្ត៍យុគពែរមៀន និងខ្ពង់រាបថ្មបាសាល់យុគថ្មីនៅប៉ែកឦសាន។ កម្រងអាត្លាសថ្មជាតិ ២០២៦ នេះបានសំយោគសំណាកថ្មវាលចំនួន ៧៤ ពីផែនការមេវិស័យរ៉ែ JICA បណ្ណសាររូបភាព CCOP និងការស្រាវជ្រាវសិលាអគ្នីជ្រៅយុគគ្រីតាសេ។",
         bulletsEn: [
-          "Igneous: Mesozoic granite batholiths and Neogene-Quaternary alkali basalts.",
-          "Sedimentary: Triassic-Cretaceous 'Terrain Rouge' and continental redbed sandstones.",
-          "Metamorphic: Proterozoic-Paleozoic mica-schists, gneisses, and marble lenses.",
+          "Igneous: Mesozoic granite batholiths, Dalat-Kratie Cretaceous diorite/granodiorite, and Neogene-Quaternary alkali basalts.",
+          "Sedimentary: Triassic-Cretaceous continental redbed sandstones and Permian fossiliferous limestone karst towers.",
+          "Metamorphic: Proterozoic-Paleozoic mica-schists, gneisses, quartzites, and contact skarn aureoles.",
         ],
         bulletsKm: [
-          "ថ្មម៉ាក់ម៉ា៖ ថ្មក្រានីតបាតូលីតយុគកណ្តាលសត្វ និងថ្មបាសាល់អាល់កាលីយុគទីបី-ទីបួន។",
-          "ថ្មកម្ទេចកំណ៖ ថ្មភក់ក្រហមដីគោក និងស្រទាប់ថ្មដីក្រហមយុគត្រីយ៉ាស-ក្រេតាសេ។",
-          "ថ្មប្រែរូប៖ ថ្មសៀសមីកា ថ្មនែស និងកញ្ចុំថ្មម៉ាបយុគបុរេកំប្រី-បុរាណសត្វ។",
+          "ថ្មម៉ាក់ម៉ា៖ ថ្មក្រានីតបាតូលីតយុគកណ្តាលសត្វ ថ្មឌីយ៉ូរីត/ក្រាណូឌីយ៉ូរីតស្នួល និងថ្មបាសាល់អាល់កាលីយុគទីបី-ទីបួន។",
+          "ថ្មកម្ទេចកំណ៖ ថ្មភក់ក្រហមដីគោកយុគត្រីយ៉ាស-ក្រេតាសេ និងប៉មកាស្ត៍ថ្មកំបោរផូស៊ីលយុគពែរមៀន។",
+          "ថ្មប្រែរូប៖ ថ្មសៀសមីកា ថ្មនែស ថ្មក្វាតស៊ីត និងវណ្ឌថ្មស្កានប្រែរូបប៉ះទង្គិច។",
         ],
-        calloutEn: "Field observation rule: Cambodian rock groups reflect distinct tectonic episodes, particularly the Indosinian Orogeny.",
-        calloutKm: "ចំណាំក្នុងការចុះវាល៖ ប្រព័ន្ធថ្មនៅកម្ពុជាឆ្លុះបញ្ចាំងពីដំណាក់កាលតិចតូនិចសំខាន់ៗ ជាពិសេសចលនាភ្នំឥណ្ឌូស៊ីនៀ។",
+        calloutEn: "Field observation rule: Cambodian rock groups reflect distinct tectonic episodes, particularly the Indosinian Orogeny and circum-Pacific Cretaceous subduction.",
+        calloutKm: "ចំណាំក្នុងការចុះវាល៖ ប្រព័ន្ធថ្មនៅកម្ពុជាឆ្លុះបញ្ចាំងពីដំណាក់កាលតិចតូនិចសំខាន់ៗ ជាពិសេសចលនាភ្នំឥណ្ឌូស៊ីនៀ និងការរងសម្ពាធមាត់ទ្វីបប៉ាស៊ីហ្វិកសម័យគ្រីតាសេ។",
+        image: "/images/rock-atlas/JICA_sample_map.png",
+        imageCaptionEn: "Figure: Geographic distribution of 74 rock and whole-rock geochemical samples across Cambodia from the national geological survey database.",
+        imageCaptionKm: "រូបភាព៖ ទីតាំងភូមិសាស្ត្រនៃសំណាកថ្ម និងគីមីភូគព្ភសាស្ត្រចំនួន ៧៤ កន្លែងទូទាំងប្រទេសកម្ពុជាពីមូលដ្ឋានទិន្នន័យស្ទង់ភូគព្ភសាស្ត្រជាតិ។",
       },
       {
         id: "igneous-rocks",
-        headingEn: "Igneous Rocks: Plutons and Volcanic Basalts",
-        headingKm: "ថ្មម៉ាក់ម៉ា៖ ថ្មក្រានីត និងបន្ទុះថ្មបាសាល់",
-        contentEn: "Igneous rocks in Cambodia originate from two principal geodynamic regimes: deep magma intrusions that cooled slowly into coarse-grained granite, and rapid volcanic eruptions of basaltic lava onto the continental surface.",
-        contentKm: "ថ្មម៉ាក់ម៉ានៅកម្ពុជាកើតចេញពីរបបភូគព្ភថាមវន្តធំៗពីរ៖ ការជ្រៀតចូលនៃម៉ាក់ម៉ាក្នុងជម្រៅដែលចុះត្រជាក់យឺតៗបង្កើតជាថ្មក្រានីតគ្រាប់ធំ និងការផ្ទុះភ្នំភ្លើងកម្អែរាវបាសាល់មកលើផ្ទៃដីគោក។",
+        headingEn: "Igneous Rocks: Plutons, Volcanic Basalts & Snoul Intrusion",
+        headingKm: "ថ្មម៉ាក់ម៉ា៖ ថ្មក្រានីត បន្ទុះថ្មបាសាល់ និងដុំសិលាជ្រៅស្នួល",
+        contentEn: "Igneous rocks originate from deep magma intrusions that cooled slowly into coarse-grained granite/diorite, and rapid continental eruptions of basaltic lava. Recent work on the Snoul intrusion (Kratie province) dates Cretaceous arc-related diorite-granodiorite magmatism at ~103 Ma, linking eastern Cambodia to the Dalat-Kratie igneous belt.",
+        contentKm: "ថ្មម៉ាក់ម៉ានៅកម្ពុជាកើតចេញពីការជ្រៀតចូលនៃម៉ាក់ម៉ាក្នុងជម្រៅដែលចុះត្រជាក់យឺតៗបង្កើតជាថ្មក្រានីត/ឌីយ៉ូរីត និងការផ្ទុះភ្នំភ្លើងកម្អែរាវបាសាល់មកលើផ្ទៃដីគោក។ ការស្រាវជ្រាវថ្មីៗលើដុំសិលាជ្រៅស្រុកស្នួល (ខេត្តក្រចេះ) បានកំណត់អាយុកាលសិលាឌីយ៉ូរីត-ក្រាណូឌីយ៉ូរីតធ្នូកោះយុគគ្រីតាសេប្រមាណ ១០៣ លានឆ្នាំមុន ដែលភ្ជាប់កម្ពុជាភាគខាងកើតទៅកាន់ខ្សែក្រវាត់សិលាអគ្នីដាឡាត់-ក្រចេះ។",
         bulletsEn: [
-          "Granite: Extensively distributed in the Cardamom and Elephant Ranges (Pursat, Koh Kong, Kampot).",
-          "Basalt: Plateau covers in Ratanakiri, Mondulkiri, and parts of Kampong Cham, forming fertile red soil.",
-          "Rhyolite & Andesite: Volcanic arc suites found in Oddar Meanchey and Kratie.",
+          "Granite & Granodiorite: Cardamom and Elephant Ranges (Pursat, Koh Kong, Kampot) and eastern intrusive complexes.",
+          "Snoul Diorite & Gabbro: Cretaceous plutonic suites in Kratie displaying plagioclase, hornblende, and biotite textures.",
+          "Alkali Basalt: Extensive volcanic plateau covers in Ratanakiri, Mondulkiri, and Kampong Cham weathering into fertile red soil.",
+          "Rhyolite & Andesite: Continental arc volcanic suites outcropping in Oddar Meanchey, Kratie, and Kampong Chhnang.",
         ],
         bulletsKm: [
-          "ថ្មក្រានីត៖ រីករាលដាលនៅជួរភ្នំក្រវាញ និងជួរភ្នំដំរី (ពោធិ៍សាត់ កោះកុង កំពត)។",
-          "ថ្មបាសាល់៖ គ្របដណ្តប់ខ្ពង់រាបរតនគិរី មណ្ឌលគិរី និងផ្នែកខ្លះនៃកំពង់ចាម បង្កើតជាដីក្រហមមានជីជាតិ។",
-          "ថ្មរីយ៉ូលីត និងអង់ដេស៊ីត៖ សំណុំថ្មភ្នំភ្លើងធ្នូកោះនៅឧត្តរមានជ័យ និងក្រចេះ។",
+          "ថ្មក្រានីត និងក្រាណូឌីយ៉ូរីត៖ ជួរភ្នំក្រវាញ ជួរភ្នំដំរី (ពោធិ៍សាត់ កោះកុង កំពត) និងបណ្តុំសិលាជ្រៅប៉ែកខាងកើត។",
+          "ថ្មឌីយ៉ូរីត និងហ្កាប់ប្រូស្នួល៖ សំណុំសិលាជ្រៅយុគគ្រីតាសេនៅក្រចេះ បង្ហាញរចនាសម្ព័ន្ធប្លាស្យូក្លាស ហនប្លេន និងប៊ីយ៉ូទីត។",
+          "ថ្មបាសាល់អាល់កាលី៖ ខ្ពង់រាបភ្នំភ្លើងដ៏ធំធេងនៅរតនគិរី មណ្ឌលគិរី និងកំពង់ចាម ដែលរលួយបង្កើតជាដីក្រហមមានជីជាតិ។",
+          "ថ្មរីយ៉ូលីត និងអង់ដេស៊ីត៖ សំណុំថ្មភ្នំភ្លើងធ្នូកោះនៅឧត្តរមានជ័យ ក្រចេះ និងកំពង់ឆ្នាំង។",
         ],
+        image: "/images/rock-atlas/Shellnutt_2023_Fig3.jpg",
+        imageCaptionEn: "Figure: Field outcrop, drill core specimens, and hand samples of the Early Cretaceous Snoul diorite intrusion in Kratie Province (Shellnutt et al., 2023).",
+        imageCaptionKm: "រូបភាព៖ ផ្ទាំងថ្មវាល ស្នូលខួង និងសំណាកថ្មដៃនៃសិលាឌីយ៉ូរីតស្នួលយុគគ្រីតាសេដើមក្នុងខេត្តក្រចេះ (Shellnutt et al., 2023)។",
+      },
+      {
+        id: "geochemistry-classification",
+        headingEn: "Geochemical Classification: TAS & QAPF Standards",
+        headingKm: "ចំណាត់ថ្នាក់គីមីភូគព្ភសាស្ត្រ៖ ស្តង់ដារ TAS និង QAPF",
+        contentEn: "Quantitative petrology of Cambodian igneous suites requires formal IUGS classification standards. The Total Alkali-Silica (TAS) diagram categorizes volcanic rocks based on wt% SiO2 versus (Na2O + K2O). For 20 whole-rock samples from the JICA database, compositions span from basalts (~48% SiO2) to high-silica rhyolites (>75% SiO2). The Plutonic QAPF system (Quartz, Alkali feldspar, Plagioclase, Feldspathoid) provides the mineralogical reference.",
+        contentKm: "ការសិក្សាផ្នែកសិលាវិទ្យាបរិមាណនៃសិលាអគ្នីកម្ពុជា តម្រូវឱ្យប្រើប្រាស់ស្តង់ដារចំណាត់ថ្នាក់អន្តរជាតិ IUGS។ គំនូសតាងអាល់កាលី-ស៊ីលីកាសរុប (TAS) ចែកចំណាត់ថ្នាក់ថ្មភ្នំភ្លើងផ្អែកលើ % ទម្ងន់នៃ SiO2 ធៀបនឹង (Na2O + K2O)។ សម្រាប់សំណាកថ្មសរុបទាំង ២០ ពីមូលដ្ឋានទិន្នន័យ JICA សមាសធាតុគ្របដណ្តប់ពីថ្មបាសាល់ (~៤៨% SiO2) រហូតដល់ថ្មរីយ៉ូលីតស៊ីលីកាខ្ពស់ (>៧៥% SiO2)។ ប្រព័ន្ធ QAPF ផ្តល់នូវក្របខ័ណ្ឌយោងផ្នែករ៉ែសម្រាប់ថ្មជ្រៅ។",
+        bulletsEn: [
+          "TAS Diagram: Classifies subalkaline vs alkaline volcanic series across Cambodia's volcanic centers.",
+          "Harker Variation: Linear trends in Fe2O3, MgO, and CaO reflect fractional crystallization of mafic minerals.",
+          "Alumina Saturation: Identifies metaluminous to peraluminous signatures in Cambodian granite batholiths.",
+        ],
+        bulletsKm: [
+          "គំនូសតាង TAS៖ បែងចែកស៊េរីថ្មភ្នំភ្លើង Subalkaline និង Alkaline នៅតាមមណ្ឌលភ្នំភ្លើងកម្ពុជា។",
+          "បម្រែបម្រួល Harker៖ និន្នាការធ្លាក់ចុះនៃ Fe2O3, MgO, និង CaO ឆ្លុះបញ្ចាំងពីការកកើតក្រាមដោយផ្នែក (Fractional crystallization)។",
+          "កម្រិតឆ្អែតអាលុយមីន៖ កំណត់លក្ខណៈ Metaluminous ទៅ Peraluminous នៃដុំសិលាក្រានីតកម្ពុជា។",
+        ],
+        image: "/images/rock-atlas/TAS_reference.png",
+        imageCaptionEn: "Figure: IUGS Total Alkali versus Silica (TAS) chemical classification framework for volcanic rocks.",
+        imageCaptionKm: "រូបភាព៖ ក្របខ័ណ្ឌចំណាត់ថ្នាក់គីមីអាល់កាលីធៀបស៊ីលីកា (TAS) ស្តង់ដារ IUGS សម្រាប់ថ្មភ្នំភ្លើង។",
       },
       {
         id: "sedimentary-rocks",
@@ -115,12 +166,14 @@ export const BASIC_KNOWLEDGE_ARTICLES: KnowledgeArticle[] = [
     ],
     takeawaysEn: [
       "Cambodia's bedrock consists of three foundational classes: igneous plutons/basalts, Mesozoic sandstones, and older metamorphic schists.",
-      "Field identification relies on crystal grain size, bedding planes, and mineral cleavage.",
+      "The newly integrated 2026 Atlas provides 74 surveyed rock samples, whole-rock XRF geochemistry, and thin-section microphotographs.",
+      "Field identification relies on crystal grain size, mineral cleavage, TAS chemical coordinates, and regional tectonic context.",
       "The rich red soils of eastern provinces directly derive from the weathering of Quaternary alkali basalts.",
     ],
     takeawaysKm: [
       "គ្រឹះថ្មនៅកម្ពុជារួមមានបីប្រភេទធំៗ៖ ថ្មម៉ាក់ម៉ាក្រានីត/បាសាល់ ថ្មភក់យុគកណ្តាលសត្វ និងថ្មប្រែរូបសៀសចំណាស់ៗ។",
-      "ការកំណត់អត្តសញ្ញាណនៅទីវាលពឹងផ្អែកលើទំហំគ្រាប់ក្រាម ស្រទាប់កំណ និងលក្ខណៈបំបែកនៃខនិជ។",
+      "កម្រងអាត្លាសឆ្នាំ២០២៦ ថ្មីនេះ ផ្តល់នូវសំណាកថ្មវាល ៧៤ កន្លែង ការវិភាគគីមីថ្មសរុប XRF និងរូបថតកាត់បន្ទះស្តើងក្រោមមីក្រូទស្សន៍។",
+      "ការកំណត់អត្តសញ្ញាណនៅទីវាលពឹងផ្អែកលើទំហំគ្រាប់ក្រាម លក្ខណៈបំបែកនៃខនិជ កូអរដោនេគីមី TAS និងបរិបទតិចតូនិចតំបន់។",
       "ដីក្រហមមានជីជាតិនៅខេត្តភាគខាងកើតកើតចេញពីការរលួយដោយធាតុអាកាសនៃថ្មបាសាល់អាល់កាលីសម័យទីបួន។",
     ],
     relatedIds: ["bk-history", "bk-hydro", "bk-volcanism"],
