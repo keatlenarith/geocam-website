@@ -566,8 +566,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       providerHealth.PHIVOLCS.note = `Upstream HTTP ${phivolcsRes.status}`;
     }
   } catch (err: any) {
+    console.error("[PHIVOLCS Scraper Error]:", err);
     providerHealth.PHIVOLCS.status = "delayed";
-    providerHealth.PHIVOLCS.note = "Upstream connection timeout or delayed";
+    providerHealth.PHIVOLCS.note = `Upstream error: ${err?.message || err}`;
   }
 
   // Deduplicate events across providers (tolerance: 60s and 30km)
