@@ -6,7 +6,7 @@
   "crons": [
     {
       "path": "/api/cron-earthquake-fb",
-      "schedule": "*/10 * * * *"
+      "schedule": "0 0 * * *"
     }
   ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
