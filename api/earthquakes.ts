@@ -164,6 +164,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const is7d = windowParam === "7d" || windowParam === "7days" || windowParam === "week";
   const is30d = windowParam === "30d" || windowParam === "30days" || windowParam === "month";
 
+  const windowMs = is6h
+    ? 6 * 3600 * 1000
+    : is24h
+    ? 24 * 3600 * 1000
+    : is30d
+    ? 30 * 24 * 3600 * 1000
+    : 7 * 24 * 3600 * 1000;
+
   let usgsUrl =
     "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
