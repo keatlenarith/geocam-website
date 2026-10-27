@@ -3,6 +3,7 @@ import {
   type EarthquakeEvent,
   formatLocalIctTime,
   translateEarthquakeLocation,
+  getDepthClassification,
 } from "./earthquake-data";
 import { useI18n } from "@/lib/i18n";
 import { ExternalLink, Radio, Activity, Compass, Clock } from "lucide-react";
@@ -100,6 +101,9 @@ export const EarthquakeEventCard: React.FC<EarthquakeEventCardProps> = ({
           >
             <Activity size={14} />
             M {magDisplay}
+            <span className="text-[10px] font-semibold opacity-90">
+              ({kh ? "រ៉ិចទ័រ" : "Richter"})
+            </span>
             {event.magnitudeType && (
               <span className="font-mono text-[10px] font-semibold opacity-80 uppercase">
                 {event.magnitudeType}
@@ -140,9 +144,21 @@ export const EarthquakeEventCard: React.FC<EarthquakeEventCardProps> = ({
           <span className="text-muted-foreground block text-[11px] font-medium">
             {kh ? "ជម្រៅរញ្ជួយ:" : "Hypocenter Depth:"}
           </span>
-          <strong className="text-foreground font-semibold">
-            {event.depthKm !== null ? `${event.depthKm.toFixed(0)} km` : "—"}
-          </strong>
+          <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+            <strong className="text-foreground font-semibold">
+              {event.depthKm !== null ? `${event.depthKm.toFixed(1)} km` : "—"}
+            </strong>
+            {(() => {
+              const depthInfo = getDepthClassification(event.depthKm, kh);
+              return (
+                <span
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${depthInfo.badgeBg} ${depthInfo.badgeBorder}`}
+                >
+                  {kh ? depthInfo.labelKm : depthInfo.labelEn}
+                </span>
+              );
+            })()}
+          </div>
         </div>
 
         <div>

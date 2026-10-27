@@ -7,7 +7,12 @@ import "maplibre-gl/dist/maplibre-gl.css";
 try {
   maplibregl.setWorkerUrl(maplibreWorkerUrl);
 } catch {}
-import { type EarthquakeEvent, formatLocalIctTime, translateEarthquakeLocation } from "./earthquake-data";
+import {
+  type EarthquakeEvent,
+  formatLocalIctTime,
+  translateEarthquakeLocation,
+  getDepthClassification,
+} from "./earthquake-data";
 import { useI18n } from "@/lib/i18n";
 import { Layers, Navigation, Compass, Globe2, ExternalLink } from "lucide-react";
 
@@ -271,24 +276,36 @@ export default function EarthquakeMap({
         ? `<span style="font-size: 10px; background: #ecfdf5; color: #047857; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 1px solid #a7f3d0;">🇰🇭 Regional</span>`
         : `<span style="font-size: 10px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 1px solid #cbd5e1;">🌐 Global</span>`;
 
+      const depthInfo = getDepthClassification(event.depthKm, kh);
+      const depthLabel = kh ? depthInfo.labelKm : depthInfo.labelEn;
+      const depthBadgeBg = depthInfo.category === "shallow" ? "#ecfdf5" : depthInfo.category === "intermediate" ? "#fffbeb" : depthInfo.category === "deep" ? "#faf5ff" : "#f1f5f9";
+      const depthBadgeColor = depthInfo.category === "shallow" ? "#047857" : depthInfo.category === "intermediate" ? "#b45309" : depthInfo.category === "deep" ? "#7e22ce" : "#475569";
+      const depthBadgeBorder = depthInfo.category === "shallow" ? "#a7f3d0" : depthInfo.category === "intermediate" ? "#fde68a" : depthInfo.category === "deep" ? "#e9d5ff" : "#cbd5e1";
+
       const popup = new maplibregl.Popup({
         offset: 18,
         closeButton: true,
         closeOnClick: false,
         className: "earthquake-info-popup",
       }).setHTML(`
-        <div style="font-family: system-ui, sans-serif; padding: 6px 10px; font-size: 13px; line-height: 1.4; color: #1e293b; max-width: 270px;">
+        <div style="font-family: system-ui, sans-serif; padding: 6px 10px; font-size: 13px; line-height: 1.4; color: #1e293b; max-width: 280px;">
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 6px;">
             <div style="display: flex; align-items: center; gap: 6px;">
               <strong style="font-size: 15px; color: #0f172a;">M ${event.magnitude !== null ? event.magnitude.toFixed(1) : "—"}</strong>
+              <span style="font-size: 11px; font-weight: 700; color: #475569;">(${kh ? "រ៉ិចទ័រ" : "Richter"})</span>
               ${regionBadge}
             </div>
             <span style="font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700;">${event.reports[0]?.provider || "USGS"}</span>
           </div>
-          <div style="font-weight: 600; color: #0f172a; margin-bottom: 4px;">${translateEarthquakeLocation(event.location, lang)}</div>
-          <div style="font-size: 11px; color: #64748b; margin-bottom: 2px;">
-            Depth: <strong>${event.depthKm !== null ? `${event.depthKm.toFixed(0)} km` : "—"}</strong>
+          <div style="font-weight: 600; color: #0f172a; margin-bottom: 5px;">${translateEarthquakeLocation(event.location, lang)}</div>
+          
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 11px; color: #475569; margin-bottom: 4px; background: #f8fafc; padding: 4px 6px; border-radius: 4px; border: 1px solid #e2e8f0;">
+            <span>${kh ? "ជម្រៅ:" : "Depth:"} <strong>${event.depthKm !== null ? `${event.depthKm.toFixed(1)} km` : "—"}</strong></span>
+            <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: ${depthBadgeBg}; color: ${depthBadgeColor}; border: 1px solid ${depthBadgeBorder};">
+              ${depthLabel}
+            </span>
           </div>
+
           ${
             distanceText
               ? `<div style="font-size: 11px; color: #2563eb; font-weight: 600; margin-bottom: 2px;">${distanceText}</div>`

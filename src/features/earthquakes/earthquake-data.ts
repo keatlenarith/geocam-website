@@ -10,6 +10,60 @@
 export const THAI_SCRIPT_REGEX = /[\u0E00-\u0E7F]/g;
 export const LAO_SCRIPT_REGEX = /[\u0E80-\u0EFF]/g;
 
+/**
+ * Classify hypocenter depth into standard seismological categories:
+ * - Shallow (រាក់): 0 - 70 km
+ * - Intermediate (មធ្យម): 70 - 300 km
+ * - Deep (ជ្រៅ): > 300 km
+ */
+export function getDepthClassification(depthKm: number | null | undefined, kh: boolean = false): {
+  category: "shallow" | "intermediate" | "deep" | "unknown";
+  labelEn: string;
+  labelKm: string;
+  badgeBg: string;
+  badgeText: string;
+  badgeBorder: string;
+} {
+  if (depthKm === null || depthKm === undefined || isNaN(depthKm)) {
+    return {
+      category: "unknown",
+      labelEn: "Unknown",
+      labelKm: "មិនទាន់កំណត់",
+      badgeBg: "bg-slate-100",
+      badgeText: "text-slate-700",
+      badgeBorder: "border-slate-300",
+    };
+  }
+  if (depthKm < 70) {
+    return {
+      category: "shallow",
+      labelEn: "Shallow",
+      labelKm: "រាក់ (Shallow)",
+      badgeBg: "bg-emerald-50 text-emerald-700",
+      badgeText: "text-emerald-700",
+      badgeBorder: "border-emerald-200",
+    };
+  }
+  if (depthKm <= 300) {
+    return {
+      category: "intermediate",
+      labelEn: "Intermediate",
+      labelKm: "មធ្យម (Intermediate)",
+      badgeBg: "bg-amber-50 text-amber-800",
+      badgeText: "text-amber-800",
+      badgeBorder: "border-amber-200",
+    };
+  }
+  return {
+    category: "deep",
+    labelEn: "Deep",
+    labelKm: "ជ្រៅ (Deep)",
+    badgeBg: "bg-purple-50 text-purple-700",
+    badgeText: "text-purple-700",
+    badgeBorder: "border-purple-200",
+  };
+}
+
 interface TranslationEntry {
   pattern: RegExp;
   en: string;

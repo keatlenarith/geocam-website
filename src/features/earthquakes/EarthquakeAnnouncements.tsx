@@ -8,6 +8,7 @@ import {
   generateEventAnnouncement,
   formatLocalIctTime,
   translateEarthquakeLocation,
+  getDepthClassification,
 } from "./earthquake-data";
 import { EarthquakeMiniMap } from "./EarthquakeMiniMap";
 import {
@@ -236,6 +237,9 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
                           }`}
                         >
                           M {mag} {event.magnitudeType ? event.magnitudeType.toUpperCase() : ""}
+                          <span className="text-[10px] opacity-90 font-sans font-bold">
+                            ({kh ? "រ៉ិចទ័រ" : "Richter"})
+                          </span>
                         </span>
 
                         {/* Region Tag */}
@@ -281,9 +285,21 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
                         <span className="block text-[10px] text-muted-foreground font-sans font-semibold uppercase">
                           {kh ? "ជម្រៅរំញ័រ" : "Focal Depth"}
                         </span>
-                        <strong className="text-foreground">
-                          {event.depthKm !== null ? `${event.depthKm.toFixed(1)} km` : "—"}
-                        </strong>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <strong className="text-foreground">
+                            {event.depthKm !== null ? `${event.depthKm.toFixed(1)} km` : "—"}
+                          </strong>
+                          {(() => {
+                            const dInfo = getDepthClassification(event.depthKm, kh);
+                            return (
+                              <span
+                                className={`text-[9px] font-sans font-bold px-1 py-0.2 rounded border ${dInfo.badgeBg} ${dInfo.badgeBorder}`}
+                              >
+                                {kh ? dInfo.labelKm : dInfo.labelEn}
+                              </span>
+                            );
+                          })()}
+                        </div>
                       </div>
 
                       <div>
