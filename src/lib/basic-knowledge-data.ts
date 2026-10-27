@@ -74,7 +74,7 @@ export const BASIC_KNOWLEDGE_ARTICLES: KnowledgeArticle[] = [
     excerptEn: "A foundational guide to identifying granite intrusions, sandstone plateaus, limestone karst, and schist belts across Cambodia's provinces.",
     excerptKm: "មគ្គុទ្ទេសក៍មូលដ្ឋានសម្រាប់កំណត់អត្តសញ្ញាណថ្មក្រានីត ខ្ពង់រាបថ្មភក់ កាស្ត៍ថ្មកំបោរ និងខ្សែក្រវាត់ថ្មសៀសនៅទូទាំងខេត្តនានាក្នុងប្រទេសកម្ពុជា។",
     readTime: "10 min read",
-    image: "/images/rock-atlas/JICA_sample_map.png",
+    image: "/images/rock-atlas/geology.png",
     date: "2026-10-27",
     authorEn: "Department of Geology & Mineral Resources (GDMR / JICA / CCOP)",
     authorKm: "អគ្គនាយកដ្ឋានធនធានរ៉ែ (GDMR / JICA / CCOP)",
@@ -108,9 +108,32 @@ export const BASIC_KNOWLEDGE_ARTICLES: KnowledgeArticle[] = [
         ],
         "calloutEn": "Field observation rule: Cambodian rock groups reflect distinct tectonic episodes, particularly the Indosinian Orogeny and circum-Pacific Cretaceous subduction.",
         "calloutKm": "ចំណាំក្នុងការចុះវាល៖ ប្រព័ន្ធថ្មនៅកម្ពុជាឆ្លុះបញ្ចាំងពីដំណាក់កាលតិចតូនិចសំខាន់ៗ ជាពិសេសចលនាភ្នំឥណ្ឌូស៊ីនៀ និងការរងសម្ពាធមាត់ទ្វីបប៉ាស៊ីហ្វិកសម័យគ្រីតាសេ។",
-        "image": "/images/rock-atlas/JICA_sample_map.png",
-        "imageCaptionEn": "Figure: Geographic distribution of 74 rock and whole-rock geochemical samples across Cambodia from the national geological survey database.",
-        "imageCaptionKm": "រូបភាព៖ ទីតាំងភូមិសាស្ត្រនៃសំណាកថ្ម និងគីមីភូគព្ភសាស្ត្រចំនួន ៧៤ កន្លែងទូទាំងប្រទេសកម្ពុជាពីមូលដ្ឋានទិន្នន័យស្ទង់ភូគព្ភសាស្ត្រជាតិ។"
+        "image": "/images/rock-atlas/geology.png",
+        "imageCaptionEn": "Figure: Geological and Structural Map of Cambodia (1:500,000 Department of Geology / GDMR base) displaying mapped lithostratigraphic formations, fault networks, and plutonic complexes.",
+        "imageCaptionKm": "រូបភាព៖ ផែនទីភូគព្ភសាស្ត្រ និងរចនាសម្ព័ន្ធនៃព្រះរាជាណាចក្រកម្ពុជា (មាត្រដ្ឋាន ១:៥០០,០០០ នាយកដ្ឋានភូគព្ភសាស្ត្រ / GDMR) បង្ហាញសណ្ឋានសិលា បណ្តាញទ្រុឌបាក់ និងដុំសិលាជ្រៅ។",
+        "gallery": [
+          {
+            "url": "/images/rock-atlas/geology.png",
+            "captionEn": "National Geological & Structural Map (1:500k)",
+            "captionKm": "ផែនទីភូគព្ភសាស្ត្រ និងរចនាសម្ព័ន្ធជាតិ (១:៥០០,០០០)",
+            "subEn": "Source: Dept. of Geology 1:500,000 base",
+            "subKm": "ប្រភព៖ មូលដ្ឋាននាយកដ្ឋានភូគព្ភសាស្ត្រ ១:៥០០,០០០"
+          },
+          {
+            "url": "/images/rock-atlas/JICA_sample_map.png",
+            "captionEn": "National Rock & Geochemical Sample Map (74 Sites)",
+            "captionKm": "ផែនទីទីតាំងសំណាកថ្ម និងគីមីភូគព្ភសាស្ត្រ (៧៤ កន្លែង)",
+            "subEn": "JICA 2010 Master Plan Appendix V-4/V-7",
+            "subKm": "ផែនការមេ JICA ២០១០ ឧបសម្ព័ន្ធ V-4/V-7"
+          },
+          {
+            "url": "/images/rock-atlas/wgm2012_bouguer.png",
+            "captionEn": "WGM2012 Bouguer Gravity Anomaly Framework",
+            "captionKm": "ក្របខ័ណ្ឌអានូម៉ាលីទំនាញផែនដីប៊ូហ្គ័រ WGM2012",
+            "subEn": "Deep basement density contrasts & structural basins",
+            "subKm": "កម្រិតដង់ស៊ីតេខឿនសិលាជម្រៅជ្រៅ និងអាងរចនាសម្ព័ន្ធ"
+          }
+        ]
     },
     {
         "id": "carbonates-sandstone",
