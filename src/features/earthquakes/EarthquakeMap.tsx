@@ -12,6 +12,7 @@ import {
   formatLocalIctTime,
   translateEarthquakeLocation,
   getDepthClassification,
+  formatDistanceToCambodia,
 } from "./earthquake-data";
 import { useI18n } from "@/lib/i18n";
 import { Layers, Navigation, Compass, Globe2, ExternalLink } from "lucide-react";
@@ -261,16 +262,12 @@ export default function EarthquakeMap({
       el.innerHTML = renderMarkerHtml(event, isSelected);
       el.style.zIndex = isSelected ? "100" : "1";
 
-      const distanceText =
-        event.distanceToCambodiaKm !== undefined
-          ? event.distanceToCambodiaKm < 100
-            ? kh
-              ? "នៅក្នុងប្រទេសកម្ពុជា"
-              : "Within Cambodia"
-            : `~${Math.round(event.distanceToCambodiaKm).toLocaleString()} km ${
-                kh ? "ពីកម្ពុជា" : "from Cambodia"
-              }`
-          : "";
+      const distanceText = formatDistanceToCambodia(
+        event.distanceToCambodiaKm,
+        event.latitude,
+        event.longitude,
+        kh
+      );
 
       const regionBadge = event.isRegional
         ? `<span style="font-size: 10px; background: #ecfdf5; color: #047857; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 1px solid #a7f3d0;">🇰🇭 Regional</span>`

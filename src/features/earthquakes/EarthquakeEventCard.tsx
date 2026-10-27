@@ -4,6 +4,7 @@ import {
   formatLocalIctTime,
   translateEarthquakeLocation,
   getDepthClassification,
+  formatDistanceToCambodia,
 } from "./earthquake-data";
 import { useI18n } from "@/lib/i18n";
 import { ExternalLink, Radio, Activity, Compass, Clock } from "lucide-react";
@@ -139,7 +140,7 @@ export const EarthquakeEventCard: React.FC<EarthquakeEventCardProps> = ({
       </h4>
 
       {/* Depth & Coordinates Grid */}
-      <div className="mt-3 grid grid-cols-2 gap-2 text-xs md:text-sm text-slate-600 border-t border-border/60 pt-2.5">
+      <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs md:text-sm text-slate-600 border-t border-border/60 pt-2.5">
         <div>
           <span className="text-muted-foreground block text-[11px] font-medium">
             {kh ? "ជម្រៅរញ្ជួយ:" : "Hypocenter Depth:"}
@@ -163,9 +164,18 @@ export const EarthquakeEventCard: React.FC<EarthquakeEventCardProps> = ({
 
         <div>
           <span className="text-muted-foreground block text-[11px] font-medium">
+            {kh ? "ចម្ងាយពីកម្ពុជា:" : "Distance to Cambodia:"}
+          </span>
+          <span className="font-semibold text-blue-700 text-xs mt-0.5 block">
+            {formatDistanceToCambodia(event.distanceToCambodiaKm, event.latitude, event.longitude, kh)}
+          </span>
+        </div>
+
+        <div>
+          <span className="text-muted-foreground block text-[11px] font-medium">
             {kh ? "កូអរដោនេ:" : "Coordinates:"}
           </span>
-          <span className="font-mono text-slate-700 text-xs">
+          <span className="font-mono text-slate-700 text-xs mt-0.5 block">
             {event.latitude.toFixed(3)}°N, {event.longitude.toFixed(3)}°E
           </span>
         </div>

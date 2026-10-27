@@ -9,6 +9,7 @@ import {
   formatLocalIctTime,
   translateEarthquakeLocation,
   getDepthClassification,
+  formatDistanceToCambodia,
 } from "./earthquake-data";
 import { EarthquakeMiniMap } from "./EarthquakeMiniMap";
 import {
@@ -317,13 +318,12 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
                           {kh ? "ចម្ងាយពីកម្ពុជា" : "From Cambodia"}
                         </span>
                         <strong className="text-foreground">
-                          {event.distanceToCambodiaKm !== undefined
-                            ? event.distanceToCambodiaKm < 100
-                              ? kh
-                                ? "ក្នុងប្រទេសកម្ពុជា"
-                                : "Within Cambodia"
-                              : `~${Math.round(event.distanceToCambodiaKm).toLocaleString()} km`
-                            : "—"}
+                          {formatDistanceToCambodia(
+                            event.distanceToCambodiaKm,
+                            event.latitude,
+                            event.longitude,
+                            kh
+                          )}
                         </strong>
                       </div>
 

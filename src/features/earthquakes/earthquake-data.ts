@@ -752,6 +752,63 @@ export function haversineDistanceKm(
 }
 
 /**
+ * Format computed distance from earthquake epicenter to Cambodia with direction and localized text
+ */
+export function formatDistanceToCambodia(
+  distanceKm: number | null | undefined,
+  lat?: number,
+  lon?: number,
+  kh: boolean = false
+): string {
+  if (distanceKm === null || distanceKm === undefined || isNaN(distanceKm)) {
+    if (lat !== undefined && lon !== undefined) {
+      distanceKm = Math.round(haversineDistanceKm(CAMBODIA_CENTER.latitude, CAMBODIA_CENTER.longitude, lat, lon));
+    } else {
+      return "—";
+    }
+  }
+
+  const rounded = Math.round(distanceKm);
+  if (rounded < 100) {
+    return kh ? "នៅក្នុងប្រទេសកម្ពុជា" : "Within Cambodia";
+  }
+
+  let compassDir = "";
+  if (lat !== undefined && lon !== undefined) {
+    const dLat = lat - CAMBODIA_CENTER.latitude;
+    const dLon = lon - CAMBODIA_CENTER.longitude;
+    const angle = (Math.atan2(dLon, dLat) * 180) / Math.PI; // -180 to 180 degrees
+    const normalized = (angle + 360) % 360;
+
+    if (normalized >= 337.5 || normalized < 22.5) {
+      compassDir = kh ? "ទិសខាងជើង" : "North";
+    } else if (normalized < 67.5) {
+      compassDir = kh ? "ទិសឦសាន" : "Northeast";
+    } else if (normalized < 112.5) {
+      compassDir = kh ? "ទិសខាងកើត" : "East";
+    } else if (normalized < 157.5) {
+      compassDir = kh ? "ទិសអាគ្នេយ៍" : "Southeast";
+    } else if (normalized < 202.5) {
+      compassDir = kh ? "ទិសខាងត្បូង" : "South";
+    } else if (normalized < 247.5) {
+      compassDir = kh ? "ទិសនិរតី" : "Southwest";
+    } else if (normalized < 292.5) {
+      compassDir = kh ? "ទិសខាងលិច" : "West";
+    } else {
+      compassDir = kh ? "ទិសពាយព្យ" : "Northwest";
+    }
+  }
+
+  const distStr = `~${rounded.toLocaleString()} km`;
+  if (compassDir) {
+    return kh
+      ? `${distStr} ពីកម្ពុជា (${compassDir})`
+      : `${distStr} from Cambodia (${compassDir})`;
+  }
+  return kh ? `${distStr} ពីកម្ពុជា` : `${distStr} from Cambodia`;
+}
+
+/**
  * Format timestamp to ICT (Indochina Time, UTC+7, Asia/Phnom_Penh)
  */
 export function formatLocalIctTime(
