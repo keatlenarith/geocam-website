@@ -1,3 +1,11 @@
+export interface SectionGalleryImage {
+  url: string;
+  captionEn: string;
+  captionKm: string;
+  subEn?: string;
+  subKm?: string;
+}
+
 export interface KnowledgeSection {
   id: string;
   headingEn: string;
@@ -11,6 +19,7 @@ export interface KnowledgeSection {
   image?: string;
   imageCaptionEn?: string;
   imageCaptionKm?: string;
+  gallery?: SectionGalleryImage[];
   table?: {
     captionEn?: string;
     captionKm?: string;
@@ -416,6 +425,108 @@ export const BASIC_KNOWLEDGE_ARTICLES: KnowledgeArticle[] = [
         "image": "/images/rock-atlas/photo_review.jpg",
         "imageCaptionEn": "Figure: Photographic verification plate of Cambodian rock specimens, field outcrops, and petrographic thin-sections.",
         "imageCaptionKm": "រូបភាព៖ ផ្ទាំងរូបថតផ្ទៀងផ្ទាត់សំណាកថ្មកម្ពុជា ផ្ទាំងថ្មវាល និងបន្ទះស្តើងក្រោមមីក្រូទស្សន៍។"
+    },
+    {
+      id: "jica-field-photos-part1",
+      headingEn: "9. Authentic Field Photographs: Volcanics and Alteration (JICA 2010 Survey)",
+      headingKm: "៩. រូបថតចុះវាលជាក់ស្តែង៖ សិលាភ្នំភ្លើង និងការប្រែធាតុ (ការអង្កេត JICA ឆ្នាំ២០១០)",
+      contentEn: "High-resolution authentic field survey photographs documenting volcanic and altered host rock formations across Cambodia, extracted directly from JICA (2010) Master Plan Report Appendix V-4 (p. 129). These document hydrothermal alteration, gossans, silicification, and metallogenic vein systems.",
+      contentKm: "កម្រងរូបថតចុះវាលជាក់ស្តែងកម្រិតច្បាស់ខ្ពស់ដែលកត់ត្រាទ្រង់ទ្រាយសិលាភ្នំភ្លើង និងថ្មមេប្រែធាតុនៅទូទាំងប្រទេសកម្ពុជា ស្រង់ចេញដោយផ្ទាល់ពីរបាយការណ៍មេ JICA (២០១០) ឧបសម្ព័ន្ធ V-4 (ទំព័រ ១២៩)។ រូបថតទាំងនេះបង្ហាញពីការប្រែធាតុដោយកម្តៅទឹកក្រោមដី (Hydrothermal alteration) ហ្គូសាន ស៊ីលីស៊ីភីកាសុង និងប្រព័ន្ធសរសៃរ៉ែ។",
+      gallery: [
+        {
+          url: "/images/rock-atlas/JICA_V4_p129_1_Im0.png",
+          captionEn: "Photo 1: Silicified Andesite / Shale Contact Outcrop",
+          captionKm: "រូបថតទី ១៖ ផ្ទាំងថ្មអានដេស៊ីតស៊ីលីស៊ីភី និងថ្មសែលប៉ះគ្នា",
+          subEn: "JICA 2010 Survey Photo 1 (App. V-4, p.129)",
+          subKm: "រូបថតអង្កេត JICA ២០១០ លេខ ១ (ឧបសម្ព័ន្ធ V-4, ទំព័រ ១២៩)"
+        },
+        {
+          url: "/images/rock-atlas/JICA_V4_p129_2_Im1.png",
+          captionEn: "Photo 2: Altered Quarry Outcrop with Limonitic Gossan",
+          captionKm: "រូបថតទី ២៖ ការដ្ឋានថ្មប្រែធាតុជាមួយហ្គូសានលីម៉ូណាយ",
+          subEn: "JICA 2010 Survey Photo 2 (App. V-4, p.129)",
+          subKm: "រូបថតអង្កេត JICA ២០១០ លេខ ២ (ឧបសម្ព័ន្ធ V-4, ទំព័រ ១២៩)"
+        },
+        {
+          url: "/images/rock-atlas/JICA_V4_p129_3_Im2.png",
+          captionEn: "Photo 3: Strong Silicification and Argillic Alteration Zone",
+          captionKm: "រូបថតទី ៣៖ តំបន់ប្រែធាតុស៊ីលីស៊ីភីកាសុង និងអាជីលិកខ្លាំង",
+          subEn: "JICA 2010 Survey Photo 3 (App. V-4, p.129)",
+          subKm: "រូបថតអង្កេត JICA ២០១០ លេខ ៣ (ឧបសម្ព័ន្ធ V-4, ទំព័រ ១២៩)"
+        },
+        {
+          url: "/images/rock-atlas/JICA_V4_p129_5_Im4.png",
+          captionEn: "Photo 4: Roadside Pit Showing Limonite Staining and Bleached Rock",
+          captionKm: "រូបថតទី ៤៖ រណ្តៅក្បែរផ្លូវបង្ហាញស្លាកស្នាមលីម៉ូណាយ និងថ្មសប្រែពណ៌",
+          subEn: "JICA 2010 Survey Photo 4 (App. V-4, p.129)",
+          subKm: "រូបថតអង្កេត JICA ២០១០ លេខ ៤ (ឧបសម្ព័ន្ធ V-4, ទំព័រ ១២៩)"
+        },
+        {
+          url: "/images/rock-atlas/JICA_V4_p129_6_Im5.png",
+          captionEn: "Photo 5: Stockwork Quartz-Limonite Veinlets in Conglomerate",
+          captionKm: "រូបថតទី ៥៖ បណ្តាញសរសៃក្វាត-លីម៉ូណាយក្នុងថ្មកុងក្លូមេរ៉ា",
+          subEn: "JICA 2010 Survey Photo 5 (App. V-4, p.129)",
+          subKm: "រូបថតអង្កេត JICA ២០១០ លេខ ៥ (ឧបសម្ព័ន្ធ V-4, ទំព័រ ១២៩)"
+        },
+        {
+          url: "/images/rock-atlas/JICA_V4_p129_8_Im7.png",
+          captionEn: "Photo 6: Iron-Manganese Vein System Penetrating Fractured Shale",
+          captionKm: "រូបថតទី ៦៖ ប្រព័ន្ធសរសៃដែក-ម៉ង់កាណែសជ្រៀតកាត់ថ្មសែលប្រេះស្រាំ",
+          subEn: "JICA 2010 Survey Photo 6 (App. V-4, p.129)",
+          subKm: "រូបថតអង្កេត JICA ២០១០ លេខ ៦ (ឧបសម្ព័ន្ធ V-4, ទំព័រ ១២៩)"
+        }
+      ]
+    },
+    {
+      id: "jica-field-photos-part2",
+      headingEn: "10. Authentic Field Photographs: Plutons, Hornfels and Skarn (JICA 2010 Survey)",
+      headingKm: "១០. រូបថតចុះវាលជាក់ស្តែង៖ សិលាជ្រៅ ហនហ្វែល និងស្កាន (ការអង្កេត JICA ឆ្នាំ២០១០)",
+      contentEn: "Field outcrop evidence of intrusive granite quarrying, thermal contact metamorphism (shale hornfels), hydrothermal skarn veinlets carrying amphibole and arsenopyrite, and weathered quartz porphyry complexes from JICA (2010) Appendix V-4 (p. 130).",
+      contentKm: "ភស្តុតាងផ្ទាំងថ្មវាលនៃការដ្ឋានថ្មក្រានីតជ្រៀតចូល ការប្រែរូបប៉ះទង្គិចកម្តៅ (ថ្មហនហ្វែលកកើតពីថ្មសែល) សរសៃស្កានជលកម្ដៅដែលផ្ទុកអំព្វីបូលនិងអាសេណូពីរីត និងកម្រងថ្មក្វាតព័រភីរីពុកផុយ ស្រង់ពី JICA (២០១០) ឧបសម្ព័ន្ធ V-4 (ទំព័រ ១៣០)។",
+      gallery: [
+        {
+          url: "/images/rock-atlas/JICA_V4_p130_3_Im0.png",
+          captionEn: "Photo 7: Fe-Mn Nodule with Black Manganiferous Core and Limonite Rim",
+          captionKm: "រូបថតទី ៧៖ ពកដុំដែក-ម៉ង់កាណែសដែលមានស្នូលខ្មៅ និងគែមលីម៉ូណាយត្នោត",
+          subEn: "JICA 2010 Survey Photo 7 (App. V-4, p.130)",
+          subKm: "រូបថតអង្កេត JICA ២០១០ លេខ ៧ (ឧបសម្ព័ន្ធ V-4, ទំព័រ ១៣០)"
+        },
+        {
+          url: "/images/rock-atlas/JICA_V4_p130_4_Im1.png",
+          captionEn: "Photo 8: Active Granite Quarry with Molybdenite Occurrences",
+          captionKm: "រូបថតទី ៨៖ ការដ្ឋានថ្មក្រានីតសកម្មដែលមានវត្តមានរ៉ែមូលីបដេនីត",
+          subEn: "JICA 2010 Survey Photo 8 (App. V-4, p.130)",
+          subKm: "រូបថតអង្កេត JICA ២០១០ លេខ ៨ (ឧបសម្ព័ន្ធ V-4, ទំព័រ ១៣០)"
+        },
+        {
+          url: "/images/rock-atlas/JICA_V4_p130_6_Im3.png",
+          captionEn: "Photo 9: Dense Contact-Metamorphic Shale Hornfels near Granite Boundary",
+          captionKm: "រូបថតទី ៩៖ ថ្មហនហ្វែលប្រែរូបប៉ះទង្គិចក្បែរព្រំប្រទល់ថ្មក្រានីត",
+          subEn: "JICA 2010 Survey Photo 9 (App. V-4, p.130)",
+          subKm: "រូបថតអង្កេត JICA ២០១០ លេខ ៩ (ឧបសម្ព័ន្ធ V-4, ទំព័រ ១៣០)"
+        },
+        {
+          url: "/images/rock-atlas/JICA_V4_p130_1_Im10.png",
+          captionEn: "Photo 10: Hydrothermal Skarn Veinlets with Amphibole and Arsenopyrite",
+          captionKm: "រូបថតទី ១០៖ សរសៃស្កានជលកម្តៅផ្ទុកអំព្វីបូល និងអាសេណូពីរីត",
+          subEn: "JICA 2010 Survey Photo 10 (App. V-4, p.130)",
+          subKm: "រូបថតអង្កេត JICA ២០១០ លេខ ១០ (ឧបសម្ព័ន្ធ V-4, ទំព័រ ១៣០)"
+        },
+        {
+          url: "/images/rock-atlas/JICA_V4_p130_9_Im6.png",
+          captionEn: "Photo 11: Weathered Resistant Quartz Porphyry Outcrop Hill",
+          captionKm: "រូបថតទី ១១៖ ភ្នំផ្ទាំងថ្មក្វាតព័រភីរីធន់នឹងធាតុអាកាស",
+          subEn: "JICA 2010 Survey Photo 11 (App. V-4, p.130)",
+          subKm: "រូបថតអង្កេត JICA ២០១០ លេខ ១១ (ឧបសម្ព័ន្ធ V-4, ទំព័រ ១៣០)"
+        },
+        {
+          url: "/images/rock-atlas/JICA_V4_p130_11_Im8.png",
+          captionEn: "Photo 12: Weathered Quartz Porphyry with Limonite Network Veinlets",
+          captionKm: "រូបថតទី ១២៖ ថ្មក្វាតព័រភីរីពុកផុយជាមួយបណ្តាញសរសៃលីម៉ូណាយ",
+          subEn: "JICA 2010 Survey Photo 12 (App. V-4, p.130)",
+          subKm: "រូបថតអង្កេត JICA ២០១០ លេខ ១២ (ឧបសម្ព័ន្ធ V-4, ទំព័រ ១៣០)"
+        }
+      ]
     }
 ],
     takeawaysEn: [

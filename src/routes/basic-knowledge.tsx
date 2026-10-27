@@ -470,6 +470,38 @@ export default function BasicKnowledge() {
                             )}
                           </figure>
                         )}
+
+                        {sec.gallery && sec.gallery.length > 0 && (
+                          <div className="my-6 space-y-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                              {sec.gallery.map((gItem, gIdx) => (
+                                <figure
+                                  key={gIdx}
+                                  className="group flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2 shadow-2xs hover:border-blue-400 hover:shadow-xs transition"
+                                >
+                                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-white flex items-center justify-center">
+                                    <img
+                                      src={gItem.url}
+                                      alt={lang === "km" ? gItem.captionKm : gItem.captionEn}
+                                      className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      loading="lazy"
+                                    />
+                                  </div>
+                                  <figcaption className="mt-2 px-1 text-left">
+                                    <p className="text-xs font-bold text-slate-900 leading-snug">
+                                      {lang === "km" ? gItem.captionKm : gItem.captionEn}
+                                    </p>
+                                    {(gItem.subKm || gItem.subEn) && (
+                                      <p className="mt-0.5 text-[11px] text-slate-500 font-mono">
+                                        {lang === "km" ? gItem.subKm : gItem.subEn}
+                                      </p>
+                                    )}
+                                  </figcaption>
+                                </figure>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </section>
                     );
                   })}
