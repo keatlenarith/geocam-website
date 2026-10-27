@@ -292,11 +292,6 @@ let lastLoadTime = 0;
 const CACHE_TTL_MS = 60 * 1000;
 
 async function loadStoreFromBlob(): Promise<AnalyticsStore> {
-  const now = Date.now();
-  if (memoryStore && now - lastLoadTime < CACHE_TTL_MS) {
-    return memoryStore;
-  }
-
   try {
     const { blobs } = await list({ prefix: BLOB_FILE_NAME });
     const targetBlob = blobs.find((b) => b.pathname === BLOB_FILE_NAME);
@@ -306,7 +301,6 @@ async function loadStoreFromBlob(): Promise<AnalyticsStore> {
       const text = await new Response(res.stream).text();
       const parsed = JSON.parse(text) as AnalyticsStore;
       memoryStore = parsed;
-      lastLoadTime = now;
       return memoryStore;
     }
   } catch (err) {
@@ -315,34 +309,24 @@ async function loadStoreFromBlob(): Promise<AnalyticsStore> {
 
   if (!memoryStore) {
     memoryStore = createEmptyStore(new Date().toISOString());
-    lastLoadTime = now;
   }
   return memoryStore;
 }
 
-let savePromise: Promise<void> | null = null;
-let pendingSave = false;
-
 async function persistStoreToBlob(store: AnalyticsStore): Promise<void> {
   memoryStore = store;
-  pendingSave = true;
+  lastLoadTime = Date.now();
 
-  if (savePromise) return;
-
-  savePromise = (async () => {
-    while (pendingSave) {
-      pendingSave = false;
-      try {
-        await put(BLOB_FILE_NAME, JSON.stringify(store), {
-          access: "private",
-          addRandomSuffix: false,
-        });
-      } catch (err) {
-        console.error("Notice: could not persist analytics to blob:", err);
-      }
-    }
-    savePromise = null;
-  })();
+  try {
+    await put(BLOB_FILE_NAME, JSON.stringify(store), {
+      access: "private",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    });
+  } catch (err) {
+    console.error("Notice: could not persist analytics to blob:", err);
+    throw err;
+  }
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
