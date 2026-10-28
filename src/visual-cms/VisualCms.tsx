@@ -1191,7 +1191,11 @@ export function VisualCmsLayer({ page }: { page: string }) {
               entry.value === "__removed__" ||
               isObsoleteSvg);
 
-          const fig = el.closest<HTMLElement>("figure") || el.closest<HTMLElement>(".geocam-img-wrapper");
+          const fig =
+            el.closest<HTMLElement>("figure") ||
+            el.closest<HTMLElement>(".geocam-img-wrapper") ||
+            el.closest<HTMLElement>("a.aspect-\\[16\\/10\\], .aspect-\\[16\\/10\\]") ||
+            (el.parentElement?.tagName === "A" ? (el.parentElement as HTMLElement) : null);
 
           if (isRemoved) {
             (el as HTMLElement).style.setProperty("display", "none", "important");
@@ -1250,6 +1254,14 @@ export function VisualCmsLayer({ page }: { page: string }) {
                 const bar = document.createElement("div");
                 bar.className = "geocam-img-controls-bar";
                 bar.dataset.key = key;
+
+                // 0. Replace Image button (Opens file picker immediately)
+                const replaceBtn = document.createElement("button");
+                replaceBtn.type = "button";
+                replaceBtn.className = "geocam-ctrl-replace";
+                replaceBtn.innerHTML = "📷 Replace";
+                replaceBtn.title = "Upload / replace this image with another file";
+                bar.appendChild(replaceBtn);
 
                 // 1. Crop button
                 const cropBtn = document.createElement("button");
@@ -1435,6 +1447,57 @@ export function VisualCmsLayer({ page }: { page: string }) {
         const key = ctrlBar.dataset.key || "";
         const img = ctrlBar.parentElement?.querySelector("img");
 
+        // 0. Replace Image button
+        if (target.closest(".geocam-ctrl-replace")) {
+          const input = document.createElement("input");
+          input.type = "file";
+          input.accept = "image/png,image/jpeg,image/webp,image/gif";
+          input.onchange = () => {
+            const file = input.files?.[0];
+            if (!file) return;
+            if (
+              !["image/png", "image/jpeg", "image/webp", "image/gif"].includes(
+                file.type,
+              ) ||
+              file.size > 2500000
+            ) {
+              setNotice("Choose a PNG, JPEG, WebP or GIF under 2.5 MB.");
+              return;
+            }
+            optimizeImage(file)
+              .then((dataUrl) => {
+                const currentWidth = img?.style.width || "100%";
+                const currentFit = img?.getAttribute("data-fit-mode") || "contain";
+                const entry: Entry = {
+                  kind: "image",
+                  value: dataUrl,
+                  width: currentWidth,
+                  height: "auto",
+                  fit: currentFit,
+                };
+                persistEntry(key, entry);
+                if (img) {
+                  img.setAttribute("src", dataUrl);
+                  img.style.setProperty("display", "block", "important");
+                }
+                const fig =
+                  img?.closest<HTMLElement>("figure") ||
+                  img?.closest<HTMLElement>(".geocam-img-wrapper") ||
+                  img?.closest<HTMLElement>("a.aspect-\\[16\\/10\\], .aspect-\\[16\\/10\\]") ||
+                  (img?.parentElement?.tagName === "A" ? (img.parentElement as HTMLElement) : null);
+                if (fig) {
+                  fig.style.removeProperty("display");
+                  fig.style.removeProperty("height");
+                  fig.style.removeProperty("min-height");
+                }
+                setNotice("Photo replaced! Click 'Publish Live' to publish to all visitors.");
+              })
+              .catch(() => setNotice("Failed to optimize image."));
+          };
+          input.click();
+          return;
+        }
+
         // A. Crop tool
         if (target.closest(".geocam-ctrl-crop")) {
           const currentSrc = img?.getAttribute("src") || "";
@@ -1611,7 +1674,11 @@ export function VisualCmsLayer({ page }: { page: string }) {
           persistEntry(key, entry);
           const barEl = target.closest(".geocam-img-controls-bar");
           const imgEl = barEl?.parentElement?.querySelector("img");
-          const fig = imgEl?.closest<HTMLElement>("figure") || imgEl?.closest<HTMLElement>(".geocam-img-wrapper");
+          const fig =
+            imgEl?.closest<HTMLElement>("figure") ||
+            imgEl?.closest<HTMLElement>(".geocam-img-wrapper") ||
+            imgEl?.closest<HTMLElement>("a.aspect-\\[16\\/10\\], .aspect-\\[16\\/10\\]") ||
+            (imgEl?.parentElement?.tagName === "A" ? (imgEl.parentElement as HTMLElement) : null);
           if (imgEl) (imgEl as HTMLElement).style.setProperty("display", "none", "important");
           if (fig) {
             fig.style.setProperty("display", "none", "important");

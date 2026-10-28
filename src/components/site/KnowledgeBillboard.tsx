@@ -105,15 +105,18 @@ export function KnowledgeBillboard() {
             return (
               <article
                 key={post.id}
+                data-cms-id={`billboard-card-${post.id}`}
                 className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-900/60 backdrop-blur-sm p-5 transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-500/60 hover:shadow-2xl hover:shadow-cyan-500/10"
               >
                 <div>
                   {/* Photo with Tag */}
                   <Link
                     to={`/basic-knowledge?id=${post.id}`}
+                    data-cms-id={`billboard-wrap-${post.id}`}
                     className="relative block aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-800 mb-4 cursor-pointer"
                   >
                     <img
+                      data-cms-id={`billboard-img-${post.id}`}
                       src={post.image}
                       alt={title}
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
