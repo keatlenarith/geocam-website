@@ -543,7 +543,7 @@ export default function EarthquakeMonitoringPage() {
             </h4>
             {kh ? (
               <p>
-                ប្រព័ន្ធតាមដាននេះកំណត់លំនាំដើមលើតំបន់ភូគព្ភសាស្ត្ររញ្ជួយដីចន្លោះ <strong>5°–25°N និង 92°–112°E</strong> ដែលគ្របដណ្តប់ប្រទេសកម្ពុជា ថៃ វៀតណាម ឡាវ មីយ៉ាន់ម៉ា ផ្នែកខ្លះនៃអាងសមុទ្រអាន់ដាម៉ាន និងភាគខាងត្បូងប្រទេសចិន។ អ្នកប្រើប្រាស់អាចជ្រើសរើស <strong>ទូទាំងពិភពលោក</strong> ឬស្វែងរកទីតាំងណាមួយលើពិភពលោក ដើម្បីស្វែងយល់ពីការរញ្ជួយដីអន្តរជាតិ។ ការសង្កេតក្នុងតំបន់ផ្អែកលើប្រភពទិន្នន័យផ្លូវការដែលបានផ្ទៀងផ្ទាត់ពី <strong>ការស្ទង់ភូគព្ភសាស្ត្រសហរដ្ឋអាមេរិក (USGS)</strong>, <strong>នាយកដ្ឋានឧតុនិយមថៃ (TMD)</strong>, <strong>បណ្តាញតាមដានរញ្ជួយដីចិន (CENC/CEA)</strong> និងព្រឹត្តិបត្រពីស្ថានីយអង្កេតក្នុងតំបន់។
+                ប្រព័ន្ធតាមដាននេះកំណត់លំនាំដើមលើតំបន់ភូគព្ភសាស្ត្ររញ្ជួយដីចន្លោះ <strong>5°–25°N និង 92°–112°E</strong> ដែលគ្របដណ្តប់ប្រទេសកម្ពុជា ថៃ វៀតណាម ឡាវ មីយ៉ាន់ម៉ា ផ្នែកខ្លះនៃអាងសមុទ្រអាន់ដាម៉ាន និងភាគខាងត្បូងប្រទេសចិន។ អ្នកប្រើប្រាស់អាចជ្រើសរើស <strong>ទូទាំងពិភពលោក</strong> ឬស្វែងរកទីតាំងណាមួយលើពិភពលោក ដើម្បីស្វែងយល់ពីការរញ្ជួយដីអន្តរជាតិ។ ការសង្កេតក្នុងតំបន់ផ្អែកលើប្រភពទិន្នន័យផ្លូវការដែលបានផ្ទៀងផ្ទាត់ពី <strong>ការស្ទង់ភូគព្ភសាស្ត្រសហរដ្ឋអាមេរិក (USGS)</strong>, <strong>ទីភ្នាក់ងារឧតុនិយមជប៉ុន (JMA)</strong>, <strong>នាយកដ្ឋានឧតុនិយមថៃ (TMD)</strong>, <strong>បណ្តាញតាមដានរញ្ជួយដីចិន (CENC/CEA)</strong> និងព្រឹត្តិបត្រពីស្ថានីយអង្កេតក្នុងតំបន់។
               </p>
             ) : (
               <p>
@@ -642,6 +642,14 @@ export default function EarthquakeMonitoringPage() {
                 className="inline-flex items-center gap-1.5 font-bold text-primary hover:underline block"
               >
                 <ArrowUpRight size={13} /> {kh ? "PHIVOLCS DOST (ប្រទេសហ្វីលីពីន)" : "PHIVOLCS DOST (Philippines)"}
+              </a>
+              <a
+                href="https://www.data.jma.go.jp/multi/quake/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 font-bold text-primary hover:underline block"
+              >
+                <ArrowUpRight size={13} /> {kh ? "ទីភ្នាក់ងារឧតុនិយមជប៉ុន — JMA (気象庁地震情報)" : "Japan Meteorological Agency — JMA (気象庁地震情報)"}
               </a>
             </div>
           </div>

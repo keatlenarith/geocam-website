@@ -6,6 +6,7 @@ import {
   filterEarthquakes,
   normalizeUsgsFeature,
   parseCencJson,
+  parseJmaJson,
   isWithinRegionalEnvelope,
   deduplicateEvents,
 } from "./earthquake-data";
@@ -57,6 +58,13 @@ const DEFAULT_PROVIDERS: Record<ProviderName, ProviderHealth> = {
     status: "available",
     officialUrl: "https://earthquake.phivolcs.dost.gov.ph/",
     note: "Regional reference bulletin (Philippine basin focus)",
+  },
+  JMA: {
+    provider: "JMA",
+    name: "Japan Meteorological Agency (気象庁)",
+    status: "available",
+    officialUrl: "https://www.data.jma.go.jp/multi/quake/",
+    note: "Official Earthquake and Seismic Intensity Information (気象庁防災情報)",
   },
 };
 
@@ -183,6 +191,18 @@ export function useEarthquakes(options: UseEarthquakesOptions = {}) {
               const cencData = await cencRes.json();
               const cencParsed = parseCencJson(cencData);
               allFetchedEvents = [...allFetchedEvents, ...cencParsed];
+            }
+          } catch {}
+
+          // Also fetch JMA (Japan Meteorological Agency / 気象庁) in client fallback
+          try {
+            const jmaRes = await fetch("https://www.jma.go.jp/bosai/quake/data/list.json", {
+              signal: AbortSignal.timeout(3500),
+            });
+            if (jmaRes.ok) {
+              const jmaData = await jmaRes.json();
+              const jmaParsed = parseJmaJson(jmaData);
+              allFetchedEvents = [...allFetchedEvents, ...jmaParsed];
             }
           } catch {}
 

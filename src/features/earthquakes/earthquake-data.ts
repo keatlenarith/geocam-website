@@ -654,7 +654,7 @@ export function translateEarthquakeLocation(
  * Models, validation, filtering, source normalization, deduplication, and factual announcement formatting.
  */
 
-export type ProviderName = "USGS" | "TMD" | "VIETNAM" | "PHIVOLCS" | "CENC";
+export type ProviderName = "USGS" | "TMD" | "VIETNAM" | "PHIVOLCS" | "CENC" | "JMA";
 export type ProviderStatus = "available" | "unavailable" | "loading" | "delayed";
 
 export interface EarthquakeReport {
@@ -1105,6 +1105,130 @@ export function parseCencJson(jsonObj: Record<string, any>): EarthquakeEvent[] {
             sourceUrl,
             magnitude: Number.isFinite(mag) ? mag : null,
             depthKm: Number.isFinite(depth) ? depth : null,
+          },
+        ],
+      });
+    } catch {
+      // Continue parsing remaining items
+    }
+  }
+
+  return events;
+}
+
+/**
+ * Parse ISO 6709 coordinate string used by JMA
+ * Formats:
+ *  - Standard degree: "+43.1+144.5-120000/" -> lat: 43.1, lon: 144.5, depth: 120km
+ *  - Degree-minute (DDMM.m): "+3543.3+14042.9-52000/" -> lat: 35 + 43.3/60 = 35.7217, lon: 140 + 42.9/60 = 140.715
+ */
+export function parseJmaCod(cod?: string): { lat: number; lon: number; depthKm: number | null } | null {
+  if (!cod) return null;
+  const m = cod.match(/^([+-][0-9.]+)([+-][0-9.]+)([+-][0-9.]+)?\//);
+  if (!m) return null;
+
+  const rawLat = m[1];
+  const rawLon = m[2];
+  const rawDepth = m[3];
+
+  let lat = 0;
+  const latSign = rawLat.startsWith("-") ? -1 : 1;
+  const latNum = rawLat.slice(1);
+  if (latNum.includes(".") && latNum.indexOf(".") === 4) {
+    const deg = parseFloat(latNum.slice(0, 2));
+    const min = parseFloat(latNum.slice(2));
+    lat = latSign * (deg + min / 60);
+  } else {
+    lat = parseFloat(rawLat);
+  }
+
+  let lon = 0;
+  const lonSign = rawLon.startsWith("-") ? -1 : 1;
+  const lonNum = rawLon.slice(1);
+  if (lonNum.includes(".") && lonNum.indexOf(".") === 5) {
+    const deg = parseFloat(lonNum.slice(0, 3));
+    const min = parseFloat(lonNum.slice(3));
+    lon = lonSign * (deg + min / 60);
+  } else {
+    lon = parseFloat(rawLon);
+  }
+
+  let depthKm: number | null = null;
+  if (rawDepth) {
+    const meters = Math.abs(parseFloat(rawDepth));
+    depthKm = Math.round(meters / 1000);
+  }
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+
+  return {
+    lat: Number(lat.toFixed(4)),
+    lon: Number(lon.toFixed(4)),
+    depthKm,
+  };
+}
+
+/**
+ * Parse Japan Meteorological Agency (JMA) disaster prevention JSON feed (https://www.jma.go.jp/bosai/quake/data/list.json)
+ */
+export function parseJmaJson(items: any[]): EarthquakeEvent[] {
+  const events: EarthquakeEvent[] = [];
+  if (!Array.isArray(items)) return events;
+
+  for (const it of items) {
+    try {
+      if (!it || !it.cod) continue;
+      const coords = parseJmaCod(it.cod);
+      if (!coords) continue;
+
+      const rawTime = it.at || it.rdt;
+      if (!rawTime) continue;
+      const originDate = new Date(rawTime);
+      if (isNaN(originDate.getTime())) continue;
+      const originTime = originDate.toISOString();
+
+      const lat = coords.lat;
+      const lon = coords.lon;
+      const depth = coords.depthKm;
+      const mag = it.mag ? parseFloat(it.mag) : null;
+
+      const isReg = isWithinRegionalEnvelope(lat, lon);
+      const distKm = Math.round(
+        haversineDistanceKm(CAMBODIA_CENTER.latitude, CAMBODIA_CENTER.longitude, lat, lon)
+      );
+
+      const placeName = (it.en_anm || it.anm || "").trim();
+      const locationLabel = placeName
+        ? `${placeName} (Japan / JMA)`
+        : isReg
+          ? "Regional epicenter (JMA)"
+          : "Japan / Pacific epicenter (JMA)";
+
+      const eventId = `jma-${it.eid || it.ctt || `${lat.toFixed(2)}-${lon.toFixed(2)}-${originTime.slice(0, 16)}`}`;
+      const sourceUrl = "https://www.data.jma.go.jp/multi/quake/";
+
+      events.push({
+        id: eventId,
+        originTime,
+        firstSeenAt: originTime,
+        latitude: lat,
+        longitude: lon,
+        depthKm: depth,
+        magnitude: Number.isFinite(mag) ? mag : null,
+        magnitudeType: "Mj",
+        location: locationLabel,
+        reviewStatus: "reviewed",
+        status: "reviewed",
+        url: sourceUrl,
+        isRegional: isReg,
+        distanceToCambodiaKm: distKm,
+        reports: [
+          {
+            provider: "JMA",
+            providerEventId: it.eid || it.ctt || eventId,
+            sourceUrl,
+            magnitude: Number.isFinite(mag) ? mag : null,
+            depthKm: depth,
           },
         ],
       });

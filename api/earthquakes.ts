@@ -223,6 +223,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       lastChecked: new Date().toISOString(),
       note: "Regional reference bulletin (Philippine basin focus)",
     },
+    JMA: {
+      provider: "JMA",
+      name: "Japan Meteorological Agency (気象庁)",
+      status: "loading",
+      officialUrl: "https://www.data.jma.go.jp/multi/quake/",
+      lastChecked: new Date().toISOString(),
+      note: "Official Earthquake and Seismic Intensity Information (気象庁防災情報)",
+    },
   };
 
   // 1. Fetch USGS Feed with 8s timeout
@@ -577,6 +585,126 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.error("[PHIVOLCS Scraper Error]:", err);
     providerHealth.PHIVOLCS.status = "delayed";
     providerHealth.PHIVOLCS.note = `Upstream error: ${err?.message || err}`;
+  }
+
+  // 5. Fetch Japan Meteorological Agency (JMA / 気象庁) Real-Time Earthquake Feed
+  try {
+    const jmaRes = await fetch("https://www.jma.go.jp/bosai/quake/data/list.json", {
+      signal: AbortSignal.timeout(6000),
+      headers: { "User-Agent": "GeoCam-Earthquake-Monitor/1.0" },
+    });
+
+    if (jmaRes.ok) {
+      const jmaItems = await jmaRes.json();
+      let jmaCount = 0;
+
+      if (Array.isArray(jmaItems)) {
+        for (const it of jmaItems) {
+          if (!it || !it.cod) continue;
+
+          // Parse ISO 6709 coordinates
+          const m = it.cod.match(/^([+-][0-9.]+)([+-][0-9.]+)([+-][0-9.]+)?\//);
+          if (!m) continue;
+
+          const rawLat = m[1];
+          const rawLon = m[2];
+          const rawDepth = m[3];
+
+          let lat = 0;
+          const latSign = rawLat.startsWith("-") ? -1 : 1;
+          const latNum = rawLat.slice(1);
+          if (latNum.includes(".") && latNum.indexOf(".") === 4) {
+            const deg = parseFloat(latNum.slice(0, 2));
+            const min = parseFloat(latNum.slice(2));
+            lat = latSign * (deg + min / 60);
+          } else {
+            lat = parseFloat(rawLat);
+          }
+
+          let lon = 0;
+          const lonSign = rawLon.startsWith("-") ? -1 : 1;
+          const lonNum = rawLon.slice(1);
+          if (lonNum.includes(".") && lonNum.indexOf(".") === 5) {
+            const deg = parseFloat(lonNum.slice(0, 3));
+            const min = parseFloat(lonNum.slice(3));
+            lon = lonSign * (deg + min / 60);
+          } else {
+            lon = parseFloat(rawLon);
+          }
+
+          if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+
+          let depthKm: number | null = null;
+          if (rawDepth) {
+            depthKm = Math.round(Math.abs(parseFloat(rawDepth)) / 1000);
+          }
+
+          const rawTime = it.at || it.rdt;
+          if (!rawTime) continue;
+          const originDate = new Date(rawTime);
+          if (isNaN(originDate.getTime())) continue;
+          const originTime = originDate.toISOString();
+
+          // Filter by time window
+          const eventTime = originDate.getTime();
+          if (eventTime < startTime) continue;
+
+          const mag = it.mag ? parseFloat(it.mag) : null;
+          const isReg = lat >= 5.0 && lat <= 25.0 && lon >= 92.0 && lon <= 112.0;
+
+          const dLat = (lat - 12.5657) * 111;
+          const dLon = (lon - 104.991) * 111 * Math.cos((12.5657 * Math.PI) / 180);
+          const distKm = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
+
+          const placeName = (it.en_anm || it.anm || "").trim();
+          const locationLabel = placeName
+            ? `${placeName} (Japan / JMA)`
+            : isReg
+              ? "Regional epicenter (JMA)"
+              : "Japan / Pacific epicenter (JMA)";
+
+          const id = `jma-${it.eid || it.ctt || `${lat.toFixed(2)}-${lon.toFixed(2)}-${originTime.slice(0, 16)}`}`;
+          const sourceUrl = "https://www.data.jma.go.jp/multi/quake/";
+
+          rawEvents.push({
+            id,
+            originTime,
+            firstSeenAt: originTime,
+            latitude: Number(lat.toFixed(4)),
+            longitude: Number(lon.toFixed(4)),
+            depthKm,
+            magnitude: Number.isFinite(mag) ? mag : null,
+            magnitudeType: "Mj",
+            location: locationLabel,
+            reviewStatus: "reviewed",
+            status: "reviewed",
+            url: sourceUrl,
+            isRegional: isReg,
+            distanceToCambodiaKm: distKm,
+            reports: [
+              {
+                provider: "JMA",
+                providerEventId: it.eid || it.ctt || id,
+                sourceUrl,
+                magnitude: Number.isFinite(mag) ? mag : null,
+                depthKm,
+              },
+            ],
+          });
+          jmaCount++;
+        }
+      }
+
+      providerHealth.JMA.status = "available";
+      providerHealth.JMA.eventCount = jmaCount;
+    } else {
+      providerHealth.JMA.status = "unavailable";
+      providerHealth.JMA.note = `Upstream HTTP ${jmaRes.status}`;
+    }
+  } catch (err: any) {
+    console.error("[JMA Fetch Error]:", err);
+    providerHealth.JMA.status = "delayed";
+    providerHealth.JMA.note = `Upstream error: ${err?.message || err}`;
   }
 
   // Deduplicate events across providers (tolerance: 60s and 30km)

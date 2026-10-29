@@ -18,6 +18,8 @@ const {
   normalizeUsgsFeature,
   parseTmdXml,
   parseCencJson,
+  parseJmaCod,
+  parseJmaJson,
   deduplicateEvents,
   filterEarthquakes,
   translateEarthquakeLocation,
@@ -383,6 +385,64 @@ test('parseCencJson: parses China Earthquake Networks Center (CENC/CEA) & Guangd
   const ynEvent = parsed.find(e => e.id.includes('YN.20261021195218'));
   assert.ok(ynEvent);
   assert.equal(ynEvent.isRegional, true); // (23.65N, 102.25E is within regional envelope 5-25N, 92-112E)
+});
+
+test('parseJmaJson: parses Japan Meteorological Agency earthquake items and ISO 6709 coordinates correctly', () => {
+  const sampleCodStandard = parseJmaCod('+43.1+144.5-120000/');
+  assert.ok(sampleCodStandard);
+  assert.equal(sampleCodStandard.lat, 43.1);
+  assert.equal(sampleCodStandard.lon, 144.5);
+  assert.equal(sampleCodStandard.depthKm, 120);
+
+  const sampleCodDdmm = parseJmaCod('+3543.3+14042.9-52000/');
+  assert.ok(sampleCodDdmm);
+  assert.equal(sampleCodDdmm.lat, 35.7217);
+  assert.equal(sampleCodDdmm.lon, 140.715);
+  assert.equal(sampleCodDdmm.depthKm, 52);
+
+  const sampleJmaFeed = [
+    {
+      ctt: '20261029081812',
+      eid: '20261029081407',
+      rdt: '2026-10-29T08:18:00+09:00',
+      at: '2026-10-29T08:14:00+09:00',
+      anm: '釧路地方中南部',
+      cod: '+43.1+144.5-120000/',
+      mag: '4.4',
+      en_anm: 'Central and southern Kushiro Region, Hokkaido'
+    },
+    {
+      ctt: '20261029021003',
+      eid: '20261029000759',
+      rdt: '2026-10-29T02:10:00+09:00',
+      at: '2026-10-29T00:07:00+09:00',
+      anm: '千葉県北東部',
+      cod: '+3543.3+14042.9-52000/',
+      mag: '5.5',
+      en_anm: 'Northeastern Chiba Prefecture'
+    }
+  ];
+
+  const parsed = parseJmaJson(sampleJmaFeed);
+  assert.equal(parsed.length, 2);
+
+  const ev1 = parsed[0];
+  assert.equal(ev1.magnitude, 4.4);
+  assert.equal(ev1.magnitudeType, 'Mj');
+  assert.equal(ev1.depthKm, 120);
+  assert.equal(ev1.latitude, 43.1);
+  assert.equal(ev1.longitude, 144.5);
+  assert.equal(ev1.reports[0].provider, 'JMA');
+  assert.ok(ev1.location.includes('Kushiro Region, Hokkaido'));
+  assert.ok(ev1.location.includes('Japan / JMA'));
+  assert.equal(ev1.url, 'https://www.data.jma.go.jp/multi/quake/');
+
+  const ev2 = parsed[1];
+  assert.equal(ev2.magnitude, 5.5);
+  assert.equal(ev2.depthKm, 52);
+  assert.equal(ev2.latitude, 35.7217);
+  assert.equal(ev2.longitude, 140.715);
+  assert.ok(ev2.location.includes('Northeastern Chiba Prefecture'));
 });
 
 
