@@ -172,6 +172,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ? 30 * 24 * 3600 * 1000
     : 7 * 24 * 3600 * 1000;
 
+  const startTime = Date.now() - windowMs;
+
   let usgsUrl =
     "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
