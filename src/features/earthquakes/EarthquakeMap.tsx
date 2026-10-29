@@ -151,6 +151,7 @@ export default function EarthquakeMap({
   );
 
   const [basemap, setBasemap] = useState<BasemapType>("topo");
+  const [showPlates, setShowPlates] = useState<boolean>(true);
   const [coords, setCoords] = useState<[number, number] | null>(null);
   const [mapReady, setMapReady] = useState(false);
 
@@ -188,6 +189,51 @@ export default function EarthquakeMap({
     m.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
 
     m.on("load", () => {
+      // Add Tectonic Plate Boundaries Source & Layers
+      try {
+        if (!m.getSource("tectonic-plates")) {
+          m.addSource("tectonic-plates", {
+            type: "geojson",
+            data: "/data/plate_boundaries.geojson",
+          });
+
+          // Outer glow line for plate boundaries
+          m.addLayer({
+            id: "plate-boundaries-glow",
+            type: "line",
+            source: "tectonic-plates",
+            layout: {
+              "line-join": "round",
+              "line-cap": "round",
+            },
+            paint: {
+              "line-color": "#f97316", // Bright Orange/Red glow
+              "line-width": 4.5,
+              "line-opacity": 0.45,
+              "line-blur": 2,
+            },
+          });
+
+          // Core crisp plate boundary line
+          m.addLayer({
+            id: "plate-boundaries-core",
+            type: "line",
+            source: "tectonic-plates",
+            layout: {
+              "line-join": "round",
+              "line-cap": "round",
+            },
+            paint: {
+              "line-color": "#ea580c", // Deep orange-red
+              "line-width": 2,
+              "line-opacity": 0.95,
+            },
+          });
+        }
+      } catch (err) {
+        console.warn("Failed to load plate boundaries on init:", err);
+      }
+
       setMapReady(true);
     });
 
@@ -245,6 +291,24 @@ export default function EarthquakeMap({
       console.warn("Failed to switch basemap:", err);
     }
   }, [basemap, mapReady]);
+
+  // Toggle Tectonic Plate Boundaries Visibility
+  useEffect(() => {
+    const m = mapRef.current;
+    if (!m || !mapReady) return;
+
+    try {
+      const visibility = showPlates ? "visible" : "none";
+      if (m.getLayer("plate-boundaries-glow")) {
+        m.setLayoutProperty("plate-boundaries-glow", "visibility", visibility);
+      }
+      if (m.getLayer("plate-boundaries-core")) {
+        m.setLayoutProperty("plate-boundaries-core", "visibility", visibility);
+      }
+    } catch (err) {
+      console.warn("Failed to toggle plate boundaries:", err);
+    }
+  }, [showPlates, mapReady]);
 
   // Render and update markers whenever events list or selectedEventId changes
   useEffect(() => {
@@ -412,6 +476,25 @@ export default function EarthquakeMap({
             </select>
           </label>
 
+          {/* Plate Boundary Layer Toggle */}
+          <button
+            type="button"
+            onClick={() => setShowPlates((prev) => !prev)}
+            className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold border transition ${
+              showPlates
+                ? "bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-xs"
+                : "bg-slate-800 text-slate-400 border-slate-700 hover:text-white"
+            }`}
+            title="Toggle Tectonic Plate Boundaries (បន្ទាត់ព្រំប្រទល់ផ្លាកតិចតូនិក)"
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${
+                showPlates ? "bg-amber-400 animate-pulse" : "bg-slate-500"
+              }`}
+            />
+            <span>{kh ? "ព្រំប្រទល់ផ្លាកតិចតូនិក" : "Plate Boundaries"}</span>
+          </button>
+
           {/* Quick Scope Views */}
           <div className="inline-flex rounded-lg bg-slate-900 p-0.5 border border-slate-700">
             <button
@@ -473,6 +556,14 @@ export default function EarthquakeMap({
             <span className="h-2.5 w-2.5 rounded-full bg-blue-600 border border-white" />
             <span>{kh ? "< M 3.0 តូចបំផុត" : "< M 3.0 Micro"}</span>
           </div>
+          {showPlates && (
+            <div className="pt-1.5 mt-1 border-t border-slate-800 flex items-center gap-2">
+              <span className="h-1 w-4 rounded-full bg-orange-500 shadow-[0_0_6px_rgba(249,115,22,0.8)]" />
+              <span className="text-[10px] text-orange-300 font-semibold">
+                {kh ? "ព្រំប្រទល់ផ្លាកតិចតូនិក" : "Plate Boundary"}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
