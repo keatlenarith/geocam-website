@@ -189,7 +189,7 @@ export default function EarthquakeMap({
     m.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
 
     m.on("load", () => {
-      // Add Tectonic Plate Boundaries Source & Layers
+      // Add Tectonic Plate Boundaries Source & Specialized Symbology Layers
       try {
         if (!m.getSource("tectonic-plates")) {
           m.addSource("tectonic-plates", {
@@ -197,37 +197,170 @@ export default function EarthquakeMap({
             data: "/data/plate_boundaries.geojson",
           });
 
-          // Outer glow line for plate boundaries
+          // 1. SUBDUCTION ZONES (Trenches): Deep Red/Crimson with hachured dashed effect
           m.addLayer({
-            id: "plate-boundaries-glow",
+            id: "plate-subduction-glow",
             type: "line",
             source: "tectonic-plates",
-            layout: {
-              "line-join": "round",
-              "line-cap": "round",
-            },
+            filter: ["==", ["get", "category"], "subduction"],
+            layout: { "line-join": "round", "line-cap": "round" },
             paint: {
-              "line-color": "#f97316", // Bright Orange/Red glow
-              "line-width": 4.5,
-              "line-opacity": 0.45,
-              "line-blur": 2,
+              "line-color": "#ef4444",
+              "line-width": 6,
+              "line-opacity": 0.4,
+              "line-blur": 3,
+            },
+          });
+          m.addLayer({
+            id: "plate-subduction-core",
+            type: "line",
+            source: "tectonic-plates",
+            filter: ["==", ["get", "category"], "subduction"],
+            layout: { "line-join": "round", "line-cap": "round" },
+            paint: {
+              "line-color": "#dc2626", // Deep Red
+              "line-width": 3.2,
+              "line-opacity": 0.95,
+            },
+          });
+          m.addLayer({
+            id: "plate-subduction-teeth",
+            type: "line",
+            source: "tectonic-plates",
+            filter: ["==", ["get", "category"], "subduction"],
+            layout: { "line-join": "miter", "line-cap": "butt" },
+            paint: {
+              "line-color": "#ffffff",
+              "line-width": 1.5,
+              "line-dasharray": [1, 2],
+              "line-opacity": 0.9,
             },
           });
 
-          // Core crisp plate boundary line
+          // 2. CONVERGENT / COLLISION BOUNDARIES: Purple/Magenta
           m.addLayer({
-            id: "plate-boundaries-core",
+            id: "plate-convergent-glow",
             type: "line",
             source: "tectonic-plates",
-            layout: {
-              "line-join": "round",
-              "line-cap": "round",
-            },
+            filter: ["==", ["get", "category"], "convergent"],
+            layout: { "line-join": "round", "line-cap": "round" },
             paint: {
-              "line-color": "#ea580c", // Deep orange-red
-              "line-width": 2,
+              "line-color": "#c084fc",
+              "line-width": 5,
+              "line-opacity": 0.35,
+              "line-blur": 2,
+            },
+          });
+          m.addLayer({
+            id: "plate-convergent-core",
+            type: "line",
+            source: "tectonic-plates",
+            filter: ["==", ["get", "category"], "convergent"],
+            layout: { "line-join": "round", "line-cap": "round" },
+            paint: {
+              "line-color": "#9333ea", // Vibrant Purple
+              "line-width": 2.5,
               "line-opacity": 0.95,
             },
+          });
+
+          // 3. DIVERGENT / SPREADING RIDGES / RIFTS: Cyan/Blue double-rail track
+          m.addLayer({
+            id: "plate-divergent-glow",
+            type: "line",
+            source: "tectonic-plates",
+            filter: ["==", ["get", "category"], "divergent"],
+            layout: { "line-join": "round", "line-cap": "round" },
+            paint: {
+              "line-color": "#38bdf8",
+              "line-width": 5,
+              "line-opacity": 0.35,
+              "line-blur": 2,
+            },
+          });
+          m.addLayer({
+            id: "plate-divergent-core",
+            type: "line",
+            source: "tectonic-plates",
+            filter: ["==", ["get", "category"], "divergent"],
+            layout: { "line-join": "round", "line-cap": "round" },
+            paint: {
+              "line-color": "#0284c7", // Deep Ocean Cyan
+              "line-width": 2.2,
+              "line-dasharray": [4, 1.5], // International double/dashed ridge symbol
+              "line-opacity": 0.95,
+            },
+          });
+
+          // 4. TRANSFORM FAULTS / STRIKE-SLIP: Amber/Gold dashed
+          m.addLayer({
+            id: "plate-transform-glow",
+            type: "line",
+            source: "tectonic-plates",
+            filter: ["==", ["get", "category"], "transform"],
+            layout: { "line-join": "round", "line-cap": "round" },
+            paint: {
+              "line-color": "#fcd34d",
+              "line-width": 4,
+              "line-opacity": 0.3,
+              "line-blur": 2,
+            },
+          });
+          m.addLayer({
+            id: "plate-transform-core",
+            type: "line",
+            source: "tectonic-plates",
+            filter: ["==", ["get", "category"], "transform"],
+            layout: { "line-join": "round", "line-cap": "round" },
+            paint: {
+              "line-color": "#d97706", // Amber / Gold
+              "line-width": 2,
+              "line-dasharray": [2, 2], // International transform fault dashed symbol
+              "line-opacity": 0.95,
+            },
+          });
+
+          // Interactive Click on Plate Boundary
+          const plateLayerIds = [
+            "plate-subduction-core",
+            "plate-convergent-core",
+            "plate-divergent-core",
+            "plate-transform-core",
+          ];
+
+          plateLayerIds.forEach((layerId) => {
+            m.on("mouseenter", layerId, () => {
+              m.getCanvas().style.cursor = "pointer";
+            });
+            m.on("mouseleave", layerId, () => {
+              m.getCanvas().style.cursor = "";
+            });
+            m.on("click", layerId, (e) => {
+              const feat = e.features?.[0];
+              if (!feat) return;
+              const props = feat.properties || {};
+              const name = props.boundary || "Plate Boundary";
+              const typeEn = props.typeLabelEn || props.category || "Tectonic Boundary";
+              const typeKm = props.typeLabelKm || "ព្រំប្រទល់ផ្លាកតិចតូនិក";
+              const cls = props.class || "";
+
+              new maplibregl.Popup({ offset: 12, closeButton: true, maxWidth: "280px" })
+                .setLngLat(e.lngLat)
+                .setHTML(
+                  `<div style="font-family: inherit; font-size: 12px; padding: 4px; color: #0f172a;">
+                    <div style="font-weight: 800; font-size: 13px; color: #1e293b; margin-bottom: 2px;">
+                      ${name} (${cls})
+                    </div>
+                    <div style="font-weight: 700; color: #0369a1; margin-bottom: 4px;">
+                      ${typeEn}
+                    </div>
+                    <div style="font-size: 11px; color: #64748b; line-height: 1.4;">
+                      ${typeKm}
+                    </div>
+                  </div>`
+                )
+                .addTo(m);
+            });
           });
         }
       } catch (err) {
@@ -299,12 +432,22 @@ export default function EarthquakeMap({
 
     try {
       const visibility = showPlates ? "visible" : "none";
-      if (m.getLayer("plate-boundaries-glow")) {
-        m.setLayoutProperty("plate-boundaries-glow", "visibility", visibility);
-      }
-      if (m.getLayer("plate-boundaries-core")) {
-        m.setLayoutProperty("plate-boundaries-core", "visibility", visibility);
-      }
+      const allPlateLayers = [
+        "plate-subduction-glow",
+        "plate-subduction-core",
+        "plate-subduction-teeth",
+        "plate-convergent-glow",
+        "plate-convergent-core",
+        "plate-divergent-glow",
+        "plate-divergent-core",
+        "plate-transform-glow",
+        "plate-transform-core",
+      ];
+      allPlateLayers.forEach((layerId) => {
+        if (m.getLayer(layerId)) {
+          m.setLayoutProperty(layerId, "visibility", visibility);
+        }
+      });
     } catch (err) {
       console.warn("Failed to toggle plate boundaries:", err);
     }
@@ -557,11 +700,38 @@ export default function EarthquakeMap({
             <span>{kh ? "< M 3.0 តូចបំផុត" : "< M 3.0 Micro"}</span>
           </div>
           {showPlates && (
-            <div className="pt-1.5 mt-1 border-t border-slate-800 flex items-center gap-2">
-              <span className="h-1 w-4 rounded-full bg-orange-500 shadow-[0_0_6px_rgba(249,115,22,0.8)]" />
-              <span className="text-[10px] text-orange-300 font-semibold">
-                {kh ? "ព្រំប្រទល់ផ្លាកតិចតូនិក" : "Plate Boundary"}
-              </span>
+            <div className="pt-2 mt-2 border-t border-slate-800 space-y-1.5">
+              <strong className="block font-bold text-slate-300 uppercase tracking-wider text-[9px]">
+                {kh ? "និមិត្តសញ្ញាផ្លាកតិចតូនិក (អន្តរជាតិ)" : "Tectonic Boundaries (Intl.)"}
+              </strong>
+              {/* Subduction Zone */}
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-4 rounded-full bg-red-600 shadow-[0_0_6px_rgba(239,68,68,0.8)] border-b border-white" />
+                <span className="text-[10px] text-red-300 font-medium">
+                  {kh ? "តំបន់ទ្រុឌខ្លួន (Subduction / Trench)" : "Subduction Zone (Trench)"}
+                </span>
+              </div>
+              {/* Convergent / Collision */}
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-4 rounded-full bg-purple-600 shadow-[0_0_6px_rgba(168,85,247,0.8)]" />
+                <span className="text-[10px] text-purple-300 font-medium">
+                  {kh ? "បុកទង្គិច (Convergent / Collision)" : "Convergent / Collision"}
+                </span>
+              </div>
+              {/* Divergent / Spreading Ridge */}
+              <div className="flex items-center gap-2">
+                <span className="h-1 w-4 rounded-sm bg-sky-500 border-dashed border-t border-white" />
+                <span className="text-[10px] text-sky-300 font-medium">
+                  {kh ? "រំកិលចេញ (Divergent / Ridge / Rift)" : "Divergent / Spreading Ridge"}
+                </span>
+              </div>
+              {/* Transform Fault */}
+              <div className="flex items-center gap-2">
+                <span className="h-1 w-4 rounded-sm border-t-2 border-dashed border-amber-400" />
+                <span className="text-[10px] text-amber-300 font-medium">
+                  {kh ? "កំហុសប្លាស់ទីផ្តេក (Transform Fault)" : "Transform Fault (Strike-Slip)"}
+                </span>
+              </div>
             </div>
           )}
         </div>
