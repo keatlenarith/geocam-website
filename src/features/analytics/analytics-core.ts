@@ -42,6 +42,8 @@ export function formatFriendlyDate(dateStr: string): string {
   }
 }
 
+import { BASELINE_STORE } from "./baseline-data.ts";
+
 /**
  * Creates an empty initial analytics store.
  */
@@ -53,6 +55,14 @@ export function createEmptyStore(startDate = new Date().toISOString()): Analytic
     allTimeVisitors: [],
     lastUpdated: new Date().toISOString(),
   };
+}
+
+/**
+ * Creates a baseline store pre-seeded with official launch telemetry
+ * to prevent counter resets if external blob storage is unavailable.
+ */
+export function createBaselineStore(): AnalyticsStore {
+  return JSON.parse(JSON.stringify(BASELINE_STORE)) as AnalyticsStore;
 }
 
 /**

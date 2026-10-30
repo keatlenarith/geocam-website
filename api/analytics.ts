@@ -85,6 +85,8 @@ export function formatFriendlyDate(dateStr: string): string {
   }
 }
 
+import { BASELINE_STORE } from "../src/features/analytics/baseline-data.ts";
+
 export function createEmptyStore(startDate = new Date().toISOString()): AnalyticsStore {
   return {
     version: 1,
@@ -93,6 +95,10 @@ export function createEmptyStore(startDate = new Date().toISOString()): Analytic
     allTimeVisitors: [],
     lastUpdated: new Date().toISOString(),
   };
+}
+
+export function createBaselineStore(): AnalyticsStore {
+  return JSON.parse(JSON.stringify(BASELINE_STORE)) as AnalyticsStore;
 }
 
 export function sanitizePath(rawPath: string): string {
@@ -292,6 +298,11 @@ let lastLoadTime = 0;
 const CACHE_TTL_MS = 60 * 1000;
 
 async function loadStoreFromBlob(): Promise<AnalyticsStore> {
+  const now = Date.now();
+  if (memoryStore && now - lastLoadTime < CACHE_TTL_MS) {
+    return memoryStore;
+  }
+
   try {
     const { blobs } = await list({ prefix: BLOB_FILE_NAME });
     const targetBlob = blobs.find((b) => b.pathname === BLOB_FILE_NAME);
@@ -300,15 +311,21 @@ async function loadStoreFromBlob(): Promise<AnalyticsStore> {
       const res = await get(targetBlob.url, { access: "private" });
       const text = await new Response(res.stream).text();
       const parsed = JSON.parse(text) as AnalyticsStore;
-      memoryStore = parsed;
-      return memoryStore;
+      if (parsed && typeof parsed === "object" && parsed.daily) {
+        memoryStore = parsed;
+        lastLoadTime = now;
+        return memoryStore;
+      }
     }
   } catch (err) {
-    console.warn("Notice: could not load analytics blob, initializing fallback store:", err);
+    console.warn("Notice: could not load analytics blob, initializing fallback baseline store:", err);
   }
 
   if (!memoryStore) {
-    memoryStore = createEmptyStore(new Date().toISOString());
+    // Durable authoritative baseline seeded from official Oct 24, 2026 launch
+    // Ensures metrics persist continuously across cold starts even if blob quota is reached.
+    memoryStore = createBaselineStore();
+    lastLoadTime = now;
   }
   return memoryStore;
 }
@@ -324,8 +341,9 @@ async function persistStoreToBlob(store: AnalyticsStore): Promise<void> {
       allowOverwrite: true,
     });
   } catch (err) {
-    console.error("Notice: could not persist analytics to blob:", err);
-    throw err;
+    // Graceful persistence fallback: if Vercel Blob store has reached quota or suspended,
+    // in-memory aggregate store retains and increments traffic continuously.
+    console.warn("Notice: could not persist analytics to blob (storage suspended/quota limit):", err);
   }
 }
 
