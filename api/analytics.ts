@@ -85,7 +85,15 @@ export function formatFriendlyDate(dateStr: string): string {
   }
 }
 
-import { BASELINE_STORE } from "../src/features/analytics/baseline-data.ts";
+const BASELINE_DAYS = [
+  { date: "2026-10-24", pageViews: 580, sessions: 165, visitors: 148 },
+  { date: "2026-10-25", pageViews: 640, sessions: 182, visitors: 162 },
+  { date: "2026-10-26", pageViews: 720, sessions: 205, visitors: 184 },
+  { date: "2026-10-27", pageViews: 780, sessions: 220, visitors: 198 },
+  { date: "2026-10-28", pageViews: 830, sessions: 235, visitors: 210 },
+  { date: "2026-10-29", pageViews: 880, sessions: 250, visitors: 225 },
+  { date: "2026-10-30", pageViews: 462, sessions: 133, visitors: 121 },
+];
 
 export function createEmptyStore(startDate = new Date().toISOString()): AnalyticsStore {
   return {
@@ -98,7 +106,48 @@ export function createEmptyStore(startDate = new Date().toISOString()): Analytic
 }
 
 export function createBaselineStore(): AnalyticsStore {
-  return JSON.parse(JSON.stringify(BASELINE_STORE)) as AnalyticsStore;
+  let idCounter = 1;
+  const daily: Record<string, DayAnalytics> = {};
+  const allTimeVisitors: string[] = [];
+
+  for (const d of BASELINE_DAYS) {
+    const visitors: string[] = [];
+    const sessions: string[] = [];
+    for (let i = 0; i < d.visitors; i++) {
+      const v = "v" + idCounter++;
+      visitors.push(v);
+      allTimeVisitors.push(v);
+    }
+    for (let i = 0; i < d.sessions; i++) {
+      sessions.push("s" + d.date.slice(8) + "_" + i);
+    }
+    daily[d.date] = {
+      date: d.date,
+      pageViews: d.pageViews,
+      sessions,
+      visitors,
+      pages: {
+        "/": Math.round(d.pageViews * 0.36),
+        "/earthquake-monitoring": Math.round(d.pageViews * 0.32),
+        "/research": Math.round(d.pageViews * 0.16),
+        "/geopark": Math.round(d.pageViews * 0.10),
+        "/news":
+          d.pageViews -
+          Math.round(d.pageViews * 0.36) -
+          Math.round(d.pageViews * 0.32) -
+          Math.round(d.pageViews * 0.16) -
+          Math.round(d.pageViews * 0.10),
+      },
+    };
+  }
+
+  return {
+    version: 1,
+    trackingStartDate: "2026-10-24T00:00:00.000Z",
+    daily,
+    allTimeVisitors,
+    lastUpdated: new Date().toISOString(),
+  };
 }
 
 export function sanitizePath(rawPath: string): string {
