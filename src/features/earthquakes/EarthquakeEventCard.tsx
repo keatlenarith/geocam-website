@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   type EarthquakeEvent,
   formatLocalIctTime,
@@ -7,8 +7,9 @@ import {
   formatDistanceToCambodia,
 } from "./earthquake-data";
 import { shareEarthquakeToFacebook, buildFacebookShareUrl } from "@/lib/facebook-service";
+import { EarthquakePosterModal } from "./EarthquakePosterModal";
 import { useI18n } from "@/lib/i18n";
-import { ExternalLink, Radio, Activity, Compass, Clock } from "lucide-react";
+import { ExternalLink, Radio, Activity, Compass, Clock, Sparkles } from "lucide-react";
 
 interface EarthquakeEventCardProps {
   event: EarthquakeEvent;
@@ -71,6 +72,7 @@ export const EarthquakeEventCard: React.FC<EarthquakeEventCardProps> = ({
 }) => {
   const { lang } = useI18n();
   const kh = lang === "km";
+  const [showPoster, setShowPoster] = useState(false);
 
   const badgeStyle = getMagnitudeBadgeStyle(event.magnitude, kh);
   const magDisplay = event.magnitude !== null ? event.magnitude.toFixed(1) : "—";
@@ -198,7 +200,20 @@ export const EarthquakeEventCard: React.FC<EarthquakeEventCardProps> = ({
           ))}
         </div>
 
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowPoster(true);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-300 hover:bg-emerald-100 transition shadow-xs"
+            title="Create ready-to-post Facebook bulletin poster with map & status"
+          >
+            <Sparkles size={12} className="text-emerald-600" />
+            <span>{kh ? "ផ្ទាំងរូបភាព Poster" : "Create Poster"}</span>
+          </button>
+
           <a
             href={buildFacebookShareUrl(event)}
             target="_blank"
@@ -226,6 +241,13 @@ export const EarthquakeEventCard: React.FC<EarthquakeEventCardProps> = ({
           )}
         </div>
       </div>
+
+      {/* Ready-to-Post Poster Modal */}
+      <EarthquakePosterModal
+        event={event}
+        isOpen={showPoster}
+        onClose={() => setShowPoster(false)}
+      />
     </div>
   );
 };

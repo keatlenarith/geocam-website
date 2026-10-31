@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { Link } from "@/lib/spa-router";
 import {
@@ -13,6 +13,7 @@ import {
 } from "./earthquake-data";
 import { shareEarthquakeToFacebook, buildFacebookShareUrl } from "@/lib/facebook-service";
 import { EarthquakeMiniMap } from "./EarthquakeMiniMap";
+import { EarthquakePosterModal } from "./EarthquakePosterModal";
 import {
   Radio,
   Activity,
@@ -25,6 +26,7 @@ import {
   Compass,
   Layers,
   ChevronRight,
+  Sparkles,
 } from "lucide-react";
 
 interface EarthquakeAnnouncementsProps {
@@ -56,6 +58,7 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
 }) => {
   const { lang } = useI18n();
   const kh = lang === "km";
+  const [posterEvent, setPosterEvent] = useState<EarthquakeEvent | null>(null);
 
   const displayedEvents = events.slice(0, maxItems);
 
@@ -354,7 +357,20 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
                       <span>{translateEarthquakeLocation(event.location, lang)}</span>
                     </span>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPosterEvent(event);
+                        }}
+                        className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-300 hover:bg-emerald-100 transition shadow-xs"
+                        title="Create ready-to-post Facebook bulletin poster with map & status"
+                      >
+                        <Sparkles size={12} className="text-emerald-600" />
+                        <span>{kh ? "ផ្ទាំងរូបភាព Poster" : "Create Poster"}</span>
+                      </button>
+
                       <a
                         href={buildFacebookShareUrl(event)}
                         target="_blank"
@@ -439,6 +455,13 @@ export const EarthquakeAnnouncements: React.FC<EarthquakeAnnouncementsProps> = (
             : "Default: Cambodia & Regional Envelope (5°–25°N, 92°–112°E) · Global search enabled"}
         </span>
       </div>
+
+      {/* Ready-to-Post Poster Modal */}
+      <EarthquakePosterModal
+        event={posterEvent}
+        isOpen={Boolean(posterEvent)}
+        onClose={() => setPosterEvent(null)}
+      />
     </div>
   );
 };
