@@ -4,6 +4,7 @@ import {
   FACEBOOK_PAGE_URL,
   FACEBOOK_PAGE_NAME,
   getFacebookSettings,
+  getFacebookPublisherStatus,
   saveFacebookSettings,
   broadcastToFacebook,
   type FacebookSettings,
@@ -31,12 +32,38 @@ export function FacebookManager() {
   const [settings, setSettings] = useState<FacebookSettings>(getFacebookSettings());
   const [tokenInput, setTokenInput] = useState(settings.accessToken || "");
   const [showToken, setShowToken] = useState(false);
+  const [serverStatus, setServerStatus] = useState<{ pageId: string; hasServerToken: boolean } | null>(null);
+  const [checkingServer, setCheckingServer] = useState(true);
+  const [serverStatusError, setServerStatusError] = useState(false);
   const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error" | "info"; text: string } | null>(null);
   const [isTesting, setIsTesting] = useState(false);
   const [isPostingManual, setIsPostingManual] = useState(false);
   const [manualTitle, setManualTitle] = useState("");
   const [manualMessage, setManualMessage] = useState("");
   const [manualType, setManualType] = useState<"news" | "event" | "earthquake" | "post">("news");
+
+  useEffect(() => {
+    let active = true;
+    getFacebookPublisherStatus()
+      .then(status => { if (active) setServerStatus(status); })
+      .catch(() => { if (active) setServerStatusError(true); })
+      .finally(() => { if (active) setCheckingServer(false); });
+    return () => { active = false; };
+  }, []);
+
+  const hasBrowserToken = Boolean(settings.accessToken.trim());
+  const hasServerToken = Boolean(serverStatus?.hasServerToken && serverStatus.pageId === FACEBOOK_PAGE_ID);
+  const tokenStatus = hasBrowserToken
+    ? "Browser token configured — overrides the server token"
+    : checkingServer
+    ? "Checking server token configuration…"
+    : serverStatusError
+    ? "Unable to check server token — reload to retry"
+    : serverStatus?.pageId !== FACEBOOK_PAGE_ID
+    ? "Server Page ID does not match this Page — check server configuration"
+    : hasServerToken
+    ? "Server token configured — no browser token needed"
+    : "Token missing — configure a server token or save a browser token";
 
   useEffect(() => {
     const current = getFacebookSettings();
@@ -60,7 +87,9 @@ export function FacebookManager() {
     setSettings(updated);
     setStatusMsg({
       type: "success",
-      text: "Facebook Page Access Token saved successfully! Auto-publisher is ready.",
+      text: updated.accessToken
+        ? "Browser token saved. Publishing permissions have not been verified."
+        : "Browser token cleared. Broadcasts will use the server token if configured.",
     });
     setTimeout(() => setStatusMsg(null), 5000);
   };
@@ -144,7 +173,7 @@ export function FacebookManager() {
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                  Target Page Linked
+                  Target Page Configured
                 </span>
                 <span className="text-xs text-slate-500 font-mono">Page ID: {FACEBOOK_PAGE_ID}</span>
                 <span className="text-xs text-slate-400 font-mono hidden sm:inline">(Business: 360240070266245)</span>
@@ -216,7 +245,7 @@ export function FacebookManager() {
           </div>
 
           <p className="mt-3 text-xs text-slate-600 leading-relaxed dark:text-slate-400">
-            A permanent Page Access Token allows GeoCam to publish articles, events, and earthquake bulletins directly to your Facebook Page without requiring manual logins.
+            A Page Access Token allows GeoCam to publish to your Facebook Page. Tokens can expire or be revoked. A configured token still needs valid publishing permissions.
           </p>
 
           <div className="mt-4 space-y-2">
@@ -228,7 +257,7 @@ export function FacebookManager() {
                 type={showToken ? "text" : "password"}
                 value={tokenInput}
                 onChange={(e) => setTokenInput(e.target.value)}
-                placeholder="EAA..."
+                placeholder={hasServerToken ? "Optional browser override — server token is configured" : "EAA..."}
                 className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 pr-10 text-xs font-mono text-slate-900 focus:border-blue-500 focus:bg-white focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               />
               <button
@@ -242,8 +271,8 @@ export function FacebookManager() {
           </div>
 
           <div className="mt-4 flex items-center justify-between">
-            <span className="text-[11px] text-slate-500">
-              {settings.accessToken ? "✓ Token configured" : "⚠️ Token missing — paste your token to start"}
+            <span role="status" className="text-[11px] text-slate-500">
+              {tokenStatus}
             </span>
             <button
               type="button"
@@ -254,6 +283,8 @@ export function FacebookManager() {
               <span>Save Token</span>
             </button>
           </div>
+
+          {hasServerToken && <p className="mt-3 text-xs leading-relaxed text-slate-500">The server token stays on the server and is never copied into this field. Leave the field empty to use it. Send Test Broadcast publishes a real post to verify publishing access.</p>}
 
           <div className="mt-5 rounded-xl bg-slate-50 p-3.5 text-xs text-slate-600 dark:bg-slate-800/60 dark:text-slate-400">
             <p className="font-bold text-slate-800 dark:text-slate-200">How to generate a permanent token:</p>

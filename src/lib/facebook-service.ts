@@ -14,6 +14,20 @@ export const FACEBOOK_PAGE_ID = "105049257586051";
 export const FACEBOOK_PAGE_URL = "https://www.facebook.com/geoscience.cambodia/";
 export const FACEBOOK_PAGE_NAME = "Geosciences Society of Cambodia · GeoCam (GeoCam101)";
 
+export async function getFacebookPublisherStatus(): Promise<{ pageId: string; hasServerToken: boolean }> {
+  const response = await fetch("/api/facebook-publisher", {
+    cache: "no-store",
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!response.ok) throw new Error("Unable to check Facebook server configuration.");
+  const data = await response.json();
+  if (data.status !== "active" || typeof data.pageId !== "string" || typeof data.hasServerToken !== "boolean") {
+    throw new Error("Unable to check Facebook server configuration.");
+  }
+  // Only configuration metadata is returned; never retrieve the server token.
+  return { pageId: data.pageId, hasServerToken: data.hasServerToken };
+}
+
 export interface FacebookSettings {
   pageId: string;
   pageUrl: string;
@@ -356,7 +370,7 @@ export async function broadcastToFacebook(payload: PublishPayload): Promise<{
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         pageId: settings.pageId,
-        accessToken: settings.accessToken,
+        accessToken: settings.accessToken.trim() || undefined,
         message,
         link: targetLink,
         imageUrl: payload.imageUrl,

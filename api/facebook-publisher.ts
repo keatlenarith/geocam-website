@@ -13,11 +13,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method === "GET") {
+    res.setHeader("Cache-Control", "no-store");
     return res.status(200).json({
       status: "active",
       pageId: process.env.FB_PAGE_ID || DEFAULT_PAGE_ID,
       pageUrl: "https://www.facebook.com/geoscience.cambodia/",
-      hasServerToken: Boolean(process.env.FB_PAGE_ACCESS_TOKEN),
+      hasServerToken: Boolean(process.env.FB_PAGE_ACCESS_TOKEN?.trim()),
     });
   }
 
@@ -27,13 +28,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const {
     pageId: rawPageId,
-    accessToken = process.env.FB_PAGE_ACCESS_TOKEN,
+    accessToken: browserAccessToken,
     message,
     link,
     imageUrl,
     type,
     title,
   } = req.body || {};
+
+  // An empty browser field means use the server credential, not disable it.
+  const accessToken =
+    (typeof browserAccessToken === "string" ? browserAccessToken.trim() : "") ||
+    process.env.FB_PAGE_ACCESS_TOKEN?.trim();
 
   // Auto-correct: 360240070266245 is the Business Portfolio ID; the actual Page ID is 105049257586051 (GeoCam101)
   let pageId = rawPageId || process.env.FB_PAGE_ID || DEFAULT_PAGE_ID;
