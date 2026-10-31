@@ -1,4 +1,6 @@
 import { translateEarthquakeLocation } from "../features/earthquakes/earthquake-data.ts";
+import type { EarthquakeEvent } from "../features/earthquakes/earthquake-data.ts";
+
 /**
  * Facebook Integration & Auto-Publisher Service for GeoCam
  * Connected Page: Geosciences Society of Cambodia (ID: 105049257586051)
@@ -35,6 +37,133 @@ export interface FacebookBroadcastRecord {
 }
 
 const STORAGE_KEY = "geocam_facebook_settings";
+
+/**
+ * Resolve canonical production origin (prefers geocam.site, falls back to window.location.origin)
+ */
+export function getCanonicalSiteOrigin(): string {
+  if (typeof window !== "undefined") {
+    const origin = window.location.origin;
+    if (origin.includes("geocam.site") || origin.includes("geocam-website.vercel.app")) {
+      return origin;
+    }
+  }
+  return "https://geocam.site";
+}
+
+/**
+ * Generate formatted bilingual bulletin description status for Facebook sharing
+ */
+export function generateEarthquakeFacebookStatus(
+  event: EarthquakeEvent,
+  targetUrl: string,
+): string {
+  const mag =
+    event.magnitude !== null && event.magnitude !== undefined
+      ? event.magnitude.toFixed(1)
+      : "—";
+
+  const depthKm =
+    event.depthKm !== null && event.depthKm !== undefined
+      ? `${event.depthKm.toFixed(0)} km`
+      : "Unknown";
+
+  const depthKmKh =
+    event.depthKm !== null && event.depthKm !== undefined
+      ? `${event.depthKm.toFixed(0)} គ.ម`
+      : "មិនទាន់បញ្ជាក់";
+
+  const dateObj = new Date(event.originTime);
+  const timeIct = !isNaN(dateObj.getTime())
+    ? new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Asia/Phnom_Penh",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(dateObj)
+    : "Recent";
+
+  const locEn = translateEarthquakeLocation(event.location, "en");
+  const locKm = translateEarthquakeLocation(event.location, "km");
+  const provider = event.reports?.[0]?.provider || "Seismic Monitoring";
+
+  const lines = [
+    `🚨 [EARTHQUAKE BULLETIN / ដំណឹងរញ្ជួយដី]`,
+    `🔴 Magnitude / កម្រិតរញ្ជួយ: M ${mag} (Richter)`,
+    `📍 Location / ទីតាំង: ${locEn}${locKm !== locEn ? ` / ${locKm}` : ""}`,
+    `⏱ Time / ម៉ោងនៅកម្ពុជា: ${timeIct} ICT (UTC+7)`,
+    `📏 Focal Depth / ជម្រៅ: ${depthKm} (${depthKmKh})`,
+    `📡 Network Source / ប្រភព: ${provider}`,
+    ``,
+    `Explore live interactive 3D seismic monitoring & regional tectonic maps:`,
+    `🔗 ${targetUrl}`,
+    ``,
+    `#geocam #earthquake #seismology #cambodia #geohazard #រញ្ជួយដី`,
+  ];
+
+  return lines.join("\n");
+}
+
+/**
+ * Build Facebook sharer URL with URL, quote description bulletin, and #geocam hashtag
+ */
+export function buildFacebookShareUrl(event: EarthquakeEvent): string {
+  const origin = getCanonicalSiteOrigin();
+  const eventUrl = `${origin}/earthquake-monitoring?event=${encodeURIComponent(event.id)}`;
+  const quoteText = generateEarthquakeFacebookStatus(event, eventUrl);
+
+  const params = new URLSearchParams();
+  params.set("u", eventUrl);
+  params.set("quote", quoteText);
+  params.set("hashtag", "#geocam");
+
+  return `https://www.facebook.com/sharer/sharer.php?${params.toString()}`;
+}
+
+/**
+ * 1-Click Share handler with native Web Share API fallback and clipboard convenience
+ */
+export async function shareEarthquakeToFacebook(
+  event: EarthquakeEvent,
+  e?: React.MouseEvent | MouseEvent,
+): Promise<void> {
+  if (e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  const origin = getCanonicalSiteOrigin();
+  const eventUrl = `${origin}/earthquake-monitoring?event=${encodeURIComponent(event.id)}`;
+  const quote = generateEarthquakeFacebookStatus(event, eventUrl);
+  const shareUrl = buildFacebookShareUrl(event);
+
+  // Copy bulletin description to clipboard so the user can easily paste if desired
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(quote);
+    }
+  } catch {}
+
+  // Open Facebook Sharer in a standard centered popup window
+  const width = 640;
+  const height = 680;
+  const left = window.screenLeft !== undefined ? window.screenLeft + (window.outerWidth - width) / 2 : 100;
+  const top = window.screenTop !== undefined ? window.screenTop + (window.outerHeight - height) / 2 : 100;
+
+  const win = window.open(
+    shareUrl,
+    "FacebookShare",
+    `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
+  );
+
+  if (!win || win.closed || typeof win.closed === "undefined") {
+    // Popup blocked: open in normal new tab
+    window.open(shareUrl, "_blank", "noopener,noreferrer");
+  }
+}
 
 export function getFacebookSettings(): FacebookSettings {
   if (typeof window === "undefined") {
@@ -99,13 +228,13 @@ export function getDefaultFacebookSettings(): FacebookSettings {
 }
 
 export interface PublishPayload {
-  type: "post" | "event" | "news" | "earthquake" | "test";
   title: string;
   titleKm?: string;
   summary: string;
   summaryKm?: string;
   link?: string;
   imageUrl?: string;
+  type: "post" | "event" | "news" | "earthquake" | "test";
   meta?: Record<string, any>;
 }
 
@@ -121,7 +250,7 @@ export async function broadcastToFacebook(payload: PublishPayload): Promise<{
 
   // Construct formatted bilingual Facebook caption
   let message = "";
-  const siteUrl = "https://geocam-website.vercel.app";
+  const siteUrl = getCanonicalSiteOrigin();
   const targetLink = payload.link
     ? payload.link.startsWith("http")
       ? payload.link
@@ -135,7 +264,6 @@ export async function broadcastToFacebook(payload: PublishPayload): Promise<{
     const rawLocation = payload.meta?.place || payload.title;
     const locKm = translateEarthquakeLocation(rawLocation, "km");
     const locEn = translateEarthquakeLocation(rawLocation, "en");
-    const locDisplay = locKm === locEn ? locEn : `${locEn} (${locKm})`;
 
     message = [
       `🚨 [EARTHQUAKE ALERT / ដំណឹងរញ្ជួយដី]`,
@@ -164,28 +292,28 @@ export async function broadcastToFacebook(payload: PublishPayload): Promise<{
       `View full agenda & register:`,
       `🔗 ${targetLink}`,
       ``,
-      `#GeoCam #Geoscience #CambodiaEvent #Geology #Mining #Geopark`,
+      `#GeoCam #Geoscience #Cambodia #Conference #Geology`,
     ]
       .filter(Boolean)
       .join("\n");
   } else if (payload.type === "news") {
     message = [
-      `📰 [LATEST NEWS FEED / ព័ត៌មានទាន់ហេតុការណ៍]`,
+      `📰 [GEOSCIENCE NEWS / ព័ត៌មានភូគព្ភសាស្ត្រ]`,
       `📢 ${payload.title}`,
       payload.titleKm ? `🇰🇭 ${payload.titleKm}` : "",
       ``,
       payload.summary,
       payload.summaryKm ? `\n${payload.summaryKm}` : "",
       ``,
-      `Read full report on GeoCam:`,
+      `Read full report:`,
       `🔗 ${targetLink}`,
       ``,
-      `#GeoCam #GeologyNews #Cambodia #EarthSciences #GeoscienceCambodia`,
+      `#GeoCam #CambodiaGeology #EarthScience #GeoscienceNews`,
     ]
       .filter(Boolean)
       .join("\n");
   } else {
-    // Article / General Post / Test
+    // Standard publication / research post
     message = [
       `🔬 [NEW PUBLICATION & RESEARCH / អត្ថបទស្រាវជ្រាវថ្មី]`,
       `📌 ${payload.title}`,

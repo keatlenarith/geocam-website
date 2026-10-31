@@ -191,9 +191,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       `📏 Focal Depth / ជម្រៅចំណុចកណ្តាល: ${depth}`,
       ``,
       `Explore live 3D seismic monitoring & regional tectonic maps:`,
-      `🔗 https://geocam-website.vercel.app/earthquake-monitoring?event=${encodeURIComponent(event.id)}`,
+      `🔗 https://geocam.site/earthquake-monitoring?event=${encodeURIComponent(event.id)}`,
       ``,
-      `#GeoCam #Earthquake #Cambodia #Seismology #USGS #GeoscienceCambodia #រញ្ជួយដី`,
+      `#geocam #earthquake #cambodia #seismology #usgs #geosciencecambodia #geohazard #រញ្ជួយដី`,
     ].join("\n");
 
     if (accessToken) {
@@ -204,7 +204,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         params.append("access_token", accessToken);
         params.append(
           "link",
-          `https://geocam-website.vercel.app/earthquake-monitoring?event=${encodeURIComponent(event.id)}`
+          `https://geocam.site/earthquake-monitoring?event=${encodeURIComponent(event.id)}`
         );
 
         const fbRes = await fetch(graphEndpoint, {
