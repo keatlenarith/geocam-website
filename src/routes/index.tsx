@@ -9,6 +9,7 @@ import { getStoredEvents } from "@/lib/event-service";
 import { getPublishedNews, type NewsItem } from "@/lib/news-service";
 import { meta } from "@/components/site/Chrome";
 import { LiveTickerRibbon } from "@/components/site/LiveTickerRibbon";
+import { ListedCompaniesRibbon } from "@/components/site/ListedCompaniesRibbon";
 import { KnowledgeBillboard } from "@/components/site/KnowledgeBillboard";
 import { EarthquakeAnnouncements } from "@/features/earthquakes/EarthquakeAnnouncements";
 import { useEarthquakes } from "@/features/earthquakes/useEarthquakes";
@@ -535,6 +536,7 @@ function Home() {
 
   return <div className="geocam-landing">
     <LiveTickerRibbon />
+    <ListedCompaniesRibbon />
 <section className="gc-hero relative isolate overflow-hidden">
   <video
     data-cms-id="home-hero-video"

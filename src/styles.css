@@ -664,6 +664,38 @@ article figure figcaption,
   animation: gc-ticker-scroll 55s linear infinite;
 }
 
-.gc-ticker-container:hover .gc-ticker-track {
+.gc-ticker-container:hover .gc-ticker-track,
+.gc-ticker-container:focus-within .gc-ticker-track {
   animation-play-state: paused;
+}
+
+/* Reverse Scroll Ticker (Left to Right seamless scroll: -50% -> 0) */
+@keyframes gc-ticker-scroll-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.gc-ticker-track-reverse {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: gc-ticker-scroll-reverse 60s linear infinite;
+}
+
+.gc-ticker-container:hover .gc-ticker-track-reverse,
+.gc-ticker-container:focus-within .gc-ticker-track-reverse {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gc-ticker-track,
+  .gc-ticker-track-reverse {
+    animation: none !important;
+    overflow-x: auto;
+    width: 100%;
+  }
 }

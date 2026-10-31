@@ -347,11 +347,18 @@ export function SiteFooter() {
           ))}
         </div>
       </div>
-      <p className="border-t border-on-dark/15 py-5 text-center text-xs opacity-60">
-        {lang === "km"
-          ? "© ២០២៦ GeoCam · គេហទំព័រគំរូ · មាតិកាគំរូប៉ុណ្ណោះ · មិនសំដៅលើការទទួលស្គាល់ជាផ្លូវការទេ"
-          : "© 2026 GeoCam prototype · Sample content only · No official endorsements implied"}
-      </p>
+      <div className="border-t border-on-dark/15 py-5 text-center text-xs opacity-75 space-y-1">
+        <p>
+          {lang === "km"
+            ? "© ២០២៦ GeoCam · គេហទំព័រគំរូ · មាតិកាគំរូប៉ុណ្ណោះ · មិនសំដៅលើការទទួលស្គាល់ជាផ្លូវការទេ"
+            : "© 2026 GeoCam prototype · Sample content only · No official endorsements implied"}
+        </p>
+        <p className="text-[11px] opacity-70">
+          {lang === "km"
+            ? "ព័ត៌មានសម្រាប់តែជាឯកសារយោងប៉ុណ្ណោះ មិនមែនជាការណែនាំវិនិយោគទេ។ សូមផ្ទៀងផ្ទាត់ជាមួយផ្សារមូលបត្រផ្លូវការ។"
+            : "Information only, not investment advice. Verify with the exchange."}
+        </p>
+      </div>
     </footer>
   );
 }
