@@ -1,4 +1,7 @@
-import { translateEarthquakeLocation } from "../features/earthquakes/earthquake-data.ts";
+import {
+  translateEarthquakeLocation,
+  formatDistanceToCambodia,
+} from "../features/earthquakes/earthquake-data.ts";
 import type { EarthquakeEvent } from "../features/earthquakes/earthquake-data.ts";
 
 /**
@@ -90,33 +93,49 @@ export function generateEarthquakeFacebookStatus(
   const locKm = translateEarthquakeLocation(event.location, "km");
   const provider = event.reports?.[0]?.provider || "Seismic Monitoring";
 
+  const distEn = formatDistanceToCambodia(
+    event.distanceToCambodiaKm,
+    event.latitude,
+    event.longitude,
+    false,
+  );
+  const distKm = formatDistanceToCambodia(
+    event.distanceToCambodiaKm,
+    event.latitude,
+    event.longitude,
+    true,
+  );
+  const distLine = distEn && distEn !== "—" ? `${distEn} (${distKm})` : "";
+
   const lines = [
     `🚨 [EARTHQUAKE BULLETIN / ដំណឹងរញ្ជួយដី]`,
     `🔴 Magnitude / កម្រិតរញ្ជួយ: M ${mag} (Richter)`,
-    `📍 Location / ទីតាំង: ${locEn}${locKm !== locEn ? ` / ${locKm}` : ""}`,
+    `📍 Epicenter / ទីតាំង: ${locEn}${locKm !== locEn ? ` / ${locKm}` : ""}`,
+    distLine ? `🧭 Proximity / ចម្ងាយពីកម្ពុជា: ${distLine}` : "",
     `⏱ Time / ម៉ោងនៅកម្ពុជា: ${timeIct} ICT (UTC+7)`,
     `📏 Focal Depth / ជម្រៅ: ${depthKm} (${depthKmKh})`,
-    `📡 Network Source / ប្រភព: ${provider}`,
+    `📡 Source Network / ប្រភព: ${provider}`,
     ``,
     `Explore live interactive 3D seismic monitoring & regional tectonic maps:`,
     `🔗 ${targetUrl}`,
     ``,
     `#geocam #earthquake #seismology #cambodia #geohazard #រញ្ជួយដី`,
-  ];
+  ].filter(Boolean);
 
   return lines.join("\n");
 }
 
 /**
- * Build Facebook sharer URL with URL, quote description bulletin, and #geocam hashtag
+ * Build Facebook sharer URL pointing to dedicated open graph metadata endpoint
  */
 export function buildFacebookShareUrl(event: EarthquakeEvent): string {
   const origin = getCanonicalSiteOrigin();
-  const eventUrl = `${origin}/earthquake-monitoring?event=${encodeURIComponent(event.id)}`;
-  const quoteText = generateEarthquakeFacebookStatus(event, eventUrl);
+  const directShareUrl = `${origin}/api/earthquake-share?id=${encodeURIComponent(event.id)}`;
+  const appEventUrl = `${origin}/earthquake-monitoring?event=${encodeURIComponent(event.id)}`;
+  const quoteText = generateEarthquakeFacebookStatus(event, appEventUrl);
 
   const params = new URLSearchParams();
-  params.set("u", eventUrl);
+  params.set("u", directShareUrl);
   params.set("quote", quoteText);
   params.set("hashtag", "#geocam");
 
