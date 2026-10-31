@@ -14,6 +14,7 @@ import {
 import { EarthquakeEventCard } from "@/features/earthquakes/EarthquakeEventCard";
 import { EarthquakeLiveStream } from "@/features/earthquakes/EarthquakeLiveStream";
 import { EarthquakeAnnouncements } from "@/features/earthquakes/EarthquakeAnnouncements";
+import { EarthquakePosterModal } from "@/features/earthquakes/EarthquakePosterModal";
 import {
   Activity,
   Globe2,
@@ -55,6 +56,7 @@ export default function EarthquakeMonitoringPage() {
   const [sortOrder, setSortOrder] = useState<SortOrderOption>("newest");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [mapPosterEvent, setMapPosterEvent] = useState<EarthquakeEvent | null>(null);
 
   // Data fetching hook
   const {
@@ -448,6 +450,7 @@ export default function EarthquakeMonitoringPage() {
               events={events}
               selectedEventId={selectedEventId}
               onSelectEvent={handleSelectEvent}
+              onRequestPoster={(event) => setMapPosterEvent(event)}
               scope={scope}
               onScopeChange={setScope}
               className="h-full w-full"
@@ -655,6 +658,12 @@ export default function EarthquakeMonitoringPage() {
           </div>
         </div>
       </div>
+      {/* Ready-to-Post Poster Modal triggered from Map */}
+      <EarthquakePosterModal
+        event={mapPosterEvent}
+        isOpen={Boolean(mapPosterEvent)}
+        onClose={() => setMapPosterEvent(null)}
+      />
     </div>
   );
 }
