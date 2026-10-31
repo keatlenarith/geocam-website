@@ -532,6 +532,14 @@ export default function PostManager() {
   const [photoCaptionInput, setPhotoCaptionInput] = useState("");
   const [photoAltInput, setPhotoAltInput] = useState("");
 
+  // Caption Editor Modal state (for setting or updating image captions)
+  const [captionModal, setCaptionModal] = useState<{
+    imgSrc: string;
+    existingCaption: string;
+    onApply: (caption: string) => void;
+  } | null>(null);
+  const [captionInputText, setCaptionInputText] = useState("");
+
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
   const contentKmTextareaRef = useRef<HTMLTextAreaElement>(null);
   const coverFileInputRef = useRef<HTMLInputElement>(null);
@@ -714,6 +722,10 @@ export default function PostManager() {
       const proceed = (e as CustomEvent<{ proceed: () => void }>).detail
         ?.proceed;
       if (proceed) {
+        if (!state.current.dirty && (isNew || editingItem)) {
+          // If the editor is open and not dirty, allow internal tab navigation without intercepting or exiting
+          return;
+        }
         e.preventDefault();
         guard(proceed);
       }
@@ -756,6 +768,19 @@ export default function PostManager() {
     setIsNew(newItem);
     setEditingItem(newItem ? null : item);
     setEditingKind(item.kind);
+    try {
+      const u = new URL(window.location.href);
+      if (newItem) {
+        u.searchParams.set("section", "posts");
+        u.searchParams.set("new", "1");
+        u.searchParams.delete("edit");
+      } else if (item.id) {
+        u.searchParams.set("section", "posts");
+        u.searchParams.set("edit", item.id);
+        u.searchParams.delete("new");
+      }
+      window.history.replaceState({}, "", u.toString());
+    } catch {}
     setTitle(item.title);
     setTitleKm(item.titleKm);
     setTag(item.tag);
@@ -853,7 +878,7 @@ export default function PostManager() {
           titleKm: "",
           tag: "Education",
           date: new Date().toISOString().slice(0, 10),
-          image: PHOTO_PRESETS[0].url,
+          image: "",
           excerpt: "",
           excerptKm: "",
           content: "",
@@ -1123,6 +1148,86 @@ export default function PostManager() {
     } finally {
       if (mounted.current) setSaving(false);
     }
+  };
+
+  // Paste image directly into article handler (supports pasting screenshots, copied files, clipboard images)
+  const handlePasteImage = async (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.indexOf("image") !== -1) {
+        const file = item.getAsFile();
+        if (file) {
+          e.preventDefault();
+          try {
+            const compressed = await compressImageFile(file);
+            const figureHtml = `\n<figure class="geocam-figure my-6 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs text-center">\n  <div class="geocam-img-box w-full overflow-hidden rounded-xl bg-white shadow-xs flex items-center justify-center">\n    <img src="${compressed}" alt="Pasted photo" class="w-full max-w-full h-auto max-h-[480px] object-contain rounded-xl mx-auto block" />\n  </div>\n  <figcaption class="mt-2.5 text-xs text-center text-slate-600 italic px-2 leading-relaxed">Photo caption</figcaption>\n</figure>\n`;
+            if (editorMode === "visual" && contentVisualRef.current) {
+              document.execCommand("insertHTML", false, figureHtml);
+              handleVisualInput();
+            } else {
+              const isKm = activeLang === "km";
+              const textarea = isKm ? contentKmTextareaRef.current : contentTextareaRef.current;
+              const val = isKm ? contentKm : content;
+              const setter = isKm ? setContentKm : setContent;
+              insertHtmlAtCursor(textarea, figureHtml, "", "", val, setter);
+            }
+            setMessage("Image pasted into article with caption!");
+            setTimeout(() => setMessage(""), 3500);
+          } catch (err) {
+            setError("Could not process pasted image.");
+          }
+          break;
+        }
+      }
+    }
+  };
+
+  // Open Caption Editor for images in article
+  const handleOpenCaptionEditor = () => {
+    const currentVal = activeLang === "en" ? content : contentKm;
+    // Look for existing figure or img
+    const figMatch = currentVal.match(/<figure[^>]*>[\s\S]*?<img[^>]+src="([^">]+)"[^>]*>[\s\S]*?<figcaption[^>]*>([\s\S]*?)<\/figcaption>[\s\S]*?<\/figure>/i);
+    const imgMatch = currentVal.match(/<img[^>]+src="([^">]+)"[^>]*>/i);
+    const targetSrc = figMatch ? figMatch[1] : imgMatch ? imgMatch[1] : image;
+    const existingCap = figMatch ? figMatch[2].trim() : "";
+
+    if (!targetSrc) {
+      setError("No image found in article. Please insert or paste an image first.");
+      setTimeout(() => setError(""), 3500);
+      return;
+    }
+
+    setCaptionInputText(existingCap);
+    setCaptionModal({
+      imgSrc: targetSrc,
+      existingCaption: existingCap,
+      onApply: (newCaption) => {
+        const figureRegex = new RegExp(`<figure[^>]*>[\\s\\S]*?<img[^>]+src="${targetSrc.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]*>[\\s\\S]*?<\\/figure>`, "i");
+        const bareImgRegex = new RegExp(`<img[^>]+src="${targetSrc.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]*>`, "i");
+
+        const updatedFigure = `\n<figure class="geocam-figure my-6 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs text-center">\n  <div class="geocam-img-box w-full overflow-hidden rounded-xl bg-white shadow-xs flex items-center justify-center">\n    <img src="${targetSrc}" alt="Geological photo" class="w-full max-w-full h-auto max-h-[480px] object-contain rounded-xl mx-auto block" />\n  </div>\n  <figcaption class="mt-2.5 text-xs text-center text-slate-600 italic px-2 leading-relaxed">${newCaption}</figcaption>\n</figure>\n`;
+
+        let nextVal = currentVal;
+        if (figureRegex.test(currentVal)) {
+          nextVal = currentVal.replace(figureRegex, updatedFigure);
+        } else if (bareImgRegex.test(currentVal)) {
+          nextVal = currentVal.replace(bareImgRegex, updatedFigure);
+        } else {
+          nextVal = currentVal + updatedFigure;
+        }
+
+        if (activeLang === "en") setContent(nextVal);
+        else setContentKm(nextVal);
+
+        if (editorMode === "visual" && contentVisualRef.current) {
+          contentVisualRef.current.innerHTML = nextVal;
+        }
+        setMessage("Caption updated successfully!");
+        setTimeout(() => setMessage(""), 3500);
+      },
+    });
   };
 
   const handleCoverFileUpload = async (
@@ -1439,6 +1544,14 @@ export default function PostManager() {
             title="Crop image in article"
           >
             <Crop size={13} /> ✂️ Crop
+          </button>
+          <button
+            type="button"
+            onClick={handleOpenCaptionEditor}
+            className="flex items-center gap-1 rounded bg-white px-2.5 py-1 text-xs font-semibold text-amber-800 border border-amber-300 shadow-xs hover:bg-amber-50"
+            title="Add or edit caption under the image"
+          >
+            💬 + Caption
           </button>
           <button
             type="button"
@@ -1993,6 +2106,16 @@ export default function PostManager() {
               className="h-[26px] px-2 inline-flex items-center gap-1 rounded-xs text-[11px] font-semibold text-[#1d2327] bg-white border border-[#ccd0d4] shadow-xs hover:bg-[#f0f0f1]"
             >
               <Crop size={12} className="text-[#7c3aed]" /> Crop
+            </button>
+
+            {/* Add / Edit caption under image */}
+            <button
+              type="button"
+              title="Add or edit caption under photo"
+              onClick={handleOpenCaptionEditor}
+              className="h-[26px] px-2 inline-flex items-center gap-1 rounded-xs text-[11px] font-semibold text-[#b45309] bg-amber-50/70 border border-amber-300 shadow-xs hover:bg-amber-100"
+            >
+              💬 Caption
             </button>
           </div>
         )}
@@ -2940,6 +3063,7 @@ export default function PostManager() {
                       suppressContentEditableWarning={true}
                       onInput={handleVisualInput}
                       onBlur={handleVisualInput}
+                      onPaste={handlePasteImage}
                       className="geocam-classic-editor-canvas min-h-[420px] max-h-[640px] overflow-y-auto p-5 text-[#1d2327] focus:outline-none"
                       style={{
                         fontFamily: 'Georgia, "Times New Roman", Times, serif',
@@ -2951,6 +3075,7 @@ export default function PostManager() {
                     <textarea
                       ref={activeLang === "en" ? contentTextareaRef : contentKmTextareaRef}
                       value={activeLang === "en" ? content : contentKm}
+                      onPaste={handlePasteImage}
                       onChange={(e) => {
                         const val = e.target.value;
                         if (activeLang === "en") {
@@ -3340,6 +3465,71 @@ export default function PostManager() {
             setMessage("Image cropped successfully!");
           }}
         />
+      )}
+
+      {/* Caption Editor Modal */}
+      {captionModal && (
+        <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <h4 className="text-base font-bold text-slate-900">Add / Edit Image Caption</h4>
+              <button
+                type="button"
+                onClick={() => setCaptionModal(null)}
+                className="text-slate-400 hover:text-slate-600 p-1"
+                title="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <img
+                src={captionModal.imgSrc}
+                alt=""
+                className="h-40 w-full object-contain rounded-lg border bg-slate-50 p-1"
+              />
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                  Caption Text (under photo)
+                </label>
+                <input
+                  type="text"
+                  value={captionInputText}
+                  onChange={(e) => setCaptionInputText(e.target.value)}
+                  placeholder="e.g. Geological survey outcrop sample, Ratanakiri"
+                  className="w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      captionModal.onApply(captionInputText.trim() || "Photo caption");
+                      setCaptionModal(null);
+                    }
+                  }}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2 border-t">
+              <button
+                type="button"
+                onClick={() => setCaptionModal(null)}
+                className="rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  captionModal.onApply(captionInputText.trim() || "Photo caption");
+                  setCaptionModal(null);
+                }}
+                className="rounded-lg bg-amber-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-amber-700 shadow-xs"
+              >
+                Apply Caption
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

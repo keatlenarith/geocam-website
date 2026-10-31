@@ -34,6 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     imageUrl,
     type,
     title,
+    posterDataUrl,
   } = req.body || {};
 
   // An empty browser field means use the server credential, not disable it.
@@ -45,6 +46,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let pageId = rawPageId || process.env.FB_PAGE_ID || DEFAULT_PAGE_ID;
   if (pageId === "360240070266245" || !pageId) {
     pageId = "105049257586051";
+  }
+
+  // Photo publishing uses the caller's Page credential, never anonymous access
+  // to the server credential. The poster is sent directly to Meta, not hosted.
+  if (posterDataUrl !== undefined && !(typeof browserAccessToken === "string" && browserAccessToken.trim())) {
+    return res.status(400).json({success:false,needToken:true,error:"Save a valid Page Access Token in Facebook Publisher before publishing a poster."});
+  }
+  let posterBytes: Buffer | undefined;
+  if (posterDataUrl !== undefined) {
+    if (typeof posterDataUrl !== "string" || !/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(posterDataUrl) || posterDataUrl.length > 4000000) {
+      return res.status(400).json({success:false,error:"Poster must be a PNG under 3 MB."});
+    }
+    posterBytes = Buffer.from(posterDataUrl.slice("data:image/png;base64,".length), "base64");
+    if (!posterBytes.subarray(0,8).equals(Buffer.from("89504e470d0a1a0a","hex"))) {
+      return res.status(400).json({success:false,error:"Invalid PNG poster."});
+    }
   }
 
   if (!message && !title) {
@@ -72,7 +89,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     // Meta Graph API Endpoint for Page Feed
-    const graphEndpoint = `https://graph.facebook.com/v19.0/${pageId}/feed`;
+    const graphEndpoint = posterBytes
+      ? `https://graph.facebook.com/v26.0/${pageId}/photos`
+      : `https://graph.facebook.com/v19.0/${pageId}/feed`;
 
     const params = new URLSearchParams();
     params.append("message", message || title);
@@ -81,12 +100,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       params.append("link", link);
     }
 
+    let photoForm: FormData | undefined;
+    if (posterBytes) {
+      photoForm = new FormData();
+      photoForm.append("access_token", accessToken!);
+      photoForm.append("message", message || title);
+      photoForm.append("published", "true");
+      photoForm.append("source", new Blob([new Uint8Array(posterBytes)], {type:"image/png"}), "geocam-earthquake-poster.png");
+    }
     const fbRes = await fetch(graphEndpoint, {
       method: "POST",
-      headers: {
+      headers: photoForm ? undefined : {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: params.toString(),
+      body: photoForm || params.toString(),
     });
 
     const fbData = await fbRes.json();
@@ -105,7 +132,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    const postId = fbData.id;
+    const postId = fbData.post_id || fbData.id;
     // Construct readable post link
     const postUrl = postId.includes("_")
       ? `https://www.facebook.com/${pageId}/posts/${postId.split("_")[1]}`

@@ -1,4 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
+import { wrapPosterText, posterMapUrl } from "./poster-layout";
+import { useAdmin } from "@/admin/Auth";
 import {
   type EarthquakeEvent,
   formatLocalIctTime,
@@ -23,9 +25,8 @@ import {
   RefreshCw,
 } from "lucide-react";
 import {
-  buildFacebookShareUrl,
-  shareEarthquakeToFacebook,
   generateEarthquakeFacebookStatus,
+  getFacebookSettings,
 } from "@/lib/facebook-service";
 
 interface EarthquakePosterModalProps {
@@ -39,14 +40,30 @@ export const EarthquakePosterModal: React.FC<EarthquakePosterModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  // Mount the generator only while open. The mounted child always executes the
+  // same hooks, including when a card initially renders with its modal closed.
+  if (!isOpen || !event) return null;
+  return <EarthquakePosterContent key={event.id} event={event} onClose={onClose} />;
+};
+
+const EarthquakePosterContent: React.FC<{
+  event: EarthquakeEvent;
+  onClose: () => void;
+}> = ({ event, onClose }) => {
   const { lang } = useI18n();
   const kh = lang === "km";
+  const { admin } = useAdmin();
   const posterCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [copied, setCopied] = useState(false);
   const [posterDataUrl, setPosterDataUrl] = useState<string>("");
   const [isReady, setIsReady] = useState(false);
-
-  if (!isOpen || !event) return null;
+  const [confirmPublish, setConfirmPublish] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
+  const [shareNotice, setShareNotice] = useState("");
+  const [preparingLink, setPreparingLink] = useState(false);
+  const [publishResult, setPublishResult] = useState<{error?:string;url?:string} | null>(null);
+  const posterLocked = useRef(false);
 
   const magVal = event.magnitude !== null && event.magnitude !== undefined ? event.magnitude : null;
   const magStr = magVal !== null ? magVal.toFixed(1) : "—";
@@ -94,7 +111,7 @@ export const EarthquakePosterModal: React.FC<EarthquakePosterModalProps> = ({
     canvas.height = height;
 
     const renderPoster = (loadedMapImg?: HTMLImageElement, loadedLogoImg?: HTMLImageElement) => {
-      if (isCancelled) return;
+      if (isCancelled || posterLocked.current) return;
 
       // 1. Deep Space Tech Background Gradient
       const bg = ctx.createLinearGradient(0, 0, width, height);
@@ -179,6 +196,18 @@ export const EarthquakePosterModal: React.FC<EarthquakePosterModalProps> = ({
         ctx.roundRect(mapX + 4, mapY + 4, mapW - 8, mapH - 8, 12);
         ctx.clip();
         ctx.drawImage(loadedMapImg, mapX + 4, mapY + 4, mapW - 8, mapH - 8);
+        // The export is centered on the epicenter; add our own consistent pin.
+        ctx.fillStyle = "#ef4444";
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(mapX + mapW / 2, mapY + mapH / 2, 10, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "rgba(15,23,42,.8)";
+        ctx.fillRect(mapX + 8, mapY + 8, mapW - 16, 20);
+        ctx.fillStyle = "white";
+        ctx.font = "11px sans-serif";
+        ctx.fillText("© Esri World Topo Map · OpenStreetMap contributors", mapX + 14, mapY + 22);
         ctx.restore();
       } else {
         // Fallback Stylized Radar & Coordinate grid if image is offline
@@ -259,8 +288,15 @@ export const EarthquakePosterModal: React.FC<EarthquakePosterModalProps> = ({
         ctx.fillText(`${labelEn.toUpperCase()} · ${labelKm}`, dataX + 20, y + 25);
 
         ctx.fillStyle = valColor;
-        ctx.font = "bold 20px 'Noto Sans Khmer', sans-serif";
-        ctx.fillText(`${icon} ${value}`, dataX + 20, y + 54);
+        let fontSize = 18;
+        let lines: string[] = [];
+        do {
+          ctx.font = `bold ${fontSize}px 'Noto Sans Khmer', sans-serif`;
+          lines = wrapPosterText(`${icon} ${value}`, 560, text => ctx.measureText(text).width);
+          if (lines.length <= 2) break;
+          fontSize--;
+        } while (fontSize >= 10);
+        lines.slice(0,2).forEach((line,index) => ctx.fillText(line, dataX + 20, y + (lines.length > 1 ? 43 : 54) + index * 21, 560));
       };
 
       // Row 1: Epicenter
@@ -325,7 +361,7 @@ export const EarthquakePosterModal: React.FC<EarthquakePosterModalProps> = ({
     // Async progressive enhancement: load map & logo
     const mapImg = new Image();
     mapImg.crossOrigin = "anonymous";
-    mapImg.src = `https://static-maps.yandex.ru/1.x/?ll=${event.longitude},${event.latitude}&z=6&l=map&size=450,420&pt=${event.longitude},${event.latitude},pm2rdm`;
+    mapImg.src = posterMapUrl(event.latitude, event.longitude);
 
     const logoImg = new Image();
     logoImg.crossOrigin = "anonymous";
@@ -380,8 +416,68 @@ export const EarthquakePosterModal: React.FC<EarthquakePosterModalProps> = ({
     }
   };
 
+  const handlePublishPoster = async () => {
+    if (!admin || publishing || !posterDataUrl) return;
+    posterLocked.current = true;
+    const image = posterDataUrl;
+    const caption = statusQuote;
+    setPublishing(true); setPublishResult(null);
+    try {
+      const settings = getFacebookSettings();
+      if (!settings.accessToken.trim()) throw new Error("Save your working Page Access Token in Admin → Facebook Publisher first.");
+      const response = await fetch("/api/facebook-publisher", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({pageId:settings.pageId,accessToken:settings.accessToken.trim(),message:caption,posterDataUrl:image,type:"earthquake"}),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.error || "Facebook could not publish this poster.");
+      setPublishResult({url:result.postUrl}); setConfirmPublish(false);
+    } catch (error) {
+      setPublishResult({error:error instanceof Error ? error.message : "Unable to publish poster."});
+      posterLocked.current = false;
+    } finally { setPublishing(false); }
+  };
+
+  const handleSharePoster = async () => {
+    if (!posterDataUrl) return;
+    try {
+      // Keep navigator.share inside the user's click activation: no async fetch.
+      const bytes = Uint8Array.from(atob(posterDataUrl.split(",")[1]), char => char.charCodeAt(0));
+      const file = new File([bytes], `GeoCam-${event.id}.png`, {type:"image/png"});
+      if (navigator.share && navigator.canShare?.({files:[file]})) {
+        await navigator.share({files:[file],text:statusQuote,title:"GeoCam Earthquake Bulletin"});
+        setShareNotice("Poster sent to your device’s share options."); return;
+      }
+    } catch (error) { if (error instanceof DOMException && error.name === "AbortError") return; }
+    handleDownloadPoster(); await handleCopyStatus();
+    setShareNotice("Poster downloaded. Use Copy Caption for its description, or Share link for a public page containing this exact poster and caption.");
+  };
+
+  const handleShareLink = async () => {
+    if (!posterDataUrl || preparingLink) return;
+    const popup = window.open("about:blank", "_blank");
+    if (popup) popup.opener = null;
+    setPreparingLink(true); setShareNotice(""); posterLocked.current = true;
+    try {
+      let url = shareUrl;
+      if (!url) {
+        const response = await fetch("/api/earthquake-poster", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({posterDataUrl,caption:statusQuote,eventId:event.id})});
+        const result = await response.json();
+        if (!response.ok || !result.url) throw new Error(result.error || "Unable to create poster link. Please retry.");
+        const parsed = new URL(result.url);
+        if (parsed.origin !== "https://geocam.site" || parsed.pathname !== "/api/earthquake-poster") throw new Error("Unexpected poster link.");
+        url = result.url; setShareUrl(url);
+      }
+      if (popup) popup.location.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+      setShareNotice("Your poster link is ready. It opens this exact PNG and caption, even after the earthquake leaves the live feed.");
+    } catch (error) {
+      popup?.close(); posterLocked.current = false;
+      setShareNotice(error instanceof Error ? error.message : "Unable to create poster link. Download the PNG and copy its caption instead.");
+    } finally { setPreparingLink(false); }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6 backdrop-blur-sm overflow-y-auto">
+    <div role="dialog" aria-modal="true" aria-label={kh ? "ផ្ទាំងរូបភាពដំណឹងរញ្ជួយដី" : "Earthquake bulletin poster"} className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6 backdrop-blur-sm overflow-y-auto">
       <div className="relative w-full max-w-4xl rounded-2xl border border-slate-700 bg-slate-900 text-white shadow-2xl overflow-hidden my-auto max-h-[95vh] flex flex-col">
         {/* Modal Top Header */}
         <div className="flex items-center justify-between border-b border-slate-800 bg-slate-950 px-5 py-3.5">
@@ -392,6 +488,8 @@ export const EarthquakePosterModal: React.FC<EarthquakePosterModalProps> = ({
             </h3>
           </div>
           <button
+            type="button"
+            aria-label="Close poster"
             onClick={onClose}
             className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition"
           >
@@ -411,6 +509,7 @@ export const EarthquakePosterModal: React.FC<EarthquakePosterModalProps> = ({
               <button
                 type="button"
                 onClick={handleDownloadPoster}
+                disabled={!isReady}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-500 transition shadow-xs"
               >
                 <Download size={14} />
@@ -427,7 +526,7 @@ export const EarthquakePosterModal: React.FC<EarthquakePosterModalProps> = ({
                 <img
                   src={posterDataUrl}
                   alt={event.location}
-                  className="h-full w-full object-contain"
+              className="h-full w-full object-contain"
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center text-slate-400 text-sm gap-2">
@@ -437,6 +536,10 @@ export const EarthquakePosterModal: React.FC<EarthquakePosterModalProps> = ({
               )}
             </div>
           </div>
+          {shareNotice && <div role="status" className="rounded-lg border border-slate-600 p-3 text-sm">{shareNotice}</div>}
+          {shareUrl && <div className="rounded-lg border border-emerald-600 p-3 text-sm"><a href={shareUrl} target="_blank" rel="noopener noreferrer" className="underline">Open generated poster ↗</a><label className="mt-2 block">Poster link<input aria-label="Generated poster link" readOnly value={shareUrl} onFocus={e => e.currentTarget.select()} className="mt-1 w-full rounded border border-slate-600 bg-slate-950 p-2 text-xs" /></label><button type="button" onClick={async()=>{try{await navigator.clipboard.writeText(shareUrl);setShareNotice("Poster link copied.");}catch{setShareNotice("Select the poster link above and copy it.");}}} className="mt-2 underline">Copy poster link</button></div>}
+          {publishResult && <div role="status" className="rounded-lg border border-slate-600 p-3 text-sm">{publishResult.error || "Poster and caption published successfully."}{publishResult.url && <a className="ml-2 underline" target="_blank" rel="noopener noreferrer" href={publishResult.url}>View Facebook post ↗</a>}</div>}
+          {admin && confirmPublish && <div className="rounded-lg border border-blue-500 bg-slate-950 p-4 text-sm"><p>Publish the displayed PNG and its exact caption as a public photo post to GeoCam101?</p><p className="mt-2 text-xs text-slate-400">Uses your working Page token saved in this browser’s Facebook Publisher.</p><button type="button" disabled={publishing} onClick={handlePublishPoster} className="mt-3 rounded bg-blue-600 px-4 py-2 font-bold disabled:opacity-50">{publishing ? "Publishing…" : "Confirm publish"}</button><button type="button" disabled={publishing} onClick={() => setConfirmPublish(false)} className="ml-3 underline">Cancel</button></div>}
 
           {/* 2. Ready-to-Paste Description Status */}
           <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-4">
@@ -464,6 +567,7 @@ export const EarthquakePosterModal: React.FC<EarthquakePosterModalProps> = ({
           <button
             type="button"
             onClick={handleDownloadPoster}
+            disabled={!isReady}
             className="btn btn-outline inline-flex items-center gap-2 text-xs sm:text-sm font-semibold"
           >
             <Download size={16} />
@@ -471,6 +575,8 @@ export const EarthquakePosterModal: React.FC<EarthquakePosterModalProps> = ({
           </button>
 
           <div className="flex items-center gap-2.5">
+            <button type="button" disabled={!isReady || publishing} onClick={handleSharePoster} className="btn btn-outline text-xs">Share poster</button>
+            {admin && <button type="button" disabled={!isReady || publishing || !!publishResult?.url} onClick={() => setConfirmPublish(true)} className="btn btn-primary text-xs">Publish poster to Page</button>}
             <button
               type="button"
               onClick={handleCopyStatus}
@@ -480,16 +586,15 @@ export const EarthquakePosterModal: React.FC<EarthquakePosterModalProps> = ({
               <span>{copied ? (kh ? "បានចម្លងរួច" : "Copied") : (kh ? "ចម្លង Caption" : "Copy Status")}</span>
             </button>
 
-            <a
-              href={buildFacebookShareUrl(event)}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => shareEarthquakeToFacebook(event, e)}
+            <button
+              type="button"
+              disabled={!isReady || preparingLink}
+              onClick={handleShareLink}
               className="btn btn-primary inline-flex items-center gap-2 text-xs sm:text-sm font-bold bg-[#1877f2] hover:bg-[#166fe5] text-white border-0"
             >
               <Share2 size={16} />
-              <span>{kh ? "បង្ហោះទៅ Facebook ↗" : "Post to Facebook ↗"}</span>
-            </a>
+              <span>{preparingLink ? "Creating poster link…" : kh ? "ចែករំលែកតំណ Facebook ↗" : "Share link ↗"}</span>
+            </button>
           </div>
         </div>
       </div>

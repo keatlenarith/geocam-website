@@ -65,3 +65,22 @@ test("unavailable status is an error rather than a missing-token result", async 
   t.mock.method(globalThis,"fetch",async()=>({ok:false}));
   await assert.rejects(facebook.getFacebookPublisherStatus(), /Unable to check/);
 });
+
+test("poster publishing uploads the exact PNG bytes with the unchanged caption", async (t) => {
+  const png = Buffer.from('89504e470d0a1a0a0000000d49484452000004b000000276', 'hex');
+  const caption = 'ដំណឹងរញ្ជួយដី\nExact caption #GeoCam';
+  let sent, endpoint, result;
+  t.mock.method(globalThis,'fetch',async(url,options)=>{endpoint=url;sent=options.body;return {ok:true,json:async()=>({id:'photo123',post_id:'105049257586051_post123'})};});
+  await publisher({method:'POST',body:{accessToken:'page-test-token',posterDataUrl:`data:image/png;base64,${png.toString('base64')}`,message:caption}}, {setHeader(){},status(){return this;},json(value){result=value;}});
+  assert.match(endpoint,/\/photos$/);assert.ok(sent instanceof FormData);
+  assert.equal(sent.get('message'),caption);
+  assert.deepEqual(Buffer.from(await sent.get('source').arrayBuffer()),png);
+  assert.equal(result.postId,'105049257586051_post123');
+});
+
+test("poster upload cannot use server credentials without a supplied Page token",async(t)=>{
+  let fetched=false,result;
+  t.mock.method(globalThis,'fetch',async()=>{fetched=true;return {ok:true,json:async()=>({id:'unexpected'})};});
+  await publisher({method:'POST',body:{posterDataUrl:'data:image/png;base64,aGVsbG8=',message:'Test'}},{setHeader(){},status(){return this;},json(v){result=v;}});
+  assert.equal(fetched,false);assert.equal(result.success,false);
+});
