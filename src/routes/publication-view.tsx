@@ -12,13 +12,10 @@ import {
   BookOpen,
   Download,
   ExternalLink,
-  Maximize2,
-  Minimize2,
-  RefreshCw,
   FileText,
   AlertCircle,
-  CheckCircle2,
 } from "lucide-react";
+import PdfCanvasViewer from "@/components/publications/PdfCanvasViewer";
 
 export default function PublicationView() {
   const { lang } = useI18n();
@@ -27,10 +24,6 @@ export default function PublicationView() {
   const id = new URLSearchParams(location.search).get("id");
 
   const [pubs, setPubs] = useState<Publication[]>(() => getStoredPublications());
-  const [activeViewer, setActiveViewer] = useState<"native" | "google" | "mozilla">("native");
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const handleSync = () => setPubs(getStoredPublications());
@@ -42,43 +35,7 @@ export default function PublicationView() {
     };
   }, []);
 
-  // Detect mobile device to default to cloud-rendered viewer if native object doesn't render
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
-        navigator.userAgent,
-      ) || (window.innerWidth < 768);
-      setIsMobile(mobile);
-      if (mobile) {
-        // Mobile browsers cannot display application/pdf object tag inline; default to Google Docs viewer
-        setActiveViewer("google");
-      }
-    };
-    checkMobile();
-  }, []);
-
   const p = pubs.find((x) => x.id === id);
-
-  // Helper to build fully qualified public URL for cloud readers (Google Docs / Mozilla)
-  const getFullPublicPdfUrl = (url: string) => {
-    if (!url) return "";
-    if (url.startsWith("http://") || url.startsWith("https://")) {
-      return url;
-    }
-    // Standard production root
-    const origin = typeof window !== "undefined" && window.location.origin.includes("localhost")
-      ? "https://geocam.site"
-      : (typeof window !== "undefined" ? window.location.origin : "https://geocam.site");
-    return `${origin}${url.startsWith("/") ? "" : "/"}${url}`;
-  };
-
-  const fullPdfUrl = p?.pdfUrl ? getFullPublicPdfUrl(p.pdfUrl) : "";
-  const googleViewerUrl = fullPdfUrl
-    ? `https://docs.google.com/viewer?embedded=true&url=${encodeURIComponent(fullPdfUrl)}`
-    : "";
-  const mozillaViewerUrl = fullPdfUrl
-    ? `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fullPdfUrl)}`
-    : "";
 
   return (
     <>
@@ -191,7 +148,7 @@ export default function PublicationView() {
               </p>
             )}
 
-            {/* Quick Action Toolbar */}
+            {/* Action Toolbar */}
             <div className="mt-6 flex flex-wrap items-center gap-2.5">
               {p.pdfUrl && (
                 <>
@@ -248,197 +205,9 @@ export default function PublicationView() {
               ))}
             </div>
 
-            {/* Interactive Embedded Document Reader */}
+            {/* 100% Native In-Website Direct PDF Canvas Reader */}
             {p.pdfUrl ? (
-              <div
-                className={`mt-8 overflow-hidden rounded-2xl border border-slate-300 bg-slate-900 shadow-md transition-all ${
-                  isFullscreen
-                    ? "fixed inset-0 z-50 rounded-none border-0 h-screen w-screen p-0 m-0"
-                    : "w-full"
-                }`}
-              >
-                {/* Reader Header / Controls Bar */}
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 bg-slate-800 px-4 py-2.5 text-white">
-                  <div className="flex items-center gap-2">
-                    <FileText size={16} className="text-emerald-400" />
-                    <span className="text-xs sm:text-sm font-semibold truncate max-w-[200px] sm:max-w-md">
-                      {km ? "កម្មវិធីអានឯកសារផ្ទាល់" : "Direct Document Reader"}: {p.title}
-                    </span>
-                  </div>
-
-                  {/* Mode Selector & Fullscreen */}
-                  <div className="flex items-center gap-1.5">
-                    <div className="flex rounded-lg bg-slate-900/80 p-0.5 border border-slate-700 text-xs font-semibold">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveViewer("native");
-                          setIframeLoaded(true);
-                        }}
-                        className={`rounded-md px-2.5 py-1 transition ${
-                          activeViewer === "native"
-                            ? "bg-emerald-600 text-white shadow-xs"
-                            : "text-slate-300 hover:text-white"
-                        }`}
-                        title="Native browser PDF engine"
-                      >
-                        {km ? "ធម្មជាតិ" : "Native"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveViewer("google");
-                          setIframeLoaded(false);
-                        }}
-                        className={`rounded-md px-2.5 py-1 transition ${
-                          activeViewer === "google"
-                            ? "bg-emerald-600 text-white shadow-xs"
-                            : "text-slate-300 hover:text-white"
-                        }`}
-                        title="Google Docs Cloud PDF Reader (Supports mobile & all browsers)"
-                      >
-                        Google Docs
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveViewer("mozilla");
-                          setIframeLoaded(false);
-                        }}
-                        className={`rounded-md px-2.5 py-1 transition ${
-                          activeViewer === "mozilla"
-                            ? "bg-emerald-600 text-white shadow-xs"
-                            : "text-slate-300 hover:text-white"
-                        }`}
-                        title="Mozilla PDF.js viewer"
-                      >
-                        PDF.js
-                      </button>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setIsFullscreen(!isFullscreen)}
-                      className="inline-flex items-center justify-center rounded-lg bg-slate-700 p-1.5 text-slate-200 hover:bg-slate-600 hover:text-white transition"
-                      title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Reader"}
-                    >
-                      {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* PDF Container View */}
-                <div
-                  className={`relative w-full bg-slate-100 ${
-                    isFullscreen ? "h-[calc(100vh-49px)]" : "h-[75vh] min-h-[550px]"
-                  }`}
-                >
-                  {/* View 1: Native Object Embed (Desktop Chrome/Firefox/Edge) */}
-                  {activeViewer === "native" && (
-                    <object
-                      data={p.pdfUrl + "#toolbar=1&navpanes=0"}
-                      type="application/pdf"
-                      aria-label={"PDF: " + p.title}
-                      className="h-full w-full"
-                    >
-                      {/* Fallback displayed automatically when native PDF embed isn't supported */}
-                      <div className="flex h-full flex-col items-center justify-center p-6 text-center bg-slate-50">
-                        <AlertCircle className="mb-3 h-12 w-12 text-amber-500" />
-                        <h3 className="text-base font-bold text-slate-800">
-                          {km
-                            ? "កម្មវិធីរុករករបស់អ្នកមិនអាចបង្ហាញ PDF នេះដោយផ្ទាល់ទេ"
-                            : "Inline native PDF view is not supported on this browser/device"}
-                        </h3>
-                        <p className="mt-1.5 max-w-md text-xs sm:text-sm text-slate-600">
-                          {km
-                            ? "ចុចប៊ូតុងខាងក្រោមដើម្បីប្តូរទៅ Google Docs Reader ឬទាញយកឯកសារ"
-                            : "Click below to switch to the Google Docs Cloud Viewer or open the PDF in a new tab."}
-                        </p>
-                        <div className="mt-4 flex flex-wrap gap-2 justify-center">
-                          <button
-                            type="button"
-                            onClick={() => setActiveViewer("google")}
-                            className="btn btn-primary text-xs"
-                          >
-                            {km ? "ប្តូរទៅ Google Docs Viewer" : "Switch to Google Docs Viewer"}
-                          </button>
-                          <a
-                            href={p.pdfUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-outline text-xs"
-                          >
-                            {km ? "បើក PDF ក្នុងផ្ទាំងថ្មី ↗" : "Open PDF in New Tab ↗"}
-                          </a>
-                        </div>
-                      </div>
-                    </object>
-                  )}
-
-                  {/* View 2: Google Docs Viewer (Universal Desktop + Mobile) */}
-                  {activeViewer === "google" && (
-                    <div className="relative h-full w-full bg-white">
-                      {!iframeLoaded && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/90 z-10">
-                          <RefreshCw className="h-8 w-8 animate-spin text-emerald-600" />
-                          <p className="mt-3 text-xs font-semibold text-slate-600">
-                            {km ? "កំពុងបើកឯកសារ PDF តាម Google Docs..." : "Loading document preview via Google Docs viewer..."}
-                          </p>
-                        </div>
-                      )}
-                      <iframe
-                        src={googleViewerUrl}
-                        title={"PDF: " + p.title}
-                        className="h-full w-full border-0"
-                        onLoad={() => setIframeLoaded(true)}
-                        allow="fullscreen"
-                      />
-                    </div>
-                  )}
-
-                  {/* View 3: Mozilla PDF.js Viewer */}
-                  {activeViewer === "mozilla" && (
-                    <div className="relative h-full w-full bg-white">
-                      {!iframeLoaded && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/90 z-10">
-                          <RefreshCw className="h-8 w-8 animate-spin text-emerald-600" />
-                          <p className="mt-3 text-xs font-semibold text-slate-600">
-                            {km ? "កំពុងបើកឯកសារ PDF តាម PDF.js..." : "Loading document via Mozilla PDF.js viewer..."}
-                          </p>
-                        </div>
-                      )}
-                      <iframe
-                        src={mozillaViewerUrl}
-                        title={"PDF: " + p.title}
-                        className="h-full w-full border-0"
-                        onLoad={() => setIframeLoaded(true)}
-                        allow="fullscreen"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Footer hints */}
-                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-slate-50 px-4 py-2 text-xs text-slate-600">
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle2 size={13} className="text-emerald-600" />
-                    <span>
-                      {km
-                        ? "អាចមើលបានទាំងកុំព្យូទ័រ និងទូរសព្ទដៃ"
-                        : "Universal compatibility: Works across Desktop, Tablet & Mobile"}
-                    </span>
-                  </div>
-                  <a
-                    href={p.pdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium text-emerald-700 hover:underline inline-flex items-center gap-1"
-                  >
-                    <span>{km ? "ទាញយកច្បាប់ដើម (Original PDF)" : "Download Original PDF"}</span>
-                    <Download size={12} />
-                  </a>
-                </div>
-              </div>
+              <PdfCanvasViewer pdfUrl={p.pdfUrl} title={p.title} km={km} />
             ) : (
               /* Non-PDF / External Journal Link Card */
               <div className="mt-8 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-emerald-50/30 p-6 sm:p-8 shadow-xs">
