@@ -1,0 +1,23 @@
+{
+  "name": "GeoCam — Geosciences Society of Cambodia",
+  "short_name": "GeoCam",
+  "description": "Cambodia Geoscience Research, 3D Web GIS Geoparks & National Seismic Monitoring",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#244e39",
+  "icons": [
+    {
+      "src": "/geocam-logo.png",
+      "sizes": "192x192 512x512 1020x1020",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/geocam-logo.png",
+      "sizes": "192x192 512x512 1020x1020",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
