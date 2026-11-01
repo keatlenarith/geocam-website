@@ -1082,5 +1082,29 @@
     "metadataVerified": false,
     "pdfUrl": "/research/documents/paper-a-possible-source-in-cambodia-for-australasian-tektites-6ae5dc3320.pdf",
     "image": "/images/publications/local-6ae5dc332090.png"
+  },
+  {
+    "id": "geocam-lower-mekong-cambodia-water-groundwater-2026",
+    "title": "Surface water and groundwater in Cambodia’s Lower Mekong Basin",
+    "authors": "GeoCam editorial research synthesis",
+    "year": 2026,
+    "journal": "GeoCam Research & Discovery",
+    "topic": "Hydrogeology",
+    "abstract": "Cambodia’s water security depends on the seasonal connection between the Mekong, Tonle Sap, floodplains and aquifers. This review brings together basin hydrology, Cambodian groundwater studies and recent regional research to explain where water is stored, how it moves, and why water availability must be assessed together with quality and pumping pressure.",
+    "tags": [
+      "Hydrogeology",
+      "Lower Mekong Basin",
+      "Cambodia",
+      "Groundwater",
+      "Tonle Sap",
+      "River–aquifer exchange",
+      "Arsenic"
+    ],
+    "publicationType": "Research synthesis",
+    "scope": "Lower Mekong Basin & Cambodia",
+    "origin": "GeoCam documentary research synthesis",
+    "metadataVerified": true,
+    "pdfUrl": "/research/lower-mekong-cambodia/documents/usgs-1977-groundwater-cambodia.pdf",
+    "image": "/research/lower-mekong-cambodia/images/usgs-plate-1.png"
   }
 ]

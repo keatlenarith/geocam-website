@@ -1,0 +1,68 @@
+{
+  "topography": {
+    "src": "recharge-topography-page3.png",
+    "source": "S04",
+    "page": 3,
+    "figure": "1",
+    "title": "Topography of the Lower Mekong Basin",
+    "caption": "Original Figure 1 on source PDF page 3. Lacombe et al. (2017); elevations derived from HydroSHEDS. Whole source page reproduced, with its original caption. This is a basin map, not a well-location dataset.",
+    "license": "CC BY 4.0",
+    "width": 1415,
+    "height": 2000
+  },
+  "usgs-geology": {
+    "src": "usgs-plate-1.png",
+    "source": "S07",
+    "page": 1,
+    "figure": "Plate 1",
+    "title": "Historical geology and geologic sections of Cambodia",
+    "caption": "Rasmussen & Bradford (1977), USGS Water-Supply Paper 1608-P, Plate 1. Historical map and administrative labels retained. Not a present-day aquifer-yield or drinking-water-safety map.",
+    "license": "USGS public-domain government work",
+    "width": 2000,
+    "height": 1145
+  },
+  "usgs-wells": {
+    "src": "usgs-plate-2.png",
+    "source": "S07",
+    "page": 1,
+    "figure": "Plate 2",
+    "title": "Historical map of well locations in Cambodia",
+    "caption": "Rasmussen & Bradford (1977), Plate 2. Well locations and insets belong to the historical survey compilation; this plate does not describe the present operational well network.",
+    "license": "USGS public-domain government work",
+    "width": 2000,
+    "height": 1150
+  },
+  "usgs-sections": {
+    "src": "usgs-plate-3.png",
+    "source": "S07",
+    "page": 1,
+    "figure": "Plate 3",
+    "title": "Historical lithologic sections of selected Cambodian areas",
+    "caption": "Rasmussen & Bradford (1977), Plate 3. Published cross-sections illustrate the arrangement of sediments and rock units along selected historical lines, not a uniform countrywide aquifer section.",
+    "license": "USGS public-domain government work",
+    "width": 2000,
+    "height": 1244
+  },
+  "recharge": {
+    "src": "recharge-map-page9.png",
+    "source": "S04",
+    "page": 9,
+    "figure": "4",
+    "title": "Published regional recharge estimates",
+    "caption": "Original Figure 4 on source PDF page 9. Lacombe et al. (2017). Circles show catchment estimates and grid cells show regional predictions. The 0.25° grid is a screening product; local clay cover can produce substantially different recharge. Whole source page reproduced.",
+    "license": "CC BY 4.0",
+    "width": 1415,
+    "height": 2000
+  },
+  "recharge-ratio": {
+    "src": "recharge-ratio-page11.png",
+    "source": "S04",
+    "page": 11,
+    "figure": "6",
+    "title": "Published recharge-to-rainfall ratio",
+    "caption": "Original Figure 6 on source PDF page 11. Lacombe et al. (2017). The regional ratio is method-dependent; it is not a fraction of rainfall that may automatically be allocated to pumping. Whole source page reproduced.",
+    "license": "CC BY 4.0",
+    "width": 1415,
+    "height": 2000
+  }
+}
