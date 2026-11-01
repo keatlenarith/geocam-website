@@ -97,7 +97,7 @@ export const news: Article[] = [
       "និស្សិតបានសិក្សាវាស់វែងផែនទីស្រទាប់ថ្មភក់ និងទម្រង់ដីឡាតេរីតក្នុងអំឡុងវគ្គបណ្តុះបណ្តាលទីវាលរយៈពេលមួយសប្តាហ៍នៅភាគខាងលិចប្រទេសកម្ពុជា។",
     status: "published",
     tag: "Education",
-    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80",
+    image: "/images/rock-atlas/CAM_GDP_0050_BMC1901a_1.jpg",
   },
   {
     id: "n2",

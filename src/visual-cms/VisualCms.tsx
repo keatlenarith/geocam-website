@@ -944,7 +944,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
     } else if (type === "image") {
       const src =
         customImageUrl ||
-        "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1000&q=80";
+        "/images/rock-atlas/CAM_GDP_0050_BMC1901a_1.jpg";
       // Uncapped image expansion (object-fit: contain, no arbitrary height cap, fully resizable)
       blockHtml = `
         <figure class="geocam-figure my-6 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs text-center geocam-inserted-block geocam-draggable-block" draggable="true" data-block-id="${blockId}">

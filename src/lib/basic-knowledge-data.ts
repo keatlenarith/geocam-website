@@ -603,7 +603,7 @@ export const BASIC_KNOWLEDGE_ARTICLES: KnowledgeArticle[] = [
     excerptEn: "Explore the ancient basement of Indochina, Paleozoic marine sedimentation, Mesozoic continental sandstone plateaus, and Cenozoic basalt volcanism.",
     excerptKm: "ស្វែងយល់អំពីខឿនបុរាណឥណ្ឌូចិន កំណកកករសមុទ្រយុគបុរាណសត្វ ខ្ពង់រាបថ្មភក់ដីគោកយុគកណ្តាលសត្វ និងបន្ទុះភ្នំភ្លើងបាសាល់យុគថ្មី។",
     readTime: "8 min read",
-    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80",
+    image: "/images/rock-atlas/CAM_GDP_0050_BMC1901a_1.jpg",
     date: "2026-10-20",
     authorEn: "Cambodian Geoscience Committee",
     authorKm: "គណៈកម្មាធិការភូគព្ភសាស្ត្រកម្ពុជា",

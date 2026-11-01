@@ -159,7 +159,7 @@ export default function BasicKnowledge() {
         excerptEn: p.summaryEn || "",
         excerptKm: p.summaryKm || p.summaryEn || "",
         readTime: "5 min read",
-        image: safeCover(p.cover) || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80",
+        image: safeCover(p.cover, p.bodyEn || p.bodyKm) || "/images/rock-atlas/CAM_GDP_0050_BMC1901a_1.jpg",
         date: p.createdAt ? p.createdAt.slice(0, 10) : "2026-10-25",
         authorEn: "GeoCam Contributor",
         authorKm: "អ្នកចូលរួមចំណែក GeoCam",
@@ -688,7 +688,7 @@ export default function BasicKnowledge() {
                 {supabasePost.cover && (
                   <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-md">
                     <img
-                      src={safeCover(supabasePost.cover)}
+                      src={safeCover(supabasePost.cover, supabasePost.bodyEn || supabasePost.bodyKm)}
                       alt={title}
                       className="h-full w-full object-cover"
                     />

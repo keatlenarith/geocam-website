@@ -86,7 +86,7 @@ export interface UnifiedContentItem {
 const PHOTO_PRESETS = [
   {
     label: "🏔️ Field Training Outcrop",
-    url: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80",
+    url: "/images/rock-atlas/CAM_GDP_0050_BMC1901a_1.jpg",
     caption: "Geological field mapping and outcrop observation in western Cambodia.",
   },
   {
@@ -380,6 +380,11 @@ function pageToUnifiedItem(route: string, data: (typeof defaultPageData)[string]
 <p>ខ្លឹមសារទំព័រផ្លូវការសម្រាប់ <strong>${data.titleKm}</strong>។ កែសម្រួលចំណងជើង អត្ថបទ និងរូបភាពតំណាង។</p>
 `.trim();
 
+  const effectivePageImage =
+    data.heroImage && !data.heroImage.includes("photo-1544620347-c4fd4a3d5957")
+      ? data.heroImage
+      : "/images/rock-atlas/CAM_GDP_0050_BMC1901a_1.jpg";
+
   return {
     id: `page-${route.replace(/[\/\-_]/g, "_") || "home"}`,
     kind: "page",
@@ -387,7 +392,7 @@ function pageToUnifiedItem(route: string, data: (typeof defaultPageData)[string]
     titleKm: data.titleKm,
     tag: data.category,
     date: "2026-04-01",
-    image: data.heroImage,
+    image: effectivePageImage,
     excerpt: `${data.headlineEn} — ${data.subEn}`,
     excerptKm: `${data.headlineKm} — ${data.subKm}`,
     content: contentEn,
@@ -2720,7 +2725,7 @@ export default function PostManager() {
                 >
                   <td className="p-4 w-28">
                     <img
-                      src={item.image || PHOTO_PRESETS[0].url}
+                      src={item.image || (item.content ? (item.content.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] || "") : "") || PHOTO_PRESETS[0].url}
                       alt=""
                       className="h-16 w-24 rounded-lg object-cover border border-slate-200 shadow-xs group-hover:scale-105 transition"
                     />
