@@ -270,30 +270,62 @@ export function FacebookManager() {
             </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
             <span role="status" className="text-[11px] text-slate-500">
               {tokenStatus}
             </span>
-            <button
-              type="button"
-              onClick={handleSaveToken}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 transition"
-            >
-              <ShieldCheck size={14} />
-              <span>Save Token</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {hasBrowserToken && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTokenInput("");
+                    const updated = saveFacebookSettings({ accessToken: "" });
+                    setSettings(updated);
+                    setStatusMsg({
+                      type: "info",
+                      text: "Browser token cleared. System will now use the server-configured environment token.",
+                    });
+                    setTimeout(() => setStatusMsg(null), 5000);
+                  }}
+                  className="inline-flex items-center gap-1 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-300 transition"
+                  title="Remove browser token and fall back to server FB_PAGE_ACCESS_TOKEN"
+                >
+                  Clear Browser Token
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleSaveToken}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 transition"
+              >
+                <ShieldCheck size={14} />
+                <span>Save Token</span>
+              </button>
+            </div>
           </div>
 
-          {hasServerToken && <p className="mt-3 text-xs leading-relaxed text-slate-500">The server token stays on the server and is never copied into this field. Leave the field empty to use it. Send Test Broadcast publishes a real post to verify publishing access.</p>}
+          {hasServerToken && (
+            <p className="mt-3 text-xs leading-relaxed text-slate-500">
+              The server token stays secure on the server and is never copied into this field. If your broadcasts fail with "Session expired" or "Error #200", click <strong>Clear Browser Token</strong> above so the system uses the server token.
+            </p>
+          )}
 
           <div className="mt-5 rounded-xl bg-slate-50 p-3.5 text-xs text-slate-600 dark:bg-slate-800/60 dark:text-slate-400">
-            <p className="font-bold text-slate-800 dark:text-slate-200">How to generate a permanent token:</p>
-            <ol className="mt-1.5 list-decimal pl-4 space-y-1 text-[11px]">
-              <li>Go to <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Meta Graph API Explorer ↗</a>.</li>
-              <li>Select your app &amp; page <strong>(ID: 105049257586051)</strong>.</li>
-              <li>Grant permissions: <code>pages_manage_posts</code> and <code>pages_read_engagement</code>.</li>
-              <li>Generate the Access Token and paste it above.</li>
-            </ol>
+            <p className="font-bold text-slate-800 dark:text-slate-200">Why does Facebook say "Token expired" or "(#200) Permission error"?</p>
+            <div className="mt-2 space-y-2 text-[11px] leading-relaxed">
+              <div className="rounded-md bg-amber-50 p-2.5 border border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-300">
+                <strong>Crucial:</strong> In Meta Graph API Explorer, the default token is a <strong>User Token</strong> (which expires in 1-2 hours and causes Error #200 when posting to a page). You must select your <strong>Page</strong> in the dropdown to get a genuine <strong>Page Access Token</strong>!
+              </div>
+              <p className="font-semibold text-slate-700 dark:text-slate-300">How to get a long-lived Page Token:</p>
+              <ol className="list-decimal pl-4 space-y-1">
+                <li>Open <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Meta Graph API Explorer ↗</a>.</li>
+                <li>Under <strong>Meta App</strong>, choose your app.</li>
+                <li>Under <strong>User or Page</strong>, click the dropdown and choose <strong>GeoCam101 (105049257586051)</strong> under <em>Page Access Tokens</em> (do NOT select "User Token").</li>
+                <li>Verify permissions include <code>pages_manage_posts</code> and <code>pages_read_engagement</code>.</li>
+                <li>Click <strong>Generate Access Token</strong> and paste it into the field above.</li>
+              </ol>
+            </div>
           </div>
         </div>
 

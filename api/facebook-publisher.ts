@@ -55,6 +55,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
   let posterBytes: Buffer | undefined;
   if (posterDataUrl !== undefined) {
+    if (typeof message !== "string" || !message.trim()) {
+      return res.status(400).json({success:false,error:"The generated poster caption is empty. Reopen the poster and try again."});
+    }
     if (typeof posterDataUrl !== "string" || !/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(posterDataUrl) || posterDataUrl.length > 4000000) {
       return res.status(400).json({success:false,error:"Poster must be a PNG under 3 MB."});
     }
@@ -104,11 +107,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (posterBytes) {
       photoForm = new FormData();
       photoForm.append("access_token", accessToken!);
-      photoForm.append("message", message || title);
-      photoForm.append("published", "true");
+      photoForm.append("caption", message);
+      // Upload without creating a separate captionless public photo story.
+      photoForm.append("published", "false");
       photoForm.append("source", new Blob([new Uint8Array(posterBytes)], {type:"image/png"}), "geocam-earthquake-poster.png");
     }
-    const fbRes = await fetch(graphEndpoint, {
+    let fbRes = await fetch(graphEndpoint, {
       method: "POST",
       headers: photoForm ? undefined : {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -116,13 +120,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       body: photoForm || params.toString(),
     });
 
-    const fbData = await fbRes.json();
+    let fbData = await fbRes.json();
 
     if (!fbRes.ok || fbData.error) {
-      const fbErrMsg =
+      let fbErrMsg =
         fbData.error?.message ||
         `Facebook Graph API error (code: ${fbData.error?.code || fbRes.status})`;
       console.error("[Facebook Publisher Error]", fbData.error);
+
+      // Enhance actionable diagnosis for common Meta OAuth issues
+      if (fbData.error?.code === 190) {
+        fbErrMsg = `Token Expired (OAuth 190): ${fbErrMsg}. Please renew your Page Access Token or clear it to use the server token.`;
+      } else if (fbData.error?.code === 200) {
+        fbErrMsg = `Permission / Token Mismatch (Error 200): Requires a Page Access Token for Page ID ${pageId} with 'pages_manage_posts' and 'pages_read_engagement' permissions. If you used a User Token from Graph API Explorer, switch the dropdown to your Page Token.`;
+      }
 
       return res.status(200).json({
         success: false,
@@ -132,6 +143,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
+    if (photoForm) {
+      if (typeof fbData.id !== "string" || !fbData.id) {
+        return res.status(502).json({success:false,error:"Facebook did not return an uploaded photo ID. Nothing was published."});
+      }
+      // The feed's message is the visible status. A photo caption alone is not
+      // a reliable substitute for a post message across Facebook surfaces.
+      const photoPost = new URLSearchParams();
+      photoPost.append("access_token",accessToken!);
+      photoPost.append("message",message);
+      photoPost.append("published","true");
+      photoPost.append("attached_media[0]",JSON.stringify({media_fbid:fbData.id}));
+      fbRes = await fetch(`https://graph.facebook.com/v26.0/${pageId}/feed`,{
+        method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:photoPost.toString(),
+      });
+      fbData = await fbRes.json();
+      if (!fbRes.ok || fbData.error) {
+        return res.status(200).json({success:false,error:fbData.error?.message || "Facebook uploaded the photo but could not publish the post and caption.",needToken:fbData.error?.code===190});
+      }
+    }
     const postId = fbData.post_id || fbData.id;
     // Construct readable post link
     const postUrl = postId.includes("_")
