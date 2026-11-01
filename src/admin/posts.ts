@@ -19,12 +19,31 @@ export type Post = {
 };
 export const cleanPostHtml = (html: string) =>
   DOMPurify.sanitize(html, { USE_PROFILES: { html: true, svg: true } });
-export const safeCover = (url: string) =>
-  /^https?:\/\//i.test(url) ||
-  /^\/(?!\/)/.test(url) ||
-  /^data:image\/(png|jpeg|webp|gif);base64,/i.test(url)
-    ? url
-    : "";
+export const extractFirstImage = (html: string): string => {
+  if (!html) return "";
+  const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return match && match[1] ? match[1].trim() : "";
+};
+export const safeCover = (url: string, contentHtml?: string) => {
+  const direct =
+    /^https?:\/\//i.test(url) ||
+    /^\/(?!\/)/.test(url) ||
+    /^data:image\/(png|jpeg|webp|gif);base64,/i.test(url)
+      ? url
+      : "";
+  if (direct) return direct;
+  if (contentHtml) {
+    const extracted = extractFirstImage(contentHtml);
+    if (
+      /^https?:\/\//i.test(extracted) ||
+      /^\/(?!\/)/.test(extracted) ||
+      /^data:image\/(png|jpeg|webp|gif);base64,/i.test(extracted)
+    ) {
+      return extracted;
+    }
+  }
+  return "";
+};
 export const postText = (english: string, khmer: string, lang: string) =>
   lang === "km" ? khmer || translateText(english) : english;
 export function postBody(english: string, khmer: string, lang: string) {
@@ -81,8 +100,11 @@ export async function fetchPublishedPosts(): Promise<Post[]> {
 }
 export async function savePost(post: Post, publish: boolean): Promise<Post> {
   if (!post.titleEn.trim()) throw new Error("Add an English title before saving or publishing.");
+  // Use manually specified cover or fall back to the first image found in the post content
+  const effectiveCover = safeCover(post.cover, post.bodyEn || post.bodyKm);
   const saved = {
     ...post,
+    cover: effectiveCover,
     bodyEn: cleanPostHtml(post.bodyEn),
     bodyKm: cleanPostHtml(post.bodyKm),
     updatedAt: new Date().toISOString(),

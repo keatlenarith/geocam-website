@@ -601,12 +601,14 @@ function Home() {
   </div>
 </section>
 <HomeVideoPlaylist />
-<section className="gc-section gc-updates"><div className="mx-auto max-w-[1800px] px-5"><span className="gc-kicker"><CalendarDays size={15}/> {lang === "km" ? "សហគមន៍" : "COMMUNITY"}</span><h2 className="gc-title mt-5">{c.updates}</h2><p className="gc-subtitle">{c.updatesSub}</p><div className="mt-10 grid gap-10 lg:grid-cols-[1.6fr_1fr]"><div><div className="flex items-center justify-between"><h3 className="text-xl font-semibold">{c.latest}</h3><Link to="/news" className="gc-text-link">{c.all}<ArrowUpRight size={16}/></Link></div><div className="mt-5 grid gap-4 md:grid-cols-2">{newsList.slice(0, 4).map(n => (
+<section className="gc-section gc-updates"><div className="mx-auto max-w-[1800px] px-5"><span className="gc-kicker"><CalendarDays size={15}/> {lang === "km" ? "សហគមន៍" : "COMMUNITY"}</span><h2 className="gc-title mt-5">{c.updates}</h2><p className="gc-subtitle">{c.updatesSub}</p><div className="mt-10 grid gap-10 lg:grid-cols-[1.6fr_1fr]"><div><div className="flex items-center justify-between"><h3 className="text-xl font-semibold">{c.latest}</h3><Link to="/news" className="gc-text-link">{c.all}<ArrowUpRight size={16}/></Link></div><div className="mt-5 grid gap-4 md:grid-cols-2">{newsList.slice(0, 4).map(n => {
+  const effectiveCover = n.image || (n.content ? (n.content.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] || "") : "") || "/images/cms/mission-image.jpg";
+  return (
   <Link to={"/news/item?id=" + encodeURIComponent(n.id)} key={n.id} className="gc-news-card group block overflow-hidden rounded-xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
     <div className="relative mb-4 h-48 w-full overflow-hidden rounded-lg bg-slate-100">
       <img
         data-cms-id={`news-cover-${n.id}`}
-        src={n.image || "/images/cms/mission-image.jpg"}
+        src={effectiveCover}
         alt={lang === 'km' && n.titleKm ? n.titleKm : n.title}
         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         loading="lazy"
@@ -630,7 +632,8 @@ function Home() {
       <ArrowUpRight size={16} />
     </div>
   </Link>
-))}</div></div><div><div className="flex items-center justify-between"><h3 className="text-xl font-semibold">{c.events}</h3><Link to="/events" className="gc-text-link">{c.all}<ArrowUpRight size={16}/></Link></div><div className="mt-5 space-y-3">{homeEvents.filter(e=>e.status==='published').slice(0,4).map(e=><Link to="/events" key={e.id} className="gc-event"><span className="gc-event-date">{e.date.slice(8)}<small>{new Date(e.date).toLocaleString(lang==='km'?'km-KH':'en',{month:'short'})}</small></span><span><strong className="block text-sm">{lang === "km" ? ((e as any).titleKm || e.title) : e.title}</strong><span className="mt-1 block text-xs text-slate-500">{lang === "km" ? ((e as any).kindKm || e.kind) : e.kind} · {lang === "km" ? ((e as any).placeKm || e.place) : e.place}</span></span><ArrowUpRight size={16} className="ml-auto shrink-0 text-emerald-700"/></Link>)}</div></div></div></div></section>
+  );
+})}</div></div><div><div className="flex items-center justify-between"><h3 className="text-xl font-semibold">{c.events}</h3><Link to="/events" className="gc-text-link">{c.all}<ArrowUpRight size={16}/></Link></div><div className="mt-5 space-y-3">{homeEvents.filter(e=>e.status==='published').slice(0,4).map(e=><Link to="/events" key={e.id} className="gc-event"><span className="gc-event-date">{e.date.slice(8)}<small>{new Date(e.date).toLocaleString(lang==='km'?'km-KH':'en',{month:'short'})}</small></span><span><strong className="block text-sm">{lang === "km" ? ((e as any).titleKm || e.title) : e.title}</strong><span className="mt-1 block text-xs text-slate-500">{lang === "km" ? ((e as any).kindKm || e.kind) : e.kind} · {lang === "km" ? ((e as any).placeKm || e.place) : e.place}</span></span><ArrowUpRight size={16} className="ml-auto shrink-0 text-emerald-700"/></Link>)}</div></div></div></div></section>
       {/* Live Regional Earthquake Bulletins (Positioned below Upcoming Events) */}
       <section className="mx-auto max-w-[1800px] px-5 py-8 md:py-10">
         <EarthquakeAnnouncements

@@ -924,6 +924,15 @@ export default function PostManager() {
     setError("");
     setMessage("");
     try {
+      // If cover image is not manually specified, automatically extract the first image from content
+      let effectiveImage = image.trim();
+      if (!effectiveImage) {
+        const bodyMatch = (content || contentKm).match(/<img[^>]+src=["']([^"']+)["']/i);
+        if (bodyMatch && bodyMatch[1]) {
+          effectiveImage = bodyMatch[1].trim();
+        }
+      }
+
       if (editingKind === "news") {
         const saved = await saveNewsItem(
           {
@@ -932,7 +941,7 @@ export default function PostManager() {
             titleKm: titleKm.trim(),
             tag,
             date,
-            image: image.trim(),
+            image: effectiveImage,
             excerpt: excerpt.trim(),
             excerptKm: excerptKm.trim(),
             content: content.trim(),
@@ -964,7 +973,7 @@ export default function PostManager() {
           titleKm: titleKm.trim(),
           tag,
           date,
-          image: image.trim(),
+          image: effectiveImage,
           excerpt: excerpt.trim(),
           excerptKm: excerptKm.trim(),
           content: content.trim(),
@@ -994,7 +1003,7 @@ export default function PostManager() {
           titleKm: titleKm.trim(),
           tag,
           date,
-          image: image.trim(),
+          image: effectiveImage,
           excerpt: excerpt.trim(),
           excerptKm: excerptKm.trim(),
           content: content.trim(),

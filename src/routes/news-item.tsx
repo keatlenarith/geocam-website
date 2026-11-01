@@ -148,10 +148,10 @@ export default function NewsItem() {
               </h1>
 
               {/* Cover Photo */}
-              {safeCover(article.image) && (
+              {safeCover(article.image, article.content || article.contentKm) && (
                 <div className="mt-8 overflow-hidden rounded-xl bg-slate-100 border border-slate-200">
                   <img
-                    src={safeCover(article.image)}
+                    src={safeCover(article.image, article.content || article.contentKm)}
                     alt={title}
                     className="max-h-[500px] w-full object-cover"
                   />

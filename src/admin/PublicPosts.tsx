@@ -53,7 +53,7 @@ export function PublishedPostCards() {
         >
           <div className="relative mb-4 h-52 w-full overflow-hidden rounded-xl bg-slate-100">
             <img
-              src={safeCover(post.cover) || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80"}
+              src={safeCover(post.cover, post.bodyEn || post.bodyKm) || "/images/cms/mission-image.jpg"}
               alt=""
               loading="lazy"
               className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
@@ -233,10 +233,10 @@ export default function PublicPostReader() {
               )}
             </div>
 
-            {safeCover(post.cover) && (
+            {safeCover(post.cover, post.bodyEn || post.bodyKm) && (
               <figure className="my-8 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
                 <img
-                  src={safeCover(post.cover)}
+                  src={safeCover(post.cover, post.bodyEn || post.bodyKm)}
                   alt=""
                   className="max-h-[520px] w-full object-cover"
                 />
