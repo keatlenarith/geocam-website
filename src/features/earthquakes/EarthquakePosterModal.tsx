@@ -57,13 +57,14 @@ const EarthquakePosterContent: React.FC<{
   const [copied, setCopied] = useState(false);
   const [posterDataUrl, setPosterDataUrl] = useState<string>("");
   const [isReady, setIsReady] = useState(false);
-  const [confirmPublish, setConfirmPublish] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [shareNotice, setShareNotice] = useState("");
   const [preparingLink, setPreparingLink] = useState(false);
+  const [showShareOptions, setShowShareOptions] = useState(false);
   const [publishResult, setPublishResult] = useState<{error?:string;url?:string} | null>(null);
   const posterLocked = useRef(false);
+  const publishInFlight = useRef(false);
 
   const magVal = event.magnitude !== null && event.magnitude !== undefined ? event.magnitude : null;
   const magStr = magVal !== null ? magVal.toFixed(1) : "—";
@@ -417,7 +418,8 @@ const EarthquakePosterContent: React.FC<{
   };
 
   const handlePublishPoster = async () => {
-    if (!admin || publishing || !posterDataUrl) return;
+    if (!admin || publishInFlight.current || publishResult?.url || !posterDataUrl) return;
+    publishInFlight.current = true;
     posterLocked.current = true;
     const image = posterDataUrl;
     const caption = statusQuote;
@@ -431,26 +433,19 @@ const EarthquakePosterContent: React.FC<{
       });
       const result = await response.json();
       if (!response.ok || !result.success) throw new Error(result.error || "Facebook could not publish this poster.");
-      setPublishResult({url:result.postUrl}); setConfirmPublish(false);
+      setPublishResult({url:result.postUrl});
     } catch (error) {
       setPublishResult({error:error instanceof Error ? error.message : "Unable to publish poster."});
       posterLocked.current = false;
-    } finally { setPublishing(false); }
+    } finally { setPublishing(false); publishInFlight.current = false; }
   };
 
-  const handleSharePoster = async () => {
+  const handleSharePoster = () => {
     if (!posterDataUrl) return;
-    try {
-      // Keep navigator.share inside the user's click activation: no async fetch.
-      const bytes = Uint8Array.from(atob(posterDataUrl.split(",")[1]), char => char.charCodeAt(0));
-      const file = new File([bytes], `GeoCam-${event.id}.png`, {type:"image/png"});
-      if (navigator.share && navigator.canShare?.({files:[file]})) {
-        await navigator.share({files:[file],text:statusQuote,title:"GeoCam Earthquake Bulletin"});
-        setShareNotice("Poster sent to your device’s share options."); return;
-      }
-    } catch (error) { if (error instanceof DOMException && error.name === "AbortError") return; }
-    handleDownloadPoster(); await handleCopyStatus();
-    setShareNotice("Poster downloaded. Use Copy Caption for its description, or Share link for a public page containing this exact poster and caption.");
+    // Use explicit in-page choices: Windows may accept navigator.share and then
+    // fail inside its native dialog, without reporting that failure to the site.
+    setShowShareOptions(true);
+    setShareNotice("");
   };
 
   const handleShareLink = async () => {
@@ -539,7 +534,6 @@ const EarthquakePosterContent: React.FC<{
           {shareNotice && <div role="status" className="rounded-lg border border-slate-600 p-3 text-sm">{shareNotice}</div>}
           {shareUrl && <div className="rounded-lg border border-emerald-600 p-3 text-sm"><a href={shareUrl} target="_blank" rel="noopener noreferrer" className="underline">Open generated poster ↗</a><label className="mt-2 block">Poster link<input aria-label="Generated poster link" readOnly value={shareUrl} onFocus={e => e.currentTarget.select()} className="mt-1 w-full rounded border border-slate-600 bg-slate-950 p-2 text-xs" /></label><button type="button" onClick={async()=>{try{await navigator.clipboard.writeText(shareUrl);setShareNotice("Poster link copied.");}catch{setShareNotice("Select the poster link above and copy it.");}}} className="mt-2 underline">Copy poster link</button></div>}
           {publishResult && <div role="status" className="rounded-lg border border-slate-600 p-3 text-sm">{publishResult.error || "Poster and caption published successfully."}{publishResult.url && <a className="ml-2 underline" target="_blank" rel="noopener noreferrer" href={publishResult.url}>View Facebook post ↗</a>}</div>}
-          {admin && confirmPublish && <div className="rounded-lg border border-blue-500 bg-slate-950 p-4 text-sm"><p>Publish the displayed PNG and its exact caption as a public photo post to GeoCam101?</p><p className="mt-2 text-xs text-slate-400">Uses your working Page token saved in this browser’s Facebook Publisher.</p><button type="button" disabled={publishing} onClick={handlePublishPoster} className="mt-3 rounded bg-blue-600 px-4 py-2 font-bold disabled:opacity-50">{publishing ? "Publishing…" : "Confirm publish"}</button><button type="button" disabled={publishing} onClick={() => setConfirmPublish(false)} className="ml-3 underline">Cancel</button></div>}
 
           {/* 2. Ready-to-Paste Description Status */}
           <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-4">
@@ -562,6 +556,17 @@ const EarthquakePosterContent: React.FC<{
           </div>
         </div>
 
+        {showShareOptions && <section id="poster-sharing-options" role="region" aria-label="Poster sharing options" className="shrink-0 border-t border-slate-700 bg-slate-950 px-5 py-4">
+          <div className="flex items-center justify-between gap-3"><h4 className="text-sm font-bold">Share this poster and caption</h4><button type="button" aria-label="Close sharing options" onClick={()=>setShowShareOptions(false)} className="rounded p-1 text-slate-300 hover:bg-slate-800"><X size={16}/></button></div>
+          <p className="mt-1 text-xs text-slate-400">Page publishing posts this PNG and the generated caption directly to GeoCam101. Link sharing opens Facebook’s composer and does not fill its status box.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" onClick={handleDownloadPoster} className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold">Download PNG</button>
+            <button type="button" onClick={handleCopyStatus} className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold">{copied ? "Caption copied" : "Copy poster caption"}</button>
+            {admin ? <button type="button" disabled={!isReady || publishing || !!publishResult?.url} onClick={handlePublishPoster} className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold disabled:opacity-50">{publishing ? "Publishing…" : publishResult?.url ? "Published to GeoCam101" : "Publish poster + caption to GeoCam101"}</button> : <a href="/admin/login" className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold">Sign in for direct Page publishing</a>}
+            <button type="button" disabled={preparingLink} onClick={handleShareLink} className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold disabled:opacity-50">{preparingLink ? "Creating poster link…" : "Share poster link on Facebook"}</button>
+          </div>
+        </section>}
+
         {/* Modal Action Buttons Footer */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 bg-slate-950 px-5 py-3.5">
           <button
@@ -575,8 +580,8 @@ const EarthquakePosterContent: React.FC<{
           </button>
 
           <div className="flex items-center gap-2.5">
-            <button type="button" disabled={!isReady || publishing} onClick={handleSharePoster} className="btn btn-outline text-xs">Share poster</button>
-            {admin && <button type="button" disabled={!isReady || publishing || !!publishResult?.url} onClick={() => setConfirmPublish(true)} className="btn btn-primary text-xs">Publish poster to Page</button>}
+            <button type="button" disabled={!isReady || publishing} aria-expanded={showShareOptions} aria-controls="poster-sharing-options" onClick={handleSharePoster} className="btn btn-outline text-xs">Share poster</button>
+            {admin && <button type="button" disabled={!isReady || publishing || !!publishResult?.url} onClick={handlePublishPoster} className="btn btn-primary text-xs">{publishing ? "Publishing…" : "Publish poster to Page"}</button>}
             <button
               type="button"
               onClick={handleCopyStatus}

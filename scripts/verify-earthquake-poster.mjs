@@ -75,22 +75,24 @@ try {
   const caption = await page.locator("pre").innerText();
   await page.evaluate(()=>{
     Object.defineProperty(navigator,"canShare",{configurable:true,value:()=>true});
-    Object.defineProperty(navigator,"share",{configurable:true,value:()=>Promise.reject(new DOMException("Blocked by browser","NotAllowedError"))});
+    window.nativeShareCalls=0;
+    Object.defineProperty(navigator,"share",{configurable:true,value:()=>{window.nativeShareCalls++;return Promise.reject(new DOMException("Blocked by browser","NotAllowedError"));}});
     window.open=()=>null;
   });
-  const fallbackDownload=page.waitForEvent("download");
   await page.getByRole("button",{name:"Share poster",exact:true}).click();
+  await page.getByRole("region",{name:"Poster sharing options"}).waitFor({timeout:3000});
+  assert.equal(await page.evaluate(()=>window.nativeShareCalls),0,"Never open the broken Windows share sheet");
+  const fallbackDownload=page.waitForEvent("download");
+  await page.getByRole("button",{name:"Download PNG",exact:true}).click();
   assert.match((await fallbackDownload).suggestedFilename(),/\.png$/);
-  await page.getByText("Poster downloaded.",{exact:false}).waitFor();
   await page.getByRole("button",{name:"Share link ↗",exact:true}).click();
   await page.getByRole("link",{name:"Open generated poster ↗"}).waitFor();
   assert.equal(sharedPoster.posterDataUrl,firstImage);
   assert.equal(sharedPoster.caption,caption);
   assert.match(await page.getByRole("link",{name:"Open generated poster ↗"}).getAttribute("href"),/\/api\/earthquake-poster\?id=/);
   await page.getByRole("button", {name:"Publish poster to Page",exact:true}).click();
-  assert.equal(publishedPoster, undefined, "Opening confirmation must not publish");
-  await page.getByRole("button", {name:"Confirm publish",exact:true}).click();
   await page.getByRole("link", {name:"View Facebook post ↗"}).waitFor();
+  assert.equal(await page.getByRole("button",{name:"Confirm publish",exact:true}).count(),0,"Direct Page publishing must not open another confirmation step");
   assert.equal(publishedPoster.posterDataUrl, firstImage, "Publish the displayed PNG without regenerating it");
   assert.equal(publishedPoster.message, caption, "Caption must be unchanged");
   await page.getByRole("button", { name: "Switch event test" }).click();
@@ -99,7 +101,7 @@ try {
   await page.getByRole("button", { name: "Open poster test" }).click();
   await page.getByRole("button", { name: "Download HD Poster", exact: true }).waitFor();
   assert.deepEqual(errors, [], "Switching events and reopening must not crash React");
-  console.log("PASS: opening, PNG download, blocked native-share fallback, exact poster share link, confirmed Page publish, switching and reopening (all remote actions mocked).");
+  console.log("PASS: opening, PNG download, in-page sharing without OS dialogs, exact poster share link, confirmed Page publish, switching and reopening (all remote actions mocked).");
 } finally {
   await browser.close();
 }

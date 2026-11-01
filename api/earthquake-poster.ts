@@ -1,6 +1,13 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createHash } from "node:crypto";
-import { supabase } from "../src/lib/supabase.ts";
+import { createClient } from "@supabase/supabase-js";
+
+// Self-contained serverless client: browser TS files are not runtime modules.
+const supabase = createClient(
+  "https://pziwobqfysoadswgnjjm.supabase.co",
+  "sb_publishable_nTv_9GZCp9yfDXIasl2D7Q_JsPbHzcc",
+  { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } },
+);
 
 type Poster = { image: string; caption: string; eventId: string };
 type Storage = { read: (id: string) => Promise<Poster | null>; write: (id: string, poster: Poster) => Promise<void> };

@@ -13,6 +13,8 @@ export interface ListedCompany {
   province: string;
   commodity: string;
   status: "producing" | "exploration" | "development" | "historical";
+  text_en?: string;
+  text_kh?: string;
   note?: string;
   sourceUrl?: string;
   lastChecked: string;
@@ -101,8 +103,9 @@ export function ListedCompaniesRibbon() {
           >
             <div className="gc-ticker-track-reverse flex items-center gap-6">
               {duplicatedItems.map((item, idx) => {
-                const companyName = kh ? item.company_kh : item.company_en;
-                const assetDesc = kh ? item.asset_kh : item.asset_en;
+                const displayText = kh
+                  ? item.text_kh || `${item.company_kh} - ${item.asset_kh}${item.province ? `, ${item.province}` : ""}`
+                  : item.text_en || `${item.company_en} - ${item.asset_en}${item.province ? `, ${item.province}` : ""}`;
                 const statusDot = getStatusDot(item.status);
 
                 return (
@@ -127,10 +130,9 @@ export function ListedCompaniesRibbon() {
                       {item.ticker}
                     </span>
 
-                    {/* Company - Asset, Province */}
+                    {/* Formatted Text (e.g. text_en or text_kh rendered left-to-right as given) */}
                     <span className="font-medium text-slate-200 transition group-hover:text-amber-300">
-                      {companyName} - {assetDesc}
-                      {item.province ? `, ${item.province}` : ""}
+                      {displayText}
                     </span>
 
                     {/* Live / Stored Share Price or Index Value (if present) */}
@@ -329,8 +331,8 @@ export function ListedCompaniesRibbon() {
               <AlertCircle size={14} className="text-amber-400 shrink-0 mt-0.5" />
               <span>
                 {kh
-                  ? "ព័ត៌មានសម្រាប់តែជាឯកសារយោងប៉ុណ្ណោះ មិនមែនជាការណែនាំវិនិយោគទេ។ សូមផ្ទៀងផ្ទាត់ជាមួយផ្សារមូលបត្រផ្លូវការ។"
-                  : "Information only, not investment advice. Verify with the exchange."}
+                  ? `ព័ត៌មានសម្រាប់តែជាឯកសារយោងប៉ុណ្ណោះ មិនមែនជាការណែនាំវិនិយោគទេ។ សូមផ្ទៀងផ្ទាត់ជាមួយផ្សារមូលបត្រផ្លូវការ។ បានត្រួតពិនិត្យចុងក្រោយ៖ ${selectedCompany.lastChecked}។`
+                  : `Information only, not investment advice. Verify with the exchange. Last checked: ${selectedCompany.lastChecked}.`}
               </span>
             </div>
           </div>

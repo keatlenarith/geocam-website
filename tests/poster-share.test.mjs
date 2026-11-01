@@ -1,7 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFile,writeFile,mkdir,unlink} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {pathToFileURL} from 'node:url';
+import ts from 'typescript';
 import {createPosterShareHandler} from '../api/earthquake-poster.ts';
 function response(){return {headers:{},code:200,setHeader(k,v){this.headers[k]=v;},status(c){this.code=c;return this;},json(v){this.body=v;return this;},send(v){this.body=v;return this;}};}
+test('compiled poster function loads without browser source files',async()=>{
+  const source=await readFile(new URL('../api/earthquake-poster.ts',import.meta.url),'utf8');
+  const output=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+  const folder=resolve('.playwright/serverless-only');await mkdir(folder,{recursive:true});const file=resolve(folder,`poster-${Date.now()}.mjs`);
+  try{await writeFile(file,output);const module=await import(pathToFileURL(file).href);assert.equal(typeof module.default,'function');}finally{await unlink(file);}
+});
 test('shared poster link preserves PNG and caption and serves actual poster Open Graph metadata',async()=>{
   const png=Buffer.alloc(24);Buffer.from('89504e470d0a1a0a','hex').copy(png);png.writeUInt32BE(1200,16);png.writeUInt32BE(630,20);
   const snapshots=new Map();let writes=0;
