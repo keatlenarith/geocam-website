@@ -678,77 +678,266 @@ export const BASIC_KNOWLEDGE_ARTICLES: KnowledgeArticle[] = [
     },
     sections: [
       {
-        id: "mekong-tonle-sap",
-        headingEn: "1. Flood Pulse and the Mekong–Tonle Sap River Coupling",
-        headingKm: "១. ចលនាទឹកជំនន់ និងទំនាក់ទំនងប្រព័ន្ធទន្លេមេគង្គ-ទន្លេសាប",
-        contentEn: "Cambodia's surface water and groundwater form a dynamically coupled seasonal system. During rising stages, high hydraulic gradients drive water along the Tonle Sap River into the Great Lake, expanding seasonal inundation. Floodplains act as vital storage reservoirs, receiving fine silt while recharging unconfined shallow aquifers across the lowlands.",
-        contentKm: "ទឹកលើផ្ទៃ និងទឹកក្រោមដីនៅកម្ពុជាបង្កើតជាប្រព័ន្ធតភ្ជាប់គ្នាយ៉ាងស្វាហាប់តាមរដូវកាល។ ក្នុងរដូវទឹកឡើង ជម្រាលធារាសាស្ត្ររុញច្រានទឹកតាមបណ្តោយទន្លេសាបចូលទៅក្នុងបឹងទន្លេសាប បង្កើនផ្ទៃទឹកលិច។ តំបន់វាលទំនាបលិចទឹកដើរតួជាអាងស្តុកទឹកធម្មជាតិដ៏សំខាន់ ស្រូបយកល្បាប់ដីស និងជ្រាបបំពេញស្រទាប់ទឹកក្រោមដីរាក់នៅទូទាំងតំបន់ទំនាប។",
-        image: "/research/lower-mekong-cambodia/images/recharge-topography-page3.png",
-        imageCaptionEn: "Topography and elevation boundaries of the Lower Mekong Basin (derived from HydroSHEDS; Lacombe et al., 2017).",
-        imageCaptionKm: "សណ្ឋានដី និងកម្ពស់នៃអាងទន្លេមេគង្គក្រោម (ដកស្រង់ពី HydroSHEDS តាម Lacombe et al., 2017)។",
+            id: "findings",
+            headingEn: "1. What the evidence establishes",
+            headingKm: "1. លទ្ធផលសំខាន់ៗពីឯកសារស្រាវជ្រាវ",
+            contentEn: "Cambodia’s surface water and groundwater form a connected seasonal system. Rainfall, river stage, floodplain inundation, sediment layers and pumping determine when water enters storage and when it returns to rivers or is withdrawn. Groundwater can support dry-season supply, but a productive well does not by itself establish a renewable or chemically suitable resource. [S01, S04, S05, S06]\n\nThe strongest practical conclusion is to manage quantity and quality together. Pumping decisions need aquifer tests and seasonal observations; drinking-water decisions need laboratory results and a reliable supply-management system. Published maps help locate questions and design investigations, while individual wells require their own evidence. [S04, S06, S08, S10]\n\nThis article is a documentary research synthesis, not a new field survey, a national groundwater inventory or a real-time hydrological assessment. The evidence spans historical reports from 1957 and 1977 to a regional groundwater review published in 2026. Different dates, methods and geographic scales are retained throughout.",
+            contentKm: "ទឹកលើផ្ទៃ និងទឹកក្រោមដីនៅកម្ពុជាបង្កើតជាប្រព័ន្ធតភ្ជាប់គ្នាយ៉ាងស្វាហាប់តាមរដូវកាល។ ទឹកភ្លៀង កម្ពស់ទឹកទន្លេ ការលិចលង់វាលទំនាប ស្រទាប់ល្បាប់ និងការបូមទឹក កំណត់ពេលវេលាដែលទឹកចូលស្តុក និងពេលដែលវាត្រឡប់ទៅទន្លេ ឬត្រូវបានទាញយក។ ទឹកក្រោមដីអាចជួយទ្រទ្រង់ការផ្គត់ផ្គង់រដូវប្រាំង ប៉ុន្តែអណ្តូងដែលផ្តល់ទឹកច្រើនមិនមែនមានន័យថាវាជាធនធានកកើតឡើងវិញ ឬមានគុណភាពគីមីសមស្របដោយស្វ័យប្រវត្តិនោះទេ។"
       },
       {
-        id: "aquifer-architecture",
-        headingEn: "2. Aquifer Architecture: Alluvial Units and Bedrock Reservoirs",
-        headingKm: "២. រចនាសម្ព័ន្ធស្រទាប់ផ្ទុកទឹក៖ ស្រទាប់ល្បាប់ទន្លេ និងសិលាមូលដ្ឋាន",
-        contentEn: "In lowland Cambodia, groundwater occurs in two distinct sedimentary layers: shallow unconfined Quaternary alluvial sand and silt beds, and deeper semi-confined to confined Neogene coarse gravels. Outside the central alluvial plain, bedrock aquifers in fractured sandstones (Cardamom and Khorat basins), weathered basalts, and Kampot limestone karst hold localized, highly productive storage zones.",
-        contentKm: "នៅតំបន់ទំនាបកម្ពុជា ទឹកក្រោមដីស្ថិតនៅក្នុងស្រទាប់កំណកកករសំខាន់ពីរ៖ ស្រទាប់ខ្សាច់និងល្បាប់រាក់យុគទីបួន និងស្រទាប់គ្រួសក្រួសជម្រៅជ្រៅយុគណេអូហ្សែន។ នៅក្រៅតំបន់ទំនាបកណ្តាល ស្រទាប់ផ្ទុកទឹកក្នុងសិលាមូលដ្ឋានរួមមាន ថ្មភក់ប្រេះស្រាំ (អាងក្រវាញ និងកូរ៉ាត) ថ្មបាសាល់ពុកផុយ និងកាស្ត៍ថ្មកំបោរខេត្តកំពត ដែលមានសក្តានុពលផ្ទុកទឹកតាមតំបន់។",
-        image: "/research/lower-mekong-cambodia/images/usgs-plate-1.png",
-        imageCaptionEn: "Historical geologic map and subsurface cross-sections of Cambodia (Rasmussen & Bradford, 1977, USGS Water-Supply Paper 1608-P, Plate 1).",
-        imageCaptionKm: "ផែនទីភូគព្ភសាស្ត្រប្រវត្តិសាស្ត្រ និងមុខកាត់ភូគព្ភសាស្ត្រក្រោមដីនៃប្រទេសកម្ពុជា (Rasmussen & Bradford, 1977, USGS Plate 1)។",
+            id: "basin",
+            headingEn: "2. Cambodia within the Lower Mekong Basin",
+            headingKm: "2. កម្ពុជាក្នុងអាងទន្លេមេគង្គក្រោម",
+            contentEn: "The Lower Mekong Basin and the Greater Mekong Region describe different areas. The basin is a drainage system shared by parts of Lao PDR, Thailand, Cambodia and Viet Nam, with upstream inflow from the Lancang–Mekong. The Greater Mekong groundwater review also covers aquifers outside that drainage basin, including systems in Myanmar and other parts of Thailand and Viet Nam. A regional aquifer map must therefore not be relabelled as a Lower Mekong catchment map. [S06, S11]\n\nCambodia receives the Mekong from the north, including contributions from the Sekong, Sesan and Srepok tributary system. Around Phnom Penh, the Mekong, Bassac and Tonle Sap River connect the upstream river corridor, the Great Lake and the downstream delta. Below Kratie, broad floodplains become central to seasonal storage and exchange. [S01, S02]\n\nThe Tonle Sap catchment and the Cambodian upper delta are the main lowland focus here. Northwestern and northeastern aquifers are included where they clarify Cambodian water supply. Coastal salinity and Kampot karst provide comparisons, but coastal catchments draining directly to the Gulf of Thailand are not automatically part of the Lower Mekong Basin. [S01, S06, S15]",
+            contentKm: "អាងទន្លេមេគង្គក្រោម និងតំបន់មេគង្គធំពិពណ៌នាអំពីតំបន់ខុសគ្នា។ អាងទន្លេគឺជាប្រព័ន្ធបង្ហូរទឹកដែលចែករំលែកដោយឡាវ ថៃ កម្ពុជា និងវៀតណាម ជាមួយលំហូរខាងលើពីទន្លេឡានឆាង-មេគង្គ។ កម្ពុជាទទួលទឹកទន្លេមេគង្គពីទិសខាងជើង រួមទាំងដៃទន្លេសេសាន ស្រែពក និងសេកុង។ នៅជុំវិញរាជធានីភ្នំពេញ ទន្លេមេគង្គ បាសាក់ និងទន្លេសាបតភ្ជាប់របៀងទន្លេខាងលើ បឹងទន្លេសាប និងដីសណ្ដខាងក្រោម។",
+            image: "/research/lower-mekong-cambodia/images/recharge-topography-page3.png",
+            imageCaptionEn: "Topography of the Lower Mekong Basin (Lacombe et al., 2017; HydroSHEDS elevation model).",
+            imageCaptionKm: "សណ្ឋានដីនៃអាងទន្លេមេគង្គក្រោម (Lacombe et al., 2017; គំរូកម្ពស់ HydroSHEDS)។"
       },
       {
-        id: "recharge-dynamics",
-        headingEn: "3. Recharge Potential and the Limits of Regional Models",
-        headingKm: "៣. សក្ដានុពលនៃការជ្រាបបំពេញទឹកឡើងវិញ និងដែនកំណត់នៃគំរូថ្នាក់តំបន់",
-        contentEn: "Regional baseflow models estimate Lower Mekong recharge at 0.25-degree resolution, showing basin-wide variations between 100 mm and 350 mm/year. However, ground studies reveal significant local dampening: northwestern sandstone terrains experience only 10-70 mm/year, while thick, fine-grained clay aquitards in southeastern floodplains restrict direct vertical percolation to roughly 20 mm/year.",
-        contentKm: "គំរូលំហូរមូលដ្ឋានថ្នាក់តំបន់ប៉ាន់ប្រមាណការជ្រាបបំពេញទឹកឡើងវិញនៅអាងទន្លេមេគង្គក្រោមក្នុងចន្លោះ ១០០ ដល់ ៣៥០ មីលីម៉ែត្រក្នុងមួយឆ្នាំ។ ទោះជាយ៉ាងណា ការសិក្សាជាក់ស្តែងបង្ហាញពីកម្រិតទាបជាងនេះនៅកន្លែងជាច្រើន៖ តំបន់ថ្មភក់ភាគពាយ័ព្យទទួលបានត្រឹម ១០-៧០ មម/ឆ្នាំ ខណៈដែលស្រទាប់ដីឥដ្ឋក្រាស់នៅភាគអាគ្នេយ៍រារាំងការជ្រាបទឹកចុះក្រោមមកត្រឹមប្រហែល ២០ មម/ឆ្នាំ។",
-        image: "/research/lower-mekong-cambodia/images/recharge-map-page9.png",
-        imageCaptionEn: "Regional mean annual groundwater recharge distribution across the Lower Mekong Basin (Lacombe et al., 2017).",
-        imageCaptionKm: "ការបែងចែកកម្រិតជ្រាបបំពេញទឹកក្រោមដីមធ្យមប្រចាំឆ្នាំនៅអាងទន្លេមេគង្គក្រោម (Lacombe et al., 2017)។",
-        table: {
-          captionEn: "Comparison between regional model predictions and localized field studies",
-          captionKm: "ការប្រៀបធៀបរវាងការព្យាករណ៍គំរូថ្នាក់តំបន់ និងការវាស់វែងជាក់ស្តែងក្នុងមូលដ្ឋាន",
-          headersEn: ["Geographical Setting", "Local Study Estimate", "Regional Model Value", "Key Limiting Factor"],
-          headersKm: ["តំបន់ភូមិសាស្ត្រ", "ការប៉ាន់ស្មានក្នុងមូលដ្ឋាន", "តម្លៃគំរូថ្នាក់តំបន់", "កត្តាកំណត់ចម្បង"],
-          rowsEn: [
-            ["Northwestern Sandstone Terrain", "10 – 70 mm/year", "~200 mm/year", "Fine weathered clay cover & runoff"],
-            ["Southeastern Floodplain Plain", "~20 mm/year", "~230 mm/year", "Superficial clay aquitard capping"],
-          ],
-          rowsKm: [
-            ["តំបន់ថ្មភក់ភាគពាយ័ព្យ", "១០ – ៧០ មម/ឆ្នាំ", "ប្រហែល ២០០ មម/ឆ្នាំ", "ស្រទាប់ដីឥដ្ឋពុកផុយ និងការហូរលើផ្ទៃ"],
-            ["វាលទំនាបលិចទឹកភាគអាគ្នេយ៍", "ប្រហែល ២០ មម/ឆ្នាំ", "ប្រហែល ២៣០ មម/ឆ្នាំ", "ស្រទាប់ដីឥដ្ឋការពារខាងលើ (Aquitard)"],
-          ],
-        },
+            id: "surface-water",
+            headingEn: "3. The flood pulse and the Tonle Sap connection",
+            headingKm: "3. ចលនាទឹកតាមរដូវ និងទំនាក់ទំនងជាមួយទន្លេសាប",
+            contentEn: "During rising Mekong stages, the hydraulic gradient can drive water along the Tonle Sap River toward the lake, expanding seasonal inundation. As river levels fall, lake water drains toward the Mekong. Floodplains store water, receive sediment and provide habitats linked to fisheries and farming; damaging floods and beneficial seasonal inundation are related but different management concerns. [S01, S02]\n\nThe 2005 basin overview and 2009 flow booklet provide historical explanations of this system. They should not be read as descriptions of unchanged present-day flow. The 2023 State of the Basin Report documents a redistribution toward higher dry-season and lower flood-season flows in recent decades, reduced Tonle Sap reverse flow, and a later or shorter flood season. The report attributes changes to interacting development pressures and climatic conditions; this synthesis does not assign a percentage of change to any individual dam. [S03]\n\nFor Cambodia, management should consider the timing, duration and connectivity of inundation as well as annual water volume. A similar annual total can accompany a different seasonal pattern. River observations and lake levels are therefore useful alongside rainfall, water-use records and floodplain mapping. This is a monitoring implication drawn from the documented seasonal system, not an additional measured trend. [S01, S02, S03]",
+            contentKm: "ក្នុងរដូវទឹកឡើង ជម្រាលធារាសាស្ត្ររុញច្រានទឹកតាមបណ្តោយទន្លេសាបចូលទៅក្នុងបឹងទន្លេសាប បង្កើនផ្ទៃទឹកលិច។ ពេលកម្ពស់ទឹកទន្លេស្រក ទឹកបឹងហូរត្រឡប់មកទន្លេមេគង្គវិញ។ តំបន់វាលទំនាបលិចទឹកដើរតួជាអាងស្តុកទឹកធម្មជាតិដ៏សំខាន់ ស្រូបយកល្បាប់ដីស និងផ្តល់ទីជម្រកសម្រាប់ជលផល និងកសិកម្ម។ របាយការណ៍ State of the Basin 2023 បានកត់ត្រាការប្រែប្រួលលំហូររដូវប្រាំងនិងរដូវវស្សា និងការថយចុះនៃលំហូរបញ្ច្រាសទន្លេសាប។"
       },
       {
-        id: "arsenic-geochemistry",
-        headingEn: "4. Groundwater Quality: Naturally Occurring Arsenic and Salinity",
-        headingKm: "៤. គុណភាពទឹកក្រោមដី៖ សារធាតុអាសេនិចធម្មជាតិ និងជាតិប្រៃ",
-        contentEn: "Naturally occurring arsenic is released through microbially mediated reductive dissolution of iron oxyhydroxides in young Holocene wetland sediments along the Mekong and Bassac corridors. Arsenic levels frequently exceed the WHO provisional guideline value of 10 µg/L. In addition, deep marine transgressions have left localized brackish to saline groundwater zones in southern provinces.",
-        contentKm: "សារធាតុអាសេនិចធម្មជាតិត្រូវបានបញ្ចេញតាមរយៈប្រតិកម្មជីវគីមីបន្សាបអុកស៊ីហ្សែនលើសមាសធាតុដែកអុកស៊ីតក្នុងល្បាប់ដីសើមយុគហូឡូសែនតាមដងទន្លេមេគង្គ និងទន្លេបាសាក់។ កម្រិតអាសេនិចច្រើនតែលើសពីតម្លៃគោលការណ៍ណែនាំបណ្តោះអាសន្នរបស់អង្គការសុខភាពពិភពលោក (WHO) ១០ មីក្រូក្រាម/លីត្រ។ លើសពីនេះ ការលិចលង់ដោយទឹកសមុទ្របុរាណបានបន្សល់ទុកតំបន់ទឹកប្រៃនៅខេត្តភាគខាងត្បូង។",
-        calloutEn: "Clear appearance or absence of iron staining does not guarantee that well water is arsenic-free; chemical laboratory testing is required for every rural borehole.",
-        calloutKm: "ទឹកដែលថ្លាគ្មានកករជាតិដែក មិនមែនមានន័យថាគ្មានសារធាតុអាសេនិចនោះទេ ការធ្វើតេស្តគីមីក្នុងមន្ទីរពិសោធន៍គឺចាំបាច់សម្រាប់គ្រប់អណ្តូងស្នប់ជនបទ។",
+            id: "aquifers",
+            headingEn: "4. Where groundwater is stored",
+            headingKm: "4. ប្រភេទអាងទឹកក្រោមដី និងស្រទាប់ល្បាប់",
+            contentEn: "In lowland Cambodia, sand and gravel layers within alluvial deposits commonly form aquifers, while finer clay-rich layers impede vertical movement. The 2026 review describes both younger and older alluvium in the Tonle Sap plain and a layered Cambodian delta system. These categories are useful regional descriptors; they do not establish identical thickness, confinement or water quality everywhere. [S06, S07]\n\nYounger floodplain deposits may contain local productive sand lenses within otherwise clay-rich material. Older alluvium can be an important source beneath or around the lowland margins. Bedrock aquifers in sandstone, basalt, weathered crystalline rocks and karst have different storage and flow behaviour. Their yields depend on connected fractures, weathering, sediment texture and well construction, rather than rock name alone. [S04, S06, S07, S15]\n\nThe USGS report and its plates provide a valuable historical map and cross-section baseline. They preserve well locations, lithology and the interpretation available at the time. Old province names, boundaries, settlement positions and drilling records need reconciliation with modern references before operational use. The plates are not a current drilling-success or drinking-water-safety map. [S07]",
+            contentKm: "នៅតំបន់ទំនាបកម្ពុជា ស្រទាប់ខ្សាច់ និងគ្រួសក្នុងល្បាប់ទន្លេបង្កើតជាស្រទាប់ផ្ទុកទឹក ខណៈស្រទាប់ដីឥដ្ឋរារាំងចលនាទឹកចុះក្រោម។ ការពិនិត្យឡើងវិញឆ្នាំ ២០២៦ បង្ហាញពីល្បាប់ក្មេង និងល្បាប់ចាស់នៅវាលទំនាបទន្លេសាប និងប្រព័ន្ធដីសណ្ដកម្ពុជា។ ស្រទាប់ថ្មភក់ ថ្មបាសាល់ពុកផុយ និងកាស្ត៍ថ្មកំបោរ មានទម្រង់ស្តុកនិងលំហូរទឹកផ្សេងគ្នា ដែលទិន្នផលអាស្រ័យលើប្រេះស្រាំ និងទម្រង់ដី។",
+            image: "/research/lower-mekong-cambodia/images/usgs-plate-1.png",
+            imageCaptionEn: "Historical geology and geologic sections of Cambodia (Rasmussen & Bradford, 1977, USGS Water-Supply Paper 1608-P, Plate 1).",
+            imageCaptionKm: "ផែនទីភូគព្ភសាស្ត្រប្រវត្តិសាស្ត្រ និងមុខកាត់ភូគព្ភសាស្ត្រនៃប្រទេសកម្ពុជា (Rasmussen & Bradford, 1977, USGS Plate 1)។",
+            gallery: [
+                  {
+                        url: "/research/lower-mekong-cambodia/images/usgs-plate-1.png",
+                        captionEn: "Historical geology and geologic sections of Cambodia (Rasmussen & Bradford, 1977, USGS Water-Supply Paper 1608-P, Plate 1).",
+                        captionKm: "ផែនទីភូគព្ភសាស្ត្រប្រវត្តិសាស្ត្រ និងមុខកាត់ភូគព្ភសាស្ត្រនៃប្រទេសកម្ពុជា (Rasmussen & Bradford, 1977, USGS Plate 1)។",
+                        subEn: "Source: USGS / Lacombe (2017) Lower Mekong Atlas",
+                        subKm: "ប្រភព៖ ផ្ទាំងផែនទី USGS / Lacombe (2017)"
+                  },
+                  {
+                        url: "/research/lower-mekong-cambodia/images/usgs-plate-2.png",
+                        captionEn: "Historical map of well locations in Cambodia (Rasmussen & Bradford, 1977, Plate 2).",
+                        captionKm: "ផែនទីទីតាំងអណ្តូងប្រវត្តិសាស្ត្រនៅកម្ពុជា (Rasmussen & Bradford, 1977, Plate 2)។",
+                        subEn: "Source: USGS / Lacombe (2017) Lower Mekong Atlas",
+                        subKm: "ប្រភព៖ ផ្ទាំងផែនទី USGS / Lacombe (2017)"
+                  },
+                  {
+                        url: "/research/lower-mekong-cambodia/images/usgs-plate-3.png",
+                        captionEn: "Historical lithologic sections of selected Cambodian areas (Rasmussen & Bradford, 1977, Plate 3).",
+                        captionKm: "មុខកាត់ល្បាប់ និងស្រទាប់ថ្មនៃតំបន់ជ្រើសរើសនៅកម្ពុជា (Rasmussen & Bradford, 1977, Plate 3)។",
+                        subEn: "Source: USGS / Lacombe (2017) Lower Mekong Atlas",
+                        subKm: "ប្រភព៖ ផ្ទាំងផែនទី USGS / Lacombe (2017)"
+                  }
+            ]
       },
       {
-        id: "sustainable-management",
-        headingEn: "5. Integrated Water Quantity and Quality Management",
-        headingKm: "៥. ការគ្រប់គ្រងបរិមាណ និងគុណភាពទឹកប្រកបដោយសមាហរណកម្ម",
-        contentEn: "Sustainable groundwater development requires balancing seasonal extraction rates against aquifer recharge, baseflow obligations for rivers, and ecological water demands. High-density irrigation pumping during severe dry spells risks lowering the regional water table, inducing land subsidence, and pulling arsenic or saline water into previously pristine aquifers.",
-        contentKm: "ការអភិវឌ្ឍទឹកក្រោមដីប្រកបដោយចីរភាពតម្រូវឱ្យមានតុល្យភាពរវាងអត្រាទាញយកទឹកតាមរដូវ និងការជ្រាបបំពេញឡើងវិញ ព្រមទាំងតម្រូវការអេកូឡូស៊ី។ ការបូមទឹកស្រោចស្រពកម្រិតខ្ពស់ក្នុងរដូវប្រាំងខ្លាំង ប្រឈមនឹងការស្រុតចុះកម្រិតទឹកក្រោមដី ការស្រុតដី និងការទាញសារធាតុអាសេនិច ឬទឹកប្រៃចូលទៅក្នុងស្រទាប់ទឹកស្អាត។",
+            id: "exchange",
+            headingEn: "5. How rivers and aquifers exchange water",
+            headingKm: "5. ការផ្លាស់ប្តូរទឹករវាងទន្លេ និងអាងទឹកក្រោមដី",
+            contentEn: "A gaining river receives groundwater where groundwater head exceeds river stage. A losing river supplies an aquifer where the river is higher and the bed allows exchange. The direction can reverse seasonally, and river-connected storage may be partly returned during recession. Clay layers, riverbed sediments and the distance from the channel affect the size and timing of that response. [S05]\n\nRaksmey, Jinno and Tsutsumi’s 2009 study coupled groundwater-flow and recharge models for central and southern Cambodia. In the simulated 2002 conditions, the downstream Mekong and Bassac could gain groundwater during the dry season and lose water toward aquifers during the wet season. Other modelled reaches received groundwater from upland margins. These are results for particular model reaches and assumptions, not a rule that every Tonle Sap bank behaves identically. [S05]\n\nA seasonal rise in well level is evidence of changing hydraulic conditions, but it does not alone quantify recharge or identify the source of the water. Useful tests combine paired river-stage and well-head measurements, screened-depth information, groundwater chemistry and, where justified, environmental tracers. Pumping can change gradients and capture water that would otherwise discharge to a river. These are investigation priorities consistent with the interaction model and recharge assessment. [S04, S05]",
+            contentKm: "ទន្លេដែលទទួលទឹក (Gaining river) ទទួលបានទឹកក្រោមដីនៅពេលកម្ពស់ទឹកក្រោមដីខ្ពស់ជាងកម្ពស់ទឹកទន្លេ។ ទន្លេដែលបាត់បង់ទឹក (Losing river) ផ្តល់ទឹកដល់ស្រទាប់ទឹកក្រោមដីនៅពេលកម្ពស់ទឹកទន្លេខ្ពស់ជាង។ ទិសដៅនេះអាចផ្លាស់ប្តូរទៅវិញទៅមកតាមរដូវ។ ការបូមទឹកអាចផ្លាស់ប្តូរជម្រាលធារាសាស្ត្រ និងទាញយកទឹកដែលគួរតែហូរចូលទន្លេ។"
       },
-    ],
+      {
+            id: "recharge",
+            headingEn: "6. Recharge potential and the limits of regional maps",
+            headingKm: "6. ការបំពេញបន្ថែមទឹកក្រោមដី និងកម្រិតប្រើប្រាស់ផែនទីតំបន់",
+            contentEn: "Lacombe and colleagues developed a Lower Mekong recharge model using baseflow estimates from 65 unregulated sub-catchments. The historical streamflow records fall within 1951–2007. Rainfall and evapotranspiration explain much of the spatial pattern at this scale; the prediction is mapped on a 0.25° grid. This resolution is appropriate for regional screening, not the design of an individual village well field. [S04, pp. 4–10]\n\nThe Cambodian comparisons in the paper are especially important. A northwestern sandstone study reported 10–70 mm/year, whereas the regional model indicated about 200 mm/year in that area. For a southeastern Cambodian case, a local groundwater model used about 20 mm/year, compared with about 230 mm/year in the regional assessment. Clay-rich cover and sparse local gauging are among the explanations discussed. These figures describe different methods and study footprints and must not be averaged into a single national rate. [S04, pp. 13–14]\n\nRecharge is also different from a permissible pumping volume. A recharge estimate does not allocate the full amount to extraction: groundwater discharge supports rivers, wetlands and existing users, while changes in storage and lateral flow also matter. The water balance must be assessed over a suitable area and period, with drought and recovery included. No national safe yield or new extraction limit is calculated here. [S04, S09]",
+            contentKm: "Lacombe និងសហការី (២០១៧) បានបង្កើតគំរូជ្រាបបំពេញទឹកនៅអាងទន្លេមេគង្គក្រោមដោយប្រើទិន្នន័យលំហូរមូលដ្ឋានពី ៦៥ អនុអាង។ គំរូថ្នាក់តំបន់ (កម្រិត ០.២៥ ដឺក្រេ) បង្ហាញប្រហែល ២០០–២៣០ មម/ឆ្នាំ ប៉ុន្តែការសិក្សាជាក់ស្តែងក្នុងមូលដ្ឋានបង្ហាញថា តំបន់ថ្មភក់ពាយ័ព្យទទួលបានត្រឹម ១០–៧០ មម/ឆ្នាំ ហើយវាលទំនាបអាគ្នេយ៍ទទួលបានត្រឹម ២០ មម/ឆ្នាំ ដោយសារស្រទាប់ដីឥដ្ឋការពារខាងលើ។",
+            image: "/research/lower-mekong-cambodia/images/recharge-map-page9.png",
+            imageCaptionEn: "Published regional recharge estimates across the Lower Mekong Basin (Lacombe et al., 2017).",
+            imageCaptionKm: "ការប៉ាន់ប្រមាណការជ្រាបបំពេញទឹកក្រោមដីថ្នាក់តំបន់នៅអាងទន្លេមេគង្គក្រោម (Lacombe et al., 2017)។",
+            gallery: [
+                  {
+                        url: "/research/lower-mekong-cambodia/images/recharge-map-page9.png",
+                        captionEn: "Published regional recharge estimates across the Lower Mekong Basin (Lacombe et al., 2017).",
+                        captionKm: "ការប៉ាន់ប្រមាណការជ្រាបបំពេញទឹកក្រោមដីថ្នាក់តំបន់នៅអាងទន្លេមេគង្គក្រោម (Lacombe et al., 2017)។",
+                        subEn: "Source: USGS / Lacombe (2017) Lower Mekong Atlas",
+                        subKm: "ប្រភព៖ ផ្ទាំងផែនទី USGS / Lacombe (2017)"
+                  },
+                  {
+                        url: "/research/lower-mekong-cambodia/images/recharge-ratio-page11.png",
+                        captionEn: "Published recharge-to-rainfall ratio across the Lower Mekong Basin (Lacombe et al., 2017).",
+                        captionKm: "សមាមាត្រការជ្រាបបំពេញធៀបនឹងទឹកភ្លៀងនៅអាងទន្លេមេគង្គក្រោម (Lacombe et al., 2017)។",
+                        subEn: "Source: USGS / Lacombe (2017) Lower Mekong Atlas",
+                        subKm: "ប្រភព៖ ផ្ទាំងផែនទី USGS / Lacombe (2017)"
+                  }
+            ],
+            table: {
+                  captionEn: "Comparison of local-study recharge estimates and regional-model values",
+                  captionKm: "ការប្រៀបធៀបរវាងការប៉ាន់ស្មានការជ្រាបទឹកក្នុងមូលដ្ឋាន និងតម្លៃគំរូថ្នាក់តំបន់",
+                  headersEn: [
+                        "Comparison in the 2017 paper",
+                        "Local-study estimate",
+                        "Regional-model value nearby",
+                        "Interpretation"
+                  ],
+                  headersKm: [
+                        "ការប្រៀបធៀបក្នុងការសិក្សា ២០១៧",
+                        "ការប៉ាន់ស្មានមូលដ្ឋាន",
+                        "តម្លៃគំរូតំបន់ក្បែរនោះ",
+                        "ការបកស្រាយលទ្ធផល"
+                  ],
+                  rowsEn: [
+                        [
+                              "Northwestern Cambodia, sandstone setting",
+                              "10–70 mm/year",
+                              "About 200 mm/year",
+                              "Clay cover and local conditions limit direct transfer."
+                        ],
+                        [
+                              "Southeastern Cambodian model case",
+                              "About 20 mm/year",
+                              "About 230 mm/year",
+                              "Surface clay aquitard is a key explanation discussed."
+                        ]
+                  ],
+                  rowsKm: [
+                        [
+                              "តំបន់ថ្មភក់ភាគពាយ័ព្យនៃកម្ពុជា",
+                              "១០–៧០ មម/ឆ្នាំ",
+                              "ប្រហែល ២០០ មម/ឆ្នាំ",
+                              "ស្រទាប់ដីឥដ្ឋគ្របពីលើ និងលក្ខខណ្ឌមូលដ្ឋានកម្រិតការជ្រាបផ្ទាល់។"
+                        ],
+                        [
+                              "ករណីគំរូភាគអាគ្នេយ៍នៃកម្ពុជា",
+                              "ប្រហែល ២០ មម/ឆ្នាំ",
+                              "ប្រហែល ២៣០ មម/ឆ្នាំ",
+                              "ស្រទាប់ដីឥដ្ឋរារាំងទឹកលើផ្ទៃ (Aquitard) គឺជាកត្តាចម្បង។"
+                        ]
+                  ]
+            }
+      },
+      {
+            id: "water-quality",
+            headingEn: "7. Arsenic, mineral reactions and other quality concerns",
+            headingKm: "7. អាសេនិក ប្រតិកម្មរ៉ែ និងគុណភាពទឹក",
+            contentEn: "Arsenic is a major concern in parts of Cambodia’s young alluvial groundwater system. Cambodian field research demonstrates that arsenic can be released from near-surface, river-derived wetland sediments and transported through an aquifer. Redox conditions and groundwater flow both influence the resulting distribution. A district-level risk map cannot certify one household well. [S08]\n\nThe process connects hydrogeology with mineralogy: iron-bearing sediment phases can retain arsenic, while changes in reducing conditions and water–sediment interaction can release it. Iron staining or clear-looking water is not an arsenic test. The regional review treats arsenic, salinity and depletion as major development constraints; their overlap differs across aquifer units. [S06, S08]\n\nWHO gives a provisional arsenic guideline value of 10 µg/L for drinking water. It is a health-based reference used here, not a statement of Cambodia’s current legal standard. Source selection and treatment need verified arsenic results and microbial safety; removing one chemical hazard does not establish that the water is safe overall. [S10]\n\nSalinity may reflect coastal intrusion, older saline pore water, mineral dissolution or mixing; a high electrical-conductivity reading alone does not identify its source. The 2026 review distinguishes mapped observations from areas considered at risk. Salinity concerns reported for the wider Mekong Delta should not be transferred wholesale to every Cambodian floodplain aquifer. [S06]\n\nThe supplied 2018 field workbook and earlier hydrogeology page provide useful survey context, but field pH, conductivity and dissolved oxygen cannot substitute for laboratory arsenic, iron, manganese or microbiological results. Conductivity units in the supporting materials need reconciliation before conversion or threshold comparisons. This article does not publish unverified site contamination labels or reuse the earlier page’s summary statistics as new results. [S13, S14]",
+            contentKm: "សារធាតុអាសេនិចគឺជាកង្វល់ចម្បងក្នុងប្រព័ន្ធទឹកក្រោមដីល្បាប់ក្មេងនៅកម្ពុជា។ ការស្រាវជ្រាវបង្ហាញថា អាសេនិចត្រូវបានបញ្ចេញពីល្បាប់ដីសើមតាមរយៈប្រតិកម្មជីវគីមីបន្សាបអុកស៊ីហ្សែនលើសមាសធាតុដែក។ កម្រិតអាសេនិចច្រើនតែលើសពីគោលការណ៍ណែនាំ WHO ១០ µg/L។ ទឹកថ្លាគ្មានកករដែក មិនអាចបញ្ជាក់ថាគ្មានអាសេនិចនោះទេ ការធ្វើតេស្តមន្ទីរពិសោធន៍គឺចាំបាច់។"
+      },
+      {
+            id: "irrigation",
+            headingEn: "8. Groundwater use, dry-season irrigation and competing demands",
+            headingKm: "8. ការប្រើប្រាស់ទឹកក្រោមដី និងកសិកម្មរដូវប្រាំង",
+            contentEn: "Groundwater offers practical advantages where surface water is seasonally scarce or difficult to distribute. Its availability can support domestic supply and supplementary irrigation, but local development also changes drawdown, pumping costs and hydraulic connections. The appropriate scale of assessment is the aquifer system and its users, not just one successful borehole. [S04, S06]\n\nErban and Gorelick’s 2016 modelling study identifies risks to shallow domestic water access from expansion of groundwater irrigation in Cambodia and discusses transboundary implications. Its projection horizon is tied to that study’s scenario and baseline. The reported “within 15 years” result must not be republished as a new countdown beginning in 2026 or as proof that depletion has already occurred everywhere. [S09]\n\nA practical response is conjunctive assessment: compare seasonal surface-water supply, groundwater storage, demand, water quality and the cost of reliable delivery. Establish pumping inventories and monitor recovery after the irrigation season. Proposed expansions should assess effects on nearby domestic wells and river or wetland discharge before treating groundwater as an unlimited drought reserve. These are research and management recommendations, not validated allocation rules. [S04, S06, S09]",
+            contentKm: "ទឹកក្រោមដីផ្តល់អត្ថប្រយោជន៍ជាក់ស្តែងនៅពេលទឹកលើផ្ទៃខ្វះខាតក្នុងរដូវប្រាំង។ ទោះជាយ៉ាងណា ការពង្រីកការបូមទឹកស្រោចស្រពកម្រិតខ្ពស់អាចបង្កហានិភ័យដល់អណ្តូងស្នប់រាក់ប្រើប្រាស់ក្នុងគ្រួសារ បណ្តាលឱ្យកម្រិតទឹកស្រុតចុះ និងទាញយកទឹកប្រៃឬអាសេនិចចូលក្នុងស្រទាប់ទឹកស្អាត។"
+      },
+      {
+            id: "regions",
+            headingEn: "9. Research priorities across Cambodia",
+            headingKm: "9. អាទិភាពស្រាវជ្រាវតាមតំបន់នៅកម្ពុជា",
+            contentEn: "Cambodia requires several complementary study settings rather than one uniform groundwater programme. The following priorities are an editorial synthesis of the reviewed evidence. They are study areas, not new protected areas, aquifer boundaries or claims of measured pollution. [S04, S05, S06, S15]",
+            contentKm: "កម្ពុជាត្រូវការកម្មវិធីស្រាវជ្រាវតាមតំបន់ជាក់លាក់ រួមមាន៖ វាលទំនាបទន្លេសាប, តំបន់ភ្នំពេញ-កណ្តាល, តំបន់ទំនាបព្រៃវែង-ស្វាយរៀង-តាកែវ, តំបន់ថ្មភក់ពាយ័ព្យ, តំបន់ដៃទន្លេនិងបាសាល់ឦសាន និងតំបន់កាស្ត៍/ឆ្នេរសមុទ្រ។",
+            table: {
+                  captionEn: "Proposed research priorities synthesised across Cambodian hydrogeological settings",
+                  captionKm: "អាទិភាពស្រាវជ្រាវស្នើឡើងតាមតំបន់វារីភូគព្ភសាស្ត្រនៅកម្ពុជា",
+                  headersEn: [
+                        "Setting",
+                        "Main question",
+                        "Evidence to obtain"
+                  ],
+                  headersKm: [
+                        "តំបន់សិក្សា",
+                        "សំណួរស្នូល",
+                        "ភស្តុតាងដែលត្រូវប្រមូល"
+                  ],
+                  rowsEn: [
+                        [
+                              "Tonle Sap plain and lake margins",
+                              "How do inundation, clay cover and sand lenses control shallow supply and exchange?",
+                              "Seasonal heads, sediment logs, lake/river levels and local chemistry."
+                        ],
+                        [
+                              "Phnom Penh–Kandal and Cambodian upper delta",
+                              "Where do river water, wetland recharge and pumping influence aquifer chemistry?",
+                              "Nested wells, screen depths, stage records, redox-sensitive chemistry and arsenic tests."
+                        ],
+                        [
+                              "Prey Veng–Svay Rieng–Takeo lowlands",
+                              "How does irrigation demand affect domestic access and transboundary gradients?",
+                              "Abstraction inventory, pumping/recovery tests and cross-border aquifer correlation."
+                        ],
+                        [
+                              "Northwestern sandstone terrain",
+                              "Where does clay cover restrict recharge despite regional-model potential?",
+                              "Local stratigraphy, piezometers, recharge-method comparison and dry-season recovery."
+                        ],
+                        [
+                              "Northeastern tributary and basalt terrain",
+                              "Which weathered and fractured zones store and transmit water locally?",
+                              "Borehole logs, fracture/weathering characterization and tributary baseflow records."
+                        ],
+                        [
+                              "Coastal and karst comparisons",
+                              "How do salinity and rapid conduit flow alter vulnerability outside the main lowland focus?",
+                              "Site-specific chemistry, spring/cave flow and verified basin boundaries."
+                        ]
+                  ],
+                  rowsKm: [
+                        [
+                              "វាលទំនាបទន្លេសាប និងមាត់បឹង",
+                              "តើការលិចទឹក ស្រទាប់ដីឥដ្ឋ និងកូនភ្នំខ្សាច់គ្រប់គ្រងការផ្គត់ផ្គង់រាក់និងការផ្លាស់ប្តូរទឹកដូចម្តេច?",
+                              "កម្ពស់ទឹកតាមរដូវ កំណត់ត្រាល្បាប់ កម្រិតបឹង/ទន្លេ និងគីមីទឹកមូលដ្ឋាន។"
+                        ],
+                        [
+                              "ភ្នំពេញ–កណ្តាល និងដីសណ្ដលើកម្ពុជា",
+                              "តើទឹកទន្លេ ការជ្រាបបំពេញដីសើម និងការបូមទឹកមានឥទ្ធិពលលើគីមីទឹកក្រោមដីនៅកន្លែងណា?",
+                              "អណ្តូងស្រទាប់ជ្រៅ ជម្រៅតម្រង កំណត់ត្រាកម្ពស់ទឹក គីមី Redox និងតេស្តអាសេនិច។"
+                        ],
+                        [
+                              "តំបន់ទំនាបព្រៃវែង–ស្វាយរៀង–តាកែវ",
+                              "តើតម្រូវការស្រោចស្រពប៉ះពាល់ដល់ការប្រើប្រាស់ក្នុងស្រុក និងជម្រាលឆ្លងដែនដូចម្តេច?",
+                              "បញ្ជីទាញយកទឹក ការធ្វើតេស្តបូម/ស្តារឡើងវិញ និងការផ្សារភ្ជាប់ស្រទាប់ទឹកឆ្លងដែន។"
+                        ],
+                        [
+                              "តំបន់ថ្មភក់ភាគពាយ័ព្យ",
+                              "តើស្រទាប់ដីឥដ្ឋរារាំងការជ្រាបទឹកនៅកន្លែងណា ទោះបីគំរូតំបន់បង្ហាញសក្តានុពលខ្ពស់?",
+                              "ស្រទាប់សិលាមូលដ្ឋាន ឧបករណ៍វាស់កម្ពស់ទឹកក្រោមដី ការប្រៀបធៀបវិធីសាស្ត្រជ្រាបទឹក និងការស្តារទឹកឡើងវិញ។"
+                        ],
+                        [
+                              "តំបន់ដៃទន្លេភាគឦសាន និងថ្មបាសាល់",
+                              "តើតំបន់ពុកផុយ និងប្រេះស្រាំណាខ្លះដែលស្តុកនិងបញ្ជូនទឹកក្នុងមូលដ្ឋាន?",
+                              "កំណត់ត្រាខួងអណ្តូង ការកំណត់លក្ខណៈប្រេះស្រាំ/ពុកផុយ និងលំហូរមូលដ្ឋានដៃទន្លេ។"
+                        ],
+                        [
+                              "ការប្រៀបធៀបឆ្នេរសមុទ្រ និងកាស្ត៍",
+                              "តើជាតិប្រៃ និងលំហូររហ័សតាមប្រហោងរូងបង្កើនភាពងាយរងគ្រោះដូចម្តេច?",
+                              "គីមីទឹកជាក់លាក់តាមទីតាំង លំហូររូងភ្នំ/ប្រភពទឹកផុស និងព្រំប្រទល់អាងដែលផ្ទៀងផ្ទាត់។"
+                        ]
+                  ]
+            }
+      },
+      {
+            id: "research-programme",
+            headingEn: "10. A focused surface-water and groundwater research programme",
+            headingKm: "10. កម្មវិធីស្រាវជ្រាវទឹកលើផ្ទៃ និងទឹកក្រោមដី",
+            contentEn: "First, assemble the existing evidence: borehole logs, screen depths, pumping tests, abstraction estimates, river and lake gauges, rainfall records, floodplain elevations and water chemistry. Store dates, coordinates, vertical datums and units with each observation. River stage and groundwater head can be compared only after their reference elevations are reconciled. This is a proposed evidence-management workflow. [S04, S05, S06]\n\nSecond, monitor seasonal exchange along selected river-to-floodplain transects. Pair water-level records with field conductivity and temperature, and collect laboratory samples appropriate to the intended water use. Repeat observations across rising water, peak inundation, recession and the late dry season. Keep raw records separate from corrected values, document gaps and do not interpolate a missing season into an apparent measured trend.\n\nThird, test site-scale recharge and pumping responses. Combine aquifer tests, water-level recovery, local stratigraphy and water balances. Where groundwater-source attribution changes a decision, use suitable geochemical or isotope methods with a clear sampling design. Evaluate uncertainty before using a regional recharge product to support a local irrigation proposal. [S04, S05]\n\nFinally, connect the Cambodian upper delta evidence with Viet Nam through compatible hydrostratigraphic descriptions and monitoring practices. A 2026 governance study provides a framework for the shared Cambodia–Mekong River Delta aquifer system; only its abstract and metadata were checked here, so this article does not reproduce its scores or claim that its recommendations have been implemented. [S17]",
+            contentKm: "កម្មវិធីស្រាវជ្រាវដែលផ្តោតលើគោលដៅរួមមាន៖ ១. ចងក្រងទិន្នន័យអណ្តូងខួង កម្រិតទឹក ភ្លៀង និងគីមីទឹក, ២. តាមដានការផ្លាស់ប្តូរទឹកតាមរដូវតាមដងទន្លេនិងវាលទំនាប, ៣. ធ្វើតេស្តការជ្រាបបំពេញនិងការស្តារទឹកឡើងវិញក្នុងកម្រិតទីតាំងជាក់ស្តែង, និង ៤. ភ្ជាប់ការសិក្សាស្រទាប់ទឹកឆ្លងដែនជាមួយប្រទេសជិតខាង។"
+      },
+      {
+            id: "evidence",
+            headingEn: "11. Reading the maps and the evidence responsibly",
+            headingKm: "11. ការប្រើប្រាស់ផែនទី និងភស្តុតាងស្រាវជ្រាវ",
+            contentEn: "The public figure gallery uses original USGS plates and source pages from the CC BY recharge paper. Whole-page reproductions retain the published legends and captions; the figures are not newly georeferenced GIS layers. Each caption states the source date and geographic scope. Open the source PDF for full detail.\n\nThe 2026 aquifer map is available from its original Zenodo record. Its companion paper is CC BY-NC 4.0, and the inspected repository text did not expose an unambiguous separate map licence. The map and threat figures are therefore linked rather than silently bundled for unrestricted commercial reuse. This does not reduce their value as cited research evidence. [S06, S16]\n\nThe 1957 ECAFE report documents the early development-planning history of the basin; the 1977 USGS report preserves an important hydrogeological baseline. Their population figures, administrative names, development assumptions and water-quality statements must not be presented as current Cambodian conditions. [S07, S12]\n\nThe earlier website package, GDMR presentation and field workbook remain supporting local materials. This publication extends their subject matter; it does not replace them, certify raw data or imply institutional endorsement. English is the full research text. The Khmer title and overview are an editorial summary and should receive fluent Khmer scientific review before use as a formal translation.",
+            contentKm: "ការប្រើប្រាស់ផែនទីប្រវត្តិសាស្ត្រ USGS និងឯកសារស្រាវជ្រាវត្រូវធ្វើឡើងដោយការទទួលខុសត្រូវ។ ផែនទីកម្រិតតំបន់មិនអាចជំនួសការស្ទង់ជាក់ស្តែងនៅទីតាំងអណ្តូងនីមួយៗនោះទេ។"
+      }
+],
     takeawaysEn: [
-      "Surface water in the Mekong-Tonle Sap system and shallow groundwater are tightly coupled through seasonal flood pulses.",
-      "Regional recharge values (~200 mm/year) must not be treated as uniform well-field quotas; local clay aquitards reduce actual infiltration to ~20 mm/year.",
-      "Arsenic release is chemically tied to iron reduction in young Holocene sediments; quality and quantity must be monitored together.",
-      "Explore the full research atlas, maps, and USGS historical plates at /research/lower-mekong-cambodia/index.html.",
+      "Cambodia's surface water and groundwater form a connected seasonal system driven by the Mekong flood pulse.",
+      "Regional recharge models (~200 mm/year) must not be treated as uniform well-field quotas; local clay aquitards reduce actual vertical infiltration to ~20 mm/year.",
+      "Naturally occurring arsenic release is chemically linked to redox dissolution of iron minerals in young wetland sediments.",
+      "Conjunctive management is essential: pumping decisions need aquifer testing, and drinking-water safety requires laboratory chemical testing.",
+      "Explore the full research atlas, interactive maps, and USGS historical plates at /research/lower-mekong-cambodia/index.html.",
     ],
     takeawaysKm: [
       "ទឹកលើផ្ទៃក្នុងប្រព័ន្ធមេគង្គ-ទន្លេសាប និងទឹកក្រោមដីរាក់ មានទំនាក់ទំនងគ្នាជាប្រព័ន្ធតាមរយៈវដ្តទឹកជំនន់ប្រចាំឆ្នាំ។",
       "កម្រិតជ្រាបបំពេញទឹកថ្នាក់តំបន់ (ប្រហែល ២០០ មម/ឆ្នាំ) មិនអាចយកមកកំណត់ជាបរិមាណបូមជាក់ស្តែងបានទេ ដោយសារស្រទាប់ដីឥដ្ឋក្នុងតំបន់កាត់បន្ថយការជ្រាបមកត្រឹម ~២០ មម/ឆ្នាំ។",
-      "ការបញ្ចេញជាតិអាសេនិចមានទំនាក់ទំនងគីមីជាមួយការរំលាយជាតិដែកក្នុងល្បាប់យុគហូឡូសែន ដូច្នេះការគ្រប់គ្រងបរិមាណនិងគុណភាពទឹកត្រូវតែធ្វើឡើងទន្ទឹមគ្នា។",
-      "ស្វែងយល់បន្ថែមអំពីកម្រងផែនទីស្រាវជ្រាវ និងផ្ទាំងផែនទីប្រវត្តិសាស្ត្រ USGS នៅ /research/lower-mekong-cambodia/index.html។",
+      "ការបញ្ចេញជាតិអាសេនិចមានទំនាក់ទំនងគីមីជាមួយការរំលាយជាតិដែកក្នុងល្បាប់ដីសើមយុគហូឡូសែន ដែលតម្រូវឱ្យគ្រប់គ្រងបរិមាណនិងគុណភាពទឹកទន្ទឹមគ្នា។",
+      "ការគ្រប់គ្រងទឹកត្រូវធ្វើឡើងរួមគ្នា៖ ការបូមទឹកត្រូវធ្វើតេស្តស្រទាប់ទឹក និងទឹកបរិភោគត្រូវឆ្លងកាត់ការពិនិត្យមន្ទីរពិសោធន៍។",
+      "ស្វែងយល់បន្ថែមអំពីផ្ទាំងផែនទីស្រាវជ្រាវ ផែនទីអន្តរកម្ម និងផ្ទាំងប្រវត្តិសាស្ត្រ USGS នៅ /research/lower-mekong-cambodia/index.html។",
     ],
     relatedIds: ["bk-rocks", "bk-history"],
   },
