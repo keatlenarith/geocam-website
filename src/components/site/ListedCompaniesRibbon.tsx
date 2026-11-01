@@ -21,7 +21,9 @@ export interface ListedCompany {
   unverified?: boolean;
   price?: string;
   change?: string;
-  isPositive?: boolean;
+  changePercent?: string;
+  currency?: string;
+  isPositive?: boolean | null;
 }
 
 export function ListedCompaniesRibbon() {
@@ -74,6 +76,9 @@ export function ListedCompaniesRibbon() {
     if (exchange.includes("SET")) {
       return "bg-blue-500/20 text-blue-300 border-blue-500/40";
     }
+    if (exchange.includes("CSX")) {
+      return "bg-cyan-500/20 text-cyan-300 border-cyan-500/40";
+    }
     return "bg-emerald-500/20 text-emerald-300 border-emerald-500/40";
   };
 
@@ -103,9 +108,7 @@ export function ListedCompaniesRibbon() {
           >
             <div className="gc-ticker-track-reverse flex items-center gap-6">
               {duplicatedItems.map((item, idx) => {
-                const displayText = kh
-                  ? item.text_kh || `${item.company_kh} - ${item.asset_kh}${item.province ? `, ${item.province}` : ""}`
-                  : item.text_en || `${item.company_en} - ${item.asset_en}${item.province ? `, ${item.province}` : ""}`;
+                const companyName = kh ? item.company_kh : item.company_en;
                 const statusDot = getStatusDot(item.status);
 
                 return (
@@ -113,7 +116,7 @@ export function ListedCompaniesRibbon() {
                     key={`${item.ticker}-${idx}`}
                     type="button"
                     onClick={() => setSelectedCompany(item)}
-                    className="group inline-flex shrink-0 items-center gap-2.5 rounded-lg px-2.5 py-1 text-xs transition duration-150 hover:bg-slate-800/60 focus:outline-hidden focus:ring-1 focus:ring-amber-400 text-left cursor-pointer"
+                    className="group inline-flex shrink-0 items-center gap-2 rounded-lg px-2.5 py-1 text-xs transition duration-150 hover:bg-slate-800/60 focus:outline-hidden focus:ring-1 focus:ring-amber-400 text-left cursor-pointer"
                     title={kh ? "ចុចដើម្បីមើលព័ត៌មានលម្អិត" : "Click to view company details"}
                   >
                     {/* EXCHANGE pill badge */}
@@ -125,32 +128,30 @@ export function ListedCompaniesRibbon() {
                       {item.exchange}
                     </span>
 
-                    {/* TICKER */}
-                    <span className="font-mono font-bold text-amber-300 tracking-wider">
-                      {item.ticker}
-                    </span>
-
-                    {/* Formatted Text (e.g. text_en or text_kh rendered left-to-right as given) */}
+                    {/* Company Name & Ticker */}
                     <span className="font-medium text-slate-200 transition group-hover:text-amber-300">
-                      {displayText}
+                      {companyName} (<span className="font-mono font-bold text-amber-300">{item.ticker}</span>)
                     </span>
 
-                    {/* Live / Stored Share Price or Index Value (if present) */}
+                    {/* Prominent Share Price & Change/Percentage (styled exactly like the user's uploaded quote card) */}
                     {item.price && (
-                      <span className="inline-flex items-center gap-1 font-mono text-[11px] font-bold">
-                        <span className="text-slate-100">{item.price}</span>
-                        {item.change && (
+                      <span className="inline-flex items-center gap-1.5 font-mono text-xs font-extrabold tracking-tight">
+                        <span className="text-white text-[13px]">{item.price}</span>
+                        {(item.change || item.changePercent) && (
                           <span
                             className={
                               item.isPositive
-                                ? "text-emerald-400 font-semibold"
+                                ? "text-emerald-400 font-bold"
                                 : item.isPositive === false
-                                ? "text-rose-400 font-semibold"
+                                ? "text-rose-400 font-bold"
                                 : "text-slate-400 font-semibold"
                             }
                           >
-                            ({item.change})
+                            {item.change}{item.changePercent ? ` (${item.changePercent})` : ""}
                           </span>
+                        )}
+                        {item.currency && (
+                          <span className="text-[10px] text-slate-400 font-normal">{item.currency}</span>
                         )}
                       </span>
                     )}
@@ -232,11 +233,11 @@ export function ListedCompaniesRibbon() {
                     {kh ? selectedCompany.company_kh : selectedCompany.company_en}
                   </h3>
                   {selectedCompany.price && (
-                    <div className="mt-1 flex items-center gap-2 font-mono text-xs">
-                      <span className="font-bold text-white">{selectedCompany.price}</span>
-                      {selectedCompany.change && (
+                    <div className="mt-1.5 flex items-center gap-2 font-mono text-xs">
+                      <span className="text-xl font-black text-white">{selectedCompany.price}</span>
+                      {(selectedCompany.change || selectedCompany.changePercent) && (
                         <span
-                          className={`font-semibold ${
+                          className={`font-bold ${
                             selectedCompany.isPositive
                               ? "text-emerald-400"
                               : selectedCompany.isPositive === false
@@ -244,7 +245,12 @@ export function ListedCompaniesRibbon() {
                               : "text-slate-400"
                           }`}
                         >
-                          ({selectedCompany.change})
+                          {selectedCompany.change} ({selectedCompany.changePercent})
+                        </span>
+                      )}
+                      {selectedCompany.currency && (
+                        <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-300 font-semibold">
+                          {selectedCompany.currency}
                         </span>
                       )}
                     </div>
