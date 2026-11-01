@@ -197,7 +197,7 @@ try {
   await expect(page.locator('[data-cms-ui="top-admin-bar"]')).toBeVisible();
   await expect(page.locator('[data-cms-ui="top-admin-bar"] a', { hasText: "Edit Publication" })).toBeVisible();
   await expect(page.locator('[data-cms-ui="pub-admin-actions"] a', { hasText: "Edit Publication" })).toBeVisible();
-  await expect(page.locator('.fixed.bottom-5.right-5 a', { hasText: "Edit in Admin" })).toBeVisible();
+  await expect(page.locator('.fixed.bottom-5.right-5 a', { hasText: "Edit on Website" })).toBeVisible();
 
   // ==========================================
   // PART 7: RESEARCH TOPIC LEVEL (/research/topic)

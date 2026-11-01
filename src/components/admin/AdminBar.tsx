@@ -32,7 +32,9 @@ export function AdminBar() {
     editablePages.includes(normalized) ||
     normalized.startsWith("/research") ||
     normalized.startsWith("/news") ||
-    normalized.startsWith("/publications");
+    normalized.startsWith("/publications") ||
+    normalized.startsWith("/basic-knowledge") ||
+    normalized.startsWith("/earthquake-monitoring");
   const queryParams =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search)
@@ -112,11 +114,11 @@ export function AdminBar() {
               title={
                 editing
                   ? "Finish visual on-page editing"
-                  : "Edit this page visually inline"
+                  : "Edit this page directly on website"
               }
             >
               <Edit3 size={12} />
-              <span>{editing ? "Finish Editing" : "Edit Page"}</span>
+              <span>{editing ? "Finish Editing" : "Edit on Website"}</span>
             </button>
             <Link
               to={`/admin?section=pages&page=${encodeURIComponent(normalized.startsWith("/research") ? "/research" : normalized.startsWith("/news") ? "/news" : normalized)}`}
@@ -127,13 +129,23 @@ export function AdminBar() {
             </Link>
           </div>
         ) : (
-          <Link
-            to={`/admin?section=pages&page=${encodeURIComponent(normalized)}`}
-            className="flex items-center gap-1 rounded bg-emerald-600 px-2.5 py-0.5 font-semibold text-white hover:bg-emerald-500 transition shadow-sm"
+          <button
+            onClick={() => setEditing(!editing)}
+            disabled={!ready || busy}
+            className={`flex items-center gap-1 rounded px-2.5 py-0.5 font-semibold transition ${
+              editing
+                ? "bg-amber-500 text-slate-950 font-bold"
+                : "bg-emerald-600 text-white hover:bg-emerald-500"
+            }`}
+            title={
+              editing
+                ? "Finish visual on-page editing"
+                : "Edit this page directly on website"
+            }
           >
             <Edit3 size={12} />
-            <span>Edit in Admin</span>
-          </Link>
+            <span>{editing ? "Finish Editing" : "Edit on Website"}</span>
+          </button>
         )}
 
         {/* Quick "+ New" options */}

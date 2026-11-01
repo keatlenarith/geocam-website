@@ -69,12 +69,18 @@ test("unavailable status is an error rather than a missing-token result", async 
 test("poster publishing uploads the exact PNG bytes with the unchanged caption", async (t) => {
   const png = Buffer.from('89504e470d0a1a0a0000000d49484452000004b000000276', 'hex');
   const caption = 'ដំណឹងរញ្ជួយដី\nExact caption #GeoCam';
-  let sent, endpoint, result;
-  t.mock.method(globalThis,'fetch',async(url,options)=>{endpoint=url;sent=options.body;return {ok:true,json:async()=>({id:'photo123',post_id:'105049257586051_post123'})};});
+  const requests=[];let result;
+  t.mock.method(globalThis,'fetch',async(url,options)=>{requests.push({url,body:options.body});return {ok:true,json:async()=>({id:requests.length===1?'photo123':'105049257586051_post123'})};});
   await publisher({method:'POST',body:{accessToken:'page-test-token',posterDataUrl:`data:image/png;base64,${png.toString('base64')}`,message:caption}}, {setHeader(){},status(){return this;},json(value){result=value;}});
-  assert.match(endpoint,/\/photos$/);assert.ok(sent instanceof FormData);
-  assert.equal(sent.get('message'),caption);
-  assert.deepEqual(Buffer.from(await sent.get('source').arrayBuffer()),png);
+  assert.equal(requests.length,2);
+  assert.match(requests[0].url,/\/photos$/);assert.ok(requests[0].body instanceof FormData);
+  assert.equal(requests[0].body.get('caption'),caption);
+  assert.equal(requests[0].body.get('published'),'false');
+  assert.deepEqual(Buffer.from(await requests[0].body.get('source').arrayBuffer()),png);
+  assert.match(requests[1].url,/\/feed$/);
+  const post=new URLSearchParams(requests[1].body);
+  assert.equal(post.get('message'),caption);
+  assert.deepEqual(JSON.parse(post.get('attached_media[0]')),{media_fbid:'photo123'});
   assert.equal(result.postId,'105049257586051_post123');
 });
 
@@ -83,4 +89,19 @@ test("poster upload cannot use server credentials without a supplied Page token"
   t.mock.method(globalThis,'fetch',async()=>{fetched=true;return {ok:true,json:async()=>({id:'unexpected'})};});
   await publisher({method:'POST',body:{posterDataUrl:'data:image/png;base64,aGVsbG8=',message:'Test'}},{setHeader(){},status(){return this;},json(v){result=v;}});
   assert.equal(fetched,false);assert.equal(result.success,false);
+});
+
+test("blank poster captions are rejected before uploading",async(t)=>{
+  let result;
+  t.mock.method(globalThis,'fetch',async()=>{throw Error('Must not upload a captionless poster');});
+  await publisher({method:'POST',body:{accessToken:'mock-token',posterDataUrl:'data:image/png;base64,aGVsbG8=',message:'   '}},{setHeader(){},status(){return this;},json(v){result=v;}});
+  assert.equal(result.success,false);assert.match(result.error,/caption is empty/);
+});
+
+test("a failed feed publish is not reported as a successfully published poster",async(t)=>{
+  let requests=0,result;
+  const png=Buffer.from('89504e470d0a1a0a','hex');
+  t.mock.method(globalThis,'fetch',async()=>{requests++;return requests===1?{ok:true,json:async()=>({id:'unpublished-photo'})}:{ok:false,json:async()=>({error:{code:200,message:'Missing posting permission'}})};});
+  await publisher({method:'POST',body:{accessToken:'mock-token',posterDataUrl:`data:image/png;base64,${png.toString('base64')}`,message:'Full generated caption'}},{setHeader(){},status(){return this;},json(v){result=v;}});
+  assert.equal(requests,2);assert.equal(result.success,false);assert.equal(result.postUrl,undefined);
 });

@@ -263,6 +263,8 @@ export function canonicalDbRoute(path: string): string {
   if (clean.startsWith("/mining")) return "/mining";
   if (clean.startsWith("/lexicon")) return "/lexicon";
   if (clean.startsWith("/dashboard")) return "/dashboard";
+  if (clean.startsWith("/basic-knowledge")) return "/basic-knowledge";
+  if (clean.startsWith("/earthquake-monitoring")) return "/earthquake-monitoring";
   return clean;
 }
 

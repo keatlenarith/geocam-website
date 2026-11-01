@@ -33,6 +33,7 @@ try {
     window.$RefreshReg$ = () => {};
     window.$RefreshSig$ = () => type => type;
     window.__vite_plugin_react_preamble_installed__ = true;
+    await import("/src/styles.css");
     const mainSource = await (await fetch("/src/main.tsx")).text();
     const reactPath = mainSource.match(/from ["']([^"']*\/react\.js[^"']*)["']/)?.[1];
     const domPath = mainSource.match(/from ["']([^"']*\/react-dom_client\.js[^"']*)["']/)?.[1];
@@ -63,7 +64,7 @@ try {
   await page.waitForFunction(() => document.querySelector('img[src^="data:image/png"]')?.naturalWidth === 1200);
   const firstImage = await page.locator('img[src^="data:image/png"]').getAttribute("src");
   const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Download HD Poster", exact: true }).click();
+  await page.getByRole("button", { name: "Download poster (PNG)", exact: true }).click();
   const download = await downloadPromise;
   assert.equal(download.suggestedFilename(), "GeoCam-Earthquake-Bulletin-poster-regression-one.png");
   const stream = await download.createReadStream();
@@ -79,27 +80,30 @@ try {
     Object.defineProperty(navigator,"share",{configurable:true,value:()=>{window.nativeShareCalls++;return Promise.reject(new DOMException("Blocked by browser","NotAllowedError"));}});
     window.open=()=>null;
   });
-  await page.getByRole("button",{name:"Share poster",exact:true}).click();
-  await page.getByRole("region",{name:"Poster sharing options"}).waitFor({timeout:3000});
   assert.equal(await page.evaluate(()=>window.nativeShareCalls),0,"Never open the broken Windows share sheet");
-  const fallbackDownload=page.waitForEvent("download");
-  await page.getByRole("button",{name:"Download PNG",exact:true}).click();
-  assert.match((await fallbackDownload).suggestedFilename(),/\.png$/);
-  await page.getByRole("button",{name:"Share link ↗",exact:true}).click();
+  assert.equal(await page.getByRole("button",{name:"Share link manually on Facebook",exact:true}).isVisible(),false,"Manual sharing stays collapsed");
+  await page.getByText("More options",{exact:true}).click();
+  await page.getByRole("button",{name:"Share link manually on Facebook",exact:true}).click();
   await page.getByRole("link",{name:"Open generated poster ↗"}).waitFor();
   assert.equal(sharedPoster.posterDataUrl,firstImage);
   assert.equal(sharedPoster.caption,caption);
   assert.match(await page.getByRole("link",{name:"Open generated poster ↗"}).getAttribute("href"),/\/api\/earthquake-poster\?id=/);
-  await page.getByRole("button", {name:"Publish poster to Page",exact:true}).click();
+  await page.getByRole("button", {name:"Post to GeoCam101",exact:true}).click();
   await page.getByRole("link", {name:"View Facebook post ↗"}).waitFor();
   assert.equal(await page.getByRole("button",{name:"Confirm publish",exact:true}).count(),0,"Direct Page publishing must not open another confirmation step");
   assert.equal(publishedPoster.posterDataUrl, firstImage, "Publish the displayed PNG without regenerating it");
   assert.equal(publishedPoster.message, caption, "Caption must be unchanged");
-  await page.getByRole("button", { name: "Switch event test" }).click();
+  // Simulate a parent prop update while the modal intentionally blocks the page.
+  await page.getByRole("button", { name: "Switch event test" }).evaluate(button=>button.click());
   await page.waitForFunction(old => document.querySelector('img[src^="data:image/png"]')?.src !== old, firstImage);
+  await page.evaluate(()=>{const value=JSON.parse(localStorage.getItem('geocam_facebook_settings'));value.accessToken='';localStorage.setItem('geocam_facebook_settings',JSON.stringify(value));});
+  await page.getByRole('button',{name:'Post to GeoCam101',exact:true}).click();
+  const visibleError=page.getByRole('alert').filter({hasText:'Page Access Token'});
+  await visibleError.waitFor({timeout:3000});
+  assert.ok(await visibleError.evaluate(el=>{const r=el.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;}),'Publishing errors must stay visible next to the action buttons');
   await page.getByRole("button", { name: "Close poster" }).click();
   await page.getByRole("button", { name: "Open poster test" }).click();
-  await page.getByRole("button", { name: "Download HD Poster", exact: true }).waitFor();
+  await page.getByRole("button", { name: "Download poster (PNG)", exact: true }).waitFor();
   assert.deepEqual(errors, [], "Switching events and reopening must not crash React");
   console.log("PASS: opening, PNG download, in-page sharing without OS dialogs, exact poster share link, confirmed Page publish, switching and reopening (all remote actions mocked).");
 } finally {

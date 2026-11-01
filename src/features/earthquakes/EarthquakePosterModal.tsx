@@ -61,7 +61,6 @@ const EarthquakePosterContent: React.FC<{
   const [shareUrl, setShareUrl] = useState("");
   const [shareNotice, setShareNotice] = useState("");
   const [preparingLink, setPreparingLink] = useState(false);
-  const [showShareOptions, setShowShareOptions] = useState(false);
   const [publishResult, setPublishResult] = useState<{error?:string;url?:string} | null>(null);
   const posterLocked = useRef(false);
   const publishInFlight = useRef(false);
@@ -440,14 +439,6 @@ const EarthquakePosterContent: React.FC<{
     } finally { setPublishing(false); publishInFlight.current = false; }
   };
 
-  const handleSharePoster = () => {
-    if (!posterDataUrl) return;
-    // Use explicit in-page choices: Windows may accept navigator.share and then
-    // fail inside its native dialog, without reporting that failure to the site.
-    setShowShareOptions(true);
-    setShareNotice("");
-  };
-
   const handleShareLink = async () => {
     if (!posterDataUrl || preparingLink) return;
     const popup = window.open("about:blank", "_blank");
@@ -501,15 +492,6 @@ const EarthquakePosterContent: React.FC<{
                 <Radio size={14} className="text-rose-500 animate-pulse" />
                 {kh ? "ផ្ទាំងរូបភាពជាផ្លូវការ (1200 × 630px HD Poster)" : "Official Social Poster Card (1200 × 630px HD)"}
               </span>
-              <button
-                type="button"
-                onClick={handleDownloadPoster}
-                disabled={!isReady}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-500 transition shadow-xs"
-              >
-                <Download size={14} />
-                <span>{kh ? "ទាញយករូបភាព (Save Image)" : "Download HD Poster"}</span>
-              </button>
             </div>
 
             {/* Canvas used for high-res generation */}
@@ -533,7 +515,6 @@ const EarthquakePosterContent: React.FC<{
           </div>
           {shareNotice && <div role="status" className="rounded-lg border border-slate-600 p-3 text-sm">{shareNotice}</div>}
           {shareUrl && <div className="rounded-lg border border-emerald-600 p-3 text-sm"><a href={shareUrl} target="_blank" rel="noopener noreferrer" className="underline">Open generated poster ↗</a><label className="mt-2 block">Poster link<input aria-label="Generated poster link" readOnly value={shareUrl} onFocus={e => e.currentTarget.select()} className="mt-1 w-full rounded border border-slate-600 bg-slate-950 p-2 text-xs" /></label><button type="button" onClick={async()=>{try{await navigator.clipboard.writeText(shareUrl);setShareNotice("Poster link copied.");}catch{setShareNotice("Select the poster link above and copy it.");}}} className="mt-2 underline">Copy poster link</button></div>}
-          {publishResult && <div role="status" className="rounded-lg border border-slate-600 p-3 text-sm">{publishResult.error || "Poster and caption published successfully."}{publishResult.url && <a className="ml-2 underline" target="_blank" rel="noopener noreferrer" href={publishResult.url}>View Facebook post ↗</a>}</div>}
 
           {/* 2. Ready-to-Paste Description Status */}
           <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-4">
@@ -556,51 +537,18 @@ const EarthquakePosterContent: React.FC<{
           </div>
         </div>
 
-        {showShareOptions && <section id="poster-sharing-options" role="region" aria-label="Poster sharing options" className="shrink-0 border-t border-slate-700 bg-slate-950 px-5 py-4">
-          <div className="flex items-center justify-between gap-3"><h4 className="text-sm font-bold">Share this poster and caption</h4><button type="button" aria-label="Close sharing options" onClick={()=>setShowShareOptions(false)} className="rounded p-1 text-slate-300 hover:bg-slate-800"><X size={16}/></button></div>
-          <p className="mt-1 text-xs text-slate-400">Page publishing posts this PNG and the generated caption directly to GeoCam101. Link sharing opens Facebook’s composer and does not fill its status box.</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" onClick={handleDownloadPoster} className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold">Download PNG</button>
-            <button type="button" onClick={handleCopyStatus} className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold">{copied ? "Caption copied" : "Copy poster caption"}</button>
-            {admin ? <button type="button" disabled={!isReady || publishing || !!publishResult?.url} onClick={handlePublishPoster} className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold disabled:opacity-50">{publishing ? "Publishing…" : publishResult?.url ? "Published to GeoCam101" : "Publish poster + caption to GeoCam101"}</button> : <a href="/admin/login" className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold">Sign in for direct Page publishing</a>}
-            <button type="button" disabled={preparingLink} onClick={handleShareLink} className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold disabled:opacity-50">{preparingLink ? "Creating poster link…" : "Share poster link on Facebook"}</button>
+        <div className="shrink-0 border-t border-slate-800 bg-slate-950 px-5 py-4">
+          {(publishing || publishResult) && <div role={publishResult?.error ? "alert" : "status"} aria-live="polite" className={`mb-3 max-h-32 overflow-y-auto rounded-lg border p-3 text-sm ${publishResult?.error ? "border-red-500 text-red-200" : "border-emerald-600 text-emerald-200"}`}>
+            {publishing ? "Posting this poster and its full generated caption to GeoCam101…" : publishResult?.error || "Posted to GeoCam101 with the generated caption."}
+            {publishResult?.error && <a className="ml-2 underline" href="/admin/cms?section=facebook" target="_blank" rel="noopener noreferrer">Check Page token</a>}
+            {publishResult?.url && <a className="ml-2 underline" target="_blank" rel="noopener noreferrer" href={publishResult.url}>View Facebook post ↗</a>}
+          </div>}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <button type="button" disabled={!isReady} onClick={handleDownloadPoster} className="btn btn-outline inline-flex items-center gap-2 text-sm"><Download size={16}/>{kh ? "ទាញយករូប Poster" : "Download poster (PNG)"}</button>
+            {admin ? <button type="button" aria-busy={publishing} disabled={!isReady || publishing || !!publishResult?.url} onClick={handlePublishPoster} className="btn btn-primary inline-flex items-center gap-2 text-sm font-bold">{publishing ? <RefreshCw size={16} className="animate-spin"/> : <Share2 size={16}/>} {publishing ? "Posting…" : publishResult?.url ? "Posted to GeoCam101" : "Post to GeoCam101"}</button> : <a className="btn btn-primary text-sm font-bold" href="/admin/login">Sign in to post to GeoCam101</a>}
           </div>
-        </section>}
-
-        {/* Modal Action Buttons Footer */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 bg-slate-950 px-5 py-3.5">
-          <button
-            type="button"
-            onClick={handleDownloadPoster}
-            disabled={!isReady}
-            className="btn btn-outline inline-flex items-center gap-2 text-xs sm:text-sm font-semibold"
-          >
-            <Download size={16} />
-            <span>{kh ? "ទាញយករូប Poster" : "Download Poster (PNG)"}</span>
-          </button>
-
-          <div className="flex items-center gap-2.5">
-            <button type="button" disabled={!isReady || publishing} aria-expanded={showShareOptions} aria-controls="poster-sharing-options" onClick={handleSharePoster} className="btn btn-outline text-xs">Share poster</button>
-            {admin && <button type="button" disabled={!isReady || publishing || !!publishResult?.url} onClick={handlePublishPoster} className="btn btn-primary text-xs">{publishing ? "Publishing…" : "Publish poster to Page"}</button>}
-            <button
-              type="button"
-              onClick={handleCopyStatus}
-              className="btn btn-outline inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold"
-            >
-              {copied ? <Check size={15} className="text-emerald-400" /> : <Copy size={15} />}
-              <span>{copied ? (kh ? "បានចម្លងរួច" : "Copied") : (kh ? "ចម្លង Caption" : "Copy Status")}</span>
-            </button>
-
-            <button
-              type="button"
-              disabled={!isReady || preparingLink}
-              onClick={handleShareLink}
-              className="btn btn-primary inline-flex items-center gap-2 text-xs sm:text-sm font-bold bg-[#1877f2] hover:bg-[#166fe5] text-white border-0"
-            >
-              <Share2 size={16} />
-              <span>{preparingLink ? "Creating poster link…" : kh ? "ចែករំលែកតំណ Facebook ↗" : "Share link ↗"}</span>
-            </button>
-          </div>
+          <p className="mt-2 text-xs text-slate-400">The poster and generated caption are included automatically. Posting requires your saved Page token.</p>
+          <details className="mt-3 text-xs text-slate-400"><summary className="cursor-pointer">More options</summary><p className="mt-2">Manual link sharing opens Facebook’s composer; paste the caption yourself.</p><button type="button" disabled={!isReady || preparingLink} onClick={handleShareLink} className="mt-2 rounded border border-slate-600 px-3 py-2">{preparingLink ? "Creating poster link…" : "Share link manually on Facebook"}</button></details>
         </div>
       </div>
     </div>

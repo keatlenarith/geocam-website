@@ -717,6 +717,9 @@ export const editablePages = [
   "/mining",
   "/lexicon",
   "/dashboard",
+  "/basic-knowledge",
+  "/earthquake-monitoring",
+  "/geopark",
   "/research/topic",
   "/news/item",
   "/publications/view",
@@ -741,16 +744,18 @@ export function getSubrouteInfo(path: string) {
   const cleanPath = normalizeRoute(path);
   const canonicalRoute = canonicalDbRoute(cleanPath);
   let prefix = "";
-  if (cleanPath !== canonicalRoute) {
-    const search = typeof window !== "undefined" ? window.location.search : "";
-    const params = new URLSearchParams(search);
-    const id = params.get("id") || params.get("topic") || params.get("slug") || "";
+  const search = typeof window !== "undefined" ? window.location.search : "";
+  const params = new URLSearchParams(search);
+  const id = params.get("id") || params.get("topic") || params.get("slug") || "";
+  if (cleanPath !== canonicalRoute || id) {
     const subPart = cleanPath
       .slice(canonicalRoute.length)
       .replace(/^\/+/, "")
       .replace(/\//g, "-");
-    const subIdentifier = id ? `${subPart}-${id}` : subPart;
-    prefix = `sub:${subIdentifier}:`;
+    const subIdentifier = id ? (subPart ? `${subPart}-${id}` : id) : subPart;
+    if (subIdentifier) {
+      prefix = `sub:${subIdentifier}:`;
+    }
   }
   return { canonicalRoute, prefix, cleanPath };
 }
@@ -830,7 +835,9 @@ export function VisualCmsLayer({ page }: { page: string }) {
     editablePages.includes(normalizedPage) ||
     normalizedPage.startsWith("/research") ||
     normalizedPage.startsWith("/news") ||
-    normalizedPage.startsWith("/publications");
+    normalizedPage.startsWith("/publications") ||
+    normalizedPage.startsWith("/basic-knowledge") ||
+    normalizedPage.startsWith("/earthquake-monitoring");
   const active = editable ? (editing ? draft : published) : emptyContent;
   const editingPage = editing && editable;
   const refresh = useRef(0);
@@ -2604,7 +2611,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
                 setEditing(!editing);
               }}
             >
-              {editing ? "Finish editing" : "Visual edit"}
+              {editing ? "Finish editing" : "Edit on Website"}
             </button>
             {editingPage && (
               <button
@@ -2670,12 +2677,17 @@ export function VisualCmsLayer({ page }: { page: string }) {
           </>
         ) : isPubView ? (
           <>
-            <a
-              className="btn !py-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
-              href="/admin?section=publications"
+            <button
+              className={`btn !py-2 font-semibold ${editing ? "btn-secondary bg-slate-800 text-white" : "btn-primary"}`}
+              disabled={!ready || busy}
+              onClick={() => {
+                (document.activeElement as HTMLElement)?.blur();
+                setNotice("");
+                setEditing(!editing);
+              }}
             >
-              ✏️ Edit in Admin
-            </a>
+              {editing ? "Finish editing" : "Edit on Website"}
+            </button>
             <a
               className="btn btn-outline !py-2"
               href="/admin?section=publications"
@@ -2685,21 +2697,31 @@ export function VisualCmsLayer({ page }: { page: string }) {
           </>
         ) : isResearchTopic ? (
           <>
-            <a
-              className="btn !py-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
-              href="/admin?section=pages&page=/research"
+            <button
+              className={`btn !py-2 font-semibold ${editing ? "btn-secondary bg-slate-800 text-white" : "btn-primary"}`}
+              disabled={!ready || busy}
+              onClick={() => {
+                (document.activeElement as HTMLElement)?.blur();
+                setNotice("");
+                setEditing(!editing);
+              }}
             >
-              ✏️ Edit Research
-            </a>
+              {editing ? "Finish editing" : "Edit on Website"}
+            </button>
           </>
         ) : (
           <>
-            <a
-              className="btn !py-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
-              href={`/admin?section=pages&page=${encodeURIComponent(normalizedPage)}`}
+            <button
+              className={`btn !py-2 font-semibold ${editing ? "btn-secondary bg-slate-800 text-white" : "btn-primary"}`}
+              disabled={!ready || busy}
+              onClick={() => {
+                (document.activeElement as HTMLElement)?.blur();
+                setNotice("");
+                setEditing(!editing);
+              }}
             >
-              ✏️ Edit in Admin
-            </a>
+              {editing ? "Finish editing" : "Edit on Website"}
+            </button>
           </>
         )}
 
