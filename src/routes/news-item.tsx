@@ -41,9 +41,11 @@ export default function NewsItem() {
 
   const title = article
     ? postText(article.title, article.titleKm, lang)
-    : lang === "km"
-      ? "រកមិនឃើញអត្ថបទ"
-      : "Article not found";
+    : loading
+      ? lang === "km" ? "កំពុងផ្ទុកអត្ថបទ…" : "Loading article…"
+      : error
+        ? lang === "km" ? "មិនអាចផ្ទុកអត្ថបទបានទេ" : "Could not load article"
+        : lang === "km" ? "រកមិនឃើញអត្ថបទ" : "Article not found";
 
   const excerpt = article
     ? postText(article.excerpt, article.excerptKm, lang)
@@ -56,6 +58,7 @@ export default function NewsItem() {
   return (
     <>
       <PageHeader
+        cmsEditable={false}
         eyebrow={lang === "km" ? "ព័ត៌មានភូគព្ភវិទ្យាសាស្ត្រ" : "Geoscience News"}
         title={title}
       />

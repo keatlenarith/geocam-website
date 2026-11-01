@@ -367,14 +367,16 @@ export function PageHeader({
   eyebrow,
   title,
   sub,
+  cmsEditable = true,
 }: {
   eyebrow?: string;
   title: string;
   sub?: string;
+  cmsEditable?: boolean;
 }) {
   const namedFields = !["/", "/about", "/research", "/membership", "/contact"].includes(location.pathname);
   return (
-    <section className="border-b border-border bg-muted/60">
+    <section data-cms-ui={cmsEditable ? undefined : "dynamic-page-header"} className="border-b border-border bg-muted/60">
       <div className="mx-auto max-w-[1800px] px-5 py-14 xl:px-10">
         {eyebrow && <p className="eyebrow">{eyebrow}</p>}
           <h1 data-cms-id={namedFields ? "page-title" : undefined} className="mt-2 text-4xl font-semibold text-primary md:text-5xl">

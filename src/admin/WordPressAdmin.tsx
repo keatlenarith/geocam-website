@@ -966,47 +966,233 @@ export default function WordPressAdmin() {
               ================================================================ */}
           {section === "dashboard" && (
             <>
-              <div className="wp-header">
-                <h1>GeoCam Executive Dashboard</h1>
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
-                  <button
-                    className="button button-primary"
-                    style={{ background: "#059669", borderColor: "#047857", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}
-                    onClick={handlePublishLive}
-                    disabled={isPublishing || busy}
-                  >
-                    <Sparkles size={15} />
-                    <span>{publishMsg || (isPublishing ? "Publishing Live…" : "Publish Website Live")}</span>
-                  </button>
-                  <button
-                    className="button"
-                    style={{ display: "flex", alignItems: "center", gap: "5px" }}
-                    onClick={handleSaveAllDrafts}
-                    disabled={isSavingDrafts || busy}
-                  >
-                    <Save size={14} />
-                    <span>Save All Changes</span>
-                  </button>
-                  <button className="button" onClick={() => { handleNav("publications"); setShowAddPaper(true); }}>
-                    <UploadCloud size={15} /> Upload Paper
-                  </button>
-                  <button
-                    className="button button-primary"
-                    onClick={() => {
-                      handleNav("posts");
-                      const u = new URL(window.location.href);
-                      u.searchParams.set("section", "posts");
-                      u.searchParams.set("new", "true");
-                      window.history.pushState({}, "", u.toString());
-                      setTimeout(() => {
-                        window.dispatchEvent(new CustomEvent("geocam:open-new-post"));
-                      }, 60);
-                    }}
-                  >
-                    + Create New Post
-                  </button>
+              {/* DASHBOARD HERO HEADER */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "28px" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "16px" }}>
+                  <div>
+                    <h1 style={{ margin: 0, fontSize: "28px", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--wp-text-primary)" }}>
+                      Good evening, Administrator
+                    </h1>
+                    <p style={{ margin: "6px 0 0", fontSize: "15px", color: "var(--wp-text-muted)" }}>
+                      Choose what you want to change on geocam.site. Every area opens with one click, and changes stay private until you publish.
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+                    <button
+                      className="button button-primary"
+                      style={{ background: "#059669", borderColor: "#047857", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}
+                      onClick={handlePublishLive}
+                      disabled={isPublishing || busy}
+                    >
+                      <Sparkles size={15} />
+                      <span>{publishMsg || (isPublishing ? "Publishing Live…" : "Publish Website Live")}</span>
+                    </button>
+                    <button
+                      className="button"
+                      style={{ display: "flex", alignItems: "center", gap: "5px" }}
+                      onClick={handleSaveAllDrafts}
+                      disabled={isSavingDrafts || busy}
+                    >
+                      <Save size={14} />
+                      <span>Save All Changes</span>
+                    </button>
+                    <button className="button" onClick={() => { handleNav("publications"); setShowAddPaper(true); }}>
+                      <UploadCloud size={15} /> Upload Paper
+                    </button>
+                    <button
+                      className="button button-primary"
+                      onClick={() => {
+                        handleNav("posts");
+                        const u = new URL(window.location.href);
+                        u.searchParams.set("section", "posts");
+                        u.searchParams.set("new", "true");
+                        window.history.pushState({}, "", u.toString());
+                        setTimeout(() => {
+                          window.dispatchEvent(new CustomEvent("geocam:open-new-post"));
+                        }, 60);
+                      }}
+                    >
+                      + Create New Post
+                    </button>
+                  </div>
                 </div>
               </div>
+
+              {/* WHAT DO YOU WANT TO EDIT? QUICK ACTION TILES */}
+              <section aria-labelledby="edit-h" style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "28px" }}>
+                <h2 id="edit-h" style={{ margin: 0, fontSize: "16px", fontWeight: 600, color: "var(--wp-text-primary)" }}>
+                  What do you want to edit?
+                </h2>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
+                  <div
+                    onClick={() => handleNav("pages")}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "14px",
+                      padding: "20px",
+                      border: "1px solid var(--wp-border)",
+                      borderRadius: "14px",
+                      background: "var(--wp-bg-surface)",
+                      minHeight: "132px",
+                      boxSizing: "border-box",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--wp-cyan)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--wp-border)")}
+                  >
+                    <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "#EEF2FF", color: "#4338CA", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Files size={20} />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <span style={{ fontSize: "15px", fontWeight: 600, color: "var(--wp-text-primary)" }}>Homepage & pages</span>
+                      <span style={{ fontSize: "13px", color: "var(--wp-text-muted)", lineHeight: 1.45 }}>Change the banner, headline and text on any of the 14 site pages.</span>
+                    </div>
+                  </div>
+
+                  <div
+                    onClick={() => handleNav("publications")}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "14px",
+                      padding: "20px",
+                      border: "1px solid var(--wp-border)",
+                      borderRadius: "14px",
+                      background: "var(--wp-bg-surface)",
+                      minHeight: "132px",
+                      boxSizing: "border-box",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--wp-cyan)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--wp-border)")}
+                  >
+                    <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "#EEF2FF", color: "#4338CA", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <BookOpen size={20} />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <span style={{ fontSize: "15px", fontWeight: 600, color: "var(--wp-text-primary)" }}>Research & publications</span>
+                      <span style={{ fontSize: "13px", color: "var(--wp-text-muted)", lineHeight: 1.45 }}>Add papers, reports and PDF downloads with English and Khmer titles.</span>
+                    </div>
+                  </div>
+
+                  <div
+                    onClick={() => handleNav("geodata")}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "14px",
+                      padding: "20px",
+                      border: "1px solid var(--wp-border)",
+                      borderRadius: "14px",
+                      background: "var(--wp-bg-surface)",
+                      minHeight: "132px",
+                      boxSizing: "border-box",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--wp-cyan)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--wp-border)")}
+                  >
+                    <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "#EEF2FF", color: "#4338CA", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Map size={20} />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <span style={{ fontSize: "15px", fontWeight: 600, color: "var(--wp-text-primary)" }}>Geoparks & 3D Web GIS</span>
+                      <span style={{ fontSize: "13px", color: "var(--wp-text-muted)", lineHeight: 1.45 }}>Edit site names, descriptions, layer symbology and coordinates on the map.</span>
+                    </div>
+                  </div>
+
+                  <div
+                    onClick={() => (window.location.href = "/earthquake-monitoring")}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "14px",
+                      padding: "20px",
+                      border: "1px solid var(--wp-border)",
+                      borderRadius: "14px",
+                      background: "var(--wp-bg-surface)",
+                      minHeight: "132px",
+                      boxSizing: "border-box",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--wp-cyan)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--wp-border)")}
+                  >
+                    <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "#EEF2FF", color: "#4338CA", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Radio size={20} />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <span style={{ fontSize: "15px", fontWeight: 600, color: "var(--wp-text-primary)" }}>Seismic & environmental</span>
+                      <span style={{ fontSize: "13px", color: "var(--wp-text-muted)", lineHeight: 1.45 }}>Update sensor station details and bulletin notices shown with live data.</span>
+                    </div>
+                  </div>
+
+                  <div
+                    onClick={() => handleNav("posts")}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "14px",
+                      padding: "20px",
+                      border: "1px solid var(--wp-border)",
+                      borderRadius: "14px",
+                      background: "var(--wp-bg-surface)",
+                      minHeight: "132px",
+                      boxSizing: "border-box",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--wp-cyan)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--wp-border)")}
+                  >
+                    <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "#EEF2FF", color: "#4338CA", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <FileText size={20} />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <span style={{ fontSize: "15px", fontWeight: 600, color: "var(--wp-text-primary)" }}>News & unified posts</span>
+                      <span style={{ fontSize: "13px", color: "var(--wp-text-muted)", lineHeight: 1.45 }}>Post articles, field stories, and crop custom featured thumbnails.</span>
+                    </div>
+                  </div>
+
+                  <div
+                    onClick={() => handleNav("settings")}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "14px",
+                      padding: "20px",
+                      border: "1px solid var(--wp-border)",
+                      borderRadius: "14px",
+                      background: "var(--wp-bg-surface)",
+                      minHeight: "132px",
+                      boxSizing: "border-box",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--wp-cyan)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--wp-border)")}
+                  >
+                    <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "#EEF2FF", color: "#4338CA", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Settings size={20} />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <span style={{ fontSize: "15px", fontWeight: 600, color: "var(--wp-text-primary)" }}>Site settings & branding</span>
+                      <span style={{ fontSize: "13px", color: "var(--wp-text-muted)", lineHeight: 1.45 }}>Contact details, logo icon transparency, social links and auto-posts.</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
 
               {/* TELEMETRY HUD BAR */}
               <div className="telemetry-hud-strip">
