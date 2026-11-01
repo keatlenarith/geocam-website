@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useI18n } from "@/lib/i18n";
 import listedCompaniesData from "../../../data/listed-companies.json" with { type: "json" };
 import { ExternalLink, X, Building2, MapPin, Layers, Calendar, AlertCircle } from "lucide-react";
@@ -30,8 +30,24 @@ export function ListedCompaniesRibbon() {
   const { lang } = useI18n();
   const kh = lang === "km";
   const [selectedCompany, setSelectedCompany] = useState<ListedCompany | null>(null);
+  const [companies, setCompanies] = useState<ListedCompany[]>(listedCompaniesData as ListedCompany[]);
 
-  const companies = listedCompaniesData as ListedCompany[];
+  // Fetch latest quotes from /api/listed-companies (ASX & Yahoo Finance)
+  useEffect(() => {
+    let active = true;
+    fetch("/api/listed-companies")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (active && data?.companies && Array.isArray(data.companies) && data.companies.length >= 7) {
+          setCompanies(data.companies);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
   // Duplicate items for continuous seamless loop
   const duplicatedItems = [...companies, ...companies];
 
