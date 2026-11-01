@@ -1,5 +1,22 @@
 [
   {
+    "exchange": "INDEX",
+    "ticker": "DJI",
+    "company_en": "Dow Jones Industrial Average (United States)",
+    "company_kh": "សន្ទស្សន៍ Dow Jones Industrial Average (សហរដ្ឋអាមេរិក)",
+    "asset_en": "Global benchmark index tracking 30 prominent companies",
+    "asset_kh": "សន្ទស្សន៍គោលសកលតាមដានក្រុមហ៊ុនឈានមុខទាំង ៣០ នៅសហរដ្ឋអាមេរិក",
+    "province": "Global / US",
+    "commodity": "Market Index",
+    "status": "producing",
+    "price": "51,770.31",
+    "change": "-1.09%",
+    "isPositive": false,
+    "note": "Reference example index requested for financial market monitoring.",
+    "sourceUrl": "https://www.spglobal.com/spdji/en/indices/equity/dow-jones-industrial-average/",
+    "lastChecked": "2026-10-31"
+  },
+  {
     "exchange": "ASX",
     "ticker": "EMR",
     "company_en": "Emerald Resources",

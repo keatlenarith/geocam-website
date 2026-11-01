@@ -17,6 +17,9 @@ export interface ListedCompany {
   sourceUrl?: string;
   lastChecked: string;
   unverified?: boolean;
+  price?: string;
+  change?: string;
+  isPositive?: boolean;
 }
 
 export function ListedCompaniesRibbon() {
@@ -130,6 +133,26 @@ export function ListedCompaniesRibbon() {
                       {item.province ? `, ${item.province}` : ""}
                     </span>
 
+                    {/* Live / Stored Share Price or Index Value (if present) */}
+                    {item.price && (
+                      <span className="inline-flex items-center gap-1 font-mono text-[11px] font-bold">
+                        <span className="text-slate-100">{item.price}</span>
+                        {item.change && (
+                          <span
+                            className={
+                              item.isPositive
+                                ? "text-emerald-400 font-semibold"
+                                : item.isPositive === false
+                                ? "text-rose-400 font-semibold"
+                                : "text-slate-400 font-semibold"
+                            }
+                          >
+                            ({item.change})
+                          </span>
+                        )}
+                      </span>
+                    )}
+
                     {/* Status Dot */}
                     <span
                       className={`inline-block h-2 w-2 rounded-full ${statusDot.color}`}
@@ -206,6 +229,24 @@ export function ListedCompaniesRibbon() {
                   <h3 className="mt-1 text-lg font-bold text-white">
                     {kh ? selectedCompany.company_kh : selectedCompany.company_en}
                   </h3>
+                  {selectedCompany.price && (
+                    <div className="mt-1 flex items-center gap-2 font-mono text-xs">
+                      <span className="font-bold text-white">{selectedCompany.price}</span>
+                      {selectedCompany.change && (
+                        <span
+                          className={`font-semibold ${
+                            selectedCompany.isPositive
+                              ? "text-emerald-400"
+                              : selectedCompany.isPositive === false
+                              ? "text-rose-400"
+                              : "text-slate-400"
+                          }`}
+                        >
+                          ({selectedCompany.change})
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
               <button
