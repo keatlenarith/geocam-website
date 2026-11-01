@@ -15,10 +15,6 @@ const SYMBOL_MAP: Record<string, string> = {
   EMR: "EMR.AX",
   ANK: "ANK.V",
   UM1: "UM1.AX",
-  "0914 / 600585": "0914.HK",
-  "06655": "6655.HK",
-  "3918": "3918.HK",
-  SCCC: "SCCC.BK",
 };
 
 async function fetchYahooQuote(symbol: string): Promise<QuoteResult | null> {

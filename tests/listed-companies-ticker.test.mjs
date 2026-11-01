@@ -12,16 +12,12 @@ test("ListedCompaniesRibbon: data file exists and contains all required items an
   const raw = fs.readFileSync(filePath, "utf8");
   const data = JSON.parse(raw);
   assert.equal(Array.isArray(data), true);
-  assert.equal(data.length >= 7, true, "Must have at least 7 listed companies");
+  assert.equal(data.length >= 3, true, "Must have active mineral exploration and mining listed companies");
 
   const tickers = data.map((d) => d.ticker);
   assert.equal(tickers.includes("EMR"), true);
   assert.equal(tickers.includes("UM1"), true);
   assert.equal(tickers.includes("ANK"), true);
-  assert.equal(tickers.some((t) => t.includes("600585")), true);
-  assert.equal(tickers.includes("06655"), true);
-  assert.equal(tickers.includes("SCCC"), true);
-  assert.equal(tickers.includes("3918"), true);
 
   for (const item of data) {
     assert.ok(item.exchange, "exchange is required");
