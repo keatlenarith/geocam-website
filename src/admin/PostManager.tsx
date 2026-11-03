@@ -8,7 +8,7 @@ import {
   SEED_UUID_MAP,
   type NewsItem,
 } from "../lib/news-service";
-import { cleanPostHtml } from "./posts";
+import { cleanPostHtml, safeCover } from "./posts";
 import { FOCUS_TOPICS, type FocusTopic } from "../features/research/focus-topics-data";
 import { defaultPageData } from "./page-data";
 import { supabase } from "../lib/supabase";
@@ -760,6 +760,9 @@ export default function PostManager() {
       setViewModeEn("code");
       setViewModeKm("code");
       try {
+        localStorage.removeItem("geocam_active_new_post_draft");
+      } catch {}
+      try {
         const u = new URL(window.location.href);
         if (u.searchParams.has("edit") || u.searchParams.has("new")) {
           u.searchParams.delete("edit");
@@ -843,6 +846,31 @@ export default function PostManager() {
     }
   }, [editorMode, activeLang, editingItem, isNew]);
 
+  // Persist uncompleted new post draft to prevent wiping across tabs or refreshes
+  useEffect(() => {
+    if (isNew) {
+      if (title.trim() || content.trim()) {
+        try {
+          localStorage.setItem(
+            "geocam_active_new_post_draft",
+            JSON.stringify({
+              title,
+              titleKm,
+              tag,
+              date,
+              image,
+              excerpt,
+              excerptKm,
+              content,
+              contentKm,
+              status,
+            })
+          );
+        } catch {}
+      }
+    }
+  }, [isNew, title, titleKm, tag, date, image, excerpt, excerptKm, content, contentKm, status]);
+
   useEffect(() => {
     const handleOpenNewPost = () => openNew();
     const handleOpenEditPageId = (e: Event) => {
@@ -874,26 +902,33 @@ export default function PostManager() {
   }, [unifiedItems]);
 
   const openNew = () =>
-    guard(() =>
-      populate(
-        {
-          id: "",
-          kind: "news",
-          title: "",
-          titleKm: "",
-          tag: "Education",
-          date: new Date().toISOString().slice(0, 10),
-          image: "",
-          excerpt: "",
-          excerptKm: "",
-          content: "",
-          contentKm: "",
-          status: "draft",
-          updatedAt: "",
-        },
-        true,
-      ),
-    );
+    guard(() => {
+      let draftData = {
+        id: "",
+        kind: "news" as ContentKind,
+        title: "",
+        titleKm: "",
+        tag: "Education",
+        date: new Date().toISOString().slice(0, 10),
+        image: "",
+        excerpt: "",
+        excerptKm: "",
+        content: "",
+        contentKm: "",
+        status: "draft" as const,
+        updatedAt: "",
+      };
+      try {
+        const savedDraft = localStorage.getItem("geocam_active_new_post_draft");
+        if (savedDraft) {
+          const parsed = JSON.parse(savedDraft);
+          if (parsed && (parsed.title || parsed.content)) {
+            draftData = { ...draftData, ...parsed };
+          }
+        }
+      } catch {}
+      populate(draftData, true);
+    });
 
   const openEdit = (item: UnifiedContentItem) =>
     guard(() => {
@@ -929,14 +964,8 @@ export default function PostManager() {
     setError("");
     setMessage("");
     try {
-      // If cover image is not manually specified, automatically extract the first image from content
-      let effectiveImage = image.trim();
-      if (!effectiveImage) {
-        const bodyMatch = (content || contentKm).match(/<img[^>]+src=["']([^"']+)["']/i);
-        if (bodyMatch && bodyMatch[1]) {
-          effectiveImage = bodyMatch[1].trim();
-        }
-      }
+      // If cover image is not manually specified or is placeholder, automatically extract the first content photo
+      const effectiveImage = safeCover(image.trim(), content || contentKm);
 
       if (editingKind === "news") {
         const saved = await saveNewsItem(
@@ -957,6 +986,9 @@ export default function PostManager() {
         );
         if (!mounted.current) return false;
         state.current.dirty = false;
+        try {
+          localStorage.removeItem("geocam_active_new_post_draft");
+        } catch {}
         const unifiedSaved = newsToUnifiedItem(saved);
         populate(unifiedSaved, false);
         setNewsItems((rows) => [
@@ -1273,8 +1305,19 @@ export default function PostManager() {
         : contentTextareaRef.current;
       const val = isKm ? contentKm : content;
       const setter = isKm ? setContentKm : setContent;
-      const figureHtml = `\n<figure class="geocam-figure my-6 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs text-center">\n  <div class="geocam-img-box w-full overflow-hidden rounded-xl bg-white shadow-xs flex items-center justify-center">\n    <img src="${compressed}" alt="${photoAltInput || "Geological photo"}" class="w-full max-w-full h-auto max-h-[480px] object-contain rounded-xl mx-auto block" />\n  </div>\n  <figcaption class="mt-2.5 text-xs text-center text-slate-600 italic px-2 leading-relaxed">${photoCaptionInput || "Photo caption"}</figcaption>\n</figure>\n`;
+      // Prompt for caption if caption input is empty
+      let captionToUse = photoCaptionInput.trim();
+      if (!captionToUse) {
+        const userPrompt = window.prompt("Enter caption for uploaded photo (or leave empty):", "");
+        if (userPrompt !== null && userPrompt.trim()) {
+          captionToUse = userPrompt.trim();
+        }
+      }
+      const figureHtml = `\n<figure class="geocam-figure my-6 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs text-center">\n  <div class="geocam-img-box w-full overflow-hidden rounded-xl bg-white shadow-xs flex items-center justify-center">\n    <img src="${compressed}" alt="${photoAltInput || "Geological photo"}" class="w-full max-w-full h-auto max-h-[480px] object-contain rounded-xl mx-auto block" />\n  </div>\n  <figcaption class="mt-2.5 text-xs text-center text-slate-600 italic px-2 leading-relaxed">${captionToUse || "Photo caption"}</figcaption>\n</figure>\n`;
       insertHtmlAtCursor(textarea, figureHtml, "", "", val, setter);
+      if (editorMode === "visual" && contentVisualRef.current) {
+        contentVisualRef.current.innerHTML = (val ? val + "\n" : "") + figureHtml;
+      }
       setActiveInserter(null);
       setPhotoUrlInput("");
       setPhotoCaptionInput("");

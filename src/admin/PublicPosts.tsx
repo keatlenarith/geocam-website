@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useI18n } from "../lib/i18n";
 import { Link } from "../lib/spa-router";
 import { supabase } from "../lib/supabase";
+import { Share2, Check } from "lucide-react";
 import {
   postBody,
   postText,
@@ -231,6 +232,23 @@ export default function PublicPostReader() {
                   {postText(post.summaryEn, post.summaryKm, lang)}
                 </p>
               )}
+              {/* Share actions */}
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const origin = typeof window !== "undefined" ? window.location.origin : "https://geocam-website.vercel.app";
+                    const shareEndpoint = `${origin}/api/share?id=${encodeURIComponent(post.id)}`;
+                    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareEndpoint)}`;
+                    window.open(fbUrl, "_blank", "noopener,noreferrer,width=620,height=580");
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50/70 px-3 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-100 transition shadow-xs"
+                  title="Share this article on Facebook"
+                >
+                  <Share2 size={13} />
+                  <span>{lang === "km" ? "ចែករំលែក" : "Share"}</span>
+                </button>
+              </div>
             </div>
 
             {safeCover(post.cover, post.bodyEn || post.bodyKm) && (

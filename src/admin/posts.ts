@@ -19,19 +19,87 @@ export type Post = {
 };
 export const cleanPostHtml = (html: string) =>
   DOMPurify.sanitize(html, { USE_PROFILES: { html: true, svg: true } });
+
+const isBlankOrAdPlaceholder = (src: string): boolean => {
+  if (!src) return true;
+  const s = src.toLowerCase();
+  if (
+    s.includes("blank.gif") ||
+    s.includes("pixel.gif") ||
+    s.includes("servedbyadbutler") ||
+    s.includes("adbutler") ||
+    s.includes("1x1") ||
+    s.includes("spacer.gif")
+  ) {
+    return true;
+  }
+  // Single pixel transparent base64 GIF check
+  if (
+    s.startsWith("data:image/gif;base64,r0lgodlhaqaba") ||
+    s === "data:image/gif;base64,r0lgodlhaqabaaaaaach5baekaaealaaaaaabaaeaaaictaeaow=="
+  ) {
+    return true;
+  }
+  return false;
+};
+
+const isGenericPlaceholderCover = (url: string): boolean => {
+  if (!url) return true;
+  return (
+    url.includes("photo-1544620347-c4fd4a3d5957") ||
+    isBlankOrAdPlaceholder(url)
+  );
+};
+
 export const extractFirstImage = (html: string): string => {
   if (!html) return "";
-  const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
-  return match && match[1] ? match[1].trim() : "";
+  const regex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(html)) !== null) {
+    const fullTag = match[0].toLowerCase();
+    const src = match[1] ? match[1].trim() : "";
+    if (!src) continue;
+    // Skip 0 width or 0 height tracker pixels
+    if (
+      fullTag.includes('width="0"') ||
+      fullTag.includes("width='0'") ||
+      fullTag.includes('height="0"') ||
+      fullTag.includes("height='0'")
+    ) {
+      continue;
+    }
+    if (isBlankOrAdPlaceholder(src)) {
+      continue;
+    }
+    return src;
+  }
+  return "";
 };
+
 export const safeCover = (url: string, contentHtml?: string) => {
+  // If content has an actual image and the current URL is missing or is the default bus/ad placeholder, prefer content image
+  if (contentHtml) {
+    const extracted = extractFirstImage(contentHtml);
+    if (
+      extracted &&
+      (/^https?:\/\//i.test(extracted) ||
+        /^\/(?!\/)/.test(extracted) ||
+        /^data:image\/(png|jpeg|webp|gif);base64,/i.test(extracted))
+    ) {
+      if (!url || isGenericPlaceholderCover(url)) {
+        return extracted;
+      }
+    }
+  }
+
   const direct =
     /^https?:\/\//i.test(url) ||
     /^\/(?!\/)/.test(url) ||
     /^data:image\/(png|jpeg|webp|gif);base64,/i.test(url)
       ? url
       : "";
-  if (direct) return direct;
+  if (direct && !isGenericPlaceholderCover(direct)) return direct;
+
   if (contentHtml) {
     const extracted = extractFirstImage(contentHtml);
     if (
@@ -42,7 +110,7 @@ export const safeCover = (url: string, contentHtml?: string) => {
       return extracted;
     }
   }
-  return "";
+  return direct;
 };
 export const postText = (english: string, khmer: string, lang: string) =>
   lang === "km" ? khmer || translateText(english) : english;

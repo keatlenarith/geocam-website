@@ -46,6 +46,7 @@ import {
   Move,
   Maximize2,
   Minimize2,
+  Trash2,
 } from "lucide-react";
 export type TranslationStatus = "Draft" | "Needs Review" | "Approved";
 
@@ -932,6 +933,7 @@ export function VisualCmsLayer({ page }: { page: string }) {
   const insertBlock = (
     type: "paragraph" | "heading" | "image" | "table" | "chart" | "callout",
     customImageUrl?: string,
+    initialCaption?: string,
   ) => {
     const blockId = "block-" + Date.now();
     let blockHtml = "";
@@ -952,13 +954,14 @@ export function VisualCmsLayer({ page }: { page: string }) {
       const src =
         customImageUrl ||
         "/images/rock-atlas/CAM_GDP_0050_BMC1901a_1.jpg";
+      const cap = (initialCaption || "Photo description and geological field notes").trim();
       // Uncapped image expansion (object-fit: contain, no arbitrary height cap, fully resizable)
       blockHtml = `
         <figure class="geocam-figure my-6 mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-xs text-center geocam-inserted-block geocam-draggable-block" draggable="true" data-block-id="${blockId}">
           <div class="geocam-img-box w-full overflow-hidden rounded-xl bg-white shadow-xs flex items-center justify-center">
             <img src="${src}" alt="Inserted geological photo" class="w-full max-w-full h-auto max-h-[480px] object-contain rounded-xl mx-auto block geocam-editable" data-cms-key="inserted-img-${blockId}" data-fit-mode="contain" />
           </div>
-          <figcaption class="mt-2.5 text-xs text-center text-slate-600 italic px-2 leading-relaxed geocam-editable" data-cms-key="inserted-cap-${blockId}">Photo description and geological field notes</figcaption>
+          <figcaption class="mt-2.5 text-xs text-center text-slate-600 italic px-2 leading-relaxed geocam-editable" data-cms-key="inserted-cap-${blockId}">${cap}</figcaption>
         </figure>
       `;
     } else if (type === "table") {
@@ -1123,7 +1126,8 @@ export function VisualCmsLayer({ page }: { page: string }) {
     if (!file) return;
     try {
       const dataUrl = await optimizeImage(file);
-      insertBlock("image", dataUrl);
+      const userCap = window.prompt("Enter caption for uploaded photo (or leave blank):", "");
+      insertBlock("image", dataUrl, userCap !== null && userCap.trim() ? userCap.trim() : "Photo description and geological field notes");
     } catch {
       setNotice("Failed to load image file.");
     } finally {
@@ -2273,10 +2277,55 @@ export function VisualCmsLayer({ page }: { page: string }) {
               </button>
             </div>
 
-            {/* Target Location Badge & Translation Status Indicator */}
+            {/* Target Location Badge, Delete Action & Translation Status Indicator */}
             {targetLocation ? (
               <div className="flex items-center gap-1.5 bg-blue-900/60 text-blue-200 border border-blue-500/50 px-2.5 py-1 rounded-lg text-xs font-mono">
                 <span>📍 Target: &lt;{targetLocation.tagName}&gt;</span>
+                {/* Delete / Remove Selected Text or Block button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!targetLocation) return;
+                    const confirmDel = window.confirm(
+                      `Are you sure you want to delete this <${targetLocation.tagName}> text block from the page?`
+                    );
+                    if (!confirmDel) return;
+
+                    const key = targetLocation.key;
+                    // Persist empty removal marker
+                    const entry: Entry = {
+                      kind: "text",
+                      value: "__removed__",
+                    };
+                    persistEntry(key, entry);
+
+                    // If it was an inserted block, also remove from insertedBlocks array
+                    setInsertedBlocks((prev) =>
+                      prev.filter((b) => b.id !== key && !b.html.includes(key))
+                    );
+
+                    // Remove or hide from DOM immediately
+                    const main = document.getElementById("main");
+                    const el = main?.querySelector<HTMLElement>(
+                      `[data-cms-key="${key}"], .geocam-target-active`
+                    );
+                    if (el) {
+                      el.textContent = "";
+                      el.style.setProperty("display", "none", "important");
+                      el.style.setProperty("margin", "0", "important");
+                      el.style.setProperty("padding", "0", "important");
+                      el.style.setProperty("height", "0", "important");
+                      el.classList.remove("geocam-target-active");
+                    }
+                    setTargetLocation(null);
+                    setNotice("Text / block deleted. Click 'Publish Live' to push to public visitors.");
+                  }}
+                  className="flex items-center gap-1 bg-red-600/80 hover:bg-red-600 text-white font-sans font-bold px-2 py-0.5 rounded text-[11px] shadow-xs transition"
+                  title="Delete this text element or block from the page"
+                >
+                  <Trash2 size={12} />
+                  <span>Delete Text</span>
+                </button>
                 {(() => {
                   const kmE = active[kmSpace]?.[targetLocation.key];
                   const st = kmE?.status || (kmE?.manuallyEdited ? "Approved" : "Draft");
@@ -2517,7 +2566,8 @@ export function VisualCmsLayer({ page }: { page: string }) {
                     "Click OK to insert default geological photo in Fit Mode, or Cancel to choose local image file from device.",
                   );
                   if (choice) {
-                    insertBlock("image");
+                    const cap = window.prompt("Enter photo caption (optional):", "Photo description and geological field notes");
+                    insertBlock("image", undefined, cap !== null && cap.trim() ? cap.trim() : "Photo description and geological field notes");
                   } else {
                     insertFileInputRef.current?.click();
                   }
