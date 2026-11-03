@@ -101,7 +101,9 @@ export async function fetchNewsDrafts(): Promise<NewsItem[]> {
   draftCache = (await fetchPostDrafts())
     .filter((post) => post.type === "news")
     .map(fromPost);
-  return [...draftCache, ...getFilteredSeeds(draftCache)];
+  return [...draftCache, ...getFilteredSeeds(draftCache)].sort((a, b) =>
+    (b.date || b.updatedAt || "").localeCompare(a.date || a.updatedAt || "")
+  );
 }
 export async function fetchPublicNews(): Promise<NewsItem[]> {
   if (pending) return pending;
@@ -110,7 +112,9 @@ export async function fetchPublicNews(): Promise<NewsItem[]> {
       publicCache = posts.filter((post) => post.type === "news").map(fromPost);
       loaded = true;
       announce();
-      return [...publicCache, ...getFilteredSeeds(publicCache)];
+      return [...publicCache, ...getFilteredSeeds(publicCache)].sort((a, b) =>
+        (b.date || b.updatedAt || "").localeCompare(a.date || a.updatedAt || "")
+      );
     })
     .finally(() => {
       pending = null;
@@ -121,10 +125,14 @@ export async function fetchPublicNews(): Promise<NewsItem[]> {
 // compatibility cache is memory-only; it never reads browser publication data.
 export function getPublishedNews(): NewsItem[] {
   if (!loaded && !pending) void fetchPublicNews().catch(() => {});
-  return [...publicCache, ...getFilteredSeeds(publicCache)];
+  return [...publicCache, ...getFilteredSeeds(publicCache)].sort((a, b) =>
+    (b.date || b.updatedAt || "").localeCompare(a.date || a.updatedAt || "")
+  );
 }
 export function getAllNews(): NewsItem[] {
-  return [...draftCache, ...getFilteredSeeds(draftCache)];
+  return [...draftCache, ...getFilteredSeeds(draftCache)].sort((a, b) =>
+    (b.date || b.updatedAt || "").localeCompare(a.date || a.updatedAt || "")
+  );
 }
 export const loadStoredNews = getPublishedNews;
 export async function getNewsById(id: string): Promise<NewsItem | undefined> {

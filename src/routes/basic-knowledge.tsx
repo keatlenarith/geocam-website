@@ -183,7 +183,10 @@ export default function BasicKnowledge() {
     const existingIds = new Set(BASIC_KNOWLEDGE_ARTICLES.map((a) => a.id));
     const filteredExtra = extraArticles.filter((a) => !existingIds.has(a.id));
 
-    return [...BASIC_KNOWLEDGE_ARTICLES, ...filteredExtra];
+    // Sort newest articles first so latest publications and posts appear at the top
+    return [...filteredExtra, ...BASIC_KNOWLEDGE_ARTICLES].sort((a, b) =>
+      (b.date || "").localeCompare(a.date || "")
+    );
   }, [publicPosts]);
 
   const filteredArticles = useMemo(() => {

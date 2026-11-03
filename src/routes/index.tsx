@@ -6,7 +6,7 @@ import { useCms } from "@/visual-cms/VisualCms";
 import { useAdmin } from "@/admin/Auth";
 import { researchAreas } from "@/lib/data";
 import { getStoredEvents } from "@/lib/event-service";
-import { getPublishedNews, type NewsItem } from "@/lib/news-service";
+import { getPublishedNews, fetchPublicNews, type NewsItem } from "@/lib/news-service";
 import { safeCover } from "@/admin/posts";
 import { meta } from "@/components/site/Chrome";
 import { LiveTickerRibbon } from "@/components/site/LiveTickerRibbon";
@@ -523,12 +523,20 @@ function Home() {
   } = useEarthquakes({ timeWindow: "7d" });
 
   useEffect(() => {
+    let alive = true;
+    fetchPublicNews()
+      .then((items) => {
+        if (alive && items.length > 0) setNewsList(items);
+      })
+      .catch(() => {});
+
     const handleUpdate = () => setNewsList(getPublishedNews());
     const handleEventsSync = () => setHomeEvents(getStoredEvents());
     window.addEventListener("geocam_events_changed", handleEventsSync);
     window.addEventListener("storage", handleEventsSync);
     window.addEventListener("geocam:news-updated", handleUpdate);
     return () => {
+      alive = false;
       window.removeEventListener("geocam:news-updated", handleUpdate);
       window.removeEventListener("geocam_events_changed", handleEventsSync);
       window.removeEventListener("storage", handleEventsSync);
