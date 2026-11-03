@@ -7,6 +7,7 @@ import { useAdmin } from "@/admin/Auth";
 import { researchAreas } from "@/lib/data";
 import { getStoredEvents } from "@/lib/event-service";
 import { getPublishedNews, type NewsItem } from "@/lib/news-service";
+import { safeCover } from "@/admin/posts";
 import { meta } from "@/components/site/Chrome";
 import { LiveTickerRibbon } from "@/components/site/LiveTickerRibbon";
 import { ListedCompaniesRibbon } from "@/components/site/ListedCompaniesRibbon";
@@ -602,7 +603,7 @@ function Home() {
 </section>
 <HomeVideoPlaylist />
 <section className="gc-section gc-updates"><div className="mx-auto max-w-[1800px] px-5"><span className="gc-kicker"><CalendarDays size={15}/> {lang === "km" ? "សហគមន៍" : "COMMUNITY"}</span><h2 className="gc-title mt-5">{c.updates}</h2><p className="gc-subtitle">{c.updatesSub}</p><div className="mt-10 grid gap-10 lg:grid-cols-[1.6fr_1fr]"><div><div className="flex items-center justify-between"><h3 className="text-xl font-semibold">{c.latest}</h3><Link to="/news" className="gc-text-link">{c.all}<ArrowUpRight size={16}/></Link></div><div className="mt-5 grid gap-4 md:grid-cols-2">{newsList.slice(0, 4).map(n => {
-  const effectiveCover = n.image || (n.content ? (n.content.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] || "") : "") || "/images/cms/mission-image.jpg";
+  const effectiveCover = safeCover(n.image, n.content || n.contentKm) || "/images/cms/mission-image.jpg";
   return (
   <Link to={"/news/item?id=" + encodeURIComponent(n.id)} key={n.id} className="gc-news-card group block overflow-hidden rounded-xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
     <div className="relative mb-4 h-48 w-full overflow-hidden rounded-lg bg-slate-100">
